@@ -1,15 +1,14 @@
-import { Store } from "@prisma/client";
-
 import { z } from "@/lib/zod";
 
-export const storeSchema = z.object<
-  Record<keyof Omit<Store, "createdAt">, any>
->({
-  id: z.stringRequired("id"),
-  userId: z.stringRequired("userId"),
-  name: z.stringRequired("name"),
-  deletedAt: z.date("deleted at"),
-});
+export const storeSchema = z.object(
+  // <Record<keyof Omit<Store, "createdAt">, any> >
+  {
+    id: z.stringRequired("id"),
+    userId: z.stringRequired("userId"),
+    name: z.stringRequired("name"),
+    deletedAt: z.date("deleted at"),
+  }
+);
 
 export const storeCreateSchema = storeSchema.pick({
   name: true,
