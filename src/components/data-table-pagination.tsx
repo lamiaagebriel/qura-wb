@@ -34,7 +34,7 @@ export function DataTablePagination<TData>({
         <div className="flex items-center gap-2">
           <Select
             value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
+            onValueChange={(value: string) => {
               table.setPageSize(Number(value));
             }}
           >

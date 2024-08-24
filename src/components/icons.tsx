@@ -6,6 +6,7 @@ import {
   Loader2,
   LogOut,
   Moon,
+  PackageOpen,
   Store,
   Sun,
   User,
@@ -55,6 +56,9 @@ export const Icons = {
   ),
   grid: ({ className, children, ...props }: IconProps) => (
     <DashboardIcon className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  empty: ({ className, ...props }: IconProps) => (
+    <PackageOpen className={cn(IconsVariants({}), className)} {...props} />
   ),
   store: ({ className, ...props }: IconProps) => (
     <Store className={cn(IconsVariants({}), className)} {...props} />
