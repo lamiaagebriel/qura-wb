@@ -1,9 +1,11 @@
 "use server";
 
+import { cookies, headers } from "next/headers";
+
+import { hash as Hash, verify as Verify } from "@node-rs/argon2";
+
 import { i18n } from "@/lib/locale";
 import { Locale } from "@/types/locale";
-import { hash as Hash, verify as Verify } from "@node-rs/argon2";
-import { cookies, headers } from "next/headers";
 
 export async function getHeader(key: string) {
   return headers().get(key) || "";

@@ -1,8 +1,10 @@
-import { DashboardLayout } from "@/components/dashboard-layout";
+import { Metadata } from "next";
+
 import { getAuth } from "@/lib/auth";
 import { getDictionary } from "@/lib/dictionaries";
 import { LocaleProps } from "@/types/locale";
-import { Metadata } from "next";
+
+import { DashboardLayout } from "@/components/dashboard-layout";
 
 type DashboardProps = Readonly<{
   params: LocaleProps;

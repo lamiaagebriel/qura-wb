@@ -1,6 +1,7 @@
+import { redirect } from "next/navigation";
+
 import { getAuth } from "@/lib/auth";
 import { LocaleProps } from "@/types/locale";
-import { redirect } from "next/navigation";
 
 type AuthLayoutProps = Readonly<{
   children: React.ReactNode;

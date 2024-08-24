@@ -1,4 +1,5 @@
 import dictionary from "@/dictionaries/en";
+
 import { i18n } from "@/lib/locale";
 
 export type Locale = (typeof i18n)["locales"][number];

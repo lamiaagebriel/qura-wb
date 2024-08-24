@@ -6,8 +6,6 @@ module.exports = {
   singleQuote: false,
   tabWidth: 2,
   trailingComma: "es5",
-  plugins: ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
-  tailwindFunctions: ["cn", "cva"],
   importOrder: [
     "^(next/(.*)$)|^(next$)",
     "^(react/(.*)$)|^(react$)",
@@ -26,4 +24,10 @@ module.exports = {
     "^[./]",
   ],
   importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
+  plugins: [
+    "prettier-plugin-organize-imports",
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss",
+  ],
+  tailwindFunctions: ["cn", "cva"],
 };

@@ -1,8 +1,10 @@
-import { DictionaryObject, DictionaryValue, Locale } from "@/types/locale";
+import { NextRequest } from "next/server";
+
 import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
-import { NextRequest } from "next/server";
 import tl from "translate";
+
+import { DictionaryObject, DictionaryValue, Locale } from "@/types/locale";
 
 export const i18n = {
   defaultLocale: "en",

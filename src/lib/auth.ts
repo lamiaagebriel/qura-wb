@@ -1,9 +1,10 @@
+import { cookies } from "next/headers";
+import { cache } from "react";
+
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { User as dbUser } from "@prisma/client";
 import { Google } from "arctic";
 import { Lucia, Session, User } from "lucia";
-import { cookies } from "next/headers";
-import { cache } from "react";
 
 import { db } from "@/lib/db";
 import { getURL } from "@/lib/utils";

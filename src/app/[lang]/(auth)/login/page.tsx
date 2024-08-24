@@ -1,11 +1,12 @@
+import { Metadata } from "next";
 import { Suspense } from "react";
+
+import { getDictionary } from "@/lib/dictionaries";
+import { LocaleProps } from "@/types/locale";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 import { UserAuthLoginForm } from "@/components/user-auth-login-form";
-import { getDictionary } from "@/lib/dictionaries";
-import { LocaleProps } from "@/types/locale";
-import { Metadata } from "next";
 
 type LoginProps = Readonly<{
   params: LocaleProps;

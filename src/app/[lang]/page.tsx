@@ -1,8 +1,11 @@
-import { Link } from "@/components/link";
-import { getAuth } from "@/lib/auth";
-import { logout } from "@/servers/users";
-import { LocaleProps } from "@/types/locale";
 import { Metadata } from "next";
+
+import { logout } from "@/servers/users";
+
+import { getAuth } from "@/lib/auth";
+import { LocaleProps } from "@/types/locale";
+
+import { Link } from "@/components/link";
 
 type HomeProps = Readonly<{
   params: LocaleProps;

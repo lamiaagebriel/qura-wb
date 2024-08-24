@@ -1,8 +1,11 @@
-import { Locale } from "@/types/locale";
-import { clsx, type ClassValue } from "clsx";
 import { Dispatch, SetStateAction } from "react";
+
+import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+
+import { Locale } from "@/types/locale";
+
 import { t } from "./locale";
 
 export function cn(...inputs: ClassValue[]) {

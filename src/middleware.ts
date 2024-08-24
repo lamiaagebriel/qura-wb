@@ -1,5 +1,6 @@
-import { getLocale, i18n } from "@/lib/locale";
 import type { NextRequest } from "next/server";
+
+import { getLocale, i18n } from "@/lib/locale";
 
 export default async function middleware(req: NextRequest) {
   // -------------------- localization

@@ -1,6 +1,7 @@
+import { usePathname } from "next/navigation";
+
 import { i18n } from "@/lib/locale";
 import { Locale } from "@/types/locale";
-import { usePathname } from "next/navigation";
 
 export function useLocale(): Locale {
   const pathname = usePathname();

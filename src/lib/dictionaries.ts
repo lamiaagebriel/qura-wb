@@ -1,6 +1,8 @@
+import { cache } from "react";
+
 import { translateObject } from "@/lib/locale";
 import { Locale } from "@/types/locale";
-import { cache } from "react";
+
 import "server-only";
 
 const site = {

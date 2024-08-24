@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
+
 import { useLocale } from "@/hooks/use-locale";
 import { t } from "@/lib/locale";
-import { useEffect, useState } from "react";
 
 export function useTranslation(txt: string): string | null {
   const lang = useLocale();

@@ -1,7 +1,8 @@
-import { OAuth2RequestError } from "arctic";
-import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+
+import { OAuth2RequestError } from "arctic";
+import { generateIdFromEntropySize } from "lucia";
 
 import { google, lucia } from "@/lib/auth";
 import { db } from "@/lib/db";

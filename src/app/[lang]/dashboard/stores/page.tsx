@@ -1,9 +1,11 @@
+import { Metadata } from "next";
+
+import { getDictionary } from "@/lib/dictionaries";
+import { LocaleProps } from "@/types/locale";
+
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StoreCreateButton } from "@/components/store-create-button";
 import { Button } from "@/components/ui/button";
-import { getDictionary } from "@/lib/dictionaries";
-import { LocaleProps } from "@/types/locale";
-import { Metadata } from "next";
 
 type StoresProps = Readonly<{
   params: LocaleProps;

@@ -1,4 +1,5 @@
 import { Icons } from "@/components/icons";
+
 export type NavItem = {
   segment?: string | null;
   value: string;

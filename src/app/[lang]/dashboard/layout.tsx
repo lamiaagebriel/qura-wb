@@ -1,9 +1,11 @@
-import { ResizableLayout } from "@/components/resizable-layout";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
 import { getAuth } from "@/lib/auth";
 import { getDictionary } from "@/lib/dictionaries";
 import { LocaleProps } from "@/types/locale";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+
+import { ResizableLayout } from "@/components/resizable-layout";
 
 type DashboardLayoutProps = Readonly<{
   children: React.ReactNode;
