@@ -25,6 +25,8 @@ model User {
 
   createdAt DateTime @default(now())
 
+  Store Store[]
+
   @@map("users")
 }
 
@@ -35,4 +37,16 @@ model Session {
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Store {
+  id     String @id @map("_id")
+  userId String
+  name   String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@map("stores")
 }

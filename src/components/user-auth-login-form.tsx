@@ -12,6 +12,7 @@ import { Form } from "@/components/ui/form";
 import { UserForm } from "@/components/user-form";
 import { useLocale } from "@/hooks/use-locale";
 import { t } from "@/lib/locale";
+import { toastPromise } from "@/lib/utils";
 import { signInWithGoogle, signInWithPassword } from "@/servers/users";
 import { Dictionary } from "@/types/locale";
 import { userAuthLoginSchema } from "@/validations/users";
@@ -33,19 +34,11 @@ export function UserAuthLoginForm({
   });
 
   async function onSubmit(data: z.infer<typeof userAuthLoginSchema>) {
-    try {
-      setLoading(true);
-      const res = await signInWithPassword(data);
-
-      if (res?.["error"]) {
-        const msg = await t(res?.["error"], lang);
-        toast.error(msg);
-        return;
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    await toastPromise(
+      async () => await signInWithPassword(data),
+      setLoading,
+      lang
+    );
   }
   return (
     <>

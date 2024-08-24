@@ -1,5 +1,9 @@
+import { Locale } from "@/types/locale";
 import { clsx, type ClassValue } from "clsx";
+import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+import { t } from "./locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,4 +31,28 @@ export const getURL = (path: string = "") => {
 
   // Concatenate the URL and the path.
   return path ? `${url}/${path}` : url;
+};
+
+export const toastPromise = async (
+  func: () => Promise<any>,
+  setLoading: Dispatch<SetStateAction<boolean>>,
+  locale: Locale
+) => {
+  try {
+    setLoading(true);
+    const res = await func();
+
+    if (res?.["error"]) {
+      const msg = await t(res?.["error"], locale);
+      toast.error(msg);
+      return null;
+    }
+
+    return res?.["data"] ?? null;
+  } catch (err: any) {
+    toast.error(err?.["message"]);
+    return null;
+  } finally {
+    setLoading(false);
+  }
 };

@@ -22,6 +22,9 @@ type RootLayoutProps = Readonly<{
   params: LocaleProps;
 }>;
 
+export async function generateStaticParams() {
+  return i18n.locales.map((locale) => ({ lang: locale }));
+}
 export async function generateMetadata({
   params: { lang },
 }: Readonly<{
@@ -34,10 +37,6 @@ export async function generateMetadata({
     description: c?.["description"],
   };
 }
-export async function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ lang: locale }));
-}
-
 export default async function RootLayout({
   children,
   params: { lang },
@@ -49,7 +48,7 @@ export default async function RootLayout({
       lang={lang}
       dir={lang === "ar" ? "rtl" : "ltr"}
       className={cn(
-        "leading-relaxed tracking-tight",
+        // "leading-relaxed tracking-tight",
         lang === "ar" ? cairo?.["className"] : inter?.["className"]
       )}
       suppressHydrationWarning
@@ -61,7 +60,7 @@ export default async function RootLayout({
               {/* eslint-disable-next-line react/no-unknown-property */}
               <div
                 vaul-drawer-wrapper=""
-                className="flex h-screen flex-col overflow-hidden bg-background"
+                className="flex min-h-screen flex-col bg-background"
               >
                 {children}
               </div>

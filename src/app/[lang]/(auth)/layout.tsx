@@ -12,7 +12,7 @@ export default async function AuthLayout({
   params: { lang },
 }: AuthLayoutProps) {
   const { user } = await getAuth();
-  if (user) redirect(`/${lang}`);
+  if (user) redirect(`/${lang}/dashboard`);
 
-  return <div className="flex min-h-screen flex-col">{children}</div>;
+  return <div className="flex flex-1 flex-col">{children}</div>;
 }

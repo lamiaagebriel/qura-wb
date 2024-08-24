@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
       return new Response(null, {
         status: 302,
         headers: {
-          Location: `/${locale}`,
+          Location: `/${locale}/dashboard`,
         },
       });
     }
@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: `/${locale}`,
+        Location: `/${locale}/dashboard`,
       },
     });
   } catch (error) {

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Icons } from "@/components/icons";
-import { Image } from "@/components/image";
 import { Link } from "@/components/link";
 import { UserAuthRegisterForm } from "@/components/user-auth-register-form";
 import { getDictionary } from "@/lib/dictionaries";
@@ -79,31 +78,17 @@ export default async function Register({ params: { lang } }: RegisterProps) {
 
       <section className="container mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <div className="mb-10">
-            <Image
-              src="https://images.unsplash.com/photo-1649518325538-0e1a1e8c63db?q=80&w=1930&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt=""
-              className="border-none bg-transparent"
-            />
-          </div>
-          {/* 
           <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome Back! 🎉
-          </h1> */}
-          {/* <p className="text-sm text-muted-foreground">
-            Join our community and unlock amazing features to streamline your
-            work and boost your productivity.
-          </p> */}
-        </div>
-        {/* <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Create an account! 🎉
+            {c?.["create an account!"]} 🎉
           </h1>
           <p className="text-sm text-muted-foreground">
-            Join our community and unlock amazing features to streamline your
-            work and boost your productivity.
+            {
+              c?.[
+                "join our community and unlock amazing features to streamline your work and boost your productivity."
+              ]
+            }
           </p>
-        </div> */}
+        </div>
         <div className="grid gap-4">
           <Suspense>
             <UserAuthRegisterForm dic={dic} />

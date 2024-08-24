@@ -4,13 +4,16 @@ import {
   Globe,
   Laptop,
   Loader2,
+  LogOut,
   Moon,
+  Store,
   Sun,
   User,
   type LucideProps,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { DashboardIcon } from "@radix-ui/react-icons";
 
 export const IconsVariants = cva("h-4 w-4 shrink-0");
 export type IconProps = {} & LucideProps & VariantProps<typeof IconsVariants>;
@@ -49,6 +52,15 @@ export const Icons = {
       className={cn(IconsVariants({}), "animate-spin", className)}
       {...props}
     />
+  ),
+  grid: ({ className, children, ...props }: IconProps) => (
+    <DashboardIcon className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  store: ({ className, ...props }: IconProps) => (
+    <Store className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  logout: ({ className, ...props }: IconProps) => (
+    <LogOut className={cn(IconsVariants({}), className)} {...props} />
   ),
   sun: ({ className, ...props }: IconProps) => (
     <Sun className={cn(IconsVariants({}), className)} {...props} />

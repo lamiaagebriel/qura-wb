@@ -12,6 +12,7 @@ import { Form } from "@/components/ui/form";
 import { UserForm } from "@/components/user-form";
 import { useLocale } from "@/hooks/use-locale";
 import { t } from "@/lib/locale";
+import { toastPromise } from "@/lib/utils";
 import { signInWithGoogle, signUpWithPassword } from "@/servers/users";
 import { Dictionary } from "@/types/locale";
 import { userAuthRegisterSchema } from "@/validations/users";
@@ -34,20 +35,27 @@ export function UserAuthRegisterForm({
   });
 
   async function onSubmit(data: z.infer<typeof userAuthRegisterSchema>) {
-    try {
-      setLoading(true);
-      const res = await signUpWithPassword(data);
-
-      if (res?.["error"]) {
-        const msg = await t(res?.["error"], lang);
-        toast.error(msg);
-        return;
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    await toastPromise(
+      async () => await signUpWithPassword(data),
+      setLoading,
+      lang
+    );
   }
+  // async function onSubmit(data: z.infer<typeof userAuthRegisterSchema>) {
+  //   try {
+  //     setLoading(true);
+  //     const res = await signUpWithPassword(data);
+
+  //     if (res?.["error"]) {
+  //       const msg = await t(res?.["error"], lang);
+  //       toast.error(msg);
+  //       return;
+  //     }
+  //   } catch (error) {
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
   return (
     <>
       <div className="grid gap-6">

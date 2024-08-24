@@ -46,7 +46,14 @@ export async function translateObject(
     if (Object.prototype.hasOwnProperty.call(value, key)) {
       // keys to skip
       if (
-        ["value", "icon", "segment", "href", ...i18n?.["locales"]].includes(key)
+        [
+          "value",
+          "icon",
+          "segment",
+          "href",
+          "indicator",
+          ...i18n?.["locales"],
+        ].includes(key)
       ) {
         translatedObject[key] = value[key];
         continue;

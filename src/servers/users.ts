@@ -54,7 +54,7 @@ export async function signUpWithPassword(
     );
 
     const locale = await getLocale();
-    return redirect(`/${locale}/login`);
+    return redirect(`/${locale}/dashboard`);
   } catch (error: any) {
     if (isRedirectError(error)) return { error };
     return { error: error?.["message"] ?? "an error occured, try again." };
@@ -63,7 +63,7 @@ export async function signUpWithPassword(
 
 export async function signInWithPassword(
   credentials: z.infer<typeof userAuthLoginSchema>
-) {
+): Promise<{ error?: string }> {
   try {
     const { email, password } = userAuthLoginSchema.parse(credentials);
     const existingUser = await db.user.findFirst({
@@ -92,9 +92,9 @@ export async function signInWithPassword(
     );
 
     const locale = await getLocale();
-    return redirect(`/${locale}`);
+    return redirect(`/${locale}/dashboard`);
   } catch (error: any) {
-    if (isRedirectError(error)) return { error };
+    if (isRedirectError(error)) return { error: error?.["message"] };
     return { error: error?.["message"] ?? "an error occured, try again." };
   }
 }
