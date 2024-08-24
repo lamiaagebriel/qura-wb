@@ -59,14 +59,49 @@ export default {
               indicator: 10,
             },
           ],
+          [
+            {
+              segment: "bin",
+              value: "/dashboard/bin",
+              label: "Bin",
+              icon: "trash",
+            },
+          ],
         ],
       } as { top?: NavItem[][]; bottom?: NavItem[][] },
       dashboard: "Dashboard",
+      bin: {
+        "main-nav": [
+          { segment: null, value: "/dashboard/bin", label: "Stores" },
+        ] as NavItem[],
+        bin: "Bin",
+        "below is a list of your deleted items. you can restore them within 30 days before they are permanently removed.":
+          "Below is a list of your deleted items. You can restore them within 30 days before they are permanently removed.",
+
+        stores: "Stores",
+      },
       stores: {
         meta: { title: "Stores" },
         stores: "Stores",
       },
     },
+  },
+  "bin-stores-table": {
+    name: "Name",
+    delete: "Delete",
+    restore: "Restore",
+    deletedAt: "Deleted At",
+  },
+
+  "dashboard-posts-bar-chart": {
+    posts: "Posts",
+    "showing total posts for the last 3 months.":
+      "Showing total posts for the last 3 months.",
+    facebook: "Facebook",
+    instagram: "Instagram",
+    linkedin: "LinkedIn",
+    twitter: "Twitter",
+    views: "Views",
   },
 
   "data-table-column-header": {
@@ -91,6 +126,7 @@ export default {
   "data-table": {
     "no results.": "No Results.",
   },
+
   "locale-switcher": {
     "current locale of the website": "current locale of the website",
     en: "English (EN)",
@@ -106,6 +142,7 @@ export default {
       { value: "system", label: "System", icon: "laptop" },
     ] as SelectItem[],
   },
+
   "resizeable-layout": { logout: "Logout" },
   "responsive-dialog": {
     "are you sure you want to proceed?": "Are you sure you want to proceed?",
@@ -113,8 +150,9 @@ export default {
       "Please confirm that all the provided information is accurate. This action cannot be undone.",
     cancel: "Cancel",
   },
+
   "store-bin-button": {
-    "deleted successfully.": "deleted successfully.",
+    "moved to bin.": "moved to bin.",
     delete: "Delete",
     "delete store": "Delete Store",
     "once deleted, the store will be moved to the bin. you can manually delete it or it will be automatically removed after 30 days. if restored, everything will be reinstated as if nothing happened.":
@@ -159,6 +197,7 @@ export default {
     edit: "Edit",
     delete: "Delete",
   },
+
   "user-form": {
     name: {
       "full name": "Full Name",

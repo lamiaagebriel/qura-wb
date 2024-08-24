@@ -8,6 +8,7 @@ import {
 import {
   storeBinSchema,
   storeCreateSchema,
+  storeDeleteSchema,
   storeUpdateSchema,
 } from "@/validations/stores";
 import { z } from "zod";
@@ -15,6 +16,7 @@ import { z } from "zod";
 import { getAuth } from "@/lib/auth";
 import { ID } from "@/lib/constants";
 import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function createStore(data: z.infer<typeof storeCreateSchema>) {
   try {
@@ -31,8 +33,8 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
       },
     });
 
-    // TODO: revalidate using tags
-    // revalidateTag(TAGS.STORES);
+    // TODO: revalidate using tags s
+    revalidatePath("/", "layout");
   } catch (error: any) {
     console.log(error?.["message"]);
     if (error instanceof z.ZodError) return { error: new ZodError(error) };
@@ -55,14 +57,10 @@ export async function updateStore({
     if (user?.["id"] !== userId) return { error: new RequiresAccessError() };
 
     await db.store.update({
-      data: {
-        ...data,
-      },
-      where: {
-        id,
-        deletedAt: null, //editable
-      },
+      data: { ...data },
+      where: { id },
     });
+    revalidatePath("/", "layout");
   } catch (error: any) {
     console.log(error?.["message"]);
     if (error instanceof z.ZodError) return { error: new ZodError(error) };
@@ -70,6 +68,32 @@ export async function updateStore({
     return {
       error:
         error?.["message"] ?? "Your store was not updated. Please try again.",
+    };
+  }
+}
+
+export async function deleteStore({
+  id,
+  userId,
+}: z.infer<typeof storeDeleteSchema>) {
+  try {
+    const { user } = await getAuth();
+    if (!user) return { error: new RequiresLoginError() };
+    if (user?.["id"] !== userId) return { error: new RequiresAccessError() };
+
+    await db.store.delete({
+      where: {
+        id,
+      },
+    });
+    revalidatePath("/", "layout");
+  } catch (error: any) {
+    console.log(error?.["message"]);
+    if (error instanceof z.ZodError) return { error: new ZodError(error) };
+
+    return {
+      error:
+        error?.["message"] ?? "Your store was not deleted. Please try again.",
     };
   }
 }

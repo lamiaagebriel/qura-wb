@@ -9,6 +9,7 @@ import {
   PackageOpen,
   Store,
   Sun,
+  Trash2,
   User,
   type LucideProps,
 } from "lucide-react";
@@ -59,6 +60,9 @@ export const Icons = {
   ),
   empty: ({ className, ...props }: IconProps) => (
     <PackageOpen className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  trash: ({ className, ...props }: IconProps) => (
+    <Trash2 className={cn(IconsVariants({}), className)} {...props} />
   ),
   store: ({ className, ...props }: IconProps) => (
     <Store className={cn(IconsVariants({}), className)} {...props} />

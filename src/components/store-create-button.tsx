@@ -15,6 +15,7 @@ import { toastPromise } from "@/lib/utils";
 import { createStore } from "@/servers/stores";
 import { Dictionary } from "@/types/locale";
 import { storeCreateSchema } from "@/validations/stores";
+import { toast } from "sonner";
 import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
 import { StoreForm } from "./store-form";
 
@@ -44,6 +45,7 @@ export function StoreCreateButton({
     router.refresh();
     form.reset();
     setOpen(false);
+    toast.success(c?.["created successfully."]);
   }
 
   return (

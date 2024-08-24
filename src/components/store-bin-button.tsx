@@ -16,6 +16,7 @@ import { updateStore } from "@/servers/stores";
 import { Dictionary } from "@/types/locale";
 import { storeBinSchema } from "@/validations/stores";
 import { Store } from "@prisma/client";
+import { toast } from "sonner";
 import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
 
 type StoreBinButtonProps = {
@@ -51,6 +52,7 @@ export function StoreBinButton({
     router.refresh();
     form.reset();
     setOpen(false);
+    toast.success(c?.["moved to bin."]);
   }
 
   return (

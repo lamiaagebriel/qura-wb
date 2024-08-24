@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/dictionaries";
 import { LocaleProps } from "@/types/locale";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { DashboardPostsBarChart } from "@/components/dashboard-posts-bar-char";
 
 type DashboardProps = Readonly<{
   params: LocaleProps;
@@ -43,7 +44,7 @@ export default async function Dashboard({ params: { lang } }: DashboardProps) {
 
         <div>{/* Action Buttons */}</div>
       </DashboardLayout.Header>
-      Content
+      <DashboardPostsBarChart dic={dic} />
     </DashboardLayout>
   );
 }

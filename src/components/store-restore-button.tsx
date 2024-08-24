@@ -14,42 +14,46 @@ import { useLocale } from "@/hooks/use-locale";
 import { toastPromise } from "@/lib/utils";
 import { updateStore } from "@/servers/stores";
 import { Dictionary } from "@/types/locale";
-import { storeUpdateSchema } from "@/validations/stores";
+import { storeRestoreSchema } from "@/validations/stores";
 import { Store } from "@prisma/client";
 import { toast } from "sonner";
 import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
-import { StoreForm } from "./store-form";
 
-type StoreUpdateButtonProps = {
+type StoreRestoreButtonProps = {
   store: Store;
   children: Pick<ResponsiveDialogProps, "trigger">["trigger"];
-} & Dictionary["store-update-button"] &
+} & Dictionary["store-restore-button"] &
   Dictionary["store-form"] &
   Dictionary["responsive-dialog"];
 
-export function StoreUpdateButton({
-  dic: { "store-update-button": c, ...dic },
+export function StoreRestoreButton({
+  dic: { "store-restore-button": c, ...dic },
   store,
   children,
-}: StoreUpdateButtonProps) {
+}: StoreRestoreButtonProps) {
   const lang = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof storeUpdateSchema>>({
+  const form = useForm<z.infer<typeof storeRestoreSchema>>({
     mode: "onSubmit",
-    resolver: zodResolver(storeUpdateSchema),
-    defaultValues: { ...store },
+    resolver: zodResolver(storeRestoreSchema),
+    defaultValues: { ...store, deletedAt: new Date() },
   });
 
-  async function onSubmit(data: z.infer<typeof storeUpdateSchema>) {
-    await toastPromise(async () => await updateStore(data), setLoading, lang);
+  async function onSubmit(data: z.infer<typeof storeRestoreSchema>) {
+    await toastPromise(
+      // @ts-ignore
+      async () => await updateStore({ ...data, deletedAt: null }),
+      setLoading,
+      lang
+    );
 
     router.refresh();
     form.reset();
     setOpen(false);
-    toast.success(c?.["updated successfully."]);
+    toast.success(c?.["restored successfully."]);
   }
 
   return (
@@ -58,29 +62,27 @@ export function StoreUpdateButton({
       open={open}
       setOpen={setOpen}
       disabled={loading}
-      title={c?.["update store"]}
+      title={c?.["restore store"]}
       description={
         c?.[
-          "updating a store allows you to refine and enhance the details of your ongoing developments"
+          "restoring this store will bring back all its data and settings, making it appear as if it was never deleted. all related information will be fully reinstated, allowing you to pick up right where you left off."
         ]
       }
       confirm={
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Button disabled={loading} className="w-full md:w-fit">
+            <Button
+              variant="secondary"
+              disabled={loading}
+              className="w-full md:w-fit"
+            >
               {loading && <Icons.spinner />}
-              {c?.["submit"]}
+              {c?.["restore"]}
             </Button>
           </form>
         </Form>
       }
       trigger={children}
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-          <StoreForm.name dic={dic} form={form} loading={loading} />
-        </form>
-      </Form>
-    </ResponsiveDialog>
+    />
   );
 }

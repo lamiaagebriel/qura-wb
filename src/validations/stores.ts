@@ -25,7 +25,12 @@ export const storeBinSchema = storeSchema.pick({
   userId: true,
   deletedAt: true,
 });
-
+export const storeRestoreSchema = storeSchema.pick({
+  id: true,
+  userId: true,
+  deletedAt: true,
+});
 export const storeDeleteSchema = storeSchema.pick({
   id: true,
+  userId: true,
 });
