@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
@@ -17,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={cn(inter?.["className"], "flex min-h-screen flex-col")}>
+        {children}
+      </body>
     </html>
   );
 }
