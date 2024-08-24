@@ -9,13 +9,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Dictionary } from "@/types/locale";
-import { storeCreateSchema } from "@/validations/stores";
+import { storeCreateSchema, storeUpdateSchema } from "@/validations/stores";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 
 type StoreFormProps = {
   loading: boolean;
-  form: UseFormReturn<z.infer<typeof storeCreateSchema>, any, undefined>;
+  form:
+    | UseFormReturn<z.infer<typeof storeCreateSchema>, any, undefined>
+    | UseFormReturn<z.infer<typeof storeUpdateSchema>, any, undefined>;
 } & Dictionary["store-form"];
 
 export const StoreForm = {
@@ -27,8 +29,9 @@ export const StoreForm = {
     form,
   }: StoreFormProps) => (
     <FormField
-      control={form?.["control"]}
       name="name"
+      // @ts-ignore
+      control={form?.["control"]}
       render={({ field }) => (
         <FormItem>
           <FormLabel>{c?.["name"]}</FormLabel>

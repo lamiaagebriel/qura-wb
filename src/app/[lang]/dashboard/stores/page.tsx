@@ -5,7 +5,10 @@ import { LocaleProps } from "@/types/locale";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StoreCreateButton } from "@/components/store-create-button";
+import { StoresTable } from "@/components/stores-table";
 import { Button } from "@/components/ui/button";
+import { getAuth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 type StoresProps = Readonly<{
   params: LocaleProps;
@@ -30,6 +33,11 @@ export async function generateMetadata({
 export default async function Stores({ params: { lang } }: StoresProps) {
   const dic = await getDictionary(lang);
   const c = dic?.["dashboard"]?.["user"]?.["stores"];
+  const user = (await getAuth())?.["user"]!;
+
+  const stores = await db.store.findMany({
+    where: { userId: user?.["id"], deletedAt: null },
+  });
 
   return (
     <DashboardLayout>
@@ -47,7 +55,8 @@ export default async function Stores({ params: { lang } }: StoresProps) {
           </StoreCreateButton>
         </div>
       </DashboardLayout.Header>
-      Content
+
+      <StoresTable dic={dic} data={stores} />
     </DashboardLayout>
   );
 }

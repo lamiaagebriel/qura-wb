@@ -1,7 +1,15 @@
 "use server";
 
-import { RequiresLoginError, ZodError } from "@/servers/exceptions";
-import { storeCreateSchema } from "@/validations/stores";
+import {
+  RequiresAccessError,
+  RequiresLoginError,
+  ZodError,
+} from "@/servers/exceptions";
+import {
+  storeBinSchema,
+  storeCreateSchema,
+  storeUpdateSchema,
+} from "@/validations/stores";
 import { z } from "zod";
 
 import { getAuth } from "@/lib/auth";
@@ -11,7 +19,7 @@ import { db } from "@/lib/db";
 export async function createStore(data: z.infer<typeof storeCreateSchema>) {
   try {
     const { user } = await getAuth();
-    if (!user) throw new RequiresLoginError();
+    if (!user) return { error: new RequiresLoginError() };
 
     const id = ID.generate();
     await db.store.create({
@@ -19,10 +27,11 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
         ...data,
         id,
         userId: user?.["id"],
+        deletedAt: null,
       },
     });
 
-    // TODO: revalidate
+    // TODO: revalidate using tags
     // revalidateTag(TAGS.STORES);
   } catch (error: any) {
     console.log(error?.["message"]);
@@ -31,6 +40,36 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
     return {
       error:
         error?.["message"] ?? "Your store was not created. Please try again.",
+    };
+  }
+}
+
+export async function updateStore({
+  id,
+  userId,
+  ...data
+}: z.infer<typeof storeUpdateSchema> | z.infer<typeof storeBinSchema>) {
+  try {
+    const { user } = await getAuth();
+    if (!user) return { error: new RequiresLoginError() };
+    if (user?.["id"] !== userId) return { error: new RequiresAccessError() };
+
+    await db.store.update({
+      data: {
+        ...data,
+      },
+      where: {
+        id,
+        deletedAt: null, //editable
+      },
+    });
+  } catch (error: any) {
+    console.log(error?.["message"]);
+    if (error instanceof z.ZodError) return { error: new ZodError(error) };
+
+    return {
+      error:
+        error?.["message"] ?? "Your store was not updated. Please try again.",
     };
   }
 }
