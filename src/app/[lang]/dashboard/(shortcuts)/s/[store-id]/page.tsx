@@ -9,7 +9,10 @@ import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 import { ProductCreateButton } from "@/components/product-create-button";
 import { ProductsTable } from "@/components/products-table";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { StoreBinButton } from "@/components/store-bin-button";
+import { StoreRestoreButton } from "@/components/store-restore-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { buttonVariants } from "@/components/ui/button";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -44,7 +47,6 @@ export default async function Store({
     where: {
       id: storeId,
       userId: user?.["id"],
-      deletedAt: null,
     },
   });
   if (!store) return <div>NO STORE</div>;
@@ -55,18 +57,43 @@ export default async function Store({
       store: { userId: user?.["id"] },
     },
   });
+  const storeDeleted = !!store?.["deletedAt"];
+
   return (
     <DashboardLayout>
-      <div>
-        <Link
-          href="/dashboard/stores"
-          className={buttonVariants({ variant: "ghost" })}
-        >
-          <Icons.chevronLeft />
-          back to all stores
-        </Link>
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <div>
+          <Link
+            href="/dashboard/stores"
+            className={buttonVariants({ variant: "ghost" })}
+          >
+            <Icons.chevronLeft />
+            {c?.["back to all stores"]}
+          </Link>
+        </div>
+
+        <div>
+          {storeDeleted ? (
+            <StoreRestoreButton dic={dic} store={store} />
+          ) : (
+            <StoreBinButton dic={dic} store={store} />
+          )}
+        </div>
       </div>
 
+      {storeDeleted && (
+        <Alert variant="warning" className="my-6">
+          <Icons.exclamationTriangle />
+          <AlertTitle>{c?.["warning!"]}</AlertTitle>
+          <AlertDescription>
+            {
+              c?.[
+                "this store is deleted, once you restore it all will be editable."
+              ]
+            }
+          </AlertDescription>
+        </Alert>
+      )}
       <DashboardLayout.Header>
         <div>
           <DashboardLayout.Title>{store?.["name"]}</DashboardLayout.Title>
@@ -76,12 +103,20 @@ export default async function Store({
         </div>
 
         <div>
-          <ProductCreateButton dic={dic} product={{ storeId }}>
-            <Button>Create Product</Button>
-          </ProductCreateButton>
+          <ProductCreateButton
+            dic={dic}
+            product={{ storeId }}
+            disabled={storeDeleted}
+          />
         </div>
       </DashboardLayout.Header>
-      <ProductsTable dic={dic} data={products} />
+      <ProductsTable
+        dic={dic}
+        data={products.map((p) => ({
+          ...p,
+          store: { deletedAt: store?.["deletedAt"] },
+        }))}
+      />
     </DashboardLayout>
   );
 }

@@ -22,7 +22,8 @@ import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
 
 type ProductCreateButtonProps = {
   product: Pick<Product, "storeId">;
-  children: Pick<ResponsiveDialogProps, "trigger">["trigger"];
+  children?: Pick<ResponsiveDialogProps, "trigger">["trigger"];
+  disabled?: boolean;
 } & Dictionary["product-create-button"] &
   Dictionary["product-form"] &
   Dictionary["responsive-dialog"];
@@ -31,10 +32,11 @@ export function ProductCreateButton({
   dic: { "product-create-button": c, ...dic },
   product,
   children,
+  disabled,
 }: ProductCreateButtonProps) {
   const lang = useLocale();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof productCreateSchema>>({
@@ -42,7 +44,7 @@ export function ProductCreateButton({
     resolver: zodResolver(productCreateSchema),
     defaultValues: { ...product },
   });
-  console.log(form.formState.errors);
+
   async function onSubmit(data: z.infer<typeof productCreateSchema>) {
     await toastPromise(async () => await createProduct(data), setLoading, lang);
 
@@ -68,13 +70,19 @@ export function ProductCreateButton({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <Button disabled={loading} className="w-full md:w-fit">
-              {loading && <Icons.spinner />}
+              {!disabled && loading && <Icons.spinner />}
               {c?.["submit"]}
             </Button>
           </form>
         </Form>
       }
-      trigger={children}
+      trigger={
+        children ?? (
+          <Button disabled={disabled ?? loading}>
+            {c?.["create product"]}
+          </Button>
+        )
+      }
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">

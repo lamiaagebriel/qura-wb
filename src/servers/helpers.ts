@@ -1,20 +1,14 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
-
 import { hash as Hash, verify as Verify } from "@node-rs/argon2";
 
 import { i18n } from "@/lib/locale";
 import { Locale } from "@/types/locale";
-
-export async function getHeader(key: string) {
-  return headers().get(key) || "";
-}
+import { headers } from "next/headers";
 
 export async function getLocale() {
-  const refererUrl = await getHeader("referer");
-  let locale: string =
-    cookies().get("locale")?.["value"] ?? i18n?.["defaultLocale"];
+  const refererUrl = headers().get("referer");
+  let locale: string = i18n?.["defaultLocale"];
 
   if (refererUrl) {
     const url = new URL(refererUrl);
@@ -24,7 +18,6 @@ export async function getLocale() {
     if (match) locale = match[1];
   }
 
-  cookies().set("locale", locale);
   return locale as Locale;
 }
 

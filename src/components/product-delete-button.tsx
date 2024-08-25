@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 
@@ -17,12 +17,12 @@ import { Dictionary } from "@/types/locale";
 import { productDeleteSchema } from "@/validations/products";
 import { Product } from "@prisma/client";
 import { toast } from "sonner";
-import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
+import { ResponsiveDialog } from "./responsive-dialog";
 
 type ProductDeleteButtonProps = {
   product: Product;
-  children: Pick<ResponsiveDialogProps, "trigger">["trigger"];
-} & Dictionary["product-delete-button"] &
+} & ButtonProps &
+  Dictionary["product-delete-button"] &
   Dictionary["product-form"] &
   Dictionary["responsive-dialog"];
 
@@ -30,10 +30,12 @@ export function ProductDeleteButton({
   dic: { "product-delete-button": c, ...dic },
   product,
   children,
+  disabled,
+  ...props
 }: ProductDeleteButtonProps) {
   const lang = useLocale();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof productDeleteSchema>>({
@@ -75,13 +77,19 @@ export function ProductDeleteButton({
               disabled={loading}
               className="w-full md:w-fit"
             >
-              {loading && <Icons.spinner />}
+              {!disabled && loading && <Icons.spinner />}
               {c?.["delete"]}
             </Button>
           </form>
         </Form>
       }
-      trigger={children}
+      trigger={
+        children ?? (
+          <Button disabled={disabled ?? loading} {...props}>
+            {c?.["delete"]}
+          </Button>
+        )
+      }
     />
   );
 }

@@ -6,7 +6,7 @@ import { generateIdFromEntropySize } from "lucia";
 
 import { google, lucia } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { kyInstance } from "@/lib/ky";
+import { kyInstance } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");

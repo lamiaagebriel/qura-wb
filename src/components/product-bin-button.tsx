@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 
@@ -17,23 +17,25 @@ import { Dictionary } from "@/types/locale";
 import { productBinSchema } from "@/validations/products";
 import { Product } from "@prisma/client";
 import { toast } from "sonner";
-import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
+import { ResponsiveDialog } from "./responsive-dialog";
 
 type ProductBinButtonProps = {
   product: Product;
-  children: Pick<ResponsiveDialogProps, "trigger">["trigger"];
-} & Dictionary["product-bin-button"] &
+} & ButtonProps &
+  Dictionary["product-bin-button"] &
   Dictionary["product-form"] &
   Dictionary["responsive-dialog"];
 
 export function ProductBinButton({
   dic: { "product-bin-button": c, ...dic },
   product,
+  disabled,
   children,
+  ...props
 }: ProductBinButtonProps) {
   const lang = useLocale();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof productBinSchema>>({
@@ -70,14 +72,28 @@ export function ProductBinButton({
       confirm={
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Button disabled={loading} className="w-full md:w-fit">
-              {loading && <Icons.spinner />}
+            <Button
+              variant="destructive"
+              disabled={loading}
+              className="w-full md:w-fit"
+            >
+              {!disabled && loading && <Icons.spinner />}
               {c?.["delete"]}
             </Button>
           </form>
         </Form>
       }
-      trigger={children}
+      trigger={
+        children ?? (
+          <Button
+            variant="destructive"
+            disabled={disabled ?? loading}
+            {...props}
+          >
+            {c?.["delete"]}
+          </Button>
+        )
+      }
     />
   );
 }

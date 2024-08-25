@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 
@@ -16,22 +16,23 @@ import { createStore } from "@/servers/stores";
 import { Dictionary } from "@/types/locale";
 import { storeCreateSchema } from "@/validations/stores";
 import { toast } from "sonner";
-import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
+import { ResponsiveDialog } from "./responsive-dialog";
 import { StoreForm } from "./store-form";
 
-type StoreCreateButtonProps = {
-  children: Pick<ResponsiveDialogProps, "trigger">["trigger"];
-} & Dictionary["store-create-button"] &
+type StoreCreateButtonProps = {} & ButtonProps &
+  Dictionary["store-create-button"] &
   Dictionary["store-form"] &
   Dictionary["responsive-dialog"];
 
 export function StoreCreateButton({
   dic: { "store-create-button": c, ...dic },
   children,
+  disabled,
+  ...props
 }: StoreCreateButtonProps) {
   const lang = useLocale();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof storeCreateSchema>>({
@@ -64,13 +65,19 @@ export function StoreCreateButton({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <Button disabled={loading} className="w-full md:w-fit">
-              {loading && <Icons.spinner />}
+              {!disabled && loading && <Icons.spinner />}
               {c?.["submit"]}
             </Button>
           </form>
         </Form>
       }
-      trigger={children}
+      trigger={
+        children ?? (
+          <Button disabled={disabled ?? loading} {...props}>
+            {c?.["create store"]}
+          </Button>
+        )
+      }
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">

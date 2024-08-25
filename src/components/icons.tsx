@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { DashboardIcon } from "@radix-ui/react-icons";
+import { DashboardIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export const IconsVariants = cva("h-4 w-4 shrink-0");
 export type IconProps = {} & LucideProps & VariantProps<typeof IconsVariants>;
@@ -54,6 +54,12 @@ export const Icons = {
   spinner: ({ className, ...props }: IconProps) => (
     <Loader2
       className={cn(IconsVariants({}), "animate-spin", className)}
+      {...props}
+    />
+  ),
+  exclamationTriangle: ({ className, children, ...props }: IconProps) => (
+    <ExclamationTriangleIcon
+      className={cn(IconsVariants({}), className)}
       {...props}
     />
   ),

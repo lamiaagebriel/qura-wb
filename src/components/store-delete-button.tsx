@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 
@@ -17,12 +17,12 @@ import { Dictionary } from "@/types/locale";
 import { storeDeleteSchema } from "@/validations/stores";
 import { Store } from "@prisma/client";
 import { toast } from "sonner";
-import { ResponsiveDialog, ResponsiveDialogProps } from "./responsive-dialog";
+import { ResponsiveDialog } from "./responsive-dialog";
 
 type StoreDeleteButtonProps = {
   store: Store;
-  children: Pick<ResponsiveDialogProps, "trigger">["trigger"];
-} & Dictionary["store-delete-button"] &
+} & ButtonProps &
+  Dictionary["store-delete-button"] &
   Dictionary["store-form"] &
   Dictionary["responsive-dialog"];
 
@@ -30,10 +30,12 @@ export function StoreDeleteButton({
   dic: { "store-delete-button": c, ...dic },
   store,
   children,
+  disabled,
+  ...props
 }: StoreDeleteButtonProps) {
   const lang = useLocale();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof storeDeleteSchema>>({
@@ -72,16 +74,26 @@ export function StoreDeleteButton({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <Button
               variant="destructive"
-              disabled={loading}
               className="w-full md:w-fit"
+              disabled={loading}
             >
-              {loading && <Icons.spinner />}
+              {!disabled && loading && <Icons.spinner />}
               {c?.["delete"]}
             </Button>
           </form>
         </Form>
       }
-      trigger={children}
+      trigger={
+        children ?? (
+          <Button
+            variant="destructive"
+            disabled={disabled ?? loading}
+            {...props}
+          >
+            {c?.["delete"]}
+          </Button>
+        )
+      }
     />
   );
 }

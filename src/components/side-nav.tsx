@@ -48,14 +48,17 @@ export function SideNav({ links, isCollapsed }: SideNavProps) {
                   className={cn(
                     "h-9 w-9",
                     buttonVariants({
-                      variant: link?.["segment"]?.some((e) => e === segment)
-                        ? "default"
-                        : "ghost",
+                      variant:
+                        segment === link?.["segment"] ||
+                        link?.["segment"]?.some((e) => segment === e)
+                          ? "default"
+                          : "ghost",
                       size: "icon",
                     }),
 
-                    link?.["segment"]?.some((e) => e === segment) &&
-                      "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
+                    segment === link?.["segment"] ||
+                      (link?.["segment"]?.some((e) => segment === e) &&
+                        "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white")
                   )}
                 >
                   {Icon && <Icon />}
@@ -69,13 +72,16 @@ export function SideNav({ links, isCollapsed }: SideNavProps) {
               href={link?.["value"]}
               className={cn(
                 buttonVariants({
-                  variant: link?.["segment"]?.some((e) => e === segment)
-                    ? "default"
-                    : "ghost",
+                  variant:
+                    segment === link?.["segment"] ||
+                    link?.["segment"]?.some((e) => segment === e)
+                      ? "default"
+                      : "ghost",
                   size: "sm",
                 }),
-                link?.["segment"]?.some((e) => e === segment) &&
-                  "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
+                segment === link?.["segment"] ||
+                  (link?.["segment"]?.some((e) => segment === e) &&
+                    "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white"),
                 "justify-between"
               )}
             >
@@ -86,8 +92,9 @@ export function SideNav({ links, isCollapsed }: SideNavProps) {
               {link?.["indicator"] && (
                 <span
                   className={cn(
-                    link?.["segment"]?.some((e) => e === segment) &&
-                      "text-background dark:text-white"
+                    segment === link?.["segment"] ||
+                      (link?.["segment"]?.some((e) => segment === e) &&
+                        "text-background dark:text-white")
                   )}
                 >
                   {link?.["indicator"]}

@@ -6,7 +6,6 @@ import { LocaleProps } from "@/types/locale";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StoreCreateButton } from "@/components/store-create-button";
 import { StoresTable } from "@/components/stores-table";
-import { Button } from "@/components/ui/button";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -50,9 +49,7 @@ export default async function Stores({ params: { lang } }: StoresProps) {
         </div>
 
         <div>
-          <StoreCreateButton dic={dic}>
-            <Button>Create Store</Button>
-          </StoreCreateButton>
+          <StoreCreateButton dic={dic} />
         </div>
       </DashboardLayout.Header>
 

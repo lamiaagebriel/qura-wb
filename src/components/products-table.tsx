@@ -5,18 +5,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Dictionary } from "@/types/locale";
-import { Product } from "@prisma/client";
+import { Product, Store } from "@prisma/client";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Link } from "./link";
 import { ProductBinButton } from "./product-bin-button";
 import { ProductUpdateButton } from "./product-update-button";
-import { Button, buttonVariants } from "./ui/button";
-import {
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-} from "./ui/dropdown-menu";
+import { buttonVariants } from "./ui/button";
+import { DropdownMenuSeparator } from "./ui/dropdown-menu";
 
-type ColumnType = Product;
+type ColumnType = Product & { store: Pick<Store, "deletedAt"> };
 
 type ProductsTableProps = {
   data: ColumnType[];
@@ -63,28 +60,27 @@ export function ProductsTable({
           {
             id: "actions",
             cell: ({ row: { original: r } }) => {
+              const storeDeleted = !!r?.["store"]?.["deletedAt"];
+
               return (
                 <>
                   <DataTableRowActions>
-                    <ProductUpdateButton dic={dic} product={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["edit"]}
-                      </Button>
-                    </ProductUpdateButton>
+                    <ProductUpdateButton
+                      dic={dic}
+                      product={r}
+                      disabled={storeDeleted}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                     <DropdownMenuSeparator />
 
-                    <ProductBinButton dic={dic} product={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["delete"]}
-                        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                      </Button>
-                    </ProductBinButton>
+                    <ProductBinButton
+                      dic={dic}
+                      product={r}
+                      disabled={storeDeleted}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                   </DataTableRowActions>
                 </>
               );

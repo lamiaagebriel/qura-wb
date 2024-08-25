@@ -87,6 +87,20 @@ export default {
       stores: {
         meta: { title: "Stores" },
         stores: "Stores",
+        "back to all stores": "back to all stores",
+        "warning!": "warning!",
+        "this store is deleted, once you restore it all will be editable.":
+          "This store is deleted, once you restore it all will be editable.",
+        products: {
+          product: {
+            "warning!": "warning!",
+            "its store is deleted, once you restore it all will be editable.":
+              "Its store is deleted, once you restore it all will be editable.",
+
+            "this product is deleted, once you restore it all will be editable.":
+              "This product is deleted, once you restore it all will be editable.",
+          },
+        },
       },
     },
   },
@@ -198,6 +212,7 @@ export default {
   "store-update-button": {
     "updated successfully.": "updated successfully.",
     submit: "Submit",
+    edit: "Edit",
     "update store": "Update Store",
     "updating a store allows you to refine and enhance the details of your ongoing developments":
       "Updating a store allows you to refine and enhance the details of your ongoing developments",
@@ -245,6 +260,7 @@ export default {
   "product-update-button": {
     "updated successfully.": "updated successfully.",
     submit: "Submit",
+    edit: "Edit",
     "update product": "Update Product",
     "updating a product allows you to refine and enhance the details of your ongoing developments":
       "Updating a product allows you to refine and enhance the details of your ongoing developments",

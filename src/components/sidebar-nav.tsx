@@ -22,7 +22,11 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
           href={item?.["value"]}
           className={cn(
             buttonVariants({
-              variant: segment === item?.["segment"] ? "secondary" : "ghost",
+              variant:
+                segment === item?.["segment"] ||
+                item?.["segment"]?.some((e) => segment === e)
+                  ? "secondary"
+                  : "ghost",
             }),
             "justify-start"
           )}

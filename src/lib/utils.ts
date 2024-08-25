@@ -6,11 +6,20 @@ import { twMerge } from "tailwind-merge";
 
 import { Locale } from "@/types/locale";
 
+import ky from "ky";
 import { t } from "./locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const kyInstance = ky.create({
+  parseJson: (text) =>
+    JSON.parse(text, (key, value) => {
+      if (key.endsWith("At")) return new Date(value);
+      return value;
+    }),
+});
 
 export const getURL = (path: string = "") => {
   // Check if NEXT_PUBLIC_SITE_URL is set and non-empty. Set this to your site URL in production env.

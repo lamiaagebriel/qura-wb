@@ -6,11 +6,7 @@ import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table-row-actions";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dictionary } from "@/types/locale";
 import { Product } from "@prisma/client";
 import { ProductDeleteButton } from "./product-delete-button";
@@ -75,25 +71,20 @@ export function BinProductsTable({
               return (
                 <>
                   <DataTableRowActions>
-                    <ProductRestoreButton dic={dic} product={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["restore"]}
-                      </Button>
-                    </ProductRestoreButton>
+                    <ProductRestoreButton
+                      dic={dic}
+                      product={r}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                     <DropdownMenuSeparator />
 
-                    <ProductDeleteButton dic={dic} product={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["delete"]}
-                        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                      </Button>
-                    </ProductDeleteButton>
+                    <ProductDeleteButton
+                      dic={dic}
+                      product={r}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                   </DataTableRowActions>
                 </>
               );

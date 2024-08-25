@@ -6,11 +6,7 @@ import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table-row-actions";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dictionary } from "@/types/locale";
 import { Store } from "@prisma/client";
 import { StoreDeleteButton } from "./store-delete-button";
@@ -75,25 +71,20 @@ export function BinStoresTable({
               return (
                 <>
                   <DataTableRowActions>
-                    <StoreRestoreButton dic={dic} store={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["restore"]}
-                      </Button>
-                    </StoreRestoreButton>
+                    <StoreRestoreButton
+                      dic={dic}
+                      store={r}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                     <DropdownMenuSeparator />
 
-                    <StoreDeleteButton dic={dic} store={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["delete"]}
-                        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                      </Button>
-                    </StoreDeleteButton>
+                    <StoreDeleteButton
+                      dic={dic}
+                      store={r}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                   </DataTableRowActions>
                 </>
               );

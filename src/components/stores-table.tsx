@@ -10,11 +10,8 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { Link } from "./link";
 import { StoreBinButton } from "./store-bin-button";
 import { StoreUpdateButton } from "./store-update-button";
-import { Button, buttonVariants } from "./ui/button";
-import {
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-} from "./ui/dropdown-menu";
+import { buttonVariants } from "./ui/button";
+import { DropdownMenuSeparator } from "./ui/dropdown-menu";
 
 type ColumnType = Store;
 
@@ -66,25 +63,20 @@ export function StoresTable({
               return (
                 <>
                   <DataTableRowActions>
-                    <StoreUpdateButton dic={dic} store={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["edit"]}
-                      </Button>
-                    </StoreUpdateButton>
+                    <StoreUpdateButton
+                      dic={dic}
+                      store={r}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                     <DropdownMenuSeparator />
 
-                    <StoreBinButton dic={dic} store={r}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2 text-start font-normal"
-                      >
-                        {c?.["delete"]}
-                        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                      </Button>
-                    </StoreBinButton>
+                    <StoreBinButton
+                      dic={dic}
+                      store={r}
+                      variant="ghost"
+                      className="w-full justify-start px-2 text-start font-normal"
+                    />
                   </DataTableRowActions>
                 </>
               );
