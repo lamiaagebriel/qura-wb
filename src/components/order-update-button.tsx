@@ -12,46 +12,45 @@ import { useRouter } from "next/navigation";
 
 import { useLocale } from "@/hooks/use-locale";
 import { toastPromise } from "@/lib/utils";
-import { createProduct } from "@/servers/products";
+import { updateOrder } from "@/servers/orders";
 import { Dictionary } from "@/types/locale";
-import { productCreateSchema } from "@/validations/products";
-import { Product } from "@prisma/client";
+import { orderUpdateSchema } from "@/validations/orders";
+import { Order, OrderProductDetails } from "@prisma/client";
 import { toast } from "sonner";
-import { ProductForm } from "./product-form";
 import { ResponsiveDialog } from "./responsive-dialog";
 
-type ProductCreateButtonProps = {
-  product: Pick<Product, "storeId">;
+type OrderUpdateButtonProps = {
+  order: Order & { products: OrderProductDetails[] };
 } & ButtonProps &
-  Dictionary["product-create-button"] &
-  Dictionary["product-form"] &
+  Dictionary["order-update-button"] &
+  Dictionary["order-form"] &
   Dictionary["responsive-dialog"];
 
-export function ProductCreateButton({
-  dic: { "product-create-button": c, ...dic },
-  product,
+export function OrderUpdateButton({
+  dic: { "order-update-button": c, ...dic },
+  order,
   children,
   disabled,
   ...props
-}: ProductCreateButtonProps) {
+}: OrderUpdateButtonProps) {
   const lang = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof productCreateSchema>>({
+  const form = useForm<z.infer<typeof orderUpdateSchema>>({
     mode: "onSubmit",
-    resolver: zodResolver(productCreateSchema),
-    defaultValues: { ...product },
+    resolver: zodResolver(orderUpdateSchema),
+    defaultValues: { ...order },
   });
 
-  async function onSubmit(data: z.infer<typeof productCreateSchema>) {
-    await toastPromise(async () => await createProduct(data), setLoading, lang);
+  async function onSubmit(data: z.infer<typeof orderUpdateSchema>) {
+    await toastPromise(async () => await updateOrder(data), setLoading, lang);
 
     router.refresh();
     form.reset();
     setOpen(false);
-    toast.success(c?.["created successfully."]);
+    toast.success(c?.["updated successfully."]);
   }
 
   return (
@@ -60,10 +59,10 @@ export function ProductCreateButton({
       open={open}
       setOpen={setOpen}
       disabled={loading}
-      title={c?.["create product"]}
+      title={c?.["update order"]}
       description={
         c?.[
-          "by providing detailed information about your product, you'll be able to streamline your operations, track progress, and ensure that all stakeholders are informed about the development's key aspects and milestones."
+          "updating a order allows you to refine and enhance the details of your ongoing developments"
         ]
       }
       confirm={
@@ -79,16 +78,16 @@ export function ProductCreateButton({
       trigger={
         children ?? (
           <Button disabled={disabled ?? loading} {...props}>
-            {c?.["create product"]}
+            {c?.["edit"]}
           </Button>
         )
       }
     >
-      <Form {...form}>
+      {/* <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-          <ProductForm.name dic={dic} form={form} loading={loading} />
+          <OrderForm.name dic={dic} form={form} loading={loading} />
         </form>
-      </Form>
+      </Form> */}
     </ResponsiveDialog>
   );
 }

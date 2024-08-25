@@ -79,6 +79,11 @@ export default {
             value: "/dashboard/bin/products",
             label: "Products",
           },
+          {
+            segment: ["orders"],
+            value: "/dashboard/bin/orders",
+            label: "Orders",
+          },
         ] as NavItem[],
         bin: "Bin",
         "below is a list of your deleted items. you can restore them within 30 days before they are permanently removed.":
@@ -91,6 +96,16 @@ export default {
         "warning!": "warning!",
         "this store is deleted, once you restore it all will be editable.":
           "This store is deleted, once you restore it all will be editable.",
+        orders: {
+          order: {
+            "warning!": "warning!",
+            "its store is deleted, once you restore it all will be editable.":
+              "Its store is deleted, once you restore it all will be editable.",
+
+            "this order is deleted, once you restore it all will be editable.":
+              "This order is deleted, once you restore it all will be editable.",
+          },
+        },
         products: {
           product: {
             "warning!": "warning!",
@@ -104,13 +119,19 @@ export default {
       },
     },
   },
-  "bin-stores-table": {
+  "bin-orders-table": {
     name: "Name",
     delete: "Delete",
     restore: "Restore",
     deletedAt: "Deleted At",
   },
   "bin-products-table": {
+    name: "Name",
+    delete: "Delete",
+    restore: "Restore",
+    deletedAt: "Deleted At",
+  },
+  "bin-stores-table": {
     name: "Name",
     delete: "Delete",
     restore: "Restore",
@@ -223,6 +244,54 @@ export default {
     delete: "Delete",
   },
 
+  "order-bin-button": {
+    "moved to bin.": "moved to bin.",
+    delete: "Delete",
+    "delete order": "Delete Order",
+    "once deleted, the order will be moved to the bin. you can manually delete it or it will be automatically removed after 30 days. if reorderd, everything will be reinstated as if nothing happened.":
+      "Once deleted, the order will be moved to the bin. You can manually delete it or it will be automatically removed after 30 days. If reorderd, everything will be reinstated as if nothing happened.",
+  },
+  "order-create-button": {
+    "created successfully.": "created successfully.",
+    submit: "Submit",
+    "create order": "Create Order",
+    "by providing detailed information about your order, you'll be able to streamline your operations, track progress, and ensure that all stakeholders are informed about the development's key aspects and milestones.":
+      "By providing detailed information about your order, you'll be able to streamline your operations, track progress, and ensure that all stakeholders are informed about the development's key aspects and milestones.",
+  },
+  "order-delete-button": {
+    "once deleted, this action cannot be undone. please be certain, as all relevant data will be permanently deleted.":
+      "once deleted, this action cannot be undone. please be certain, as all relevant data will be permanently deleted.",
+    "deleted successfully.": "deleted successfully.",
+    delete: "Delete",
+    "delete order": "Delete Order",
+  },
+  "order-restore-button": {
+    "restoring this order will bring back all its data and settings, making it appear as if it was never deleted. all related information will be fully reinstated, allowing you to pick up right where you left off.":
+      "Restoring this order will bring back all its data and settings, making it appear as if it was never deleted. All related information will be fully reinstated, allowing you to pick up right where you left off.",
+    "restored successfully.": "restored successfully.",
+    restore: "Restore",
+    "restore order": "Restore Order",
+  },
+  "order-form": {
+    size: {
+      size: "Size",
+      xl: "XL",
+    },
+  },
+  "order-update-button": {
+    "updated successfully.": "updated successfully.",
+    submit: "Submit",
+    edit: "Edit",
+    "update order": "Update Order",
+    "updating a order allows you to refine and enhance the details of your ongoing developments":
+      "Updating a order allows you to refine and enhance the details of your ongoing developments",
+  },
+  "orders-table": {
+    name: "Name",
+    edit: "Edit",
+    delete: "Delete",
+  },
+
   "product-bin-button": {
     "moved to bin.": "moved to bin.",
     delete: "Delete",
@@ -270,6 +339,7 @@ export default {
     edit: "Edit",
     delete: "Delete",
   },
+
   "user-form": {
     name: {
       "full name": "Full Name",

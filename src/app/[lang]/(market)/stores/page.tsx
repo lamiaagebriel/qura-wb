@@ -1,13 +1,14 @@
 import { Metadata } from "next";
 
-import { getAuth } from "@/lib/auth";
 import { getDictionary } from "@/lib/dictionaries";
 import { LocaleProps } from "@/types/locale";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { DashboardPostsBarChart } from "@/components/dashboard-posts-bar-char";
+import { StoresTable } from "@/components/stores-table";
+import { getAuth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
-type DashboardProps = Readonly<{
+type StoresProps = Readonly<{
   params: LocaleProps;
 }>;
 
@@ -27,24 +28,27 @@ export async function generateMetadata({
   };
 }
 
-export default async function Dashboard({ params: { lang } }: DashboardProps) {
+export default async function Stores({ params: { lang } }: StoresProps) {
   const dic = await getDictionary(lang);
-  const c = dic?.["dashboard"]?.["user"];
+  const c = dic?.["dashboard"]?.["user"]?.["stores"];
   const user = (await getAuth())?.["user"]!;
+
+  const stores = await db.store.findMany({
+    where: { userId: user?.["id"], deletedAt: null },
+  });
 
   return (
     <DashboardLayout>
       <DashboardLayout.Header>
         <div>
-          <DashboardLayout.Title>{c?.["dashboard"]}</DashboardLayout.Title>
+          <DashboardLayout.Title>{c?.["stores"]}</DashboardLayout.Title>
           <DashboardLayout.Description>
             Lorem ipsum, dolor sit amet consectetur adipisicing elit.
           </DashboardLayout.Description>
         </div>
-
-        <div>{/* Action Buttons */}</div>
       </DashboardLayout.Header>
-      <DashboardPostsBarChart dic={dic} />
+
+      <StoresTable dic={dic} data={stores} />
     </DashboardLayout>
   );
 }

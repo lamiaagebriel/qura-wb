@@ -17,7 +17,6 @@ export default async function BinLayout({
     dashboard: {
       user: { bin: c },
     },
-    ...dic
   } = await getDictionary(lang);
   return (
     <DashboardLayout>

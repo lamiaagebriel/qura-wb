@@ -25,7 +25,8 @@ model User {
 
   createdAt DateTime @default(now())
 
-  Store Store[]
+  stores Store[]
+  orders Order[]
 
   @@map("users")
 }
@@ -40,29 +41,64 @@ model Session {
 }
 
 model Store {
-  id     String @id @map("_id")
-  userId String
-  name   String
-
+  id        String    @id @map("_id")
+  userId    String
+  user      User      @relation(references: [id], fields: [userId], onDelete: Cascade)
   createdAt DateTime  @default(now())
   deletedAt DateTime?
 
-  user User @relation(references: [id], fields: [userId], onDelete: Cascade)
-
+  name     String
   products Product[]
+  orders   Order[]
 
   @@map("stores")
 }
 
 model Product {
-  id      String @id @map("_id")
-  storeId String
-  name    String
-
+  id        String    @id @map("_id")
+  storeId   String
+  store     Store     @relation(references: [id], fields: [storeId], onDelete: Cascade)
   createdAt DateTime  @default(now())
   deletedAt DateTime?
 
-  store Store @relation(references: [id], fields: [storeId], onDelete: Cascade)
+  name   String
+  orders OrderProductDetails[]
 
   @@map("products")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DELIVERING
+  DELIVERED
+}
+
+model Order {
+  id        String    @id @map("_id")
+  storeId   String
+  store     Store     @relation(references: [id], fields: [storeId], onDelete: Cascade)
+  userId    String
+  user      User      @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  status   OrderStatus           @default(PENDING)
+  products OrderProductDetails[]
+
+  @@map("orders")
+}
+
+model OrderProductDetails {
+  id        String @id @map("_id")
+  orderId   String
+  productId String
+
+  size String
+
+  order   Order   @relation(references: [id], fields: [orderId], onDelete: Cascade)
+  product Product @relation(references: [id], fields: [productId], onDelete: Cascade)
+
+  @@unique([orderId, productId])
+  @@map("order-product-details")
 }

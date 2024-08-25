@@ -8,32 +8,32 @@ import { Dictionary } from "@/types/locale";
 import { Order, OrderProductDetails, Product, Store } from "@prisma/client";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Link } from "./link";
-import { ProductBinButton } from "./product-bin-button";
-import { ProductUpdateButton } from "./product-update-button";
+import { OrderBinButton } from "./order-bin-button";
+import { OrderUpdateButton } from "./order-update-button";
 import { buttonVariants } from "./ui/button";
 import { DropdownMenuSeparator } from "./ui/dropdown-menu";
 
-type ColumnType = Product & {
+type ColumnType = Order & {
   store: Pick<Store, "deletedAt">;
-  orders: (OrderProductDetails & { order: Pick<Order, "id"> })[];
+  products: (OrderProductDetails & { product: Pick<Product, "name"> })[];
 };
 
-type ProductsTableProps = {
+type OrdersTableProps = {
   data: ColumnType[];
 } & Dictionary["data-table"] &
   Dictionary["data-table-column-header"] &
   Dictionary["data-table-pagination"] &
   Dictionary["data-table-view-options"] &
   Dictionary["responsive-dialog"] &
-  Dictionary["products-table"] &
-  Dictionary["product-form"] &
-  Dictionary["product-update-button"] &
-  Dictionary["product-bin-button"];
+  Dictionary["orders-table"] &
+  Dictionary["order-form"] &
+  Dictionary["order-update-button"] &
+  Dictionary["order-bin-button"];
 
-export function ProductsTable({
-  dic: { "products-table": c, ...dic },
+export function OrdersTable({
+  dic: { "orders-table": c, ...dic },
   data,
-}: ProductsTableProps) {
+}: OrdersTableProps) {
   return (
     <DataTable
       dic={dic}
@@ -41,7 +41,7 @@ export function ProductsTable({
       columns={
         [
           {
-            accessorKey: "name",
+            accessorKey: "id",
             header: ({ column }) => (
               <DataTableColumnHeader
                 dic={dic}
@@ -51,17 +51,29 @@ export function ProductsTable({
             ),
             cell: ({ row: { original: r } }) => (
               <Link
-                href={`/dashboard/s/${r?.["storeId"]}/p/${r?.["id"]}`}
+                href={`/dashboard/s/${r?.["storeId"]}/o/${r?.["id"]}`}
                 className={buttonVariants({ variant: "link" })}
               >
-                {r?.["name"]}
+                {r?.["id"]}
               </Link>
             ),
             enableSorting: false,
             enableHiding: false,
           },
           {
-            accessorKey: "orders",
+            accessorKey: "status",
+            header: ({ column }) => (
+              <DataTableColumnHeader
+                dic={dic}
+                column={column}
+                title={c?.["name"]}
+              />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+          },
+          {
+            accessorKey: "products",
             header: ({ column }) => (
               <DataTableColumnHeader
                 dic={dic}
@@ -71,11 +83,11 @@ export function ProductsTable({
             ),
             cell: ({ row: { original: r } }) => (
               <div>
-                {r?.["orders"]?.map((o, i) => (
+                {r?.["products"]?.map((p, i) => (
                   <div key={i} className="flex items-center gap-4">
-                    <h1>{o?.["order"]?.["id"]}</h1>
+                    <h1>{p?.["product"]?.["name"]}</h1>
 
-                    <p>{o?.["size"]}</p>
+                    <p>{p?.["size"]}</p>
                   </div>
                 ))}
               </div>
@@ -91,18 +103,18 @@ export function ProductsTable({
               return (
                 <>
                   <DataTableRowActions>
-                    <ProductUpdateButton
+                    <OrderUpdateButton
                       dic={dic}
-                      product={r}
+                      order={r}
                       disabled={storeDeleted}
                       variant="ghost"
                       className="w-full justify-start px-2 text-start font-normal"
                     />
                     <DropdownMenuSeparator />
 
-                    <ProductBinButton
+                    <OrderBinButton
                       dic={dic}
-                      product={r}
+                      order={r}
                       disabled={storeDeleted}
                       variant="ghost"
                       className="w-full justify-start px-2 text-start font-normal"

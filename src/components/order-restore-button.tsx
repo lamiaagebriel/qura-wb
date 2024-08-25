@@ -12,46 +12,50 @@ import { useRouter } from "next/navigation";
 
 import { useLocale } from "@/hooks/use-locale";
 import { toastPromise } from "@/lib/utils";
-import { createProduct } from "@/servers/products";
+import { updateOrderFeature } from "@/servers/orders";
 import { Dictionary } from "@/types/locale";
-import { productCreateSchema } from "@/validations/products";
-import { Product } from "@prisma/client";
+import { orderRestoreSchema } from "@/validations/orders";
+import { Order } from "@prisma/client";
 import { toast } from "sonner";
-import { ProductForm } from "./product-form";
 import { ResponsiveDialog } from "./responsive-dialog";
 
-type ProductCreateButtonProps = {
-  product: Pick<Product, "storeId">;
+type OrderRestoreButtonProps = {
+  order: Order;
 } & ButtonProps &
-  Dictionary["product-create-button"] &
-  Dictionary["product-form"] &
+  Dictionary["order-restore-button"] &
+  Dictionary["order-form"] &
   Dictionary["responsive-dialog"];
 
-export function ProductCreateButton({
-  dic: { "product-create-button": c, ...dic },
-  product,
+export function OrderRestoreButton({
+  dic: { "order-restore-button": c, ...dic },
+  order,
   children,
   disabled,
   ...props
-}: ProductCreateButtonProps) {
+}: OrderRestoreButtonProps) {
   const lang = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(disabled ?? false);
   const [open, setOpen] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof productCreateSchema>>({
+  const form = useForm<z.infer<typeof orderRestoreSchema>>({
     mode: "onSubmit",
-    resolver: zodResolver(productCreateSchema),
-    defaultValues: { ...product },
+    resolver: zodResolver(orderRestoreSchema),
+    defaultValues: { ...order, deletedAt: new Date() },
   });
 
-  async function onSubmit(data: z.infer<typeof productCreateSchema>) {
-    await toastPromise(async () => await createProduct(data), setLoading, lang);
+  async function onSubmit(data: z.infer<typeof orderRestoreSchema>) {
+    await toastPromise(
+      // @ts-ignore
+      async () => await updateOrderFeature({ ...data, deletedAt: null }),
+      setLoading,
+      lang
+    );
 
     router.refresh();
     form.reset();
     setOpen(false);
-    toast.success(c?.["created successfully."]);
+    toast.success(c?.["restored successfully."]);
   }
 
   return (
@@ -60,18 +64,22 @@ export function ProductCreateButton({
       open={open}
       setOpen={setOpen}
       disabled={loading}
-      title={c?.["create product"]}
+      title={c?.["restore order"]}
       description={
         c?.[
-          "by providing detailed information about your product, you'll be able to streamline your operations, track progress, and ensure that all stakeholders are informed about the development's key aspects and milestones."
+          "restoring this order will bring back all its data and settings, making it appear as if it was never deleted. all related information will be fully reinstated, allowing you to pick up right where you left off."
         ]
       }
       confirm={
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Button disabled={loading} className="w-full md:w-fit">
+            <Button
+              variant="secondary"
+              disabled={loading}
+              className="w-full md:w-fit"
+            >
               {!disabled && loading && <Icons.spinner />}
-              {c?.["submit"]}
+              {c?.["restore"]}
             </Button>
           </form>
         </Form>
@@ -79,16 +87,11 @@ export function ProductCreateButton({
       trigger={
         children ?? (
           <Button disabled={disabled ?? loading} {...props}>
-            {c?.["create product"]}
+            {" "}
+            {c?.["restore"]}
           </Button>
         )
       }
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-          <ProductForm.name dic={dic} form={form} loading={loading} />
-        </form>
-      </Form>
-    </ResponsiveDialog>
+    />
   );
 }
