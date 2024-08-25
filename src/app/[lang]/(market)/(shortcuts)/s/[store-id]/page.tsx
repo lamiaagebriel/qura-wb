@@ -45,6 +45,7 @@ export default async function Store({
   });
   if (!store) return <div>NO STORE</div>;
   const products = await db.product.findMany({
+    include: { orders: { include: { order: true } } },
     where: {
       storeId,
       deletedAt: null,
