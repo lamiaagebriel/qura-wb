@@ -4,36 +4,36 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
-import { Dictionary } from "@/types/locale";
-import { Store } from "@prisma/client";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { Link } from "./link";
-import { StoreBinButton } from "./store-bin-button";
-import { StoreUpdateButton } from "./store-update-button";
-import { Button, buttonVariants } from "./ui/button";
+import { DataTableRowActions } from "@/components/data-table-row-actions";
+
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
+import { Dictionary } from "@/types/locale";
+import { Product } from "@prisma/client";
+import { ProductDeleteButton } from "./product-delete-button";
+import { ProductRestoreButton } from "./product-restore-button";
 
-type ColumnType = Store;
+type ColumnType = Product;
 
-type StoresTableProps = {
+type BinProductsTableProps = {
   data: ColumnType[];
 } & Dictionary["data-table"] &
   Dictionary["data-table-column-header"] &
   Dictionary["data-table-pagination"] &
   Dictionary["data-table-view-options"] &
   Dictionary["responsive-dialog"] &
-  Dictionary["stores-table"] &
-  Dictionary["store-form"] &
-  Dictionary["store-update-button"] &
-  Dictionary["store-bin-button"];
+  Dictionary["product-restore-button"] &
+  Dictionary["product-delete-button"] &
+  Dictionary["product-form"] &
+  Dictionary["bin-products-table"];
 
-export function StoresTable({
-  dic: { "stores-table": c, ...dic },
+export function BinProductsTable({
+  dic: { "bin-products-table": c, ...dic },
   data,
-}: StoresTableProps) {
+}: BinProductsTableProps) {
   return (
     <DataTable
       dic={dic}
@@ -49,13 +49,22 @@ export function StoresTable({
                 title={c?.["name"]}
               />
             ),
+            enableSorting: false,
+            enableHiding: false,
+          },
+          {
+            accessorKey: "deletedAt",
+            header: ({ column }) => (
+              <DataTableColumnHeader
+                dic={dic}
+                column={column}
+                title={c?.["deletedAt"]}
+              />
+            ),
             cell: ({ row: { original: r } }) => (
-              <Link
-                href={`/dashboard/s/${r?.["id"]}`}
-                className={buttonVariants({ variant: "link" })}
-              >
-                {r?.["name"]}
-              </Link>
+              <div className="flex items-center gap-2">
+                {new Date(r?.["deletedAt"]!)?.toLocaleDateString()}
+              </div>
             ),
             enableSorting: false,
             enableHiding: false,
@@ -66,17 +75,17 @@ export function StoresTable({
               return (
                 <>
                   <DataTableRowActions>
-                    <StoreUpdateButton dic={dic} store={r}>
+                    <ProductRestoreButton dic={dic} product={r}>
                       <Button
                         variant="ghost"
                         className="w-full justify-start px-2 text-start font-normal"
                       >
-                        {c?.["edit"]}
+                        {c?.["restore"]}
                       </Button>
-                    </StoreUpdateButton>
+                    </ProductRestoreButton>
                     <DropdownMenuSeparator />
 
-                    <StoreBinButton dic={dic} store={r}>
+                    <ProductDeleteButton dic={dic} product={r}>
                       <Button
                         variant="ghost"
                         className="w-full justify-start px-2 text-start font-normal"
@@ -84,7 +93,7 @@ export function StoresTable({
                         {c?.["delete"]}
                         <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                       </Button>
-                    </StoreBinButton>
+                    </ProductDeleteButton>
                   </DataTableRowActions>
                 </>
               );

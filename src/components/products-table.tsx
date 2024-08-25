@@ -5,35 +5,35 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Dictionary } from "@/types/locale";
-import { Store } from "@prisma/client";
+import { Product } from "@prisma/client";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Link } from "./link";
-import { StoreBinButton } from "./store-bin-button";
-import { StoreUpdateButton } from "./store-update-button";
+import { ProductBinButton } from "./product-bin-button";
+import { ProductUpdateButton } from "./product-update-button";
 import { Button, buttonVariants } from "./ui/button";
 import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
 } from "./ui/dropdown-menu";
 
-type ColumnType = Store;
+type ColumnType = Product;
 
-type StoresTableProps = {
+type ProductsTableProps = {
   data: ColumnType[];
 } & Dictionary["data-table"] &
   Dictionary["data-table-column-header"] &
   Dictionary["data-table-pagination"] &
   Dictionary["data-table-view-options"] &
   Dictionary["responsive-dialog"] &
-  Dictionary["stores-table"] &
-  Dictionary["store-form"] &
-  Dictionary["store-update-button"] &
-  Dictionary["store-bin-button"];
+  Dictionary["products-table"] &
+  Dictionary["product-form"] &
+  Dictionary["product-update-button"] &
+  Dictionary["product-bin-button"];
 
-export function StoresTable({
-  dic: { "stores-table": c, ...dic },
+export function ProductsTable({
+  dic: { "products-table": c, ...dic },
   data,
-}: StoresTableProps) {
+}: ProductsTableProps) {
   return (
     <DataTable
       dic={dic}
@@ -51,7 +51,7 @@ export function StoresTable({
             ),
             cell: ({ row: { original: r } }) => (
               <Link
-                href={`/dashboard/s/${r?.["id"]}`}
+                href={`/dashboard/s/${r?.["storeId"]}/p/${r?.["id"]}`}
                 className={buttonVariants({ variant: "link" })}
               >
                 {r?.["name"]}
@@ -66,17 +66,17 @@ export function StoresTable({
               return (
                 <>
                   <DataTableRowActions>
-                    <StoreUpdateButton dic={dic} store={r}>
+                    <ProductUpdateButton dic={dic} product={r}>
                       <Button
                         variant="ghost"
                         className="w-full justify-start px-2 text-start font-normal"
                       >
                         {c?.["edit"]}
                       </Button>
-                    </StoreUpdateButton>
+                    </ProductUpdateButton>
                     <DropdownMenuSeparator />
 
-                    <StoreBinButton dic={dic} store={r}>
+                    <ProductBinButton dic={dic} product={r}>
                       <Button
                         variant="ghost"
                         className="w-full justify-start px-2 text-start font-normal"
@@ -84,7 +84,7 @@ export function StoresTable({
                         {c?.["delete"]}
                         <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                       </Button>
-                    </StoreBinButton>
+                    </ProductBinButton>
                   </DataTableRowActions>
                 </>
               );

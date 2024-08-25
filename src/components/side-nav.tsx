@@ -48,11 +48,13 @@ export function SideNav({ links, isCollapsed }: SideNavProps) {
                   className={cn(
                     "h-9 w-9",
                     buttonVariants({
-                      variant:
-                        segment === link?.["segment"] ? "default" : "ghost",
+                      variant: link?.["segment"]?.some((e) => e === segment)
+                        ? "default"
+                        : "ghost",
                       size: "icon",
                     }),
-                    segment === link?.["segment"] &&
+
+                    link?.["segment"]?.some((e) => e === segment) &&
                       "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                   )}
                 >
@@ -67,10 +69,12 @@ export function SideNav({ links, isCollapsed }: SideNavProps) {
               href={link?.["value"]}
               className={cn(
                 buttonVariants({
-                  variant: segment === link?.["segment"] ? "default" : "ghost",
+                  variant: link?.["segment"]?.some((e) => e === segment)
+                    ? "default"
+                    : "ghost",
                   size: "sm",
                 }),
-                segment === link?.["segment"] &&
+                link?.["segment"]?.some((e) => e === segment) &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
                 "justify-between"
               )}
@@ -82,7 +86,7 @@ export function SideNav({ links, isCollapsed }: SideNavProps) {
               {link?.["indicator"] && (
                 <span
                   className={cn(
-                    segment === link?.["segment"] &&
+                    link?.["segment"]?.some((e) => e === segment) &&
                       "text-background dark:text-white"
                   )}
                 >

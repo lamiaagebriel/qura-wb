@@ -11,7 +11,7 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   return (
     <div
-      className={cn("container max-w-screen-lg flex-1", className)}
+      className={cn("container my-4 max-w-screen-lg flex-1", className)}
       {...props}
     >
       {children}
@@ -27,7 +27,7 @@ DashboardLayout.Header = function DashboardLayoutHeader({
 }: DashboardLayoutHeaderProps) {
   return (
     <div
-      className={cn("my-6 flex items-center justify-between", className)}
+      className={cn("mb-6 mt-2 flex items-center justify-between", className)}
       {...props}
     />
   );
@@ -40,8 +40,6 @@ DashboardLayout.Title = function DashboardLayoutTitle({
   ...props
 }: DashboardLayoutTitleProps) {
   return (
-    // <h2 className={cn("mt-6 text-xl font-semibold", className)} {...props} />
-
     <h2
       className={cn("text-2xl font-bold tracking-tight", className)}
       {...props}
@@ -61,12 +59,5 @@ DashboardLayout.Description = function DashboardLayoutDescription({
       className={cn("max-w-prose text-sm text-muted-foreground", className)}
       {...props}
     />
-    //   <p
-    //   className={cn(
-    //     "mb-8 mt-2 text-center text-sm font-normal leading-6 text-muted-foreground",
-    //     className
-    //   )}
-    //   {...props}
-    // />
   );
 };

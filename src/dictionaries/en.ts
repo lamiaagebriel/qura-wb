@@ -52,7 +52,7 @@ export default {
               indicator: 10,
             },
             {
-              segment: "stores",
+              segment: ["stores", "(shortcuts)"],
               value: "/dashboard/stores",
               label: "Stores",
               icon: "store",
@@ -61,7 +61,7 @@ export default {
           ],
           [
             {
-              segment: "bin",
+              segment: ["bin"],
               value: "/dashboard/bin",
               label: "Bin",
               icon: "trash",
@@ -71,14 +71,18 @@ export default {
       } as { top?: NavItem[][]; bottom?: NavItem[][] },
       dashboard: "Dashboard",
       bin: {
+        meta: { title: "Bin - Stores" },
         "main-nav": [
           { segment: null, value: "/dashboard/bin", label: "Stores" },
+          {
+            segment: ["products"],
+            value: "/dashboard/bin/products",
+            label: "Products",
+          },
         ] as NavItem[],
         bin: "Bin",
         "below is a list of your deleted items. you can restore them within 30 days before they are permanently removed.":
           "Below is a list of your deleted items. You can restore them within 30 days before they are permanently removed.",
-
-        stores: "Stores",
       },
       stores: {
         meta: { title: "Stores" },
@@ -87,6 +91,12 @@ export default {
     },
   },
   "bin-stores-table": {
+    name: "Name",
+    delete: "Delete",
+    restore: "Restore",
+    deletedAt: "Deleted At",
+  },
+  "bin-products-table": {
     name: "Name",
     delete: "Delete",
     restore: "Restore",
@@ -198,6 +208,52 @@ export default {
     delete: "Delete",
   },
 
+  "product-bin-button": {
+    "moved to bin.": "moved to bin.",
+    delete: "Delete",
+    "delete product": "Delete Product",
+    "once deleted, the product will be moved to the bin. you can manually delete it or it will be automatically removed after 30 days. if reproductd, everything will be reinstated as if nothing happened.":
+      "Once deleted, the product will be moved to the bin. You can manually delete it or it will be automatically removed after 30 days. If reproductd, everything will be reinstated as if nothing happened.",
+  },
+  "product-create-button": {
+    "created successfully.": "created successfully.",
+    submit: "Submit",
+    "create product": "Create Product",
+    "by providing detailed information about your product, you'll be able to streamline your operations, track progress, and ensure that all stakeholders are informed about the development's key aspects and milestones.":
+      "By providing detailed information about your product, you'll be able to streamline your operations, track progress, and ensure that all stakeholders are informed about the development's key aspects and milestones.",
+  },
+  "product-delete-button": {
+    "once deleted, this action cannot be undone. please be certain, as all relevant data will be permanently deleted.":
+      "once deleted, this action cannot be undone. please be certain, as all relevant data will be permanently deleted.",
+    "deleted successfully.": "deleted successfully.",
+    delete: "Delete",
+    "delete product": "Delete Product",
+  },
+  "product-restore-button": {
+    "restoring this product will bring back all its data and settings, making it appear as if it was never deleted. all related information will be fully reinstated, allowing you to pick up right where you left off.":
+      "Restoring this product will bring back all its data and settings, making it appear as if it was never deleted. All related information will be fully reinstated, allowing you to pick up right where you left off.",
+    "restored successfully.": "restored successfully.",
+    restore: "Restore",
+    "restore product": "Restore Product",
+  },
+  "product-form": {
+    name: {
+      name: "Name",
+      "health center": "Health Center",
+    },
+  },
+  "product-update-button": {
+    "updated successfully.": "updated successfully.",
+    submit: "Submit",
+    "update product": "Update Product",
+    "updating a product allows you to refine and enhance the details of your ongoing developments":
+      "Updating a product allows you to refine and enhance the details of your ongoing developments",
+  },
+  "products-table": {
+    name: "Name",
+    edit: "Edit",
+    delete: "Delete",
+  },
   "user-form": {
     name: {
       "full name": "Full Name",

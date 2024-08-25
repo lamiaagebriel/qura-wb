@@ -1,5 +1,7 @@
 import { cva, VariantProps } from "class-variance-authority";
 import {
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Globe,
   Laptop,
@@ -63,6 +65,18 @@ export const Icons = {
   ),
   trash: ({ className, ...props }: IconProps) => (
     <Trash2 className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  chevronLeft: ({ className, ...props }: IconProps) => (
+    <ChevronLeft
+      className={cn(IconsVariants({}), "rtl:rotate-180", className)}
+      {...props}
+    />
+  ),
+  chevronRight: ({ className, ...props }: IconProps) => (
+    <ChevronRight
+      className={cn(IconsVariants({}), "rtl:rotate-180", className)}
+      {...props}
+    />
   ),
   store: ({ className, ...props }: IconProps) => (
     <Store className={cn(IconsVariants({}), className)} {...props} />

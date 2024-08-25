@@ -1,7 +1,7 @@
 import { Icons } from "@/components/icons";
 
 export type NavItem = {
-  segment?: string | null;
+  segment?: string[] | null;
   value: string;
   label: string | React.ReactNode;
   icon?: keyof typeof Icons;

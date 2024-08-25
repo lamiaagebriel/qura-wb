@@ -2,17 +2,17 @@
 
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -54,34 +54,33 @@ export function ResponsiveDialog({
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="max-h-[95vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+        <AlertDialogContent className="max-h-[95vh] overflow-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="justify-start">
               {title ?? c?.["are you sure you want to proceed?"]}
-            </DialogTitle>
-            <DialogDescription className="max-w-prose">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="max-w-prose">
               {description ??
                 c?.[
                   "please confirm that all the provided information is accurate. This action cannot be undone."
                 ]}
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           {children}
 
-          <DialogFooter className="gap-2">
+          <AlertDialogFooter className="gap-2">
             {confirm}
-            <DialogClose disabled={disabled} asChild>
-              <Button disabled={disabled} variant="outline">
-                {c?.["cancel"]}
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <AlertDialogCancel disabled={disabled}>
+              {c?.["cancel"]}
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     );
   }
+
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>

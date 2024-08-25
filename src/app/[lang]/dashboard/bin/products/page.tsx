@@ -1,11 +1,11 @@
-import { BinStoresTable } from "@/components/bin-stores-table";
+import { BinProductsTable } from "@/components/bin-products-table";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDictionary } from "@/lib/dictionaries";
 import { LocaleProps } from "@/types/locale";
 import type { Metadata } from "next";
 
-type BinStoresProps = Readonly<{ params: LocaleProps }>;
+type BinProductsProps = Readonly<{ params: LocaleProps }>;
 export async function generateMetadata({
   params: { lang },
 }: Readonly<{
@@ -23,16 +23,18 @@ export async function generateMetadata({
     title: c?.["title"],
   };
 }
-export default async function BinStores({ params: { lang } }: BinStoresProps) {
+export default async function BinProducts({
+  params: { lang },
+}: BinProductsProps) {
   const dic = await getDictionary(lang);
   const user = (await getAuth())?.["user"]!;
 
-  const stores = await db.store.findMany({
+  const products = await db.product.findMany({
     where: {
-      userId: user?.["id"],
+      store: { userId: user?.["id"] },
       deletedAt: { not: null },
     },
   });
 
-  return <BinStoresTable dic={dic} data={stores} />;
+  return <BinProductsTable dic={dic} data={products} />;
 }
