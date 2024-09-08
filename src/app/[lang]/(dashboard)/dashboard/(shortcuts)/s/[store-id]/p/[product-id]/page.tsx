@@ -7,8 +7,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { ProductBinButton } from "@/components/product-bin-button";
-import { ProductRestoreButton } from "@/components/product-restore-button";
+import { ProductRestoreButton } from "@/components/product/product-restore-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { getAuth } from "@/lib/auth";
@@ -57,50 +56,44 @@ export default async function Product({
 
   return (
     <DashboardLayout>
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
-          <Link
-            href={`/dashboard/s/${storeId}`}
-            className={buttonVariants({ variant: "ghost" })}
-          >
-            <Icons.chevronLeft />
-            back to{" "}
-            <span className="font-semibold">
-              {product?.["store"]?.["name"]}{" "}
-            </span>
-          </Link>
-        </div>
-
-        <div>
-          {productDeleted ? (
-            <ProductRestoreButton
-              dic={dic}
-              product={product}
-              disabled={storeDeleted}
-            />
-          ) : (
-            <ProductBinButton
-              dic={dic}
-              product={product}
-              disabled={storeDeleted}
-            />
-          )}
-        </div>
+      <div className="mb-4">
+        <Link
+          href={`/dashboard/s/${storeId}`}
+          className={buttonVariants({ variant: "ghost" })}
+        >
+          <Icons.chevronLeft />
+          back to{" "}
+          <span className="font-semibold">{product?.["store"]?.["name"]} </span>
+        </Link>
       </div>
 
       {(storeDeleted || productDeleted) && (
-        <Alert variant="warning" className="my-6">
-          <Icons.exclamationTriangle />
-          <AlertTitle>{c?.["warning!"]}</AlertTitle>
-          <AlertDescription>
-            {
-              c?.[
-                storeDeleted
-                  ? "its store is deleted, once you restore it all will be editable."
-                  : "this product is deleted, once you restore it all will be editable."
-              ]
-            }
-          </AlertDescription>
+        <Alert
+          variant="warning"
+          className="flex items-center justify-between gap-4"
+        >
+          <div className="flex items-start gap-2">
+            <Icons.exclamationTriangle />
+
+            <div>
+              <AlertTitle>{c?.["warning!"]}</AlertTitle>
+              <AlertDescription>
+                {
+                  c?.[
+                    storeDeleted
+                      ? "its store is deleted, once you restore it all will be editable."
+                      : "this product is deleted, once you restore it all will be editable."
+                  ]
+                }
+              </AlertDescription>
+            </div>
+          </div>
+
+          <ProductRestoreButton
+            dic={dic}
+            product={product}
+            disabled={storeDeleted}
+          />
         </Alert>
       )}
       <DashboardLayout.Header>

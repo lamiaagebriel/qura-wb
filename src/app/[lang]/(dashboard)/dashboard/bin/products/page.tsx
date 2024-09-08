@@ -1,4 +1,4 @@
-import { BinProductsTable } from "@/components/bin-products-table";
+import { BinProductsTable } from "@/components/product/bin-products-table";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDictionary } from "@/lib/dictionaries";

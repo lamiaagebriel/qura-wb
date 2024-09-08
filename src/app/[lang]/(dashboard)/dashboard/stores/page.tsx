@@ -4,8 +4,8 @@ import { getDictionary } from "@/lib/dictionaries";
 import { LocaleProps } from "@/types/locale";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { StoreCreateButton } from "@/components/store-create-button";
-import { StoresTable } from "@/components/stores-table";
+import { StoreCreateButton } from "@/components/store/store-create-button";
+import { StoresTable } from "@/components/store/stores-table";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 

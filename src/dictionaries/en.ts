@@ -93,7 +93,7 @@ export default {
         meta: { title: "Stores" },
         stores: "Stores",
         "back to all stores": "back to all stores",
-        "warning!": "warning!",
+        "warning!": "Warning!",
         "this store is deleted, once you restore it all will be editable.":
           "This store is deleted, once you restore it all will be editable.",
         orders: {
@@ -154,6 +154,11 @@ export default {
     desc: "Desc",
     hide: "Hide",
   },
+  "data-table-faceted-filter": {
+    selected: "selected",
+    "no results found.": "No results found.",
+    "clear filters": "Clear filters",
+  },
   "data-table-pagination": {
     of: "of",
     "row(s) selected.": "row(s) selected.",
@@ -163,6 +168,13 @@ export default {
     "go to next page": "Go to next page",
     "go to last page": "Go to last page",
     page: "page",
+  },
+  "data-table-row-actions": {
+    "open menu": "Open menu",
+    actions: "Actions",
+  },
+  "data-table-toolbar": {
+    reset: "Reset",
   },
   "data-table-view-options": {
     view: "View",

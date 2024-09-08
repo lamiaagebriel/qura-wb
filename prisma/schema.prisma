@@ -62,6 +62,10 @@ model Product {
   deletedAt DateTime?
 
   name   String
+  sizes  String[]
+  colors String[]
+  images String[]
+
   orders OrderProductDetails[]
 
   @@map("products")
@@ -94,7 +98,8 @@ model OrderProductDetails {
   orderId   String
   productId String
 
-  size String
+  size  String
+  color String
 
   order   Order   @relation(references: [id], fields: [orderId], onDelete: Cascade)
   product Product @relation(references: [id], fields: [productId], onDelete: Cascade)

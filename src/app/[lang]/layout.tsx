@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo, Inter } from "next/font/google";
+import { Cairo } from "next/font/google";
 
 import "@/styles/globals.css";
 
@@ -16,7 +16,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const cairo = Cairo({ subsets: ["arabic"] });
-const inter = Inter({ subsets: ["latin"] });
 
 type RootLayoutProps = Readonly<{
   children: React.ReactNode;
@@ -50,7 +49,7 @@ export default async function RootLayout({
       dir={lang === "ar" ? "rtl" : "ltr"}
       className={cn(
         // "leading-relaxed tracking-tight",
-        lang === "ar" ? cairo?.["className"] : inter?.["className"]
+        cairo?.["className"]
       )}
       suppressHydrationWarning
     >

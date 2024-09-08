@@ -2,6 +2,7 @@
 
 import { Icons } from "@/components/icons";
 import { SideNav } from "@/components/side-nav";
+import { Tooltip } from "@/components/tooltip";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
@@ -16,7 +17,6 @@ import { NavItem } from "@/types";
 import { Dictionary } from "@/types/locale";
 import { User } from "lucia";
 import { useState } from "react";
-import { Tooltip } from "./tooltip";
 
 type ResizableLayoutProps = {
   user: User;

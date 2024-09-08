@@ -1,4 +1,4 @@
-import { BinOrdersTable } from "@/components/bin-orders-table";
+import { BinOrdersTable } from "@/components/order/bin-orders-table";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDictionary } from "@/lib/dictionaries";

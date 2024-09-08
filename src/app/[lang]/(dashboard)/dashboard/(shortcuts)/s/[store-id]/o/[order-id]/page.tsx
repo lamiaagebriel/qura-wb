@@ -7,8 +7,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { OrderBinButton } from "@/components/order-bin-button";
-import { OrderRestoreButton } from "@/components/order-restore-button";
+import { OrderRestoreButton } from "@/components/order/order-restore-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { getAuth } from "@/lib/auth";
@@ -57,44 +56,40 @@ export default async function Order({
 
   return (
     <DashboardLayout>
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
-          <Link
-            href={`/dashboard/s/${storeId}`}
-            className={buttonVariants({ variant: "ghost" })}
-          >
-            <Icons.chevronLeft />
-            back to{" "}
-            <span className="font-semibold">{order?.["store"]?.["name"]} </span>
-          </Link>
-        </div>
-
-        <div>
-          {orderDeleted ? (
-            <OrderRestoreButton
-              dic={dic}
-              order={order}
-              disabled={storeDeleted}
-            />
-          ) : (
-            <OrderBinButton dic={dic} order={order} disabled={storeDeleted} />
-          )}
-        </div>
+      <div className="mb-4">
+        <Link
+          href={`/dashboard/s/${storeId}`}
+          className={buttonVariants({ variant: "ghost" })}
+        >
+          <Icons.chevronLeft />
+          back to{" "}
+          <span className="font-semibold">{order?.["store"]?.["name"]} </span>
+        </Link>
       </div>
 
       {(storeDeleted || orderDeleted) && (
-        <Alert variant="warning" className="my-6">
-          <Icons.exclamationTriangle />
-          <AlertTitle>{c?.["warning!"]}</AlertTitle>
-          <AlertDescription>
-            {
-              c?.[
-                storeDeleted
-                  ? "its store is deleted, once you restore it all will be editable."
-                  : "this order is deleted, once you restore it all will be editable."
-              ]
-            }
-          </AlertDescription>
+        <Alert
+          variant="warning"
+          className="flex items-center justify-between gap-4"
+        >
+          <div className="flex items-start gap-2">
+            <Icons.exclamationTriangle />
+
+            <div>
+              <AlertTitle>{c?.["warning!"]}</AlertTitle>
+              <AlertDescription>
+                {
+                  c?.[
+                    storeDeleted
+                      ? "its store is deleted, once you restore it all will be editable."
+                      : "this order is deleted, once you restore it all will be editable."
+                  ]
+                }
+              </AlertDescription>
+            </div>
+          </div>
+
+          <OrderRestoreButton dic={dic} order={order} disabled={storeDeleted} />
         </Alert>
       )}
       <DashboardLayout.Header>

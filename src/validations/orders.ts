@@ -14,6 +14,7 @@ export const orderSchema = z.object(
         {
           productId: z.stringRequired("productId"),
           size: z.stringRequired("size"),
+          color: z.stringRequired("color"),
         }
       )
     ),

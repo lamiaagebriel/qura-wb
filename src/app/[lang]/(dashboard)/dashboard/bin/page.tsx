@@ -1,4 +1,4 @@
-import { BinStoresTable } from "@/components/bin-stores-table";
+import { BinStoresTable } from "@/components/store/bin-stores-table";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDictionary } from "@/lib/dictionaries";

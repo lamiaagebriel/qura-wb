@@ -7,14 +7,14 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { OrderCreateButton } from "@/components/order-create-button";
-import { OrdersTable } from "@/components/orders-table";
-import { ProductCreateButton } from "@/components/product-create-button";
-import { ProductsTable } from "@/components/products-table";
-import { StoreBinButton } from "@/components/store-bin-button";
-import { StoreRestoreButton } from "@/components/store-restore-button";
+import { OrderCreateButton } from "@/components/order/order-create-button";
+import { OrdersTable } from "@/components/order/orders-table";
+import { ProductCreateButton } from "@/components/product/product-create-button";
+import { ProductsTable } from "@/components/product/products-table";
+import { StoreRestoreButton } from "@/components/store/store-restore-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -46,68 +46,72 @@ export default async function Store({
   const user = (await getAuth())?.["user"]!;
 
   const store = await db.store.findFirst({
+    include: {
+      products: {
+        include: {
+          orders: {
+            include: { order: { select: { id: true } } },
+            where: {
+              order: { deletedAt: null },
+            },
+          },
+        },
+        where: { deletedAt: null },
+      },
+      orders: {
+        include: {
+          products: {
+            include: { product: { select: { name: true, deletedAt: true } } },
+          },
+        },
+        where: { deletedAt: null },
+      },
+    },
     where: {
       id: storeId,
       userId: user?.["id"],
     },
   });
   if (!store) return <div>NO STORE</div>;
-  const products = await db.product.findMany({
-    include: {
-      orders: { include: { order: { select: { id: true } } } },
-    },
-    where: {
-      storeId,
-      deletedAt: null,
-      store: { userId: user?.["id"] },
-    },
-  });
 
-  const orders = await db.order.findMany({
-    include: {
-      products: { include: { product: { select: { name: true } } } },
-    },
-    where: {
-      storeId,
-      deletedAt: null,
-      store: { userId: user?.["id"] },
-    },
-  });
+  const products = store?.["products"];
+  const orders = store?.["orders"];
+
   const storeDeleted = !!store?.["deletedAt"];
 
   return (
     <DashboardLayout>
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
-          <Link
-            href="/dashboard/stores"
-            className={buttonVariants({ variant: "ghost" })}
-          >
-            <Icons.chevronLeft />
-            {c?.["back to all stores"]}
-          </Link>
-        </div>
-
-        <div>
-          {storeDeleted ? (
-            <StoreRestoreButton dic={dic} store={store} />
-          ) : (
-            <StoreBinButton dic={dic} store={store} />
-          )}
-        </div>
+      <div className="mb-4">
+        <Link
+          href="/dashboard/stores"
+          className={buttonVariants({ variant: "ghost" })}
+        >
+          <Icons.chevronLeft />
+          {c?.["back to all stores"]}
+        </Link>
       </div>
 
       {storeDeleted && (
-        <Alert variant="warning" className="my-6">
-          <Icons.exclamationTriangle />
-          <AlertTitle>{c?.["warning!"]}</AlertTitle>
-          <AlertDescription>
-            {
-              c?.[
-                "this store is deleted, once you restore it all will be editable."
-              ]
-            }
-          </AlertDescription>
+        <Alert
+          variant="warning"
+          className="flex items-center justify-between gap-4"
+        >
+          <div className="flex items-start gap-2">
+            <Icons.exclamationTriangle />
+
+            <div>
+              <AlertTitle>{c?.["warning!"]}</AlertTitle>
+              <AlertDescription>
+                {
+                  c?.[
+                    "this store is deleted, once you restore it all will be editable."
+                  ]
+                }
+              </AlertDescription>
+            </div>
+          </div>
+
+          <StoreRestoreButton dic={dic} store={store} />
         </Alert>
       )}
       <DashboardLayout.Header>
@@ -117,38 +121,46 @@ export default async function Store({
             Lorem ipsum, dolor sit amet consectetur adipisicing elit.
           </DashboardLayout.Description>
         </div>
+      </DashboardLayout.Header>
+      <Tabs defaultValue="products">
+        <TabsList>
+          <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+        </TabsList>
 
-        <div>
+        <TabsContent value="products">
           <ProductCreateButton
             dic={dic}
             product={{ storeId }}
             disabled={storeDeleted}
           />
 
-          <OrderCreateButton
+          <ProductsTable
             dic={dic}
-            order={{ storeId }}
-            product={products?.["0"]}
-            disabled={storeDeleted}
+            data={products.map((p) => ({
+              ...p,
+              store: { deletedAt: store?.["deletedAt"] },
+            }))}
           />
-        </div>
-      </DashboardLayout.Header>
-
-      <ProductsTable
-        dic={dic}
-        data={products.map((p) => ({
-          ...p,
-          store: { deletedAt: store?.["deletedAt"] },
-        }))}
-      />
-
-      <OrdersTable
-        dic={dic}
-        data={orders.map((o) => ({
-          ...o,
-          store: { deletedAt: store?.["deletedAt"] },
-        }))}
-      />
+        </TabsContent>
+        <TabsContent value="orders">
+          {products?.["length"] ? (
+            <OrderCreateButton
+              dic={dic}
+              order={{ storeId }}
+              product={products?.["0"]}
+              disabled={storeDeleted}
+            />
+          ) : null}
+          <OrdersTable
+            dic={dic}
+            data={orders.map((o) => ({
+              ...o,
+              store: { deletedAt: store?.["deletedAt"] },
+            }))}
+          />
+        </TabsContent>
+      </Tabs>
     </DashboardLayout>
   );
 }

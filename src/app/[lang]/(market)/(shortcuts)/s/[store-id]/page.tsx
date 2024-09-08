@@ -7,7 +7,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { ProductsTable } from "@/components/products-table";
+import { ProductsTable } from "@/components/product/products-table";
 import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 

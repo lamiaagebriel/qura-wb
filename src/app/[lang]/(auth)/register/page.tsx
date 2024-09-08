@@ -6,7 +6,7 @@ import { LocaleProps } from "@/types/locale";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { UserAuthRegisterForm } from "@/components/user-auth-register-form";
+import { UserAuthRegisterForm } from "@/components/user/user-auth-register-form";
 
 type RegisterProps = Readonly<{ params: LocaleProps }>;
 

@@ -6,7 +6,7 @@ import { LocaleProps } from "@/types/locale";
 
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { UserAuthLoginForm } from "@/components/user-auth-login-form";
+import { UserAuthLoginForm } from "@/components/user/user-auth-login-form";
 
 type LoginProps = Readonly<{
   params: LocaleProps;
