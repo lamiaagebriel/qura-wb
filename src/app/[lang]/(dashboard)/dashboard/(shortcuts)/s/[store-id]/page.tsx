@@ -29,7 +29,9 @@ export async function generateMetadata({
 }>): Promise<Metadata> {
   const {
     dashboard: {
-      user: { meta: c },
+      user: {
+        stores: { meta: c },
+      },
     },
   } = await getDictionary(lang);
 
@@ -124,16 +126,20 @@ export default async function Store({
       </DashboardLayout.Header>
       <Tabs defaultValue="products">
         <TabsList>
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="products">
+            {c?.["products"]?.["products"]}
+          </TabsTrigger>
+          <TabsTrigger value="orders">{c?.["orders"]?.["orders"]}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products">
-          <ProductCreateButton
-            dic={dic}
-            product={{ storeId }}
-            disabled={storeDeleted}
-          />
+          <div className="mb-4 flex justify-end">
+            <ProductCreateButton
+              dic={dic}
+              product={{ storeId }}
+              disabled={storeDeleted}
+            />
+          </div>
 
           <ProductsTable
             dic={dic}
@@ -144,14 +150,17 @@ export default async function Store({
           />
         </TabsContent>
         <TabsContent value="orders">
-          {products?.["length"] ? (
-            <OrderCreateButton
-              dic={dic}
-              order={{ storeId }}
-              product={products?.["0"]}
-              disabled={storeDeleted}
-            />
-          ) : null}
+          <div className="mb-4 flex justify-end">
+            {products?.["length"] ? (
+              <OrderCreateButton
+                dic={dic}
+                order={{ storeId }}
+                product={products?.["0"]}
+                disabled={storeDeleted}
+              />
+            ) : null}
+          </div>
+
           <OrdersTable
             dic={dic}
             data={orders.map((o) => ({

@@ -26,12 +26,13 @@ type OrdersTableProps = {
 } & Pick<DataTableProps<any, any>, "dic"> &
   Dictionary["responsive-dialog"] &
   Dictionary["orders-table"] &
+  Dictionary["db"] &
   Dictionary["order-form"] &
   Dictionary["order-update-button"] &
   Dictionary["order-bin-button"];
 
 export function OrdersTable({
-  dic: { "orders-table": c, ...dic },
+  dic: { "orders-table": c, db, ...dic },
   data,
 }: OrdersTableProps) {
   return (
@@ -66,9 +67,16 @@ export function OrdersTable({
               <DataTableColumnHeader
                 dic={dic}
                 column={column}
-                title={c?.["name"]}
+                title={c?.["status"]}
               />
             ),
+            cell: ({ row: { original: r } }) => {
+              const status = db?.["enums"]?.OrderStatus?.find(
+                (e) => e?.["value"] === r?.["status"]
+              );
+
+              return <div>{status?.["label"]}</div>;
+            },
             enableSorting: false,
             enableHiding: false,
           },
@@ -78,7 +86,7 @@ export function OrdersTable({
               <DataTableColumnHeader
                 dic={dic}
                 column={column}
-                title={c?.["name"]}
+                title={c?.["products"]}
               />
             ),
             cell: ({ row: { original: r } }) => (

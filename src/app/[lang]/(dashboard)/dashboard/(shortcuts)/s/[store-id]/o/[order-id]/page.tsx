@@ -62,7 +62,7 @@ export default async function Order({
           className={buttonVariants({ variant: "ghost" })}
         >
           <Icons.chevronLeft />
-          back to{" "}
+          {c?.["back to"]}{" "}
           <span className="font-semibold">{order?.["store"]?.["name"]} </span>
         </Link>
       </div>

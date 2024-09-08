@@ -1,4 +1,5 @@
 import { NavItem, SelectItem } from "@/types";
+import { OrderStatus } from "@prisma/client";
 
 export default {
   site: {
@@ -88,6 +89,8 @@ export default {
         bin: "Bin",
         "below is a list of your deleted items. you can restore them within 30 days before they are permanently removed.":
           "Below is a list of your deleted items. You can restore them within 30 days before they are permanently removed.",
+        products: { meta: { title: "Bin - Products" } },
+        orders: { meta: { title: "Bin - Orders" } },
       },
       stores: {
         meta: { title: "Stores" },
@@ -97,7 +100,9 @@ export default {
         "this store is deleted, once you restore it all will be editable.":
           "This store is deleted, once you restore it all will be editable.",
         orders: {
+          orders: "Orders",
           order: {
+            "back to": "back to",
             "warning!": "warning!",
             "its store is deleted, once you restore it all will be editable.":
               "Its store is deleted, once you restore it all will be editable.",
@@ -107,7 +112,9 @@ export default {
           },
         },
         products: {
+          products: "Products",
           product: {
+            "back to": "back to",
             "warning!": "warning!",
             "its store is deleted, once you restore it all will be editable.":
               "Its store is deleted, once you restore it all will be editable.",
@@ -300,6 +307,8 @@ export default {
   },
   "orders-table": {
     name: "Name",
+    status: "Status",
+    products: "Products",
     edit: "Edit",
     delete: "Delete",
   },
@@ -348,6 +357,9 @@ export default {
   },
   "products-table": {
     name: "Name",
+    sizes: "Sizes",
+    colors: "Colors",
+    orders: "Orders",
     edit: "Edit",
     delete: "Delete",
   },
@@ -359,5 +371,18 @@ export default {
     },
     email: { email: "Email" },
     password: { password: "Password" },
+  },
+
+  db: {
+    enums: {
+      OrderStatus: [
+        { value: "PENDING", label: "Pending" },
+        { value: "CONFIRMED", label: "Confirmed" },
+        { value: "DELIVERING", label: "Delivering" },
+        { value: "DELIVERED", label: "Delivered" },
+      ] as (SelectItem & {
+        value: OrderStatus;
+      })[],
+    },
   },
 };

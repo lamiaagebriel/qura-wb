@@ -1,11 +1,29 @@
+// updated: locale
 "use client";
 
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import * as React from "react";
 
+import { useLocale } from "@/hooks/use-locale";
 import { cn } from "@/lib/utils";
 
-const Tabs = TabsPrimitive.Root;
+// const Tabs = TabsPrimitive.Root;
+const Tabs = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>
+>(({ className, dir, ...props }, ref) => {
+  const lang = useLocale();
+
+  return (
+    <TabsPrimitive.Root
+      ref={ref}
+      dir={(dir ?? lang === "ar") ? "rtl" : "ltr"}
+      className={cn("", className)}
+      {...props}
+    />
+  );
+});
+Tabs.displayName = TabsPrimitive.Root.displayName;
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,

@@ -14,7 +14,9 @@ export async function generateMetadata({
   const {
     dashboard: {
       user: {
-        bin: { meta: c },
+        bin: {
+          products: { meta: c },
+        },
       },
     },
   } = await getDictionary(lang);

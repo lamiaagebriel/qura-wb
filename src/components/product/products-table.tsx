@@ -60,7 +60,11 @@ export function ProductsTable({
           {
             accessorKey: "sizes",
             header: ({ column }) => (
-              <DataTableColumnHeader dic={dic} column={column} title="Sizes" />
+              <DataTableColumnHeader
+                dic={dic}
+                column={column}
+                title={c?.["sizes"]}
+              />
             ),
             cell: ({ row: { original: r } }) => (
               <div>[{r?.["sizes"]?.join(", ")}]</div>
@@ -71,7 +75,11 @@ export function ProductsTable({
           {
             accessorKey: "colors",
             header: ({ column }) => (
-              <DataTableColumnHeader dic={dic} column={column} title="Colors" />
+              <DataTableColumnHeader
+                dic={dic}
+                column={column}
+                title={c?.["colors"]}
+              />
             ),
             cell: ({ row: { original: r } }) => (
               <div>[{r?.["colors"]?.join(", ")}]</div>
@@ -82,7 +90,11 @@ export function ProductsTable({
           {
             accessorKey: "orders",
             header: ({ column }) => (
-              <DataTableColumnHeader dic={dic} column={column} title="Orders" />
+              <DataTableColumnHeader
+                dic={dic}
+                column={column}
+                title={c?.["orders"]}
+              />
             ),
             cell: ({ row: { original: r } }) => (
               <div>

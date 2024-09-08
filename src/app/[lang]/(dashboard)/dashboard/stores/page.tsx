@@ -20,7 +20,9 @@ export async function generateMetadata({
 }>): Promise<Metadata> {
   const {
     dashboard: {
-      user: { meta: c },
+      user: {
+        stores: { meta: c },
+      },
     },
   } = await getDictionary(lang);
 
