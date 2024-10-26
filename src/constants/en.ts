@@ -23,29 +23,34 @@ export default {
 			"privacy policy": "Privacy Policy",
 		},
 	},
-	"user-auth-register-form": {
-		"or continue with": "or continue with",
-		"sign up with email": "Sign Up with Email",
-		"sign up with google": "Sign Up with Google",
+
+	"data-table-column-header": {
+		asc: "Asc",
+		desc: "Desc",
+		hide: "Hide",
 	},
-	"user-auth-login-form": {
-		"or continue with": "or continue with",
-		"sign in with email": "Sign In with Email",
-		"sign in with google": "Sign In with Google",
-		"forgot password": "Forgot Password?",
+	"data-table-pagination": {
+		of: "of",
+		"row(s) selected.": "row(s) selected.",
+		"rows per page": "rows per page",
+		"go to first page": "Go to first page",
+		"go to previous page": "Go to previous page",
+		"go to next page": "Go to next page",
+		"go to last page": "Go to last page",
+		page: "page",
 	},
-	"user-form": {
-		name: {
-			"full name": "Full Name",
-			"joe doe": "Joe Doe",
-		},
-		email: {
-			email: "Email",
-		},
-		password: {
-			password: "Password",
-		},
+	"data-table-row-actions": {
+		actions: "Actions",
+		"open menu": "Open menu",
 	},
+	"data-table-view-options": {
+		view: "View",
+		"toggle columns": "Toggle columns",
+	},
+	"data-table": {
+		"no results.": "No Results.",
+	},
+
 	"store-form": {
 		name: {
 			name: "Name",
@@ -62,7 +67,8 @@ export default {
 	},
 	"store-delete-button": {
 		"deleted successfully.": "deleted successfully.",
-		submit: "submit",
+		delete: "delete",
+		confirm: "confirm",
 		cancel: "cancel",
 		"delete store": "delete store",
 		"delete a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
@@ -70,12 +76,42 @@ export default {
 	},
 	"store-update-button": {
 		"updated successfully.": "updated successfully.",
+		edit: "edit",
 		submit: "submit",
 		cancel: "cancel",
 		"update store": "update store",
 		"update a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"update a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
+	"stores-table": {
+		name: "name",
+		createdAt: "createdAt",
+	},
+
+	"user-form": {
+		name: {
+			"full name": "Full Name",
+			"joe doe": "Joe Doe",
+		},
+		email: {
+			email: "Email",
+		},
+		password: {
+			password: "Password",
+		},
+	},
+	"user-login-form": {
+		"or continue with": "or continue with",
+		"sign in with email": "Sign In with Email",
+		"sign in with google": "Sign In with Google",
+		"forgot password": "Forgot Password?",
+	},
+	"user-register-form": {
+		"or continue with": "or continue with",
+		"sign up with email": "Sign Up with Email",
+		"sign up with google": "Sign Up with Google",
+	},
+
 	actions: {
 		// users: {
 		"you don't have access to do this action": "you don't have access to do this action",

@@ -14,12 +14,11 @@ import { signInWithGoogle, signUpWithPassword } from "@/servers/users";
 import { userRegisterSchema } from "@/validations/users";
 import { Dictionary } from "@/types/locale";
 
-type UserAuthRegisterFormProps = {} & Dictionary["user-auth-register-form"] &
-	Pick<UserFormProps, "dic">;
+type UserRegisterFormProps = {} & Dictionary["user-register-form"] & Pick<UserFormProps, "dic">;
 
-export function UserAuthRegisterForm({
-	dic: { "user-auth-register-form": c, ...dic },
-}: UserAuthRegisterFormProps) {
+export function UserRegisterForm({
+	dic: { "user-register-form": c, ...dic },
+}: UserRegisterFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
 

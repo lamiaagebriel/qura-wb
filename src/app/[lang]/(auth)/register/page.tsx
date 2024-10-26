@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Icons } from "@/components/icons";
-import { UserAuthRegisterForm } from "@/components/_users/register-form";
+import { UserRegisterForm } from "@/components/_users/register-form";
 import { Link } from "@/components/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export default async function Register({ params }: RegisterProps) {
 				</div>
 				<div className="grid gap-4">
 					<Suspense>
-						<UserAuthRegisterForm dic={dic} />
+						<UserRegisterForm dic={dic} />
 					</Suspense>
 
 					<p className="px-8 text-center text-sm text-muted-foreground">

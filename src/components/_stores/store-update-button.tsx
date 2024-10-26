@@ -73,7 +73,7 @@ export function StoreUpdateButton({
 			}}
 		>
 			<AlertDialogTrigger asChild>
-				<Button {...props}>{c?.["update store"]}</Button>
+				<Button {...props}>{c?.["edit"]}</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent className="max-h-[95svh] overflow-auto rounded-md">
 				<AlertDialogHeader>

@@ -15,10 +15,8 @@ import { signInWithGoogle, signInWithPassword } from "@/servers/users";
 import { UserForm, UserFormProps } from "@/components/_users/_user-form";
 import { Dictionary } from "@/types/locale";
 
-type UserAuthLoginFormProps = {} & Dictionary["user-auth-login-form"] & Pick<UserFormProps, "dic">;
-export function UserAuthLoginForm({
-	dic: { "user-auth-login-form": c, ...dic },
-}: UserAuthLoginFormProps) {
+type UserLoginFormProps = {} & Dictionary["user-login-form"] & Pick<UserFormProps, "dic">;
+export function UserLoginForm({ dic: { "user-login-form": c, ...dic } }: UserLoginFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
 

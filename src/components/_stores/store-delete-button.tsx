@@ -73,7 +73,7 @@ export function StoreDeleteButton({
 			}}
 		>
 			<AlertDialogTrigger asChild>
-				<Button {...props}>{c?.["delete store"]}</Button>
+				<Button {...props}>{c?.["delete"]}</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent className="max-h-[95svh] overflow-auto rounded-md">
 				<AlertDialogHeader>
@@ -102,7 +102,7 @@ export function StoreDeleteButton({
 								className="w-full md:w-fit"
 							>
 								{loading && <Icons.spinner />}
-								{c?.["submit"]}
+								{c?.["confirm"]}
 							</Button>
 						</AlertDialogFooter>
 					</form>

@@ -29,6 +29,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { StoreUpdateButton } from "@/components/_stores/store-update-button";
+import { StoresTable } from "@/components/_stores/stores-table";
 
 type StoresProps = Readonly<{
 	params: Promise<LocaleProps>;
@@ -60,55 +61,8 @@ export default async function Stores({ params }: StoresProps) {
 				</div>
 			</header>
 
-			<div className="container grid grid-cols-5 gap-4">
-				{stores?.["length"] ? (
-					stores?.map((e, i) => (
-						<Card key={i} className="relative">
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon"
-										className="absolute right-4 top-4 data-[state=open]:bg-muted"
-									>
-										<DotsHorizontalIcon className="h-4 w-4 shrink-0" />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end" className="w-full min-w-40">
-									<DropdownMenuLabel>My Account</DropdownMenuLabel>
-
-									<DropdownMenuSeparator />
-									<StoreUpdateButton
-										dic={dic}
-										store={e}
-										variant="ghost"
-										className="w-full justify-start px-2 text-start font-normal"
-									/>
-									<StoreDeleteButton
-										dic={dic}
-										store={e}
-										variant="ghost"
-										className="w-full justify-start px-2 text-start font-normal"
-									/>
-								</DropdownMenuContent>
-							</DropdownMenu>
-
-							<Link href={`/dashboard/s/${e?.["id"]}`}>
-								<CardHeader>
-									<CardTitle>{e?.["name"]}</CardTitle>
-								</CardHeader>
-
-								<CardFooter>
-									<p className="w-full text-end text-xs text-muted-foreground">
-										{new Date(e?.["createdAt"])?.toLocaleDateString()}
-									</p>
-								</CardFooter>
-							</Link>
-						</Card>
-					))
-				) : (
-					<div className="container">NO STORES</div>
-				)}
+			<div className="container">
+				<StoresTable dic={dic} data={stores} />;
 			</div>
 		</>
 	);

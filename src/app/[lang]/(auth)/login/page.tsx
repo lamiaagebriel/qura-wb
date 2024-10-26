@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Icons } from "@/components/icons";
-import { UserAuthLoginForm } from "@/components/_users/login-form";
+import { UserLoginForm } from "@/components/_users/login-form";
 import { Link } from "@/components/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,7 @@ export default async function Login({ params }: LoginProps) {
 				</div>
 				<div className="grid gap-6">
 					<Suspense>
-						<UserAuthLoginForm dic={dic} />
+						<UserLoginForm dic={dic} />
 					</Suspense>
 
 					<p className="text-center text-sm text-muted-foreground">
