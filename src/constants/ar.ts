@@ -47,6 +47,8 @@ export default {
 		},
 	},
 	actions: {
+		"you don't have access to do this action": "لا تملك الصلاحية لهذا الفعل.",
+		"this action needs you to be logged in.": "يجب أن تسجل الدخول أولاً.",
 		"this email is already used.": "هذا البريد الإلكتروني مستخدم بالفعل.",
 		"incorrect email address.": "عنوان البريد الإلكتروني غير صحيح.",
 		"incorrect password": "كلمة المرور غير صحيحة",
@@ -61,5 +63,9 @@ export default {
 			"لم يتم تحديث حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
 		"your user account was not deleted. please try again.":
 			"لم يتم حذف حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
+
+		// stores: {
+		"your store was not created. please try again.":
+			"لم يتم إنشاء المتجر الخاص بك. يرجى المحاولة مرة أخرى.",
 	},
 };

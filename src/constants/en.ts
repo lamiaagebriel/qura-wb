@@ -46,8 +46,40 @@ export default {
 			password: "Password",
 		},
 	},
+	"store-form": {
+		name: {
+			name: "Name",
+			"ovve.eg": "Ovve.eg",
+		},
+	},
+	"store-create-button": {
+		"created successfully.": "created successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"create store": "create store",
+		"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"store-delete-button": {
+		"deleted successfully.": "deleted successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"delete store": "delete store",
+		"delete a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"delete a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"store-update-button": {
+		"updated successfully.": "updated successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"update store": "update store",
+		"update a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"update a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
 	actions: {
 		// users: {
+		"you don't have access to do this action": "you don't have access to do this action",
+		"this action needs you to be logged in.": "this action needs you to be logged in.",
 		"this email is already used.": "This email is already used.",
 		"incorrect email address.": "Incorrect email address.",
 		"incorrect password": "Incorrect password",
@@ -62,5 +94,11 @@ export default {
 			"your user account was not updated. Please try again.",
 		"your user account was not deleted. please try again.":
 			"your user account was not deleted. Please try again.",
+
+		// stores: {
+		"your store was not created. please try again.":
+			"your store was not created. Please try again.",
+		"your store was not deleted. please try again.":
+			"your store was not deleted. Please try again.",
 	},
 };

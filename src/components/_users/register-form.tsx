@@ -9,7 +9,7 @@ import * as z from "zod";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { UserForm, UserFormProps } from "@/components/_users/user-form";
+import { UserForm, UserFormProps } from "@/components/_users/_user-form";
 import { signInWithGoogle, signUpWithPassword } from "@/servers/users";
 import { userRegisterSchema } from "@/validations/users";
 import { Dictionary } from "@/types/locale";
@@ -50,7 +50,7 @@ export function UserAuthRegisterForm({
 						<UserForm.email dic={dic} form={form as any} loading={loading || isGoogleLoading} />
 						<UserForm.password dic={dic} form={form as any} loading={loading || isGoogleLoading} />
 
-						<Button className="w-full" disabled={loading || isGoogleLoading}>
+						<Button type="submit" className="w-full" disabled={loading || isGoogleLoading}>
 							{loading && <Icons.spinner />}
 							{c?.["sign up with email"]}
 						</Button>
@@ -69,7 +69,6 @@ export function UserAuthRegisterForm({
 				</div>
 				<div className="w-full space-y-2">
 					<Button
-						type="button"
 						variant="outline"
 						className="w-full"
 						onClick={async () => {

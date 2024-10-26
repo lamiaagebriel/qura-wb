@@ -10,6 +10,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { LocaleProps } from "@/types/locale";
+import { StoreDeleteButton } from "@/components/_stores/store-delete-button";
+import { getAuth } from "@/lib/auth";
+import { getDictionary } from "@/lib/locale";
+import { db } from "@/lib/db";
 
 type StoreProps = Readonly<{
 	params: Promise<{ "store-id": string } & LocaleProps>;
@@ -17,9 +21,20 @@ type StoreProps = Readonly<{
 export const metadata: Metadata = { title: "Store" };
 export default async function Store({ params }: StoreProps) {
 	const { lang, "store-id": storeId } = await params;
+	const user = (await getAuth())?.["user"]!;
+	const dic = await getDictionary(lang);
+	const store = await db.store.findUnique({
+		where: {
+			id: storeId,
+			userId: user?.["id"] ?? "",
+		},
+	});
+
+	if (!store) return <div className="container">NO STORE</div>;
+
 	return (
 		<>
-			<header className="flex h-16 shrink-0 items-center gap-2">
+			<header className="flex h-16 shrink-0 items-center justify-between gap-2">
 				<div className="flex items-center gap-2 px-4">
 					<SidebarTrigger className="-ml-1" />
 					<Separator orientation="vertical" className="mr-2 h-4" />
@@ -30,10 +45,14 @@ export default async function Store({ params }: StoreProps) {
 							</BreadcrumbItem>
 							<BreadcrumbSeparator className="hidden md:block" />
 							<BreadcrumbItem>
-								<BreadcrumbPage>Store {storeId}</BreadcrumbPage>
+								<BreadcrumbPage>Store {store?.["name"]}</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
+				</div>
+
+				<div>
+					<StoreDeleteButton dic={dic} store={store} variant="destructive" />
 				</div>
 			</header>
 

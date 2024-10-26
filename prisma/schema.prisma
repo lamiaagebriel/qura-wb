@@ -14,8 +14,9 @@ datasource db {
 }
 
 model User {
-  id       String    @id @map("_id")
-  sessions Session[]
+  id        String    @id @map("_id")
+  sessions  Session[]
+  createdAt DateTime  @default(now())
 
   name     String
   email    String  @unique
@@ -23,7 +24,7 @@ model User {
   password String? // creadentials
   googleId String? // googleAuth
 
-  createdAt DateTime @default(now())
+  stores Store[]
 
   @@map("users")
 }
@@ -31,8 +32,19 @@ model User {
 model Session {
   id        String   @id @map("_id")
   userId    String
-  expiresAt DateTime
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  expiresAt DateTime
 
   @@map("sessions")
+}
+
+model Store {
+  id        String   @id @map("_id")
+  userId    String
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  name String
+
+  @@map("stores")
 }

@@ -3,27 +3,6 @@ import { LocaleProps } from "@/types/locale";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { Icons } from "@/components/icons";
-import {
-	BadgeCheck,
-	Bell,
-	BookOpen,
-	Bot,
-	ChevronRight,
-	ChevronsUpDown,
-	Command,
-	CreditCard,
-	Folder,
-	Frame,
-	LifeBuoy,
-	LogOut,
-	Map,
-	MoreHorizontal,
-	PieChart,
-	Send,
-	Settings2,
-	SquareTerminal,
-	Store,
-} from "lucide-react";
 
 type DashboardLayoutProps = Readonly<{
 	children: React.ReactNode;

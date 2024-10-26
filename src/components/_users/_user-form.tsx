@@ -57,7 +57,7 @@ export const UserForm = {
 						<FormLabel>{c?.["email"]}</FormLabel>
 						<FormControl>
 							<Input
-								// dir="ltr"
+								dir="ltr"
 								type="email"
 								placeholder="name@example.com"
 								autoCapitalize="none"
@@ -89,6 +89,7 @@ export const UserForm = {
 						<FormLabel>{c?.["password"]}</FormLabel>
 						<FormControl>
 							<Input
+								dir="ltr"
 								type="password"
 								placeholder="******"
 								autoCapitalize="none"

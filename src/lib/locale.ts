@@ -72,7 +72,11 @@ const site = {
 };
 
 export const getDictionary = async (locale: Locale) => {
-	if (locale === "ar" || locale === "en") return await site[locale]();
+	if (
+		// locale === "ar" ||
+		locale === "en"
+	)
+		return await site[locale]();
 
 	const dic = await site["en"]();
 	return (await translateObject({

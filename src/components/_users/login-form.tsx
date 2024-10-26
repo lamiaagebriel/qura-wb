@@ -12,7 +12,7 @@ import { Form } from "@/components/ui/form";
 
 import { userLoginSchema } from "@/validations/users";
 import { signInWithGoogle, signInWithPassword } from "@/servers/users";
-import { UserForm, UserFormProps } from "@/components/_users/user-form";
+import { UserForm, UserFormProps } from "@/components/_users/_user-form";
 import { Dictionary } from "@/types/locale";
 
 type UserAuthLoginFormProps = {} & Dictionary["user-auth-login-form"] & Pick<UserFormProps, "dic">;
@@ -58,7 +58,7 @@ export function UserAuthLoginForm({
               </Link>
             </p> */}
 
-						<Button className="w-full" disabled={loading || isGoogleLoading}>
+						<Button type="submit" className="w-full" disabled={loading || isGoogleLoading}>
 							{loading && <Icons.spinner />}
 							{c?.["sign in with email"]}
 						</Button>
@@ -77,7 +77,6 @@ export function UserAuthLoginForm({
 				</div>
 				<div className="w-full space-y-2">
 					<Button
-						type="button"
 						variant="outline"
 						className="w-full"
 						onClick={async () => {
