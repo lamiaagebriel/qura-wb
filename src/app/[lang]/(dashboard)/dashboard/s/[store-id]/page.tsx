@@ -9,10 +9,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { LocaleProps } from "@/types/locale";
 
-type DashboardProps = Readonly<{}>;
-export const metadata: Metadata = { title: "Dashboard" };
-export default async function Dashboard({}: DashboardProps) {
+type StoreProps = Readonly<{
+	params: Promise<{ "store-id": string } & LocaleProps>;
+}>;
+export const metadata: Metadata = { title: "Store" };
+export default async function Store({ params }: StoreProps) {
+	const { lang, "store-id": storeId } = await params;
 	return (
 		<>
 			<header className="flex h-16 shrink-0 items-center gap-2">
@@ -22,11 +26,11 @@ export default async function Dashboard({}: DashboardProps) {
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem className="hidden md:block">
-								<BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+								<BreadcrumbLink href="/dashboard/stores">Stores</BreadcrumbLink>
 							</BreadcrumbItem>
 							<BreadcrumbSeparator className="hidden md:block" />
 							<BreadcrumbItem>
-								<BreadcrumbPage>Overview</BreadcrumbPage>
+								<BreadcrumbPage>Store {storeId}</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>

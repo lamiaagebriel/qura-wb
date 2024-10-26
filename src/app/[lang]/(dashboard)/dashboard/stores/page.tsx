@@ -9,10 +9,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Link } from "@/components/link";
 
-type DashboardProps = Readonly<{}>;
-export const metadata: Metadata = { title: "Dashboard" };
-export default async function Dashboard({}: DashboardProps) {
+type StoresProps = Readonly<{}>;
+export const metadata: Metadata = { title: "Stores" };
+export default async function Stores({}: StoresProps) {
 	return (
 		<>
 			<header className="flex h-16 shrink-0 items-center gap-2">
@@ -21,12 +22,8 @@ export default async function Dashboard({}: DashboardProps) {
 					<Separator orientation="vertical" className="mr-2 h-4" />
 					<Breadcrumb>
 						<BreadcrumbList>
-							<BreadcrumbItem className="hidden md:block">
-								<BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-							</BreadcrumbItem>
-							<BreadcrumbSeparator className="hidden md:block" />
 							<BreadcrumbItem>
-								<BreadcrumbPage>Overview</BreadcrumbPage>
+								<BreadcrumbPage>Stores</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
@@ -40,6 +37,7 @@ export default async function Dashboard({}: DashboardProps) {
 					<div className="aspect-video rounded-xl bg-muted/50" />
 				</div>
 				<div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+				<Link href={`/dashboard/s/1`}>Store 1</Link>
 			</div>
 		</>
 	);

@@ -1,6 +1,29 @@
 import { getAuth } from "@/lib/auth";
 import { LocaleProps } from "@/types/locale";
 import { redirect } from "next/navigation";
+import { Sidebar } from "@/components/sidebar";
+import { Icons } from "@/components/icons";
+import {
+	BadgeCheck,
+	Bell,
+	BookOpen,
+	Bot,
+	ChevronRight,
+	ChevronsUpDown,
+	Command,
+	CreditCard,
+	Folder,
+	Frame,
+	LifeBuoy,
+	LogOut,
+	Map,
+	MoreHorizontal,
+	PieChart,
+	Send,
+	Settings2,
+	SquareTerminal,
+	Store,
+} from "lucide-react";
 
 type DashboardLayoutProps = Readonly<{
 	children: React.ReactNode;
@@ -12,5 +35,60 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 	const { user } = await getAuth();
 	if (!user) redirect(`/${lang}/login`);
 
-	return <div className="flex min-h-screen flex-col">{children}</div>;
+	return (
+		<Sidebar
+			items={{
+				content: [
+					{
+						label: "Overview",
+						items: [
+							{
+								label: "Dashboard",
+								value: "/dashboard",
+								icon: <Icons.dashboard />,
+							},
+							{
+								label: "Orders",
+								value: "/dashboard/orders",
+								icon: <Icons.shoppingBag />,
+							},
+						],
+					},
+					{
+						label: "Work",
+						items: [
+							{
+								label: "Stores",
+								value: "/dashboard/stores",
+								icon: <Icons.store />,
+							},
+						],
+					},
+				],
+				footer: [
+					{
+						items: [
+							{
+								label: "Settings",
+								value: "/dashboard/settings",
+								icon: <Icons.settings />,
+							},
+							{
+								label: "Support",
+								value: "/dashboard/settings",
+								icon: <Icons.lifeBuoy />,
+							},
+							{
+								label: "Feedback",
+								value: "/dashboard/settings",
+								icon: <Icons.send />,
+							},
+						],
+					},
+				],
+			}}
+		>
+			{children}
+		</Sidebar>
+	);
 }

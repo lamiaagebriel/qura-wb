@@ -1,9 +1,25 @@
 import { cva, VariantProps } from "class-variance-authority";
-import { ChevronLeft, ChevronRight, Loader2, LogOut, User, type LucideProps } from "lucide-react";
+import {
+	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
+	ChevronUp,
+	LayoutDashboard,
+	LifeBuoy,
+	Loader2,
+	LogOut,
+	Send,
+	Settings2,
+	ShoppingBag,
+	ShoppingBagIcon,
+	Store,
+	User,
+	type LucideProps,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export const IconsVariants = cva("h-4 w-4 shrink-0");
+export const IconsVariants = cva("size-4 shrink-0");
 export type IconProps = {} & LucideProps & VariantProps<typeof IconsVariants>;
 export type Icon = keyof typeof Icons;
 
@@ -49,11 +65,35 @@ export const Icons = {
 	chevronRight: ({ className, ...props }: IconProps) => (
 		<ChevronRight className={cn(IconsVariants({}), className)} {...props} />
 	),
+	chevronUp: ({ className, ...props }: IconProps) => (
+		<ChevronUp className={cn(IconsVariants({}), className)} {...props} />
+	),
+	chevronDown: ({ className, ...props }: IconProps) => (
+		<ChevronDown className={cn(IconsVariants({}), className)} {...props} />
+	),
 	logout: ({ className, ...props }: IconProps) => (
 		<LogOut className={cn(IconsVariants({}), className)} {...props} />
 	),
 	user: ({ className, ...props }: IconProps) => (
 		<User className={cn(IconsVariants({}), className)} {...props} />
+	),
+	dashboard: ({ className, ...props }: IconProps) => (
+		<LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />
+	),
+	shoppingBag: ({ className, ...props }: IconProps) => (
+		<ShoppingBag className={cn(IconsVariants({}), className)} {...props} />
+	),
+	store: ({ className, ...props }: IconProps) => (
+		<Store className={cn(IconsVariants({}), className)} {...props} />
+	),
+	settings: ({ className, ...props }: IconProps) => (
+		<Settings2 className={cn(IconsVariants({}), className)} {...props} />
+	),
+	lifeBuoy: ({ className, ...props }: IconProps) => (
+		<LifeBuoy className={cn(IconsVariants({}), className)} {...props} />
+	),
+	send: ({ className, ...props }: IconProps) => (
+		<Send className={cn(IconsVariants({}), className)} {...props} />
 	),
 	google: ({ className, ...props }: IconProps) => (
 		<svg
