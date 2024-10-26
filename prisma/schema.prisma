@@ -46,5 +46,18 @@ model Store {
 
   name String
 
+  products Product[]
+
   @@map("stores")
+}
+
+model Product {
+  id        String   @id @map("_id")
+  storeId   String
+  store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  name String
+
+  @@map("products")
 }

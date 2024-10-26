@@ -1,6 +1,10 @@
 "use server";
 
-import { storeCreateSchema, storeDeleteSchema, storeUpdateSchema } from "@/validations/stores";
+import {
+	productCreateSchema,
+	productDeleteSchema,
+	productUpdateSchema,
+} from "@/validations/products";
 import { z } from "zod";
 
 import { getAuth } from "@/lib/auth";
@@ -10,7 +14,7 @@ import { getLocale, handleError } from "@/servers/utils";
 import { ID } from "@/lib/utils";
 import { getDictionary } from "@/lib/locale";
 
-export async function createStore(data: z.infer<typeof storeCreateSchema>) {
+export async function createProduct(data: z.infer<typeof productCreateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -24,11 +28,10 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
 			});
 
 		const id = ID.generate();
-		await db.store.create({
+		await db.product.create({
 			data: {
 				...data,
 				id,
-				userId: user?.["id"],
 			},
 		});
 
@@ -38,12 +41,12 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
 		return handleError({
 			locale,
 			error,
-			message: c?.["your store was not created. please try again."],
+			message: c?.["your product was not created. please try again."],
 		});
 	}
 }
 
-export async function updateStore({ id, ...data }: z.infer<typeof storeUpdateSchema>) {
+export async function updateProduct({ id, ...data }: z.infer<typeof productUpdateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -56,9 +59,9 @@ export async function updateStore({ id, ...data }: z.infer<typeof storeUpdateSch
 				message: c?.["this action needs you to be logged in."],
 			});
 
-		await db.store.update({
+		await db.product.update({
 			data,
-			where: { id, userId: user?.["id"] },
+			where: { id },
 		});
 
 		revalidatePath("/", "layout");
@@ -66,12 +69,12 @@ export async function updateStore({ id, ...data }: z.infer<typeof storeUpdateSch
 		return handleError({
 			locale,
 			error,
-			message: c?.["your store was not updated. please try again."],
+			message: c?.["your product was not created. please try again."],
 		});
 	}
 }
 
-export async function deleteStore({ id }: z.infer<typeof storeDeleteSchema>) {
+export async function deleteProduct({ id }: z.infer<typeof productDeleteSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -84,15 +87,15 @@ export async function deleteStore({ id }: z.infer<typeof storeDeleteSchema>) {
 				message: c?.["this action needs you to be logged in."],
 			});
 
-		await db.store.delete({
-			where: { id, userId: user?.["id"] },
+		await db.product.delete({
+			where: { id },
 		});
 		revalidatePath("/", "layout");
 	} catch (error: any) {
 		return handleError({
 			locale,
 			error,
-			message: c?.["your store was not deleted. please try again."],
+			message: c?.["your product was not deleted. please try again."],
 		});
 	}
 }

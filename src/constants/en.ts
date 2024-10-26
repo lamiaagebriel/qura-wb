@@ -51,6 +51,43 @@ export default {
 		"no results.": "No Results.",
 	},
 
+	"product-form": {
+		name: {
+			name: "Name",
+			"blue jacket": "Blue Jacket",
+		},
+	},
+	"product-create-button": {
+		"created successfully.": "created successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"create product": "create product",
+		"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"product-delete-button": {
+		"deleted successfully.": "deleted successfully.",
+		delete: "delete",
+		confirm: "confirm",
+		cancel: "cancel",
+		"delete product": "delete product",
+		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"product-update-button": {
+		"updated successfully.": "updated successfully.",
+		edit: "edit",
+		submit: "submit",
+		cancel: "cancel",
+		"update product": "update product",
+		"update a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"update a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"products-table": {
+		name: "name",
+		createdAt: "createdAt",
+	},
+
 	"store-form": {
 		name: {
 			name: "Name",
@@ -134,7 +171,17 @@ export default {
 		// stores: {
 		"your store was not created. please try again.":
 			"your store was not created. Please try again.",
+		"your store was not updated. please try again.":
+			"your store was not updated. Please try again.",
 		"your store was not deleted. please try again.":
 			"your store was not deleted. Please try again.",
+
+		// products: {
+		"your product was not created. please try again.":
+			"your product was not created. Please try again.",
+		"your product was not updated. please try again.":
+			"your product was not updated. Please try again.",
+		"your product was not deleted. please try again.":
+			"your product was not deleted. Please try again.",
 	},
 };
