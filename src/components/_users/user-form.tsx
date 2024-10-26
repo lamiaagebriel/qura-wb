@@ -6,27 +6,34 @@ import * as z from "zod";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { userLoginSchema, userRegisterSchema } from "@/validations/users";
 import { Input } from "@/components/ui/input";
+import { Dictionary } from "@/types/locale";
 
-type UserFormProps = {
+export type UserFormProps = {
 	loading: boolean;
 	form: UseFormReturn<
 		z.infer<typeof userRegisterSchema> | z.infer<typeof userLoginSchema>,
 		any,
 		undefined
 	>;
-};
+} & Dictionary["user-form"];
 
 export const UserForm = {
-	name: function Component({ loading, form }: UserFormProps) {
+	name: function Component({
+		dic: {
+			"user-form": { name: c },
+		},
+		loading,
+		form,
+	}: UserFormProps) {
 		return (
 			<FormField
 				control={form?.["control"]}
 				name="name"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Full Name</FormLabel>
+						<FormLabel>{c?.["full name"]}</FormLabel>
 						<FormControl>
-							<Input placeholder="Joe Doe" disabled={loading} {...field} />
+							<Input placeholder={c?.["joe doe"]} disabled={loading} {...field} />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -34,16 +41,23 @@ export const UserForm = {
 			/>
 		);
 	},
-	email: function Component({ loading, form }: UserFormProps) {
+	email: function Component({
+		dic: {
+			"user-form": { email: c },
+		},
+		loading,
+		form,
+	}: UserFormProps) {
 		return (
 			<FormField
 				control={form?.["control"]}
 				name="email"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Email</FormLabel>
+						<FormLabel>{c?.["email"]}</FormLabel>
 						<FormControl>
 							<Input
+								// dir="ltr"
 								type="email"
 								placeholder="name@example.com"
 								autoCapitalize="none"
@@ -59,14 +73,20 @@ export const UserForm = {
 			/>
 		);
 	},
-	password: function Component({ loading, form }: UserFormProps) {
+	password: function Component({
+		dic: {
+			"user-form": { password: c },
+		},
+		loading,
+		form,
+	}: UserFormProps) {
 		return (
 			<FormField
 				control={form?.["control"]}
 				name="password"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Password</FormLabel>
+						<FormLabel>{c?.["password"]}</FormLabel>
 						<FormControl>
 							<Input
 								type="password"

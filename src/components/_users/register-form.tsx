@@ -9,12 +9,17 @@ import * as z from "zod";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { UserForm } from "@/components/_users/user-form";
+import { UserForm, UserFormProps } from "@/components/_users/user-form";
 import { signInWithGoogle, signUpWithPassword } from "@/servers/users";
 import { userRegisterSchema } from "@/validations/users";
+import { Dictionary } from "@/types/locale";
 
-type UserAuthRegisterFormProps = {};
-export function UserAuthRegisterForm({}: UserAuthRegisterFormProps) {
+type UserAuthRegisterFormProps = {} & Dictionary["user-auth-register-form"] &
+	Pick<UserFormProps, "dic">;
+
+export function UserAuthRegisterForm({
+	dic: { "user-auth-register-form": c, ...dic },
+}: UserAuthRegisterFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
 
@@ -41,13 +46,13 @@ export function UserAuthRegisterForm({}: UserAuthRegisterFormProps) {
 			<div className="grid gap-6">
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<UserForm.name form={form as any} loading={loading || isGoogleLoading} />
-						<UserForm.email form={form as any} loading={loading || isGoogleLoading} />
-						<UserForm.password form={form as any} loading={loading || isGoogleLoading} />
+						<UserForm.name dic={dic} form={form as any} loading={loading || isGoogleLoading} />
+						<UserForm.email dic={dic} form={form as any} loading={loading || isGoogleLoading} />
+						<UserForm.password dic={dic} form={form as any} loading={loading || isGoogleLoading} />
 
 						<Button className="w-full" disabled={loading || isGoogleLoading}>
 							{loading && <Icons.spinner />}
-							Sign up with Email
+							{c?.["sign up with email"]}
 						</Button>
 					</form>
 				</Form>
@@ -57,7 +62,9 @@ export function UserAuthRegisterForm({}: UserAuthRegisterFormProps) {
 						<span className="w-full border-t" />
 					</div>
 					<div className="relative flex justify-center text-xs uppercase">
-						<span className="bg-background px-2 text-muted-foreground">or continue with</span>
+						<span className="bg-background px-2 text-muted-foreground">
+							{c?.["or continue with"]}
+						</span>
 					</div>
 				</div>
 				<div className="w-full space-y-2">
@@ -74,7 +81,7 @@ export function UserAuthRegisterForm({}: UserAuthRegisterFormProps) {
 						disabled={loading || isGoogleLoading}
 					>
 						{isGoogleLoading ? <Icons.spinner /> : <Icons.google />}
-						Sign in with Google
+						{c?.["sign up with google"]}
 					</Button>
 				</div>
 			</div>

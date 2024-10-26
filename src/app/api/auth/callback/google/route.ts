@@ -14,14 +14,13 @@ export async function GET(req: NextRequest) {
 
 	const storedState = (await cookies()).get("state")?.["value"];
 	const storedCodeVerifier = (await cookies()).get("code_verifier")?.["value"];
+	const locale = (await cookies()).get("locale")?.["value"];
 
 	if (!code || !state || !storedState || !storedCodeVerifier || state !== storedState)
 		return new Response(null, { status: 400 });
 
 	try {
 		const tokens = await google.validateAuthorizationCode(code, storedCodeVerifier);
-		console.log("token: ", tokens.accessToken, tokens.accessToken());
-
 		const googleUser = await ky
 			.get("https://www.googleapis.com/oauth2/v1/userinfo", {
 				headers: { Authorization: `Bearer ${tokens.accessToken()}` },
@@ -63,9 +62,7 @@ export async function GET(req: NextRequest) {
 
 			return new Response(null, {
 				status: 302,
-				headers: {
-					Location: `/dashboard`,
-				},
+				headers: { Location: `${locale ? `/${locale}` : ""}/dashboard` },
 			});
 		}
 
@@ -87,19 +84,11 @@ export async function GET(req: NextRequest) {
 
 		return new Response(null, {
 			status: 302,
-			headers: {
-				Location: `/dashboard`,
-			},
+			headers: { Location: `${locale ? `/${locale}` : ""}/dashboard` },
 		});
-	} catch (error) {
-		console.error(error);
-		if (error instanceof OAuth2RequestError) {
-			return new Response(null, {
-				status: 400,
-			});
-		}
-		return new Response(null, {
-			status: 500,
-		});
+	} catch (err: any) {
+		console.error(err);
+		if (err instanceof OAuth2RequestError) return new Response(null, { status: 400 });
+		return new Response(null, { status: 500 });
 	}
 }

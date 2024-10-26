@@ -1,4 +1,3 @@
-import { LogoutButton } from "@/components/logout";
 import { getAuth } from "@/lib/auth";
 import type { Metadata } from "next";
 
@@ -8,10 +7,5 @@ export default async function Dashboard({}: DashboardProps) {
 	const user = (await getAuth())?.["user"]!;
 
 	console.log(user);
-	return (
-		<div className="container">
-			Dashboard
-			<LogoutButton />
-		</div>
-	);
+	return <div className="container">Dashboard</div>;
 }
