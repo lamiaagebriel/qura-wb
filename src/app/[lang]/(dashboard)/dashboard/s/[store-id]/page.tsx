@@ -51,8 +51,10 @@ export default async function Store({ params }: StoreProps) {
 					{[
 						{ value: `/dashboard/s/${store?.["id"]}`, label: "Dashboard" },
 						{ value: `/dashboard/s/${store?.["id"]}/products`, label: "Products" },
-					].map((e, i) => (
-						<Link href={e?.["value"]}>{e?.["label"]}</Link>
+					]?.map((e, i) => (
+						<Link key={i} href={e?.["value"]}>
+							{e?.["label"]}
+						</Link>
 					))}
 				</div>
 			</header>

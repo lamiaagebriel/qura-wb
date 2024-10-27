@@ -1,8 +1,6 @@
 import { z } from "@/lib/zod";
-import { User } from "@prisma/client";
-import { ZodString } from "zod";
 
-export const userSchema = z.object<Record<keyof Omit<User, "googleId" | "createdAt">, ZodString>>({
+export const userSchema = z.object({
 	id: z.stringRequired("id"),
 	name: z.stringRequired("name"),
 	image: z.stringRequired("image"),

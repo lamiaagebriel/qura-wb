@@ -1,11 +1,26 @@
 import { z } from "@/lib/zod";
-import { Product } from "@prisma/client";
-import { ZodString } from "zod";
 
-export const productSchema = z.object<Record<keyof Omit<Product, "createdAt">, ZodString>>({
+export const attributeSchema = z.object({
+	name: z.stringRequired("name"),
+	values: z.array(
+		z.object({
+			name: z.stringRequired("name"),
+			description: z.string("description").optional(),
+		}),
+	),
+});
+
+export const attributesSchema = z.object({
+	attributes: z.array(attributeSchema).default([]),
+});
+
+export const productSchema = z.object({
 	id: z.stringRequired("id"),
 	storeId: z.stringRequired("storeId"),
 	name: z.stringRequired("name"),
+
+	// TODO: use attributesSchema
+	attributes: z.array(attributeSchema).default([]),
 });
 
 export const productCreateSchema = productSchema.pick({
@@ -16,6 +31,7 @@ export const productCreateSchema = productSchema.pick({
 export const productUpdateSchema = productSchema.pick({
 	id: true,
 	name: true,
+	attributes: true,
 });
 
 export const productDeleteSchema = productSchema.pick({

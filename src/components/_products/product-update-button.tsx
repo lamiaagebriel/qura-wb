@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import * as z from "zod";
 import {
 	AlertDialog,
@@ -22,14 +21,21 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ProductForm, ProductFormProps } from "@/components/_products/_product-form";
 import { productUpdateSchema } from "@/validations/products";
-import { updateProduct } from "@/servers/products";
 import { Product } from "@prisma/client";
+import { AttributeFormProps, AttributesForm } from "./_attribute-form";
+import { ProductAttribute } from "@/types/db";
+import { toast } from "sonner";
+import { updateProduct } from "@/servers/products";
 
 export type ProductUpdateButtonProps = {
-	product: Pick<Product, "id">;
+	product: Product & {
+		attributes: ProductAttribute[];
+	};
 } & ButtonProps &
 	Dictionary["product-update-button"] &
-	Pick<ProductFormProps, "dic">;
+	Pick<ProductFormProps, "dic"> &
+	Pick<AttributeFormProps, "dic">;
+
 export function ProductUpdateButton({
 	dic: { "product-update-button": c, ...dic },
 	product,
@@ -37,7 +43,7 @@ export function ProductUpdateButton({
 }: ProductUpdateButtonProps) {
 	const router = useRouter();
 	const [loading, setLoading] = useState<boolean>(false);
-	const [open, setOpen] = useState<boolean>(false);
+	const [open, setOpen] = useState<boolean>(true);
 
 	const form = useForm<z.infer<typeof productUpdateSchema>>({
 		resolver: zodResolver(productUpdateSchema),
@@ -48,12 +54,10 @@ export function ProductUpdateButton({
 		try {
 			setLoading(true);
 			const result = await updateProduct(data);
-
 			if (result && typeof result === "object" && "error" in result) {
 				toast.error(result?.["error"]);
 				return;
 			}
-
 			toast.success(c?.["updated successfully."]);
 			router.refresh();
 			setOpen(false);
@@ -90,14 +94,15 @@ export function ProductUpdateButton({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
 						<ProductForm.name dic={dic} form={form as any} loading={loading} />
+						<AttributesForm dic={dic} form={form as any} loading={loading} />
+
+						{/* <AttributeCombinationsTable attributes={form.watch("attributes")} /> */}
 
 						<AlertDialogFooter>
-							<AlertDialogCancel disabled={loading} asChild>
-								<Button disabled={loading} variant="outline">
-									{c?.["cancel"]}
-								</Button>
+							<AlertDialogCancel asChild>
+								<Button variant="outline">{c?.["cancel"]}</Button>
 							</AlertDialogCancel>
-							<Button type="submit" disabled={loading} className="w-full md:w-fit">
+							<Button type="submit" className="w-full md:w-fit">
 								{loading && <Icons.spinner />}
 								{c?.["submit"]}
 							</Button>

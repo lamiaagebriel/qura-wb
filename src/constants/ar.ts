@@ -1,4 +1,4 @@
-export default {
+const ar = {
 	site: {
 		name: "كن رقمي",
 		description:
@@ -69,3 +69,5 @@ export default {
 			"لم يتم إنشاء المتجر الخاص بك. يرجى المحاولة مرة أخرى.",
 	},
 };
+
+export default ar;

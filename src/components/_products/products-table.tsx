@@ -20,8 +20,11 @@ import {
 	ProductUpdateButton,
 	ProductUpdateButtonProps,
 } from "@/components/_products/product-update-button";
+import { ProductAttribute } from "@/types/db";
 
-type ColumnType = Product;
+type ColumnType = Product & {
+	attributes: ProductAttribute[];
+};
 type ProductsTableProps = {
 	data: ColumnType[];
 } & Pick<DataTableProps<any, any>, "dic"> &

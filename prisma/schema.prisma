@@ -57,7 +57,19 @@ model Product {
   store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  name String
+  name       String
+  attributes Json
 
   @@map("products")
 }
+
+// model ProductAttributeValueCombination {
+//   id       String                @id @map("_id")
+//   valueIds String[]
+//   values   ProductAttributeValue @relation(references: [id], fields: [valueIds], onDelete: Cascade)
+
+//   name String
+
+//   @@unique([valueIds])
+//   @@map("productAttributeValueCombinations")
+// }

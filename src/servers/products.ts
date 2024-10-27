@@ -28,10 +28,25 @@ export async function createProduct(data: z.infer<typeof productCreateSchema>) {
 			});
 
 		const id = ID.generate();
+		const attributes = [
+			{
+				id: ID.generate(),
+				name: "Sizes",
+				values: [{ name: "S" }, { name: "M" }, { name: "L" }, { name: "XL" }],
+			},
+			{
+				id: ID.generate(),
+				name: "Colors",
+				values: [{ name: "Red" }, { name: "Green" }, { name: "Blue" }, { name: "Purple" }],
+			},
+			{ id: ID.generate(), name: "Materials", values: [{ name: "Cotton" }, { name: "Fiber" }] },
+		];
+
 		await db.product.create({
 			data: {
 				...data,
 				id,
+				attributes,
 			},
 		});
 

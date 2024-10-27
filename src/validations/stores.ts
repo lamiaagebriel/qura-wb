@@ -1,8 +1,6 @@
 import { z } from "@/lib/zod";
-import { Store } from "@prisma/client";
-import { ZodString } from "zod";
 
-export const storeSchema = z.object<Record<keyof Omit<Store, "createdAt">, ZodString>>({
+export const storeSchema = z.object({
 	id: z.stringRequired("id"),
 	userId: z.stringRequired("userId"),
 	name: z.stringRequired("name"),

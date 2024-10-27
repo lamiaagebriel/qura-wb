@@ -8,12 +8,14 @@ import {
 	LifeBuoy,
 	Loader2,
 	LogOut,
+	Plus,
 	Send,
 	Settings2,
 	ShoppingBag,
 	ShoppingBagIcon,
 	Store,
 	User,
+	X,
 	type LucideProps,
 } from "lucide-react";
 
@@ -58,6 +60,12 @@ export const Icons = {
 	),
 	spinner: ({ className, ...props }: IconProps) => (
 		<Loader2 className={cn(IconsVariants({}), "animate-spin", className)} {...props} />
+	),
+	x: ({ className, ...props }: IconProps) => (
+		<X className={cn(IconsVariants({}), className)} {...props} />
+	),
+	add: ({ className, ...props }: IconProps) => (
+		<Plus className={cn(IconsVariants({}), className)} {...props} />
 	),
 	chevronLeft: ({ className, ...props }: IconProps) => (
 		<ChevronLeft className={cn(IconsVariants({}), className)} {...props} />

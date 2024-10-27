@@ -54,7 +54,7 @@ export function ProductDeleteButton({
 			}
 
 			toast.success(c?.["deleted successfully."]);
-			router.replace(`/dashboard/products`);
+			router.refresh();
 			setOpen(false);
 		} catch (err: any) {
 			toast.error(err?.["message"]);

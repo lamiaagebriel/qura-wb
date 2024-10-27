@@ -1,4 +1,4 @@
-export default {
+const en = {
 	site: {
 		name: "ConCom",
 		description:
@@ -86,6 +86,13 @@ export default {
 	"products-table": {
 		name: "name",
 		createdAt: "createdAt",
+	},
+
+	"attribute-form": {
+		name: {
+			name: "Name",
+			sizes: "Sizes",
+		},
 	},
 
 	"store-form": {
@@ -185,3 +192,5 @@ export default {
 			"your product was not deleted. Please try again.",
 	},
 };
+
+export default en;

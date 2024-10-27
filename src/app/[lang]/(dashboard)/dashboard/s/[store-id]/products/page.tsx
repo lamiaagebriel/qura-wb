@@ -8,6 +8,7 @@ import { getDictionary } from "@/lib/locale";
 import { db } from "@/lib/db";
 import { ProductsTable } from "@/components/_products/products-table";
 import { ProductCreateButton } from "@/components/_products/product-create-button";
+import { ProductAttribute } from "@/types/db";
 
 type ProductProps = Readonly<{
 	params: Promise<{ "store-id": string } & LocaleProps>;
@@ -17,7 +18,7 @@ export default async function Product({ params }: ProductProps) {
 	const { lang, "store-id": storeId } = await params;
 	const user = (await getAuth())?.["user"]!;
 	const dic = await getDictionary(lang);
-	const store = await db.store.findUnique({
+	const r = await db.store.findUnique({
 		include: { products: true },
 		where: {
 			id: storeId,
@@ -25,7 +26,14 @@ export default async function Product({ params }: ProductProps) {
 		},
 	});
 
-	if (!store) return <div className="container">NO STORE</div>;
+	if (!r) return <div className="container">NO STORE</div>;
+	const store = {
+		...r,
+		products: r?.["products"].map((e) => ({
+			...e,
+			attributes: e?.["attributes"] as ProductAttribute[],
+		})),
+	};
 
 	return (
 		<>
@@ -49,7 +57,7 @@ export default async function Product({ params }: ProductProps) {
 			</header>
 
 			<div className="container">
-				<ProductsTable dic={dic} data={store?.["products"]} />;
+				<ProductsTable dic={dic} data={store?.["products"]} />
 			</div>
 		</>
 	);
