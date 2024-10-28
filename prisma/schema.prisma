@@ -67,18 +67,11 @@ model Product {
   description String?
   status      ProductStatus @default(DRAFT)
   images      String[]      @default([])
-  attributes  Json
+
+  price Int
+  stock Int
+
+  attributes Json
 
   @@map("products")
 }
-
-// model ProductAttributeValueCombination {
-//   id       String                @id @map("_id")
-//   valueIds String[]
-//   values   ProductAttributeValue @relation(references: [id], fields: [valueIds], onDelete: Cascade)
-
-//   name String
-
-//   @@unique([valueIds])
-//   @@map("productAttributeValueCombinations")
-// }

@@ -67,6 +67,12 @@ const en = {
 			status: "Status",
 			"select status...": "select status...",
 		},
+		price: {
+			price: "Price",
+		},
+		stock: {
+			stock: "Stock",
+		},
 	},
 	"product-create-button": {
 		"created successfully.": "created successfully.",

@@ -63,8 +63,10 @@ export async function createProduct({
 			data: {
 				...data,
 				id,
-				attributes,
 				images,
+				price: 1,
+				stock: 1,
+				attributes,
 			},
 		});
 

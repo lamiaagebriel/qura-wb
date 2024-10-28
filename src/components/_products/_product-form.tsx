@@ -117,6 +117,74 @@ export const ProductForm = {
 			/>
 		);
 	},
+	price: ({
+		dic: {
+			"product-form": { price: c },
+		},
+		loading,
+		form,
+	}: ProductFormProps) => (
+		<FormField
+			control={form.control}
+			name="price"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["price"]}</FormLabel>
+					<FormControl>
+						<Input
+							{...field}
+							type="number"
+							disabled={loading}
+							placeholder={`20`}
+							onChange={(e) => {
+								const evt = {
+									...e,
+									target: { ...e?.["target"], value: Number(e?.["target"]?.["value"]) },
+								};
+
+								field?.onChange(evt);
+							}}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
+	stock: ({
+		dic: {
+			"product-form": { stock: c },
+		},
+		loading,
+		form,
+	}: ProductFormProps) => (
+		<FormField
+			control={form.control}
+			name="stock"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["stock"]}</FormLabel>
+					<FormControl>
+						<Input
+							{...field}
+							type="number"
+							disabled={loading}
+							placeholder={`20`}
+							onChange={(e) => {
+								const evt = {
+									...e,
+									target: { ...e?.["target"], value: Number(e?.["target"]?.["value"]) },
+								};
+
+								field?.onChange(evt);
+							}}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
 	images: ({
 		// dic: {
 		// 	"product-form": { image: c },

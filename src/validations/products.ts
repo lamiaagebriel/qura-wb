@@ -22,10 +22,13 @@ export const productSchema = z.object({
 	name: z.stringRequired("name"),
 	description: z.string("description").nullable().optional(),
 	status: z.enum(PRODUCT_STATUS_ARR),
-	images: z.array(z.string("images")).default([]).optional(),
+	images: z.array(z.string("images")),
+
+	price: z.number("price").positive("price can only be greater than 0."),
+	stock: z.number("stock").positive("stock can only be greater than 0."),
 
 	// TODO: use attributesSchema
-	attributes: z.array(attributeSchema).default([]),
+	attributes: z.array(attributeSchema),
 });
 
 export const productCreateSchema = productSchema.pick({
@@ -39,6 +42,8 @@ export const productUpdateSchema = productSchema.pick({
 	name: true,
 	description: true,
 	status: true,
+	price: true,
+	stock: true,
 	images: true,
 	attributes: true,
 });

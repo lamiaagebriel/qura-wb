@@ -134,6 +134,10 @@ export function ProductEditor({
 												</CardDescription>
 											</CardHeader>
 											<CardContent>
+												<div className="grid grid-cols-2 gap-4">
+													<ProductForm.price dic={dic} form={form as any} loading={loading} />
+													<ProductForm.stock dic={dic} form={form as any} loading={loading} />
+												</div>
 												<AttributesForm dic={dic} form={form as any} loading={loading} />
 												{/* <TruthTable form={form} loading={loading} /> */}
 											</CardContent>
