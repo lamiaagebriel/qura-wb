@@ -18,6 +18,7 @@ export const productSchema = z.object({
 	id: z.stringRequired("id"),
 	storeId: z.stringRequired("storeId"),
 	name: z.stringRequired("name"),
+	images: z.array(z.string("image")).default([]),
 
 	// TODO: use attributesSchema
 	attributes: z.array(attributeSchema).default([]),
@@ -26,6 +27,7 @@ export const productSchema = z.object({
 export const productCreateSchema = productSchema.pick({
 	storeId: true,
 	name: true,
+	images: true,
 });
 
 export const productUpdateSchema = productSchema.pick({

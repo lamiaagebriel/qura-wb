@@ -87,6 +87,7 @@ export function ProductCreateButton({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
 						<ProductForm.name dic={dic} form={form as any} loading={loading} />
+						<ProductForm.image dic={dic} form={form as any} loading={loading} />
 
 						<AlertDialogFooter>
 							<AlertDialogCancel disabled={loading} asChild>

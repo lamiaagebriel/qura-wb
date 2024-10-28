@@ -11,10 +11,14 @@ import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { getLocale, handleError } from "@/servers/utils";
-import { ID } from "@/lib/utils";
+import { base64ToBuffer, getMimeType, ID } from "@/lib/utils";
 import { getDictionary } from "@/lib/locale";
+import { aws } from "@/lib/aws";
 
-export async function createProduct(data: z.infer<typeof productCreateSchema>) {
+export async function createProduct({
+	images: base64Images,
+	...data
+}: z.infer<typeof productCreateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -42,11 +46,25 @@ export async function createProduct(data: z.infer<typeof productCreateSchema>) {
 			{ id: ID.generate(), name: "Materials", values: [{ name: "Cotton" }, { name: "Fiber" }] },
 		];
 
+		const images = await Promise.all(
+			base64Images?.map(
+				async (base64) =>
+					await aws.upload({
+						Key: "projects/project-",
+						Body: await base64ToBuffer({ base64 }),
+						ContentType: getMimeType({ base64 }),
+					}),
+			) ?? [],
+		);
+
+		console.log(images);
+
 		await db.product.create({
 			data: {
 				...data,
 				id,
 				attributes,
+				images,
 			},
 		});
 

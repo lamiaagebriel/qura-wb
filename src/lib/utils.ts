@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import crypto from "crypto";
+// import Sharp from "sharp";
 
 export const ID = {
 	generate: (props: { len?: number } | void) =>
@@ -31,4 +32,30 @@ export function getURL(path: string = "") {
 
 	// Concatenate the URL and the path.
 	return path ? `${url}/${path}` : url;
+}
+
+export async function fileToBase64({ file }: { file: File }): Promise<string | ArrayBuffer | null> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+
+		reader.onload = () => resolve(reader?.["result"]);
+		reader.onerror = (error) => reject(error);
+	});
+}
+export async function base64ToBuffer({ base64 }: { base64: string }) {
+	const r = base64?.split(",")?.pop();
+	if (!r) throw Error("NO BASE64");
+
+	return Buffer.from(r, "base64");
+	// return Sharp(Buffer.from(r, "base64")).resize({ width: 800 }).png({ quality: 80 }).toBuffer();
+}
+export function getMimeType({ base64 }: { base64: string }) {
+	const r = base64?.split(",")?.[0];
+	if (!r) throw Error("NO MIME TYPE");
+
+	const regex = /^data:(.*?);base64,/;
+	const match = base64?.match(regex)!;
+
+	return match[1] ?? null;
 }
