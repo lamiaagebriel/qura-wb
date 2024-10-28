@@ -1,3 +1,6 @@
+import { SelectItem } from "@/types";
+import { ProductStatus } from "@prisma/client";
+
 const en = {
 	site: {
 		name: "ConCom",
@@ -187,6 +190,18 @@ const en = {
 			"your product was not updated. Please try again.",
 		"your product was not deleted. please try again.":
 			"your product was not deleted. Please try again.",
+	},
+
+	db: {
+		enums: {
+			"product-status": [
+				{ value: "DRAFT", label: "Draft" },
+				{ value: "ACTIVE", label: "Active" },
+				{ value: "ARCHIVE", label: "Archive" },
+			] as (SelectItem & {
+				value: ProductStatus;
+			})[],
+		},
 	},
 };
 

@@ -1,5 +1,7 @@
+import { PRODUCT_STATUS_ARR } from "@/constants/enums";
 import { z } from "@/lib/zod";
 
+// --------------- ATTRIBUTES
 export const attributeSchema = z.object({
 	name: z.stringRequired("name"),
 	values: z.array(
@@ -18,6 +20,7 @@ export const productSchema = z.object({
 	id: z.stringRequired("id"),
 	storeId: z.stringRequired("storeId"),
 	name: z.stringRequired("name"),
+	status: z.enum(PRODUCT_STATUS_ARR),
 	images: z.array(z.string("images")).default([]).optional(),
 
 	// TODO: use attributesSchema
@@ -33,6 +36,8 @@ export const productCreateSchema = productSchema.pick({
 export const productUpdateSchema = productSchema.pick({
 	id: true,
 	name: true,
+	status: true,
+	images: true,
 	attributes: true,
 });
 

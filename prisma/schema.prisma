@@ -51,6 +51,12 @@ model Store {
   @@map("stores")
 }
 
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVE
+}
+
 model Product {
   id        String   @id @map("_id")
   storeId   String
@@ -58,7 +64,8 @@ model Product {
   createdAt DateTime @default(now())
 
   name       String
-  images     String[] @default([])
+  status     ProductStatus @default(DRAFT)
+  images     String[]      @default([])
   attributes Json
 
   @@map("products")

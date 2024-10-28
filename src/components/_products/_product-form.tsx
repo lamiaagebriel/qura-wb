@@ -5,9 +5,18 @@ import * as z from "zod";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { productCreateSchema, productUpdateSchema } from "@/validations/products";
-import { Input } from "@/components/ui/input";
 import { Dictionary } from "@/types/locale";
 import { fileToBase64 } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { PRODUCT_STATUS_ARR, productStatus } from "@/constants/enums";
+import { useLocale } from "@/hooks/use-locale";
 
 export type ProductFormProps = {
 	loading: boolean;
@@ -40,7 +49,43 @@ export const ProductForm = {
 			)}
 		/>
 	),
-	image: ({
+	status: function Component({
+		// dic: {
+		// 	"product-form": { name: c },
+		// },
+		loading,
+		form,
+	}: ProductFormProps) {
+		const locale = useLocale();
+
+		return (
+			<FormField
+				control={form?.["control"]}
+				name="status"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Status</FormLabel>
+						<Select defaultValue={field?.["value"]} onValueChange={field?.onChange}>
+							<FormControl>
+								<SelectTrigger>
+									<SelectValue placeholder="select status..." />
+								</SelectTrigger>
+							</FormControl>
+							<SelectContent>
+								{productStatus({ locale }).map((e, i) => (
+									<SelectItem key={i} value={e?.["value"]}>
+										{e?.["label"]}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		);
+	},
+	images: ({
 		// dic: {
 		// 	"product-form": { image: c },
 		// },

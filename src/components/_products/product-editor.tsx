@@ -187,17 +187,7 @@ export function ProductEditor({
 											<CardContent>
 												<div className="grid gap-6">
 													<div className="grid gap-3">
-														<Label htmlFor="status">Status</Label>
-														{/* <Select>
-													<SelectTrigger id="status" aria-label="Select status">
-														<SelectValue placeholder="Select status" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="draft">Draft</SelectItem>
-														<SelectItem value="published">Active</SelectItem>
-														<SelectItem value="archived">Archived</SelectItem>
-													</SelectContent>
-												</Select> */}
+														<ProductForm.status dic={dic} form={form as any} loading={loading} />
 													</div>
 												</div>
 											</CardContent>

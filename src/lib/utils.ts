@@ -11,6 +11,9 @@ export const ID = {
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
+export function getEnumArray<T extends string>(obj: Record<string, T>) {
+	return Object.values(obj) as [T];
+}
 
 export function getURL(path: string = "") {
 	// Check if NEXT_PUBLIC_SITE_URL is set and non-empty. Set this to your site URL in production env.
