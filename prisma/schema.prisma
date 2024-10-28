@@ -63,10 +63,11 @@ model Product {
   store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  name       String
-  status     ProductStatus @default(DRAFT)
-  images     String[]      @default([])
-  attributes Json
+  name        String
+  description String?
+  status      ProductStatus @default(DRAFT)
+  images      String[]      @default([])
+  attributes  Json
 
   @@map("products")
 }

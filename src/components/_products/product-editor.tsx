@@ -55,7 +55,6 @@ export function ProductEditor({
 	});
 
 	async function onSubmit(data: z.infer<typeof productUpdateSchema>) {
-		console.log(data);
 		try {
 			setLoading(true);
 			const result = await updateProduct(data);
@@ -122,8 +121,7 @@ export function ProductEditor({
 											<CardContent>
 												<div className="grid gap-6">
 													<ProductForm.name dic={dic} form={form as any} loading={loading} />
-													<AttributesForm dic={dic} form={form as any} loading={loading} />
-													{/* <ProductForm.description form={form} loading={loading} /> */}
+													<ProductForm.description dic={dic} form={form as any} loading={loading} />
 												</div>
 											</CardContent>
 										</Card>
@@ -136,6 +134,7 @@ export function ProductEditor({
 												</CardDescription>
 											</CardHeader>
 											<CardContent>
+												<AttributesForm dic={dic} form={form as any} loading={loading} />
 												{/* <TruthTable form={form} loading={loading} /> */}
 											</CardContent>
 											<CardFooter className="justify-center border-t p-4">

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { PRODUCT_STATUS_ARR, productStatus } from "@/constants/enums";
 import { useLocale } from "@/hooks/use-locale";
+import { Textarea } from "../ui/textarea";
 
 export type ProductFormProps = {
 	loading: boolean;
@@ -42,7 +43,34 @@ export const ProductForm = {
 				<FormItem>
 					<FormLabel>{c?.["name"]}</FormLabel>
 					<FormControl>
-						<Input placeholder={c?.["blue jacket"]} disabled={loading} {...field} />
+						<Input {...field} disabled={loading} placeholder={c?.["blue jacket"]} />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
+	description: ({
+		dic: {
+			"product-form": { description: c },
+		},
+		loading,
+		form,
+	}: ProductFormProps) => (
+		<FormField
+			control={form.control}
+			name="description"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["description"]}</FormLabel>
+					<FormControl>
+						<Textarea
+							{...field}
+							disabled={loading}
+							placeholder={c?.["describe the product..."]}
+							value={field?.["value"] ?? undefined}
+							className="min-h-40"
+						/>
 					</FormControl>
 					<FormMessage />
 				</FormItem>
@@ -50,9 +78,9 @@ export const ProductForm = {
 		/>
 	),
 	status: function Component({
-		// dic: {
-		// 	"product-form": { name: c },
-		// },
+		dic: {
+			"product-form": { status: c },
+		},
 		loading,
 		form,
 	}: ProductFormProps) {
@@ -64,11 +92,15 @@ export const ProductForm = {
 				name="status"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Status</FormLabel>
-						<Select defaultValue={field?.["value"]} onValueChange={field?.onChange}>
+						<FormLabel>{c?.["status"]}</FormLabel>
+						<Select
+							disabled={loading}
+							defaultValue={field?.["value"]}
+							onValueChange={field?.onChange}
+						>
 							<FormControl>
 								<SelectTrigger>
-									<SelectValue placeholder="select status..." />
+									<SelectValue placeholder={c?.["select status..."]} />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
@@ -100,10 +132,10 @@ export const ProductForm = {
 					<FormControl>
 						<Input
 							// {...field}
+							disabled={loading}
 							type="file"
 							accept="image/*"
 							multiple={true}
-							disabled={loading}
 							value={undefined}
 							onChange={async (e) => {
 								const files = e.target.files;

@@ -59,6 +59,14 @@ const en = {
 			name: "Name",
 			"blue jacket": "Blue Jacket",
 		},
+		description: {
+			description: "Description",
+			"describe the product...": "Describe the product...",
+		},
+		status: {
+			status: "Status",
+			"select status...": "select status...",
+		},
 	},
 	"product-create-button": {
 		"created successfully.": "created successfully.",
