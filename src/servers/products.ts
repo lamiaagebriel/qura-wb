@@ -13,12 +13,8 @@ import { revalidatePath } from "next/cache";
 import { getLocale, handleError } from "@/servers/utils";
 import { base64ToBuffer, getMimeType, ID } from "@/lib/utils";
 import { getDictionary } from "@/lib/locale";
-import { aws } from "@/lib/aws";
 
-export async function createProduct({
-	images: base64Images,
-	...data
-}: z.infer<typeof productCreateSchema>) {
+export async function createProduct({ ...data }: z.infer<typeof productCreateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -32,41 +28,14 @@ export async function createProduct({
 			});
 
 		const id = ID.generate();
-		const attributes = [
-			{
-				id: ID.generate(),
-				name: "Sizes",
-				values: [{ name: "S" }, { name: "M" }, { name: "L" }, { name: "XL" }],
-			},
-			{
-				id: ID.generate(),
-				name: "Colors",
-				values: [{ name: "Red" }, { name: "Green" }, { name: "Blue" }, { name: "Purple" }],
-			},
-			{ id: ID.generate(), name: "Materials", values: [{ name: "Cotton" }, { name: "Fiber" }] },
-		];
-
-		const images = await Promise.all(
-			base64Images?.map(
-				async (base64) =>
-					await aws.upload({
-						Key: "projects/project-",
-						Body: await base64ToBuffer({ base64 }),
-						ContentType: getMimeType({ base64 }),
-					}),
-			) ?? [],
-		);
-
-		console.log(images);
-
 		await db.product.create({
 			data: {
 				...data,
 				id,
-				images,
-				price: 1,
-				stock: 1,
-				attributes,
+				name: "Untitled Product",
+				price: 0,
+				stock: 0,
+				attributes: [],
 			},
 		});
 
