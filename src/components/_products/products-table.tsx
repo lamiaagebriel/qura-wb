@@ -16,11 +16,8 @@ import {
 	ProductDeleteButton,
 	ProductDeleteButtonProps,
 } from "@/components/_products/product-delete-button";
-import {
-	ProductUpdateButton,
-	ProductUpdateButtonProps,
-} from "@/components/_products/product-update-button";
 import { ProductAttribute } from "@/types/db";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 type ColumnType = Product & {
 	attributes: ProductAttribute[];
@@ -28,7 +25,6 @@ type ColumnType = Product & {
 type ProductsTableProps = {
 	data: ColumnType[];
 } & Pick<DataTableProps<any, any>, "dic"> &
-	Pick<ProductUpdateButtonProps, "dic"> &
 	Pick<ProductDeleteButtonProps, "dic"> &
 	Dictionary["products-table"];
 
@@ -77,12 +73,9 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							return (
 								<>
 									<DataTableRowActions dic={dic}>
-										<ProductUpdateButton
-											dic={dic}
-											product={r}
-											variant="ghost"
-											className="w-full justify-start px-2 text-start font-normal"
-										/>
+										<Link href={`/dashboard/s/${r?.["storeId"]}/p/${r?.["id"]}`}>
+											<DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+										</Link>
 										<ProductDeleteButton
 											dic={dic}
 											product={r}

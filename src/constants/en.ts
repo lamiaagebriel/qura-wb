@@ -74,14 +74,11 @@ const en = {
 		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
-	"product-update-button": {
+	"product-editor": {
 		"updated successfully.": "updated successfully.",
-		edit: "edit",
-		submit: "submit",
-		cancel: "cancel",
-		"update product": "update product",
-		"update a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
-			"update a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+		back: "Back",
+		"save changes": "Save Changes",
+		discard: "Discard",
 	},
 	"products-table": {
 		name: "name",

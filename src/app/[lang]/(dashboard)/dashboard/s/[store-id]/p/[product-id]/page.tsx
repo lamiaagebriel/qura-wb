@@ -8,6 +8,8 @@ import { getAuth } from "@/lib/auth";
 import { getDictionary } from "@/lib/locale";
 import { db } from "@/lib/db";
 import { Link } from "@/components/link";
+import { ProductEditor } from "@/components/_products/product-editor";
+import { ProductAttribute } from "@/types/db";
 
 type ProductProps = Readonly<{
 	params: Promise<
@@ -22,7 +24,7 @@ export default async function Product({ params }: ProductProps) {
 	const { lang, "store-id": storeId, "product-id": productId } = await params;
 	const user = (await getAuth())?.["user"]!;
 	const dic = await getDictionary(lang);
-	const product = await db.product.findUnique({
+	const r = await db.product.findUnique({
 		include: { store: { select: { id: true, name: true } } },
 		where: {
 			id: productId,
@@ -30,7 +32,8 @@ export default async function Product({ params }: ProductProps) {
 		},
 	});
 
-	if (!product) return <div className="container">NO PRODUCT</div>;
+	if (!r) return <div className="container">NO PRODUCT</div>;
+	const product = { ...r, attributes: r?.["attributes"] as ProductAttribute[] };
 
 	return (
 		<>
@@ -64,7 +67,9 @@ export default async function Product({ params }: ProductProps) {
 				</div>
 			</header>
 
-			<div className="container">Dashboard </div>
+			<div className="container">
+				<ProductEditor dic={dic} product={product} />
+			</div>
 		</>
 	);
 }
