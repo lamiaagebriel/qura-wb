@@ -14,6 +14,7 @@ import {
 	ShoppingBag,
 	ShoppingBagIcon,
 	Store,
+	Upload,
 	User,
 	X,
 	type LucideProps,
@@ -66,6 +67,9 @@ export const Icons = {
 	),
 	add: ({ className, ...props }: IconProps) => (
 		<Plus className={cn(IconsVariants({}), className)} {...props} />
+	),
+	upload: ({ className, ...props }: IconProps) => (
+		<Upload className={cn(IconsVariants({}), className)} {...props} />
 	),
 	chevronLeft: ({ className, ...props }: IconProps) => (
 		<ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
