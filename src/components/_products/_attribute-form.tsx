@@ -143,76 +143,76 @@ export const AttributesForm = ({ dic, form, loading }: AttributesFormProps) => {
 	);
 };
 
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { ProductAttribute } from "@/types/db";
-import { ProductUpdateButtonProps } from "./product-update-button";
+// import {
+// 	Table,
+// 	TableBody,
+// 	TableCell,
+// 	TableHead,
+// 	TableHeader,
+// 	TableRow,
+// } from "@/components/ui/table";
+// import { ProductAttribute } from "@/types/db";
+// import { ProductUpdateButtonProps } from "./product-update-button";
 
-const colorPalette = [
-	"text-red-500",
-	"text-blue-500",
-	"text-green-500",
-	"text-yellow-500",
-	"text-purple-500",
-	"text-pink-500",
-];
+// const colorPalette = [
+// 	"text-red-500",
+// 	"text-blue-500",
+// 	"text-green-500",
+// 	"text-yellow-500",
+// 	"text-purple-500",
+// 	"text-pink-500",
+// ];
 
-const AttributeCombinationsTable: React.FC<
-	Pick<ProductUpdateButtonProps["product"], "attributes">
-> = ({ attributes }) => {
-	const generateCombinations = (
-		attributes: ProductAttribute[],
-	): ProductAttribute["values"]["0"][][] => {
-		const valuesArrays = attributes.map((attr) => attr.values);
+// const AttributeCombinationsTable: React.FC<
+// 	Pick<ProductUpdateButtonProps["product"], "attributes">
+// > = ({ attributes }) => {
+// 	const generateCombinations = (
+// 		attributes: ProductAttribute[],
+// 	): ProductAttribute["values"]["0"][][] => {
+// 		const valuesArrays = attributes.map((attr) => attr.values);
 
-		const combine = (
-			arrays: ProductAttribute["values"]["0"][][],
-			index = 0,
-			prefix: ProductAttribute["values"]["0"][] = [],
-		): ProductAttribute["values"]["0"][][] => {
-			if (index === arrays.length) return [prefix];
-			const combinations: ProductAttribute["values"]["0"][][] = [];
-			for (const item of arrays[index]) {
-				combinations.push(...combine(arrays, index + 1, [...prefix, item]));
-			}
-			return combinations;
-		};
+// 		const combine = (
+// 			arrays: ProductAttribute["values"]["0"][][],
+// 			index = 0,
+// 			prefix: ProductAttribute["values"]["0"][] = [],
+// 		): ProductAttribute["values"]["0"][][] => {
+// 			if (index === arrays.length) return [prefix];
+// 			const combinations: ProductAttribute["values"]["0"][][] = [];
+// 			for (const item of arrays[index]) {
+// 				combinations.push(...combine(arrays, index + 1, [...prefix, item]));
+// 			}
+// 			return combinations;
+// 		};
 
-		return combine(valuesArrays);
-	};
+// 		return combine(valuesArrays);
+// 	};
 
-	const combinations = generateCombinations(attributes);
+// 	const combinations = generateCombinations(attributes);
 
-	const getColorClass = (index: number): string => colorPalette[index % colorPalette.length];
+// 	const getColorClass = (index: number): string => colorPalette[index % colorPalette.length];
 
-	return (
-		<Table>
-			<TableHeader>
-				<TableRow>
-					{attributes.map((attr, i) => (
-						<TableHead key={i} className={getColorClass(i)}>
-							{attr.name}
-						</TableHead>
-					))}
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{combinations.map((combination, rowIndex) => (
-					<TableRow key={rowIndex}>
-						{combination.map((value, cellIndex) => (
-							<TableCell key={cellIndex} className={getColorClass(cellIndex)}>
-								{value.name}
-							</TableCell>
-						))}
-					</TableRow>
-				))}
-			</TableBody>
-		</Table>
-	);
-};
+// 	return (
+// 		<Table>
+// 			<TableHeader>
+// 				<TableRow>
+// 					{attributes.map((attr, i) => (
+// 						<TableHead key={i} className={getColorClass(i)}>
+// 							{attr.name}
+// 						</TableHead>
+// 					))}
+// 				</TableRow>
+// 			</TableHeader>
+// 			<TableBody>
+// 				{combinations.map((combination, rowIndex) => (
+// 					<TableRow key={rowIndex}>
+// 						{combination.map((value, cellIndex) => (
+// 							<TableCell key={cellIndex} className={getColorClass(cellIndex)}>
+// 								{value.name}
+// 							</TableCell>
+// 						))}
+// 					</TableRow>
+// 				))}
+// 			</TableBody>
+// 		</Table>
+// 	);
+// };
