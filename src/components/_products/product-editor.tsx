@@ -146,7 +146,7 @@ export function ProductEditor({
 											</CardFooter>
 										</Card>
 
-										<Card>
+										{/* <Card>
 											<CardHeader>
 												<CardTitle>Product Category</CardTitle>
 											</CardHeader>
@@ -154,7 +154,7 @@ export function ProductEditor({
 												<div className="grid gap-6 sm:grid-cols-3">
 													<div className="grid gap-3">
 														<Label htmlFor="category">Category</Label>
-														{/* <Select>
+														<Select>
 													<SelectTrigger id="category" aria-label="Select category">
 														<SelectValue placeholder="Select category" />
 													</SelectTrigger>
@@ -163,11 +163,11 @@ export function ProductEditor({
 														<SelectItem value="electronics">Electronics</SelectItem>
 														<SelectItem value="accessories">Accessories</SelectItem>
 													</SelectContent>
-												</Select> */}
+												</Select>
 													</div>
 													<div className="grid gap-3">
 														<Label htmlFor="subcategory">Subcategory (optional)</Label>
-														{/* <Select>
+														<Select>
 													<SelectTrigger id="subcategory" aria-label="Select subcategory">
 														<SelectValue placeholder="Select subcategory" />
 													</SelectTrigger>
@@ -176,11 +176,11 @@ export function ProductEditor({
 														<SelectItem value="hoodies">Hoodies</SelectItem>
 														<SelectItem value="sweatshirts">Sweatshirts</SelectItem>
 													</SelectContent>
-												</Select> */}
+												</Select>
 													</div>
 												</div>
 											</CardContent>
-										</Card>
+										</Card> */}
 									</div>
 									<div className="grid auto-rows-max items-start gap-4 lg:gap-8">
 										<Card>

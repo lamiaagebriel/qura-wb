@@ -1,4 +1,4 @@
-import { SelectItem } from "@/types";
+import { NavItem, SelectItem } from "@/types";
 import { ProductStatus } from "@prisma/client";
 
 const en = {
@@ -24,6 +24,18 @@ const en = {
 			"terms of service": "Terms of Service",
 			and: "and",
 			"privacy policy": "Privacy Policy",
+		},
+	},
+	marketing: {
+		"main-nav": [
+			{ value: "/", label: "Home" },
+			{ value: "/stores", label: "Stores" },
+			{ value: "/pricing", label: "Pricing" },
+			{ value: "/about", label: "About us" },
+		] as NavItem[],
+
+		layout: {
+			login: "Login",
 		},
 	},
 
@@ -169,6 +181,27 @@ const en = {
 		"sign up with email": "Sign Up with Email",
 		"sign up with google": "Sign Up with Google",
 	},
+	"user-account-nav": {
+		logout: "Logout",
+	},
+
+	"locale-switcher": {
+		"current locale of the website": "current locale of the website",
+		en: "English (EN)",
+		ar: "العربية (AR)",
+		fr: "French (FR)",
+		de: "Deautch (DE)",
+	},
+	"mode-toggle": {
+		"toggle theme": "toggle theme",
+		modes: [
+			{ value: "system", label: "System Default", icon: "laptop" },
+			{ value: "light", label: "Light", icon: "sun" },
+			{ value: "dark", label: "Dark", icon: "moon" },
+		] as SelectItem[],
+	},
+
+	"site-nav": { menu: "Menu" },
 
 	actions: {
 		// users: {

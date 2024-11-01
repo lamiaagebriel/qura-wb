@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const cairo = localFont({
 	src: "../../../public/fonts/cairo.ttf",
@@ -51,10 +52,15 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 			<body suppressHydrationWarning>
 				<SessionProvider value={session}>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-						{children}
+						<TooltipProvider delayDuration={0} disableHoverableContent={true}>
+							{/* eslint-disable-next-line react/no-unknown-property */}
+							<div vaul-drawer-wrapper="" className="flex min-h-screen flex-col bg-background">
+								{children}
+							</div>
 
-						<Toaster />
-						<TailwindIndicator />
+							<Toaster />
+							<TailwindIndicator />
+						</TooltipProvider>
 					</ThemeProvider>
 				</SessionProvider>
 			</body>

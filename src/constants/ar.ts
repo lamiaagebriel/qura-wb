@@ -1,3 +1,5 @@
+import { SelectItem } from "@/types";
+
 const ar = {
 	site: {
 		name: "كن رقمي",
@@ -46,6 +48,24 @@ const ar = {
 			password: "كلمة المرور",
 		},
 	},
+	"locale-switcher": {
+		"current locale of the website": "اللغة الحالية للموقع",
+		en: "الإنجليزية (EN)",
+		ar: "العربية (AR)",
+		fr: "الفرنسية (FR)",
+		de: "الألمانية (DE)",
+	},
+	"mode-toggle": {
+		"toggle theme": "تبديل النظام",
+		modes: [
+			{ value: "system", label: "نظام الجهاز", icon: "laptop" },
+			{ value: "light", label: "نهاري", icon: "sun" },
+			{ value: "dark", label: "ليلي", icon: "moon" },
+		] as SelectItem[],
+	},
+
+	"site-nav": { menu: "القائمة" },
+
 	actions: {
 		"you don't have access to do this action": "لا تملك الصلاحية لهذا الفعل.",
 		"this action needs you to be logged in.": "يجب أن تسجل الدخول أولاً.",

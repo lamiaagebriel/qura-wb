@@ -4,16 +4,21 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	ChevronUp,
+	Globe,
+	Laptop,
 	LayoutDashboard,
 	LifeBuoy,
 	Loader2,
 	LogOut,
+	Moon,
 	Plus,
+	Search,
 	Send,
 	Settings2,
 	ShoppingBag,
 	ShoppingBagIcon,
 	Store,
+	Sun,
 	Upload,
 	User,
 	X,
@@ -106,6 +111,22 @@ export const Icons = {
 	),
 	send: ({ className, ...props }: IconProps) => (
 		<Send className={cn(IconsVariants({}), className)} {...props} />
+	),
+
+	globe: ({ className, ...props }: IconProps) => (
+		<Globe className={cn(IconsVariants({}), className)} {...props} />
+	),
+	sun: ({ className, ...props }: IconProps) => (
+		<Sun className={cn(IconsVariants({}), className)} {...props} />
+	),
+	moon: ({ className, ...props }: IconProps) => (
+		<Moon className={cn(IconsVariants({}), className)} {...props} />
+	),
+	laptop: ({ className, ...props }: IconProps) => (
+		<Laptop className={cn(IconsVariants({}), className)} {...props} />
+	),
+	search: ({ className, ...props }: IconProps) => (
+		<Search className={cn(cn(IconsVariants({}), className))} {...props} />
 	),
 	google: ({ className, ...props }: IconProps) => (
 		<svg

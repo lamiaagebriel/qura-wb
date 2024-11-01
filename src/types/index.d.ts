@@ -5,4 +5,9 @@ export type SelectItem = {
 	label: string | React.ReactNode;
 	icon?: keyof typeof Icons;
 	children?: React.ReactNode;
+	disabled?: boolean;
+};
+export type NavItem = SelectItem & {
+	segment?: string[] | null;
+	indicator?: string | number | React.ReactNode;
 };
