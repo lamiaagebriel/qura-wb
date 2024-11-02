@@ -267,10 +267,10 @@ export default async function Product({ params }: ProductProps) {
 							</CardHeader>
 							<CardContent>
 								<CardDescription>
-									"Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab quae inventore
+									&quot;Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab quae inventore
 									blanditiis atque eveniet consequatur quidem! Repudiandae laborum repellendus
 									ducimus explicabo repellat vel temporibus officia. Fugit nulla excepturi fugiat
-									incidunt?"
+									incidunt?&quot;
 								</CardDescription>
 							</CardContent>
 						</Card>

@@ -251,7 +251,7 @@ export default async function Cart({ params }: CartProps) {
 								<Verified />
 								<p>
 									<span className="font-semibold">90 Day Limited Warranty</span> against
-									manufacturer's defects <Link href={`/s/${storeId}/warranty`}>Details</Link>
+									manufacturer&apos;s defects <Link href={`/s/${storeId}/warranty`}>Details</Link>
 								</p>
 							</div>
 							<Button size="lg" className="w-full rounded-full">

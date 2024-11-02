@@ -207,7 +207,7 @@ export const ProductForm = {
 		form,
 	}: ProductFormProps) {
 		const imagesForm = useFieldArray({
-			// @ts-ignore
+			// @ts-expect-error
 			name: "images",
 			control: form?.["control"],
 		});
@@ -385,7 +385,7 @@ export const ProductForm = {
 													const file = files?.[i];
 													if (file) {
 														const base64 = (await fileToBase64({ file }))?.toString();
-														// @ts-ignore
+														// @ts-expect-error
 														imagesForm.append(base64 ?? "");
 													}
 												}

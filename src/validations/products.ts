@@ -22,7 +22,7 @@ export const productSchema = z.object({
 	name: z.stringRequired("name"),
 	description: z.string("description").nullable().optional(),
 	status: z.enum(PRODUCT_STATUS_ARR),
-	images: z.array(z.string("images")),
+	images: z.array(z.string("images")).default([]),
 
 	price: z.number("price").min(0, "price can't be below'0."),
 	stock: z.number("stock").min(0, "stock can't be below'0."),
