@@ -37,7 +37,7 @@ export function UserAccountNav({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
 				<div className="flex items-start justify-start gap-2 p-2">
-					<div className="flex flex-col space-y-1 leading-none">
+					<div className="flex flex-col gap-1 leading-none">
 						<div className="flex items-center justify-between gap-4">
 							<p className="font-medium">{user?.["name"]}</p>
 						</div>

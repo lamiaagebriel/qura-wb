@@ -1,30 +1,41 @@
 import { cva, VariantProps } from "class-variance-authority";
 import {
+	ArrowLeft,
+	Calendar,
 	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
 	ChevronUp,
+	Dot,
+	Facebook,
 	Globe,
+	Heart,
+	Instagram,
 	Laptop,
 	LayoutDashboard,
 	LifeBuoy,
 	Loader2,
 	LogOut,
+	Minus,
 	Moon,
+	Package,
+	Percent,
 	Plus,
 	Search,
 	Send,
 	Settings2,
 	ShoppingBag,
-	ShoppingBagIcon,
+	ShoppingBasket,
+	Star,
 	Store,
 	Sun,
+	Truck,
+	Twitter,
 	Upload,
 	User,
 	X,
 	type LucideProps,
 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 export const IconsVariants = cva("size-4 shrink-0");
@@ -67,14 +78,26 @@ export const Icons = {
 	spinner: ({ className, ...props }: IconProps) => (
 		<Loader2 className={cn(IconsVariants({}), "animate-spin", className)} {...props} />
 	),
+	star: ({ className, ...props }: IconProps) => (
+		<Star className={cn(IconsVariants({}), className)} {...props} />
+	),
 	x: ({ className, ...props }: IconProps) => (
 		<X className={cn(IconsVariants({}), className)} {...props} />
 	),
 	add: ({ className, ...props }: IconProps) => (
 		<Plus className={cn(IconsVariants({}), className)} {...props} />
 	),
+	minus: ({ className, ...props }: IconProps) => (
+		<Minus className={cn(IconsVariants({}), className)} {...props} />
+	),
 	upload: ({ className, ...props }: IconProps) => (
 		<Upload className={cn(IconsVariants({}), className)} {...props} />
+	),
+	dot: ({ className, ...props }: IconProps) => (
+		<Dot className={cn(IconsVariants({}), className)} {...props} />
+	),
+	arrowLeft: ({ className, ...props }: IconProps) => (
+		<ArrowLeft className={cn(IconsVariants({}), className)} {...props} />
 	),
 	chevronLeft: ({ className, ...props }: IconProps) => (
 		<ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
@@ -100,6 +123,9 @@ export const Icons = {
 	shoppingBag: ({ className, ...props }: IconProps) => (
 		<ShoppingBag className={cn(IconsVariants({}), className)} {...props} />
 	),
+	shoppingBasket: ({ className, ...props }: IconProps) => (
+		<ShoppingBasket className={cn(IconsVariants({}), className)} {...props} />
+	),
 	store: ({ className, ...props }: IconProps) => (
 		<Store className={cn(IconsVariants({}), className)} {...props} />
 	),
@@ -112,7 +138,9 @@ export const Icons = {
 	send: ({ className, ...props }: IconProps) => (
 		<Send className={cn(IconsVariants({}), className)} {...props} />
 	),
-
+	heart: ({ className, ...props }: IconProps) => (
+		<Heart className={cn(IconsVariants({}), className)} {...props} />
+	),
 	globe: ({ className, ...props }: IconProps) => (
 		<Globe className={cn(IconsVariants({}), className)} {...props} />
 	),
@@ -127,6 +155,59 @@ export const Icons = {
 	),
 	search: ({ className, ...props }: IconProps) => (
 		<Search className={cn(cn(IconsVariants({}), className))} {...props} />
+	),
+	percent: ({ className, ...props }: IconProps) => (
+		<Percent className={cn(cn(IconsVariants({}), className))} {...props} />
+	),
+	package: ({ className, ...props }: IconProps) => (
+		<Package className={cn(cn(IconsVariants({}), className))} {...props} />
+	),
+	calender: ({ className, ...props }: IconProps) => (
+		<Calendar className={cn(cn(IconsVariants({}), className))} {...props} />
+	),
+	truck: ({ className, ...props }: IconProps) => (
+		<Truck className={cn(cn(IconsVariants({}), className))} {...props} />
+	),
+
+	facebook: ({ className, ...props }: IconProps) => (
+		<Facebook className={cn(IconsVariants({}), className)} {...props} />
+	),
+	twitter: ({ className, ...props }: IconProps) => (
+		<Twitter className={cn(IconsVariants({}), className)} {...props} />
+	),
+	instagram: ({ className, ...props }: IconProps) => (
+		<Instagram className={cn(IconsVariants({}), className)} {...props} />
+	),
+	// telegram: ({ className, ...props }: IconProps) => (
+	//   <Telegra
+	//     className={cn(IconsVariants({}), "text-blue-400", className)}
+	//     {...props}
+	//   />
+	// ),
+	googlePlay: ({ className, ...props }: IconProps) => (
+		<svg
+			viewBox="30 336.7 120.9 129.2"
+			width="30px"
+			className={cn(IconsVariants({}), className)}
+			{...props}
+		>
+			<path
+				fill="#FFD400"
+				d="M119.2,421.2c15.3-8.4,27-14.8,28-15.3c3.2-1.7,6.5-6.2,0-9.7  c-2.1-1.1-13.4-7.3-28-15.3l-20.1,20.2L119.2,421.2z"
+			></path>
+			<path
+				fill="#FF3333"
+				d="M99.1,401.1l-64.2,64.7c1.5,0.2,3.2-0.2,5.2-1.3  c4.2-2.3,48.8-26.7,79.1-43.3L99.1,401.1L99.1,401.1z"
+			></path>
+			<path
+				fill="#48FF48"
+				d="M99.1,401.1l20.1-20.2c0,0-74.6-40.7-79.1-43.1  c-1.7-1-3.6-1.3-5.3-1L99.1,401.1z"
+			></path>
+			<path
+				fill="#3BCCFF"
+				d="M99.1,401.1l-64.3-64.3c-2.6,0.6-4.8,2.9-4.8,7.6  c0,7.5,0,107.5,0,113.8c0,4.3,1.7,7.4,4.9,7.7L99.1,401.1z"
+			></path>
+		</svg>
 	),
 	google: ({ className, ...props }: IconProps) => (
 		<svg

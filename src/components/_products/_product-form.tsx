@@ -1,6 +1,6 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
+import { useFieldArray, UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 
 import Image from "next/image";
@@ -206,6 +206,12 @@ export const ProductForm = {
 		loading,
 		form,
 	}: ProductFormProps) {
+		const imagesForm = useFieldArray({
+			// @ts-ignore
+			name: "images",
+			control: form?.["control"],
+		});
+
 		return (
 			<div className="grid gap-2">
 				<div className="relative">
@@ -374,20 +380,15 @@ export const ProductForm = {
 											value={undefined}
 											onChange={async (e) => {
 												const files = e.target.files;
-												const base64Files: string[] = [];
 
 												for (let i = 0; i < (files?.["length"] as number); i++) {
 													const file = files?.[i];
 													if (file) {
 														const base64 = (await fileToBase64({ file }))?.toString();
-														base64Files.push(base64 ?? "");
+														// @ts-ignore
+														imagesForm.append(base64 ?? "");
 													}
 												}
-
-												form.setValue("images", [
-													...(form.getValues("images") ?? []),
-													...base64Files,
-												]);
 											}}
 											className="absolute h-full w-full cursor-pointer rounded-full p-0 opacity-0"
 										/>

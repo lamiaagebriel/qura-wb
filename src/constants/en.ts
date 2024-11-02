@@ -28,14 +28,88 @@ const en = {
 	},
 	marketing: {
 		"main-nav": [
-			{ value: "/", label: "Home" },
-			{ value: "/stores", label: "Stores" },
-			{ value: "/pricing", label: "Pricing" },
-			{ value: "/about", label: "About us" },
+			{ segments: null, value: "/", label: "Home" },
+			{ segments: ["stores"], value: "/stores", label: "Stores" },
+			{ segments: ["pricing"], value: "/pricing", label: "Pricing" },
+			{ segments: ["about"], value: "/about", label: "About us" },
 		] as NavItem[],
 
 		layout: {
 			login: "Login",
+			menu: "Menu",
+
+			footer: {
+				"copyright ©": "Copyright ©",
+				"main-nav": [
+					{
+						label: "travel buddies",
+						items: [
+							{ value: "/about", label: "About us" },
+							{ value: "/about", label: "Team" },
+							{ value: "/about", label: "News" },
+						] as NavItem[],
+					},
+					{
+						label: "Socaity",
+						items: [
+							{ value: "/about", label: "Adventures" },
+							{ value: "/about", label: "Trips & Outings" },
+							{ value: "/about", label: "Places" },
+						] as NavItem[],
+					},
+					{
+						label: "Help",
+						items: [
+							{ value: "/about", label: "FAQ" },
+							{ value: "/about", label: "Rules" },
+							{ value: "/about", label: "Tips" },
+						] as NavItem[],
+					},
+				],
+				"sec-main-nav": [
+					{ value: "/", label: "Privacy Policy" },
+					{ value: "/", label: "Terms of Service" },
+					{ value: "/", label: "Website Map" },
+				] as NavItem[],
+				"download app now": "Download App Now",
+				"download on the": "Download on the",
+				"get it on": "GET IT ON",
+				balance: "balance",
+			},
+		},
+	},
+	store: {
+		layout: {
+			header: {
+				"main-nav": [
+					{ value: "/about", label: "About" },
+					{ value: "/faqs", label: "FAQs" },
+					{ value: "/returns", label: "Returns" },
+				] as NavItem[],
+				login: "Login",
+				menu: "Menu",
+			},
+			footer: {
+				"main-nav": [
+					{
+						label: "store-name",
+						items: [{ value: "/about", label: "About us" }] as NavItem[],
+					},
+					{
+						label: "Help",
+						items: [
+							{ value: "/faqs", label: "FAQs" },
+							{ value: "/contact", label: "Contact Us" },
+							{ value: "/returns", label: "Returns" },
+						] as NavItem[],
+					},
+				],
+				"copyright ©": "Copyright ©",
+				"download app now": "Download App Now",
+				"download on the": "Download on the",
+				"get it on": "GET IT ON",
+				balance: "balance",
+			},
 		},
 	},
 
@@ -200,8 +274,6 @@ const en = {
 			{ value: "dark", label: "Dark", icon: "moon" },
 		] as SelectItem[],
 	},
-
-	"site-nav": { menu: "Menu" },
 
 	actions: {
 		// users: {

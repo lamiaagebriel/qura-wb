@@ -35,6 +35,7 @@ import * as React from "react";
 import { DataTableColumnHeaderProps } from "@/components/_data-table/data-table-column-header";
 import { DataTableRowActionsProps } from "@/components/_data-table/data-table-row-actions";
 import { DataTableViewOptionsProps } from "@/components/_data-table/data-table-view-options";
+import { cn } from "@/lib/utils";
 
 export type DataTableProps<TData, TValue> = {
 	columns: ColumnDef<TData, TValue>[];

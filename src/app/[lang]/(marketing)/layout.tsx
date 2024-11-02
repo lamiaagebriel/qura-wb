@@ -8,9 +8,19 @@ import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ModeToggler } from "@/components/mode-toggler";
-import { SiteNav } from "@/components/site-nav";
-import { PoundSterling, Search } from "lucide-react";
-import { UserAccountNav } from "@/components/_users/account-nav";
+import { UserAccountNav } from "@/components/_users/user-account-nav";
+import { NavLink } from "@/components/nav-link";
+import { cn } from "@/lib/utils";
+import {
+	Drawer,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Separator } from "@/components/ui/separator";
 
 type MarketingLayoutProps = Readonly<{
 	children: React.ReactNode;
@@ -19,11 +29,12 @@ type MarketingLayoutProps = Readonly<{
 
 export default async function MarketingLayout({ children, params }: MarketingLayoutProps) {
 	const { lang } = await params;
+	const { user } = await getAuth();
 	const {
+		site,
 		marketing: { "main-nav": mainNav, layout: c },
 		...dic
 	} = await getDictionary(lang);
-	const { user } = await getAuth();
 
 	return (
 		<div className="flex min-h-screen flex-col">
@@ -38,8 +49,108 @@ export default async function MarketingLayout({ children, params }: MarketingLay
 				</div>
 			</div>
 
-			<SiteNav dic={dic} items={mainNav}>
-				<>
+			{/* Header */}
+			<header className="z-40 border-b bg-background py-2">
+				<div className="container flex max-w-screen-2xl items-center justify-between">
+					<div className="flex gap-4">
+						<Link href="/" className="hidden items-center lg:flex">
+							<Icons.logo />
+							<span className="sr-only">{site?.["name"]}</span>
+						</Link>
+
+						{mainNav?.["length"] ? (
+							<nav className="hidden lg:block">
+								<ul className="flex items-center justify-start gap-2 text-sm">
+									{mainNav.map((item, i) => (
+										<li key={i}>
+											<NavLink
+												href={item?.["value"]}
+												disabled={item?.["disabled"]}
+												segments={item?.["segments"]}
+												className={cn(
+													buttonVariants({ variant: "ghost" }),
+													"text-muted-foreground",
+												)}
+												activeClassNames="border-foreground text-primary underline underline-offset-[21px]"
+											>
+												{item?.["label"]}
+											</NavLink>
+										</li>
+									))}
+								</ul>
+							</nav>
+						) : null}
+
+						{/* Mobile Site Nav :md */}
+						<Drawer>
+							<DrawerTrigger asChild>
+								<button className="flex items-center gap-2 lg:hidden">
+									<Icons.logo />
+									<span className="text-sm font-semibold">{c?.["menu"]}</span>
+								</button>
+							</DrawerTrigger>
+							<DrawerContent className="max-h-[95vh]">
+								{user ? (
+									<>
+										<DrawerHeader className="flex items-center justify-between gap-4">
+											<div className="flex items-center justify-start gap-2">
+												<Avatar user={user} />
+												<div className="flex flex-col items-start">
+													<DrawerTitle>{user?.["name"]}</DrawerTitle>
+													<DrawerDescription className="text-xs">
+														{user?.["email"]}
+													</DrawerDescription>
+												</div>
+											</div>
+											{/* {userNav?.[0] && (
+											<Link href={userNav?.[0]?.["value"]} className={buttonVariants({})}>
+												{userNav?.[0]?.["label"]}
+											</Link>
+										)} */}
+										</DrawerHeader>
+
+										<Separator />
+									</>
+								) : null}
+
+								{mainNav?.["length"] ? (
+									<nav>
+										<ul className="flex flex-col gap-2 p-4">
+											{mainNav.map((item, i) => (
+												<li key={i}>
+													<NavLink
+														href={item?.["value"]}
+														disabled={item?.["disabled"]}
+														segments={item?.["segments"]}
+														className={cn(
+															buttonVariants({ variant: "secondary" }),
+															"w-full text-muted-foreground",
+														)}
+														activeClassNames="text-foreground"
+													>
+														{item?.["label"]}
+													</NavLink>
+												</li>
+											))}
+										</ul>
+									</nav>
+								) : null}
+
+								<DrawerFooter className="flex flex-row items-center justify-between">
+									<Link href="/" className="inline-flex items-center gap-2 font-bold tracking-wide">
+										<Icons.logo />
+										<span>{site?.["name"]}</span>
+									</Link>
+
+									<div>
+										<LocaleSwitcher dic={dic} />
+										<ModeToggler dic={dic} />
+									</div>
+								</DrawerFooter>
+							</DrawerContent>
+						</Drawer>
+					</div>
+
 					{user ? (
 						<UserAccountNav dic={dic} items={[]} />
 					) : (
@@ -56,8 +167,9 @@ export default async function MarketingLayout({ children, params }: MarketingLay
 							</Link>
 						</>
 					)}
-				</>
-			</SiteNav>
+				</div>
+			</header>
+
 			<main className="flex-1">{children}</main>
 		</div>
 	);

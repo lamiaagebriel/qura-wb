@@ -8,6 +8,6 @@ export type SelectItem = {
 	disabled?: boolean;
 };
 export type NavItem = SelectItem & {
-	segment?: string[] | null;
+	segments?: string[] | null;
 	indicator?: string | number | React.ReactNode;
 };
