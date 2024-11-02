@@ -66,18 +66,20 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 								{user ? (
 									<>
 										<DrawerHeader className="flex items-center justify-between gap-4">
-											<div className="flex items-center justify-start gap-2">
-												<Avatar user={user} />
-												<div className="flex flex-col items-start">
-													<DrawerTitle>{user?.["name"]}</DrawerTitle>
-													<DrawerDescription className="text-xs">
-														{user?.["email"]}
-													</DrawerDescription>
+											<Link href="/profile">
+												<div className="flex items-center justify-start gap-2">
+													<Avatar user={user} />
+													<div className="flex flex-col items-start">
+														<DrawerTitle>{user?.["name"]}</DrawerTitle>
+														<DrawerDescription className="text-xs">
+															{user?.["email"]}
+														</DrawerDescription>
+													</div>
 												</div>
-											</div>
+											</Link>
 
-											<Link href="/profile" className={buttonVariants({})}>
-												Profile
+											<Link href="/orders" className={buttonVariants({})}>
+												Orders
 											</Link>
 										</DrawerHeader>
 
@@ -168,7 +170,14 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 							{user ? (
 								<Tooltip tip={user?.["name"]}>
 									<div className="mt-1.5">
-										<UserAccountNav dic={dic} items={[]} />
+										<UserAccountNav
+											dic={dic}
+											items={[
+												{ value: `/profile`, label: "Profile" },
+												{ value: `/orders`, label: "Orders" },
+												{ value: `/settings`, label: "Settings" },
+											]}
+										/>
 									</div>
 								</Tooltip>
 							) : (

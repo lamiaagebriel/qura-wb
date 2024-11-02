@@ -4,18 +4,22 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { toast } from "sonner";
 import { z } from "zod";
-import { cartProductSchema } from "../validations";
+import { cartAddressSchema, cartPaymentSchema, cartProductSchema } from "../validations";
 
 export type CartProduct = z.infer<typeof cartProductSchema>;
+export type CartAddress = z.infer<typeof cartAddressSchema>;
+export type CartPayment = z.infer<typeof cartPaymentSchema>;
 
 export type CartState = {
 	products: CartProduct[];
-	// order_info: CreateCartProps | null;
+	address: CartAddress | null;
+	"payment-method": CartPayment["payment-method"] | null;
 };
 
 const initialState: CartState = {
 	products: [],
-	// order_info: null,
+	address: null,
+	"payment-method": null,
 };
 
 export const cartSlice = createSlice({
@@ -76,6 +80,18 @@ export const cartSlice = createSlice({
 				toast.error(err?.["message"]);
 			}
 		},
+		addCartAddress: (state: CartState, { payload }: PayloadAction<Pick<CartState, "address">>) => {
+			state.address = payload?.["address"];
+			setCookie("cart", JSON.stringify(state));
+		},
+		addCartPayment: (
+			state: CartState,
+			{ payload }: PayloadAction<Pick<CartState, "payment-method">>,
+		) => {
+			console.log(payload?.["payment-method"]);
+			state["payment-method"] = payload?.["payment-method"];
+			setCookie("cart", JSON.stringify(state));
+		},
 	},
 });
 
@@ -94,6 +110,12 @@ export const useCart = () => {
 			}>["payload"],
 		) => {
 			dispatch(cartSlice?.["actions"].removeFromCart(payload));
+		},
+		addCartAddress: (payload: PayloadAction<Pick<CartState, "address">>["payload"]) => {
+			dispatch(cartSlice?.["actions"].addCartAddress(payload));
+		},
+		addCartPayment: (payload: PayloadAction<Pick<CartState, "payment-method">>["payload"]) => {
+			dispatch(cartSlice?.["actions"].addCartPayment(payload));
 		},
 	};
 };

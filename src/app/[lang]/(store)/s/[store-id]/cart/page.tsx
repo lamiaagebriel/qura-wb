@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { LocaleProps } from "@/types/locale";
-import { ProductsTable } from "@/components/_cart/products-table";
+import { CartProductsTable } from "@/components/_cart/cart-products-table";
 import { getDictionary } from "@/lib/locale";
 import { ProductAttribute } from "@/types/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Verified } from "lucide-react";
 import { Link } from "@/components/link";
+import { CartOrderSteps } from "@/components/_cart/cart-order-steps";
 // const SUMMARY: { label: React.ReactNode; value: React.ReactNode }[] = [
 // 	{
 // 		label: "Subtotal",
@@ -179,87 +180,13 @@ export default async function Cart({ params }: CartProps) {
 	});
 	if (!r?.["length"]) return <>NO CART PRODUCTS</>;
 
-	const products = [
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		...r?.map((e) => ({ ...e, attributes: e?.["attributes"] as ProductAttribute[] })),
-		{ ...r?.[0]!, attributes: r?.[0]!?.["attributes"] as ProductAttribute[] },
-	];
-
 	return (
 		<div className="container py-4">
 			{/* <h1 className="mb-4 text-lg font-bold">Shopping Cart</h1> */}
 
 			<div className="grid gap-4 lg:grid-cols-[1fr,0.5fr]">
-				<ProductsTable dic={dic} data={products} />
-				<div>
-					<Card>
-						<CardHeader>
-							<CardTitle>Order Summary</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							<div className="flex items-center gap-2">
-								<Input placeholder="Discount Voucher" className="w-full rounded-full" />
-								<Button variant="outline" className="rounded-full">
-									Apply
-								</Button>
-							</div>
-							<Table>
-								<TableBody>
-									<TableRow className="border-b-0">
-										<TableCell className="font-medium">Subtotal</TableCell>
-										<TableCell className="text-right">250.00 USD</TableCell>
-									</TableRow>
-
-									<TableRow className="border-b-0">
-										<TableCell className="font-medium">Discount (10%)</TableCell>
-										<TableCell className="text-right">-1.000 USD</TableCell>
-									</TableRow>
-
-									<TableRow>
-										<TableCell className="font-medium">Delivery Fee</TableCell>
-										<TableCell className="text-right">50.00 USD</TableCell>
-									</TableRow>
-
-									<TableRow className="border-b-0">
-										<TableCell className="font-medium">Total</TableCell>
-										<TableCell className="text-right">1,850.00 USD</TableCell>
-									</TableRow>
-								</TableBody>
-							</Table>
-							<Separator className="my-4" />
-
-							<div className="flex items-start gap-2">
-								<p>
-									Lamiaa Gebriel, +201022184878
-									<br />
-									185 building, Salah Salem st., Almamora - 152845.
-									<br />
-									Daraw, Aswan, Egypt.
-								</p>
-								<Button variant="outline" size="sm">
-									Add Address
-								</Button>
-							</div>
-							<Separator className="my-4" />
-
-							<div className="flex items-start gap-2">
-								<Verified />
-								<p>
-									<span className="font-semibold">90 Day Limited Warranty</span> against
-									manufacturer&apos;s defects <Link href={`/s/${storeId}/warranty`}>Details</Link>
-								</p>
-							</div>
-							<Button size="lg" className="w-full rounded-full">
-								Checkout Now
-							</Button>
-						</CardContent>
-					</Card>
-				</div>
+				<CartProductsTable dic={dic} />
+				<CartOrderSteps />
 			</div>
 		</div>
 	);

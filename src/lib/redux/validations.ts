@@ -34,3 +34,7 @@ export const cartAddressSchema = z.object({
 	city: z.stringRequired("city"),
 	country: z.stringRequired("country"),
 });
+
+export const cartPaymentSchema = z.object({
+	"payment-method": z.enum(["cash", "paypal"]),
+});

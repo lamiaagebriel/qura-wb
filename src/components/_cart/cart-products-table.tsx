@@ -1,37 +1,25 @@
 "use client";
 
-import {
-	DataTable,
-	DataTableProps,
-	DataTableColumnHeader,
-	DataTableRowActions,
-} from "@/components/_data-table";
+import { DataTable, DataTableProps, DataTableColumnHeader } from "@/components/_data-table";
 import { Link } from "@/components/link";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { CardTitle } from "@/components/ui/card";
 import { Dictionary } from "@/types/locale";
-import { Product } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-	ProductDeleteButton,
-	ProductDeleteButtonProps,
-} from "@/components/_products/product-delete-button";
-import { ProductAttribute } from "@/types/db";
+import { ProductDeleteButtonProps } from "@/components/_products/product-delete-button";
 import { Image } from "@/components/image";
 import { cn } from "@/lib/utils";
-import { Icons } from "../icons";
+import { Icons } from "@/components/icons";
 import { CartProduct, useCart } from "@/lib/redux";
-import { toast } from "sonner";
 import { Trash } from "lucide-react";
 
 type ColumnType = CartProduct;
-type ProductsTableProps = {
-	data: ColumnType[];
-} & Pick<DataTableProps<any, any>, "dic"> &
+type CartProductsTableProps = {} & Pick<DataTableProps<any, any>, "dic"> &
 	Pick<ProductDeleteButtonProps, "dic"> &
 	Dictionary["products-table"];
 
-export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: ProductsTableProps) {
+export function CartProductsTable({
+	dic: { "products-table": c, ...dic },
+}: CartProductsTableProps) {
 	const cart = useCart();
 
 	return (
@@ -112,7 +100,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							<DataTableColumnHeader dic={dic} column={column} title={"Total Price"} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<p>${r?.["product"]?.["price"] * r?.["quantity"]}.5</p>
+							<p>${(r?.["product"]?.["price"] * r?.["quantity"]).toFixed(2)}</p>
 						),
 						enableSorting: false,
 						enableHiding: false,
