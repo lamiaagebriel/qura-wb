@@ -25,6 +25,7 @@ import { Tooltip } from "@/components/tooltip";
 import { UserAccountNav } from "@/components/_users/user-account-nav";
 import { NavLink } from "@/components/nav-link";
 import { Input } from "@/components/ui/input";
+import { CartLink } from "@/components/_cart/cart-icon";
 
 type StoreLayoutProps = Readonly<{
 	children: React.ReactNode;
@@ -163,17 +164,7 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 						</div>
 
 						<div className="flex items-center justify-center gap-2">
-							<Tooltip tip="cart">
-								<Link
-									href={`/s/${storeId}/cart`}
-									className={cn(
-										buttonVariants({ variant: "outline", size: "icon" }),
-										"rounded-full",
-									)}
-								>
-									<ShoppingBag />
-								</Link>
-							</Tooltip>
+							<CartLink href={`/s/${storeId}/cart`} />
 							{user ? (
 								<Tooltip tip={user?.["name"]}>
 									<div className="mt-1.5">

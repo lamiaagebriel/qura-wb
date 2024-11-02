@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Tooltip } from "../tooltip";
 import { Link } from "../link";
 import { Image } from "../image";
+import { useCart } from "@/lib/redux";
 
 export type ProductCardProps = {
 	product: Product & { attributes: ProductAttribute[] };
@@ -20,6 +21,8 @@ export function ProductCard({
 	// dic: { "product-card": c, ...dic },
 	product,
 }: ProductCardProps) {
+	const cart = useCart();
+
 	return (
 		<Card className="border-none shadow-none outline-none">
 			<CardHeader className="relative border-none p-0 outline-none">
@@ -36,7 +39,12 @@ export function ProductCard({
 					<div className="absolute bottom-0 left-0 size-4 -translate-x-[calc(100%-6px+0.5px)] translate-y-[calc(6px-0.5px)] rounded-br-xl border-[6px] border-l-0 border-t-0 border-background" />
 
 					<Tooltip tip="add to cart">
-						<Button size="icon">
+						<Button
+							size="icon"
+							onClick={() => {
+								cart.incrementByAmount(1);
+							}}
+						>
 							<Icons.shoppingBasket />
 						</Button>
 					</Tooltip>
