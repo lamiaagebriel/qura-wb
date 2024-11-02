@@ -20,10 +20,11 @@ import { ProductAttribute } from "@/types/db";
 import { Image } from "@/components/image";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
+import { CartProduct, useCart } from "@/lib/redux";
+import { toast } from "sonner";
+import { Trash } from "lucide-react";
 
-type ColumnType = Product & {
-	attributes: ProductAttribute[];
-};
+type ColumnType = CartProduct;
 type ProductsTableProps = {
 	data: ColumnType[];
 } & Pick<DataTableProps<any, any>, "dic"> &
@@ -31,10 +32,12 @@ type ProductsTableProps = {
 	Dictionary["products-table"];
 
 export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: ProductsTableProps) {
+	const cart = useCart();
+
 	return (
 		<DataTable
 			dic={dic}
-			data={data}
+			data={cart?.["products"]}
 			columns={
 				[
 					{
@@ -44,7 +47,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						),
 						cell: ({ row: { original: r } }) => (
 							<Link
-								href={`/s/${r?.["storeId"]}/p/${r?.["id"]}`}
+								href={`/s/${r?.["product"]?.["storeId"]}/p/${r?.["product"]?.["id"]}`}
 								className={cn(
 									buttonVariants({
 										variant: "link",
@@ -53,17 +56,15 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 								)}
 							>
 								<Image
-									src={r?.["images"]?.[0]}
-									alt={`${r?.["name"]} Image`}
+									src={r?.["product"]?.["images"]?.[0]}
+									alt={`${r?.["product"]?.["name"]} Image`}
 									className="aspect-square size-24 rounded-xl"
 								/>
 								<div>
-									<h1 className="text-lg font-bold">{r?.["name"]}</h1>
+									<h1 className="text-lg font-bold">{r?.["product"]?.["name"]}</h1>
 									<p className="text-muted-foreground">
 										{[
-											...r?.["attributes"]?.map((e) =>
-												[e?.["name"], e?.["values"]?.[0]?.["name"]].join(": "),
-											),
+											...r?.["attributes"]?.map((e) => [e?.["name"], e?.["value"]].join(": ")),
 										].join(", ")}
 									</p>
 								</div>
@@ -73,17 +74,31 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						enableHiding: false,
 					},
 					{
-						accessorKey: "stock",
+						accessorKey: "quantity",
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={"Quantity"} />
 						),
 						cell: ({ row: { original: r } }) => (
 							<div className="flex w-fit items-center gap-1 rounded-full border border-primary">
-								<Button variant="ghost" size="icon" className="rounded-full">
+								<Button
+									variant="ghost"
+									size="icon"
+									className="rounded-full"
+									onClick={() => {
+										cart?.addToCart(r);
+									}}
+								>
 									<Icons.add />
 								</Button>
-								{r?.["stock"]}
-								<Button variant="ghost" size="icon" className="rounded-full">
+								{r?.["quantity"]}
+								<Button
+									variant="ghost"
+									size="icon"
+									className="rounded-full"
+									onClick={() => {
+										cart?.removeFromCart({ product: r?.["product"] });
+									}}
+								>
 									<Icons.minus />
 								</Button>
 							</div>
@@ -96,7 +111,9 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={"Total Price"} />
 						),
-						cell: ({ row: { original: r } }) => <p>${r?.["price"]}.5</p>,
+						cell: ({ row: { original: r } }) => (
+							<p>${r?.["product"]?.["price"] * r?.["quantity"]}.5</p>
+						),
 						enableSorting: false,
 						enableHiding: false,
 					},
@@ -104,7 +121,15 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						id: "actions",
 						cell: ({ row: { original: r } }) => {
 							return (
-								<ProductDeleteButton dic={dic} product={r} variant="destructive" size="icon" />
+								<Button
+									variant="destructive"
+									size="icon"
+									onClick={() => {
+										cart?.removeFromCart({ product: r?.["product"], quantity: r?.["quantity"] });
+									}}
+								>
+									<Trash />
+								</Button>
 							);
 						},
 					},

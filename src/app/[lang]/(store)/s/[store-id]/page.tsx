@@ -67,7 +67,7 @@ export default async function Products({ params }: ProductsProps) {
 						</Select>
 					))}
 				</div>
-				<div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-10">
+				<div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 					{products?.map((e, i) => <ProductCard key={i} product={e} />)}
 				</div>
 			</div>

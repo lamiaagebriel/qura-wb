@@ -6,23 +6,20 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Image } from "@/components/image";
-import { Star } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductAttribute } from "@/types/db";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Discord } from "arctic";
 import { SelectItem } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/avatar";
 import { Progress } from "@/components/ui/progress";
 import { ProductCard } from "@/components/_products/product-card";
+import { ProductDetailsCartForm } from "@/components/_products/product-details-cart-form";
 
 type ProductProps = Readonly<{
 	params: Promise<{ "store-id": string; "product-id": string } & LocaleProps>;
@@ -99,41 +96,8 @@ export default async function Product({ params }: ProductProps) {
 					</div>
 
 					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<h1 className="text-4xl font-semibold">{product?.["name"]}</h1>
-							<p className="text-xl font-bold">${product?.["price"]}.05</p>
-						</div>
+						<ProductDetailsCartForm product={product} />
 
-						{product?.["attributes"]?.map((e, i) => (
-							<div key={i} className="space-y-1">
-								<h1 className="text-sm text-muted-foreground">Select {e?.["name"]}</h1>
-								<RadioGroup defaultValue={`${i}-0`} className="flex items-center gap-2">
-									{e?.["values"]?.map((v, j) => (
-										<div key={`${i}-${j}`}>
-											<RadioGroupItem
-												value={`${i}-${j}`}
-												id={`${i}-${j}`}
-												className="peer sr-only"
-											/>
-
-											<Label
-												htmlFor={`${i}-${j}`}
-												className="flex cursor-pointer items-center rounded-full border border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground [&:has([data-state=checked])]:border-primary"
-											>
-												{v?.["name"]}
-											</Label>
-										</div>
-									))}
-								</RadioGroup>
-							</div>
-						))}
-
-						<div className="flex items-center gap-2">
-							<Button className="w-full rounded-full py-4">Add to Cart</Button>
-							<Button variant="outline" size="icon" className="rounded-full">
-								<Icons.heart />
-							</Button>
-						</div>
 						<Accordion type="single" defaultValue="shopping" collapsible>
 							<AccordionItem value="description">
 								<AccordionTrigger>Description & Fit</AccordionTrigger>

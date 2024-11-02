@@ -38,6 +38,7 @@
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.1",
 		"cmdk": "1.0.0",
+		"cookies-next": "^4.3.0",
 		"ky": "^1.7.2",
 		"lucia": "^3.2.2",
 		"lucide-react": "^0.453.0",
