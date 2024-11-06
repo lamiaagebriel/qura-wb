@@ -11,11 +11,13 @@ import { Button } from "../ui/button";
 import { Icons } from "../icons";
 import { Card, CardContent } from "../ui/card";
 import { TagsInput } from "../tags";
+import { ProductAttribute } from "@/types/db";
 
 export type AttributeFormProps = {
 	loading: boolean;
 	form: UseFormReturn<z.infer<typeof attributesSchema>, any, undefined>;
 	i: number;
+	attributes?: ProductAttribute[];
 } & Dictionary["attribute-form"];
 
 export const AttributeForm = {
@@ -26,26 +28,33 @@ export const AttributeForm = {
 		loading,
 		form,
 		i,
-	}: AttributeFormProps) => (
-		<FormField
-			control={form?.["control"]}
-			name={`attributes.${i}.name`}
-			render={({ field }) => (
-				<FormItem className="w-full">
-					<FormLabel className="sr-only">{c?.["name"]}</FormLabel>
-					<FormControl>
-						<Input
-							placeholder={c?.["sizes"]}
-							disabled={loading}
-							{...field}
-							value={form.watch(`attributes.${i}.name`)}
-						/>
-					</FormControl>
-					<FormMessage />
-				</FormItem>
-			)}
-		/>
-	),
+		attributes,
+	}: AttributeFormProps) => {
+		const suggestions = attributes
+			?.find((e) => e?.["name"] === form?.getValues(`attributes.${i}.name`))
+			?.["values"]?.map((e) => e?.["name"]);
+
+		return (
+			<FormField
+				control={form?.["control"]}
+				name={`attributes.${i}.name`}
+				render={({ field }) => (
+					<FormItem className="w-full">
+						<FormLabel className="sr-only">{c?.["name"]}</FormLabel>
+						<FormControl>
+							<Input
+								placeholder={c?.["sizes"]}
+								disabled={loading}
+								{...field}
+								value={form.watch(`attributes.${i}.name`)}
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		);
+	},
 	values: ({
 		dic: {
 			"attribute-form": { name: c },
@@ -53,25 +62,36 @@ export const AttributeForm = {
 		loading,
 		form,
 		i,
-	}: AttributeFormProps) => (
-		<TagsInput
-			selected={form.watch(`attributes.${i}.values`)?.map((e) => e?.["name"])}
-			onSelectedChange={(values) =>
-				form.setValue(
-					`attributes.${i}.values`,
-					values.map((value) => ({ name: value })),
-				)
-			}
-		/>
-	),
+		attributes,
+	}: AttributeFormProps) => {
+		const suggestions = form?.watch(`attributes.${i}.name`)
+			? attributes
+					?.find((e) => e?.["name"] === form?.watch(`attributes.${i}.name`))
+					?.["values"]?.map((e) => e?.["name"])
+			: [];
+
+		return (
+			<TagsInput
+				selected={form.watch(`attributes.${i}.values`)?.map((e) => e?.["name"])}
+				onSelectedChange={(values) =>
+					form.setValue(
+						`attributes.${i}.values`,
+						values.map((value) => ({ name: value })),
+					)
+				}
+				suggestions={suggestions}
+			/>
+		);
+	},
 };
 
 export type AttributesFormProps = {
 	loading: boolean;
 	form: UseFormReturn<z.infer<typeof attributesSchema>, any, undefined>;
+	attributes?: ProductAttribute[];
 } & Pick<AttributeFormProps, "dic">;
 
-export const AttributesForm = ({ dic, form, loading }: AttributesFormProps) => {
+export const AttributesForm = ({ dic, form, loading, attributes = [] }: AttributesFormProps) => {
 	const attributesForm = useFieldArray({
 		name: "attributes",
 		control: form?.["control"],
@@ -111,7 +131,13 @@ export const AttributesForm = ({ dic, form, loading }: AttributesFormProps) => {
 									return (
 										<div key={i} className="mb-2 space-y-4 border-b-4 last:border-none">
 											<div className="flex w-full items-center justify-between gap-2">
-												<AttributeForm.name dic={dic} form={form as any} loading={loading} i={i} />
+												<AttributeForm.name
+													dic={dic}
+													form={form as any}
+													loading={loading}
+													i={i}
+													attributes={attributes}
+												/>
 
 												<Button
 													variant="destructive"
@@ -127,6 +153,7 @@ export const AttributesForm = ({ dic, form, loading }: AttributesFormProps) => {
 													form={form as any}
 													loading={loading}
 													i={i}
+													attributes={attributes}
 												/>
 											</div>
 										</div>

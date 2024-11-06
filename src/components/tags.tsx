@@ -6,40 +6,54 @@ import { Command as CommandPrimitive } from "cmdk";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
-import { Command, CommandList } from "@/components/ui/command";
+import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import { toast } from "sonner";
 
 type FancyMultiSelectProps = {
 	selected: string[];
 	onSelectedChange: (selected: string[]) => void;
+	suggestions?: string[];
 };
 
-export function TagsInput({ selected, onSelectedChange }: FancyMultiSelectProps) {
+export function TagsInput({ selected, onSelectedChange, suggestions = [] }: FancyMultiSelectProps) {
 	const inputRef = React.useRef<HTMLInputElement>(null);
+	const [open, setOpen] = React.useState(false);
 	const [value, setValue] = React.useState<string>("");
 
+	const handleNewValue = ({ value }: { value: string }) => {
+		const val = value.trim();
+		if (selected?.find((e) => e === val)) {
+			toast.error("this value already exists.");
+			return;
+		}
+
+		onSelectedChange([...selected, val]); // Add new tag
+		setValue(""); // Clear input
+	};
 	const handleKeyDown = React.useCallback(
 		(e: React.KeyboardEvent<HTMLDivElement>) => {
 			const input = inputRef.current;
+			if (!input) return;
 
-			if (input) {
-				if ((e.key === "Delete" || e.key === "Backspace") && value === "") {
-					onSelectedChange(selected.slice(0, -1)); // Remove last tag if backspace/delete is pressed
-					return;
-				}
+			if (e.key === "Escape") {
+				input.blur(); // Blur on Escape
+				return;
+			}
+			if ((e.key === "Delete" || e.key === "Backspace") && value === "") {
+				onSelectedChange(selected.slice(0, -1)); // Remove last tag if backspace/delete is pressed
+				return;
+			}
 
-				if (e.key === "Enter" && value.trim() !== "") {
-					onSelectedChange([...selected, value.trim()]); // Add new tag
-					setValue(""); // Clear input
-					e.preventDefault(); // Prevent form submission on Enter
-					return;
-				}
-
-				if (e.key === "Escape") input.blur(); // Blur on Escape
+			if (e.key === "Enter" && value.trim() !== "") {
+				handleNewValue({ value: value.trim() });
+				e.preventDefault(); // Prevent form submission on Enter
+				return;
 			}
 		},
 		[selected, onSelectedChange, value],
 	);
 
+	const selectables = suggestions.filter((val) => !selected.includes(val));
 	return (
 		<Command onKeyDown={handleKeyDown} className="h-fit overflow-visible bg-transparent">
 			<div
@@ -67,6 +81,8 @@ export function TagsInput({ selected, onSelectedChange }: FancyMultiSelectProps)
 					<CommandPrimitive.Input
 						ref={inputRef}
 						value={value}
+						onBlur={() => setOpen(false)}
+						onFocus={() => setOpen(true)}
 						onValueChange={(e) => setValue(e)}
 						placeholder="insert values..."
 						className="ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
@@ -74,7 +90,31 @@ export function TagsInput({ selected, onSelectedChange }: FancyMultiSelectProps)
 				</div>
 			</div>
 			<div className="relative mt-2">
-				<CommandList>{/* No predefined options to show */}</CommandList>
+				<CommandList>
+					{open && selectables?.["length"] > 0 ? (
+						<div className="absolute top-0 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
+							<CommandGroup className="h-full overflow-auto">
+								{selectables.map((val, i) => {
+									return (
+										<CommandItem
+											key={i}
+											onMouseDown={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+											}}
+											onSelect={() => {
+												handleNewValue({ value: val });
+											}}
+											className={"cursor-pointer"}
+										>
+											{val}
+										</CommandItem>
+									);
+								})}
+							</CommandGroup>
+						</div>
+					) : null}
+				</CommandList>
 			</div>
 		</Command>
 	);

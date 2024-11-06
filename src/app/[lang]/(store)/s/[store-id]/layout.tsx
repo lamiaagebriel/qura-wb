@@ -39,6 +39,11 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 		store: { layout: c },
 		...dic
 	} = await getDictionary(lang);
+	const navs = [
+		{ segments: null, value: "/profile", label: "Profile" },
+		{ segments: ["orders"], value: "/profile/orders", label: "Orders" },
+		{ segments: ["settings"], value: "/profile/settings", label: "Settings", disabled: true },
+	];
 
 	const store = await db.store.findUnique({ where: { id: storeId } });
 	if (!store) return <>NO STORE</>;
@@ -78,9 +83,11 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 												</div>
 											</Link>
 
-											<Link href="/orders" className={buttonVariants({})}>
-												Orders
-											</Link>
+											{navs?.[1] && (
+												<Link href={navs?.[1]?.["value"]} className={buttonVariants({})}>
+													{navs?.[1]?.["label"]}
+												</Link>
+											)}
 										</DrawerHeader>
 
 										<Separator />
@@ -170,14 +177,7 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 							{user ? (
 								<Tooltip tip={user?.["name"]}>
 									<div className="mt-1.5">
-										<UserAccountNav
-											dic={dic}
-											items={[
-												{ value: `/profile`, label: "Profile" },
-												{ value: `/orders`, label: "Orders" },
-												{ value: `/settings`, label: "Settings" },
-											]}
-										/>
+										<UserAccountNav dic={dic} items={navs} />
 									</div>
 								</Tooltip>
 							) : (

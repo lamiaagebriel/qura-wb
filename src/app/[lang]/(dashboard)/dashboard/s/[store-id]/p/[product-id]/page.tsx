@@ -31,6 +31,14 @@ export default async function Product({ params }: ProductProps) {
 			storeId,
 		},
 	});
+	const rAttributes = (
+		await db.product.findMany({
+			select: { attributes: true },
+			where: { storeId: storeId },
+		})
+	)
+		?.map((e) => e?.["attributes"] as ProductAttribute[])
+		?.flat();
 
 	if (!r) return <div className="container">NO PRODUCT</div>;
 	const product = { ...r, attributes: r?.["attributes"] as ProductAttribute[] };
@@ -68,7 +76,7 @@ export default async function Product({ params }: ProductProps) {
 			</header>
 
 			<div className="container">
-				<ProductEditor dic={dic} product={product} />
+				<ProductEditor dic={dic} product={product} attributes={rAttributes} />
 			</div>
 		</>
 	);

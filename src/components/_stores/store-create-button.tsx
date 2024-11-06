@@ -51,8 +51,6 @@ export function StoreCreateButton({
 			router.push(`/dashboard/s/${result?.["id"]}`);
 		} catch (err: any) {
 			toast.error(err?.["message"]);
-		} finally {
-			setLoading(false);
 		}
 	}
 

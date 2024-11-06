@@ -33,6 +33,7 @@ export type StoreUpdateButtonProps = {
 export function StoreUpdateButton({
 	dic: { "store-update-button": c, ...dic },
 	store,
+	children,
 	...props
 }: StoreUpdateButtonProps) {
 	const router = useRouter();
@@ -55,6 +56,7 @@ export function StoreUpdateButton({
 			}
 
 			toast.success(c?.["updated successfully."]);
+			form.reset({ ...data });
 			router.refresh();
 			setOpen(false);
 		} catch (err: any) {
@@ -73,7 +75,7 @@ export function StoreUpdateButton({
 			}}
 		>
 			<AlertDialogTrigger asChild>
-				<Button {...props}>{c?.["edit"]}</Button>
+				<Button {...props}>{children ?? c?.["edit"]}</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent className="max-h-[95svh] overflow-auto rounded-md">
 				<AlertDialogHeader>

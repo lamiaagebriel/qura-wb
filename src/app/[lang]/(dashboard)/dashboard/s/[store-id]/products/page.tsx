@@ -1,7 +1,4 @@
 import type { Metadata } from "next";
-import { Breadcrumb } from "@/components/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { LocaleProps } from "@/types/locale";
 import { getAuth } from "@/lib/auth";
 import { getDictionary } from "@/lib/locale";
@@ -37,20 +34,8 @@ export default async function Product({ params }: ProductProps) {
 
 	return (
 		<>
-			<header className="flex h-16 shrink-0 items-center justify-between gap-2">
-				<div className="flex items-center gap-2 px-4">
-					<SidebarTrigger className="-ml-1" />
-					<Separator orientation="vertical" className="mr-2 h-4" />
-
-					<Breadcrumb
-						items={[
-							{ value: `/dashboard/stores`, label: "Stores" },
-							{ value: `/dashboard/s/${store?.["id"]}`, label: store?.["name"] },
-							{ value: "", label: "Products" },
-						]}
-					/>
-				</div>
-
+			<header className="container flex shrink-0 items-center justify-between gap-2 py-4">
+				<div></div>
 				<div>
 					<ProductCreateButton dic={dic} store={store} />
 				</div>

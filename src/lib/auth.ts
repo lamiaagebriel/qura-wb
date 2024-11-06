@@ -42,39 +42,49 @@ type DatabaseUserAttributes = Pick<dbUser, "id" | "name" | "email" | "image">;
 
 export const getAuth = cache(
 	async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
-		const sessionId = (await cookies()).get(lucia.sessionCookieName)?.["value"] ?? null;
+		// const sessionId = (await cookies()).get(lucia.sessionCookieName)?.["value"] ?? null;
 
-		if (!sessionId) {
-			return {
-				user: null,
-				session: null,
-			};
-		}
+		// if (!sessionId) {
+		// 	return {
+		// 		user: null,
+		// 		session: null,
+		// 	};
+		// }
 
-		const result = await lucia.validateSession(sessionId);
+		// const result = await lucia.validateSession(sessionId);
 
-		try {
-			if (result?.["session"] && result?.["session"]?.["fresh"]) {
-				const sessionCookie = lucia.createSessionCookie(result?.["session"]?.["id"]);
-				(await cookies()).set(
-					sessionCookie?.["name"],
-					sessionCookie?.["value"],
-					sessionCookie?.["attributes"],
-				);
-			}
+		// try {
+		// 	if (result?.["session"] && result?.["session"]?.["fresh"]) {
+		// 		const sessionCookie = lucia.createSessionCookie(result?.["session"]?.["id"]);
+		// 		(await cookies()).set(
+		// 			sessionCookie?.["name"],
+		// 			sessionCookie?.["value"],
+		// 			sessionCookie?.["attributes"],
+		// 		);
+		// 	}
 
-			if (!result?.["session"]) {
-				const sessionCookie = lucia.createBlankSessionCookie();
-				(await cookies()).set(
-					sessionCookie?.["name"],
-					sessionCookie?.["value"],
-					sessionCookie?.["attributes"],
-				);
-			}
-		} catch (err: any) {
-			console.error(`getAuth error: ${err?.["message"]}`);
-		}
+		// 	if (!result?.["session"]) {
+		// 		const sessionCookie = lucia.createBlankSessionCookie();
+		// 		(await cookies()).set(
+		// 			sessionCookie?.["name"],
+		// 			sessionCookie?.["value"],
+		// 			sessionCookie?.["attributes"],
+		// 		);
+		// 	}
+		// } catch (err: any) {
+		// 	console.error(`getAuth error: ${err?.["message"]}`);
+		// }
 
-		return result;
+		// return result;
+
+		return {
+			user: {
+				id: "x",
+				name: "Lamiaa Gebriel",
+				image: null,
+				email: "lamiaadev@gmail.com",
+			},
+			session: { id: "", expiresAt: new Date(), fresh: false, userId: "" },
+		};
 	},
 );

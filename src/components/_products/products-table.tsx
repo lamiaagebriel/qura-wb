@@ -18,6 +18,9 @@ import {
 } from "@/components/_products/product-delete-button";
 import { ProductAttribute } from "@/types/db";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
+import { Badge } from "../ui/badge";
+import { Image } from "../image";
+import { cn } from "@/lib/utils";
 
 type ColumnType = Product & {
 	attributes: ProductAttribute[];
@@ -38,18 +41,54 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 					{
 						accessorKey: "name",
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={c?.["name"]} />
+							<DataTableColumnHeader dic={dic} column={column} title={"Product Code"} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<Link
-								href={`/dashboard/s/${r?.["storeId"]}/p/${r?.["id"]}`}
-								className={buttonVariants({
-									variant: "link",
-									className: "flex-col items-start justify-start",
-								})}
-							>
-								<CardTitle>{r?.["name"]}</CardTitle>
-							</Link>
+							<div className={cn("flex h-28 w-full items-start justify-start gap-2 px-4 py-2")}>
+								<Image
+									src={r?.["images"]?.[0]}
+									alt={`${r?.["name"]} Image`}
+									className="aspect-square size-24 rounded-xl"
+								/>
+
+								<div className="space-y-2">
+									<CardTitle>{r?.["name"]}</CardTitle>
+
+									<Badge
+										variant={(() => {
+											switch (r?.["status"]) {
+												case "ACTIVE":
+													return "default";
+												case "ARCHIVE":
+													return "secondary";
+												default:
+													return "outline";
+											}
+										})()}
+									>
+										{r?.["status"]}
+									</Badge>
+								</div>
+							</div>
+						),
+						enableSorting: false,
+						enableHiding: false,
+					},
+
+					{
+						accessorKey: "attributes",
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={"Options"} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div>
+								{r?.["attributes"]?.map((e, i) => (
+									<div key={i} className="flex items-center gap-1">
+										<h1 className="font-medium">{e?.["name"]}: </h1>
+										<p className="text-sm text-muted-foreground">{`[${e?.["values"]?.map((x) => x?.["name"])?.join(", ")}]`}</p>
+									</div>
+								))}
+							</div>
 						),
 						enableSorting: false,
 						enableHiding: false,

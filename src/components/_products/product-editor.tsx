@@ -13,19 +13,7 @@ import { Product } from "@prisma/client";
 import { Icons } from "@/components/icons";
 import { CardDescription, CardFooter, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { PlusCircle, Upload } from "lucide-react";
-import Image from "next/image";
 import { Link } from "@/components/link";
 import { ProductAttribute } from "@/types/db";
 import { ProductForm, ProductFormProps } from "./_product-form";
@@ -38,6 +26,7 @@ import { toast, Toaster } from "sonner";
 
 type ProductEditorProps = {
 	product: Product & { attributes: ProductAttribute[] };
+	attributes: ProductAttribute[];
 } & Dictionary["product-editor"] &
 	Pick<ProductFormProps, "dic"> &
 	Pick<AttributeFormProps, "dic">;
@@ -45,6 +34,7 @@ type ProductEditorProps = {
 export function ProductEditor({
 	dic: { "product-editor": c, ...dic },
 	product,
+	attributes,
 }: ProductEditorProps) {
 	const router = useRouter();
 	const [loading, setLoading] = useState<boolean>(false);
@@ -138,7 +128,12 @@ export function ProductEditor({
 													<ProductForm.price dic={dic} form={form as any} loading={loading} />
 													<ProductForm.stock dic={dic} form={form as any} loading={loading} />
 												</div>
-												<AttributesForm dic={dic} form={form as any} loading={loading} />
+												<AttributesForm
+													dic={dic}
+													form={form as any}
+													loading={loading}
+													attributes={attributes}
+												/>
 												{/* <TruthTable form={form} loading={loading} /> */}
 											</CardContent>
 											<CardFooter className="justify-center border-t p-4">

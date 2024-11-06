@@ -35,6 +35,11 @@ export default async function MarketingLayout({ children, params }: MarketingLay
 		marketing: { "main-nav": mainNav, layout: c },
 		...dic
 	} = await getDictionary(lang);
+	const navs = [
+		{ segments: null, value: "/profile", label: "Profile" },
+		{ segments: ["orders"], value: "/profile/orders", label: "Orders" },
+		{ segments: ["settings"], value: "/profile/settings", label: "Settings", disabled: true },
+	];
 
 	return (
 		<div className="flex min-h-screen flex-col">
@@ -102,11 +107,11 @@ export default async function MarketingLayout({ children, params }: MarketingLay
 													</DrawerDescription>
 												</div>
 											</div>
-											{/* {userNav?.[0] && (
-											<Link href={userNav?.[0]?.["value"]} className={buttonVariants({})}>
-												{userNav?.[0]?.["label"]}
-											</Link>
-										)} */}
+											{navs?.[1] && (
+												<Link href={navs?.[1]?.["value"]} className={buttonVariants({})}>
+													{navs?.[1]?.["label"]}
+												</Link>
+											)}
 										</DrawerHeader>
 
 										<Separator />
@@ -152,7 +157,7 @@ export default async function MarketingLayout({ children, params }: MarketingLay
 					</div>
 
 					{user ? (
-						<UserAccountNav dic={dic} items={[]} />
+						<UserAccountNav dic={dic} items={navs} />
 					) : (
 						<>
 							<Link
@@ -170,7 +175,7 @@ export default async function MarketingLayout({ children, params }: MarketingLay
 				</div>
 			</header>
 
-			<main className="flex-1">{children}</main>
+			<main className="flex flex-1 flex-col">{children}</main>
 		</div>
 	);
 }
