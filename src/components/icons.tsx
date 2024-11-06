@@ -10,6 +10,7 @@ import {
 	Facebook,
 	Globe,
 	Heart,
+	Image,
 	Instagram,
 	Laptop,
 	LayoutDashboard,
@@ -77,6 +78,9 @@ export const Icons = {
 	),
 	spinner: ({ className, ...props }: IconProps) => (
 		<Loader2 className={cn(IconsVariants({}), "animate-spin", className)} {...props} />
+	),
+	image: ({ className, ...props }: IconProps) => (
+		<Image className={cn(IconsVariants({}), className)} {...props} />
 	),
 	star: ({ className, ...props }: IconProps) => (
 		<Star className={cn(IconsVariants({}), className)} {...props} />

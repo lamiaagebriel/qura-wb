@@ -91,6 +91,9 @@ export function StoreUpdateButton({
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+						<div className="flex items-center justify-center">
+							<StoreForm.logo dic={dic} form={form as any} loading={loading} />
+						</div>
 						<StoreForm.name dic={dic} form={form as any} loading={loading} />
 
 						<AlertDialogFooter>

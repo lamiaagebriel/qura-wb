@@ -45,6 +45,7 @@ model Store {
   createdAt DateTime @default(now())
 
   name String
+  logo String?
 
   products Product[]
 

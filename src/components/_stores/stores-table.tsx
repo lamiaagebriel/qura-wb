@@ -20,6 +20,7 @@ import {
 	StoreUpdateButton,
 	StoreUpdateButtonProps,
 } from "@/components/_stores/store-update-button";
+import { Image } from "../image";
 
 type ColumnType = Store;
 type StoresTableProps = {
@@ -39,17 +40,25 @@ export function StoresTable({ dic: { "stores-table": c, ...dic }, data }: Stores
 					{
 						accessorKey: "name",
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={c?.["name"]} />
+							<DataTableColumnHeader dic={dic} column={column} title={"Product Code"} />
 						),
 						cell: ({ row: { original: r } }) => (
 							<Link
 								href={`/dashboard/s/${r?.["id"]}`}
 								className={buttonVariants({
 									variant: "link",
-									className: "flex-col items-start justify-start",
+									className: "h-12 w-full justify-start gap-2",
 								})}
 							>
-								<CardTitle>{r?.["name"]}</CardTitle>
+								<Image
+									src={r?.["logo"]!}
+									alt={`${r?.["name"]} Image`}
+									className="aspect-square size-12 rounded-full"
+								/>
+
+								<div className="space-y-2">
+									<CardTitle>{r?.["name"]}</CardTitle>
+								</div>
 							</Link>
 						),
 						enableSorting: false,

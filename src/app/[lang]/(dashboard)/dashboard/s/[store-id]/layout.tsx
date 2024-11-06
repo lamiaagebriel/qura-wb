@@ -87,7 +87,11 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 								<Tooltip tip={"preview"}>
 									<div>
 										<Link href={`/s/${storeId}`} className="flex items-center gap-2">
-											<Icons.store />
+											<Avatar
+												user={{ name: store?.["name"], image: store?.["logo"] ?? null }}
+												icon={{ name: "store" }}
+												className="size-8"
+											/>
 											<span className="text-sm font-medium">{store?.["name"]}</span>
 										</Link>
 									</div>

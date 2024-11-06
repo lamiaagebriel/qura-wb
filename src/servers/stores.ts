@@ -7,10 +7,11 @@ import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { getLocale, handleError } from "@/servers/utils";
-import { ID } from "@/lib/utils";
+import { base64ToBuffer, getMimeType, ID, uploadImages } from "@/lib/utils";
 import { getDictionary } from "@/lib/locale";
+import { aws } from "@/lib/aws";
 
-export async function createStore(data: z.infer<typeof storeCreateSchema>) {
+export async function createStore({ logo: logoProp, ...data }: z.infer<typeof storeCreateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -23,12 +24,22 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
 				message: c?.["this action needs you to be logged in."],
 			});
 
+		const logo = logoProp
+			? ((
+					await uploadImages({
+						Key: `products/product-`, // maintain unique naming if needed
+						images: [logoProp],
+					})
+				)?.pop() ?? null)
+			: null;
+
 		const id = ID.generate();
 		await db.store.create({
 			data: {
 				...data,
 				id,
 				userId: user?.["id"],
+				logo,
 			},
 		});
 
@@ -43,7 +54,11 @@ export async function createStore(data: z.infer<typeof storeCreateSchema>) {
 	}
 }
 
-export async function updateStore({ id, ...data }: z.infer<typeof storeUpdateSchema>) {
+export async function updateStore({
+	id,
+	logo: logoProp,
+	...data
+}: z.infer<typeof storeUpdateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary(locale);
 
@@ -56,8 +71,17 @@ export async function updateStore({ id, ...data }: z.infer<typeof storeUpdateSch
 				message: c?.["this action needs you to be logged in."],
 			});
 
+		const logo = logoProp
+			? ((
+					await uploadImages({
+						Key: `products/product-`, // maintain unique naming if needed
+						images: [logoProp],
+					})
+				)?.pop() ?? null)
+			: null;
+
 		await db.store.update({
-			data,
+			data: { ...data, logo },
 			where: { id, userId: user?.["id"] },
 		});
 

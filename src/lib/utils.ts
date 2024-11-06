@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import crypto from "crypto";
+import { aws, AwsUploadProps } from "./aws";
 // import Sharp from "sharp";
 
 export const ID = {
@@ -61,4 +62,33 @@ export function getMimeType({ base64 }: { base64: string }) {
 	const match = base64?.match(regex)!;
 
 	return match[1] ?? null;
+}
+
+export async function uploadImages({ images, ...props }: { images: string[] } & AwsUploadProps) {
+	const imagesWithType = images?.map((img, index) => ({
+		image: img,
+		type: img.includes("base64,") ? "base64" : "url",
+		index, // store the original position
+	}));
+
+	// Process base64 images
+	const processedImages = await Promise.all(
+		imagesWithType.map(async ({ image, type, index }) => {
+			if (type === "base64") {
+				const uploadedImage = await aws.upload({
+					Body: await base64ToBuffer({ base64: image }),
+					ContentType: getMimeType({ base64: image }),
+					...props,
+				});
+				return { image: uploadedImage, index };
+			} else {
+				return { image, index }; // keep URL images as they are
+			}
+		}),
+	);
+
+	// Reorder based on the original index
+	return processedImages
+		.sort((a, b) => a.index - b.index) // sort by the original position
+		.map(({ image }) => image); // get only the image URLs
 }

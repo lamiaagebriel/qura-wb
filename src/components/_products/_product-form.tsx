@@ -219,7 +219,7 @@ export const ProductForm = {
 						alt="Product image"
 						className="aspect-square w-full rounded-md object-cover object-center"
 						height="300"
-						src={form.watch("images")?.[0] ?? "https://ui.shadcn.com/placeholder.svg"}
+						src={form.watch("images")?.[0]}
 						width="300"
 					/>
 					{form.watch("images")?.[0] ? (
@@ -244,7 +244,7 @@ export const ProductForm = {
 							alt="Product image"
 							className="aspect-square w-full rounded-md object-cover object-center"
 							height="300"
-							src={form.watch("images")?.[1] ?? "https://ui.shadcn.com/placeholder.svg"}
+							src={form.watch("images")?.[1]}
 							width="300"
 						/>
 						{form.watch("images")?.[1] ? (
@@ -303,7 +303,7 @@ export const ProductForm = {
 													alt="Product image"
 													className="aspect-square w-full rounded-md object-cover object-center"
 													height="300"
-													src={e ?? "https://ui.shadcn.com/placeholder.svg"}
+													src={e}
 													width="300"
 												/>
 												{e ? (
@@ -339,7 +339,7 @@ export const ProductForm = {
 								alt="Product image"
 								className="aspect-square w-full rounded-md object-cover object-center"
 								height="300"
-								src={form.watch("images")?.[2] ?? "https://ui.shadcn.com/placeholder.svg"}
+								src={form.watch("images")?.[2]}
 								width="300"
 							/>
 							{form.watch("images")?.[2] ? (
