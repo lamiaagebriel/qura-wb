@@ -24,6 +24,7 @@ import { StoreForm, StoreFormProps } from "@/components/_stores/_store-form";
 import { storeUpdateSchema } from "@/validations/stores";
 import { updateStore } from "@/servers/stores";
 import { Store } from "@prisma/client";
+import { RecursiveSelect } from "./store-create-button";
 
 export type StoreUpdateButtonProps = {
 	store: Pick<Store, "id">;
@@ -95,7 +96,28 @@ export function StoreUpdateButton({
 							<StoreForm.logo dic={dic} form={form as any} loading={loading} />
 						</div>
 						<StoreForm.name dic={dic} form={form as any} loading={loading} />
-
+						<RecursiveSelect
+							options={{
+								Technology: {
+									Software: null,
+									Hardware: null,
+									"AI & Machine Learning": null,
+								},
+								Health: {
+									"Mental Health": null,
+									"Physical Health": null,
+									Nutrition: null,
+								},
+								Finance: {
+									"Personal Finance": null,
+									"Corporate Finance": null,
+									"Investing & Trading": null,
+								},
+							}}
+							label="Select Category"
+							form={form}
+							loading={loading}
+						/>
 						<AlertDialogFooter>
 							<AlertDialogCancel disabled={loading} asChild>
 								<Button disabled={loading} variant="outline">

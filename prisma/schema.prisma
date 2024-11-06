@@ -44,8 +44,9 @@ model Store {
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  name String
-  logo String?
+  name     String
+  logo     String?
+  category String?
 
   products Product[]
 

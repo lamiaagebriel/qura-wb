@@ -51,6 +51,7 @@ export function StoreCreateButton({
 			router.push(`/dashboard/s/${result?.["id"]}`);
 		} catch (err: any) {
 			toast.error(err?.["message"]);
+			setLoading(false);
 		}
 	}
 
@@ -83,6 +84,28 @@ export function StoreCreateButton({
 							<StoreForm.logo dic={dic} form={form} loading={loading} />
 						</div>
 						<StoreForm.name dic={dic} form={form} loading={loading} />
+						<RecursiveSelect
+							options={{
+								Technology: {
+									Software: null,
+									Hardware: null,
+									"AI & Machine Learning": null,
+								},
+								Health: {
+									"Mental Health": null,
+									"Physical Health": null,
+									Nutrition: null,
+								},
+								Finance: {
+									"Personal Finance": null,
+									"Corporate Finance": null,
+									"Investing & Trading": null,
+								},
+							}}
+							label="Select Category"
+							form={form}
+							loading={loading}
+						/>
 
 						<AlertDialogFooter>
 							<AlertDialogCancel disabled={loading} asChild>
@@ -99,5 +122,60 @@ export function StoreCreateButton({
 				</Form>
 			</AlertDialogContent>
 		</AlertDialog>
+	);
+}
+
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+
+export function RecursiveSelect({
+	options,
+	label,
+	form,
+	loading,
+}: {
+	options: any;
+	label: string;
+	form: any;
+	loading: any;
+}) {
+	const [selectedValue, setSelectedValue] = useState<string | null>(null);
+
+	const handleSelect = (value: string) => {
+		setSelectedValue(value);
+		form.setValue("category", value);
+	};
+
+	return (
+		<div>
+			<Select onValueChange={handleSelect} disabled={loading}>
+				<SelectTrigger>
+					<SelectValue placeholder={label} />
+				</SelectTrigger>
+				<SelectContent>
+					{Object.keys(options).map((option, i) => (
+						<SelectItem key={i} value={option}>
+							{option}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+
+			{selectedValue && options[selectedValue] && (
+				<div className="ml-4 mt-2">
+					<RecursiveSelect
+						options={options[selectedValue]}
+						label={`Choose ${selectedValue}`}
+						form={form}
+						loading={loading}
+					/>
+				</div>
+			)}
+		</div>
 	);
 }

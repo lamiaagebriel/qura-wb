@@ -8,7 +8,7 @@ import {
 } from "@/components/_data-table";
 import { Link } from "@/components/link";
 import { buttonVariants } from "@/components/ui/button";
-import { CardTitle } from "@/components/ui/card";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Dictionary } from "@/types/locale";
 import { Store } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
@@ -58,6 +58,7 @@ export function StoresTable({ dic: { "stores-table": c, ...dic }, data }: Stores
 
 								<div className="space-y-2">
 									<CardTitle>{r?.["name"]}</CardTitle>
+									<CardDescription>{r?.["category"]}</CardDescription>
 								</div>
 							</Link>
 						),
