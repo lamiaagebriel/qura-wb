@@ -46,7 +46,8 @@ model Store {
 
   name     String
   logo     String?
-  category String?
+  category String? // TODO: not optional
+  // TODO: add location, online, onsite --- largest online stores profiles
 
   products Product[]
 
