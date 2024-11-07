@@ -3,7 +3,6 @@
 import { useFieldArray, UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 
-import Image from "next/image";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { productCreateSchema, productUpdateSchema } from "@/validations/products";
 import { Dictionary } from "@/types/locale";
@@ -18,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import { PRODUCT_STATUS_ARR, productStatus } from "@/constants/enums";
 import { useLocale } from "@/hooks/use-locale";
-import { Textarea } from "@/components/ui/textarea";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -32,7 +30,8 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { MDXEditor } from "../mdx-editor";
+import { Image } from "../image";
 export type ProductFormProps = {
 	loading: boolean;
 	form: UseFormReturn<
@@ -75,16 +74,20 @@ export const ProductForm = {
 			control={form.control}
 			name="description"
 			render={({ field }) => (
-				<FormItem>
+				<FormItem className="overflow-auto">
 					<FormLabel>{c?.["description"]}</FormLabel>
 					<FormControl>
-						<Textarea
+						<MDXEditor
+							markdown={form.watch("description") ?? ""}
+							onChange={(md) => form.setValue("description", md)}
+						/>
+						{/* <Textarea
 							{...field}
 							disabled={loading}
 							placeholder={c?.["describe the product..."]}
 							value={field?.["value"] ?? undefined}
 							className="min-h-40"
-						/>
+						/> */}
 					</FormControl>
 					<FormMessage />
 				</FormItem>
