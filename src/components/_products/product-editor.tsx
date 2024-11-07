@@ -23,13 +23,15 @@ import { AttributeFormProps, AttributesForm } from "./_attribute-form";
 import { useRouter } from "next/navigation";
 import { updateProduct } from "@/servers/products";
 import { toast, Toaster } from "sonner";
+import { ProductDeleteButton, ProductDeleteButtonProps } from "./product-delete-button";
 
 type ProductEditorProps = {
 	product: Product & { attributes: ProductAttribute[] };
 	attributes: ProductAttribute[];
 } & Dictionary["product-editor"] &
 	Pick<ProductFormProps, "dic"> &
-	Pick<AttributeFormProps, "dic">;
+	Pick<AttributeFormProps, "dic"> &
+	Pick<ProductDeleteButtonProps, "dic">;
 
 export function ProductEditor({
 	dic: { "product-editor": c, ...dic },
@@ -52,6 +54,8 @@ export function ProductEditor({
 				toast.error(result?.["error"]);
 				return;
 			}
+
+			form.reset({ ...data });
 			toast.success(c?.["updated successfully."]);
 			router.refresh();
 		} catch (err: any) {
@@ -62,86 +66,91 @@ export function ProductEditor({
 	}
 
 	return (
-		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)}>
-				<div className="">
-					<div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-						<main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-							<div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
-								<div className="flex items-center gap-4">
-									<Link
-										href={`/dashboard/s/${product?.["storeId"]}/products`}
-										className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-7 w-7")}
+		<div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+			<main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+				<div className="mx-auto grid max-w-screen-lg flex-1 auto-rows-max gap-4">
+					<div className="flex items-center gap-4">
+						<Link
+							href={`/dashboard/s/${product?.["storeId"]}/products`}
+							className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-7 w-7")}
+							disabled={loading}
+						>
+							<Icons.chevronLeft />
+							<span className="sr-only">{c?.["back"]}</span>
+						</Link>
+
+						<h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
+							Product Details
+						</h1>
+						<Badge variant="outline" className="ml-auto sm:ml-0">
+							In stock
+						</Badge>
+						<div className="hidden items-center gap-2 md:ml-auto md:flex">
+							<ProductDeleteButton dic={dic} product={product} variant="destructive" size="sm" />
+							<Form {...form}>
+								<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
+									<Button
+										variant="outline"
+										size="sm"
 										disabled={loading}
+										onClick={() => form.reset()}
 									>
-										<Icons.chevronLeft />
-										<span className="sr-only">{c?.["back"]}</span>
-									</Link>
+										{c?.["discard"]}
+									</Button>
+									<Button type="submit" size="sm" disabled={loading}>
+										{loading && <Icons.spinner />}
+										{c?.["save changes"]}
+									</Button>
+								</form>
+							</Form>
+						</div>
+					</div>
 
-									<h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-										Product Details
-									</h1>
-									<Badge variant="outline" className="ml-auto sm:ml-0">
-										In stock
-									</Badge>
-									<div className="hidden items-center gap-2 md:ml-auto md:flex">
-										<Button
-											variant="outline"
-											size="sm"
-											disabled={loading}
-											onClick={() => form.reset()}
-										>
-											{c?.["discard"]}
-										</Button>
-										<Button type="submit" size="sm" disabled={loading}>
-											{loading && <Icons.spinner />}
-											{c?.["save changes"]}
-										</Button>
-									</div>
-								</div>
-								<div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
-									<div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-										<Card>
-											<CardHeader>
-												<CardTitle>Product Details</CardTitle>
-												<CardDescription>
-													Lipsum dolor sit amet, consectetur adipiscing elit
-												</CardDescription>
-											</CardHeader>
-											<CardContent>
-												<div className="grid gap-6">
-													<ProductForm.name dic={dic} form={form as any} loading={loading} />
-													<ProductForm.description dic={dic} form={form as any} loading={loading} />
-												</div>
-											</CardContent>
-										</Card>
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(onSubmit)}>
+							<div className="grid gap-4 md:grid-cols-[1fr,250px] lg:grid-cols-3 lg:gap-8">
+								<div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+									<Card>
+										<CardHeader>
+											<CardTitle>Product Details</CardTitle>
+											<CardDescription>
+												Lipsum dolor sit amet, consectetur adipiscing elit
+											</CardDescription>
+										</CardHeader>
+										<CardContent>
+											<div className="grid gap-6">
+												<ProductForm.name dic={dic} form={form as any} loading={loading} />
+												<ProductForm.description dic={dic} form={form as any} loading={loading} />
+											</div>
+										</CardContent>
+									</Card>
 
-										<Card>
-											<CardHeader>
-												<CardTitle>Stock</CardTitle>
-												<CardDescription>
-													Lipsum dolor sit amet, consectetur adipiscing elit
-												</CardDescription>
-											</CardHeader>
-											<CardContent>
-												<div className="grid grid-cols-2 gap-4">
-													<ProductForm.price dic={dic} form={form as any} loading={loading} />
-													<ProductForm.stock dic={dic} form={form as any} loading={loading} />
-												</div>
-												<AttributesForm
-													dic={dic}
-													form={form as any}
-													loading={loading}
-													attributes={attributes}
-												/>
-												{/* <TruthTable form={form} loading={loading} /> */}
-											</CardContent>
-											<CardFooter className="justify-center border-t p-4">
-												{/* <HandleOptions form={form} loading={loading} /> */}
-											</CardFooter>
-										</Card>
+									<Card>
+										<CardHeader>
+											<CardTitle>Stock</CardTitle>
+											<CardDescription>
+												Lipsum dolor sit amet, consectetur adipiscing elit
+											</CardDescription>
+										</CardHeader>
+										<CardContent>
+											<div className="grid grid-cols-2 gap-4">
+												<ProductForm.price dic={dic} form={form as any} loading={loading} />
+												<ProductForm.stock dic={dic} form={form as any} loading={loading} />
+											</div>
+											<AttributesForm
+												dic={dic}
+												form={form as any}
+												loading={loading}
+												attributes={attributes}
+											/>
+											{/* <TruthTable form={form} loading={loading} /> */}
+										</CardContent>
+										<CardFooter className="justify-center border-t p-4">
+											{/* <HandleOptions form={form} loading={loading} /> */}
+										</CardFooter>
+									</Card>
 
-										{/* <Card>
+									{/* <Card>
 											<CardHeader>
 												<CardTitle>Product Category</CardTitle>
 											</CardHeader>
@@ -176,61 +185,65 @@ export function ProductEditor({
 												</div>
 											</CardContent>
 										</Card> */}
-									</div>
-									<div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-										<Card>
-											<CardHeader>
-												<CardTitle>Product Status</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className="grid gap-6">
-													<div className="grid gap-3">
-														<ProductForm.status dic={dic} form={form as any} loading={loading} />
-													</div>
+								</div>
+								<div className="grid auto-rows-max items-start gap-4 lg:gap-8">
+									<Card>
+										<CardHeader>
+											<CardTitle>Product Status</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<div className="grid gap-6">
+												<div className="grid gap-3">
+													<ProductForm.status dic={dic} form={form as any} loading={loading} />
 												</div>
-											</CardContent>
-										</Card>
-										<Card className="overflow-hidden">
-											<CardHeader>
-												<CardTitle>Product Images</CardTitle>
-												{/* <CardDescription>
+											</div>
+										</CardContent>
+									</Card>
+									<Card className="overflow-hidden">
+										<CardHeader>
+											<CardTitle>Product Images</CardTitle>
+											{/* <CardDescription>
 													Lipsum dolor sit amet, consectetur adipiscing elit
 												</CardDescription> */}
-											</CardHeader>
-											<CardContent>
-												<ProductForm.images dic={dic} form={form as any} loading={loading} />
-											</CardContent>
-										</Card>
-										<Card>
-											<CardHeader>
-												<CardTitle>Archive Product</CardTitle>
-												<CardDescription>
-													Lipsum dolor sit amet, consectetur adipiscing elit.
-												</CardDescription>
-											</CardHeader>
-											<CardContent>
-												<div></div>
-												<Button size="sm" variant="secondary">
-													Archive Product
-												</Button>
-											</CardContent>
-										</Card>
-									</div>
-								</div>
-								<div className="flex items-center justify-center gap-2 md:hidden">
-									<Button variant="outline" size="sm" onClick={() => form.reset()}>
-										{c?.["discard"]}
-									</Button>
-									<Button type="submit" size="sm" disabled={loading}>
-										{loading && <Icons.spinner />}
-										{c?.["save changes"]}
-									</Button>
+										</CardHeader>
+										<CardContent>
+											<ProductForm.images dic={dic} form={form as any} loading={loading} />
+										</CardContent>
+									</Card>
+									<Card>
+										<CardHeader>
+											<CardTitle>Archive Product</CardTitle>
+											<CardDescription>
+												Lipsum dolor sit amet, consectetur adipiscing elit.
+											</CardDescription>
+										</CardHeader>
+										<CardContent>
+											<div></div>
+											<Button size="sm" variant="secondary">
+												Archive Product
+											</Button>
+										</CardContent>
+									</Card>
 								</div>
 							</div>
-						</main>
+						</form>
+					</Form>
+					<div className="flex items-center justify-center gap-2 md:hidden">
+						<ProductDeleteButton dic={dic} product={product} variant="destructive" size="sm" />
+						<Form {...form}>
+							<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
+								<Button variant="outline" size="sm" onClick={() => form.reset()}>
+									{c?.["discard"]}
+								</Button>
+								<Button type="submit" size="sm" disabled={loading}>
+									{loading && <Icons.spinner />}
+									{c?.["save changes"]}
+								</Button>
+							</form>
+						</Form>
 					</div>
 				</div>
-			</form>
-		</Form>
+			</main>
+		</div>
 	);
 }

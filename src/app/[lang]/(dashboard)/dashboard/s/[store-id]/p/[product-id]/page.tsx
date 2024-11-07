@@ -45,36 +45,6 @@ export default async function Product({ params }: ProductProps) {
 
 	return (
 		<>
-			<header className="container space-y-4">
-				<div className="flex h-16 shrink-0 items-center justify-between gap-2">
-					<div className="flex items-center gap-2 px-4">
-						<SidebarTrigger className="-ml-1" />
-						<Separator orientation="vertical" className="mr-2 h-4" />
-						<Breadcrumb
-							items={[
-								{ value: `/dashboard/stores`, label: "Stores" },
-								{
-									value: `/dashboard/s/${product?.["store"]?.["id"]}`,
-									label: product?.["store"]?.["name"],
-								},
-								{
-									value: `/dashboard/s/${product?.["store"]?.["id"]}/products`,
-									label: "Products",
-								},
-								{
-									value: "",
-									label: product?.["name"],
-								},
-							]}
-						/>
-					</div>
-
-					<div>
-						<ProductDeleteButton dic={dic} product={product} variant="destructive" />
-					</div>
-				</div>
-			</header>
-
 			<div className="container">
 				<ProductEditor dic={dic} product={product} attributes={rAttributes} />
 			</div>
