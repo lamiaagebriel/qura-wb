@@ -1,5 +1,5 @@
 import { NavItem, SelectItem } from "@/types";
-import { ProductStatus } from "@prisma/client";
+import { OrderStatus, ProductStatus } from "@prisma/client";
 
 const en = {
 	site: {
@@ -302,6 +302,14 @@ const en = {
 		"your store was not deleted. please try again.":
 			"your store was not deleted. Please try again.",
 
+		// orders: {
+		"your order was not created. please try again.":
+			"your order was not created. Please try again.",
+		"your order was not updated. please try again.":
+			"your order was not updated. Please try again.",
+		"your order was not deleted. please try again.":
+			"your order was not deleted. Please try again.",
+
 		// products: {
 		"your product was not created. please try again.":
 			"your product was not created. Please try again.",
@@ -313,6 +321,16 @@ const en = {
 
 	db: {
 		enums: {
+			"order-status": [
+				{ value: "PENDING", label: "Pending" },
+				{ value: "CONFIRMED", label: "Confirmed" },
+				{ value: "DECLINED", label: "Declined" },
+				{ value: "DELIEVERING", label: "Delievering" },
+				{ value: "DELIEVERED", label: "Delievered" },
+				{ value: "CANCELED", label: "Canceled" },
+			] as (SelectItem & {
+				value: OrderStatus;
+			})[],
 			"product-status": [
 				{ value: "DRAFT", label: "Draft" },
 				{ value: "ACTIVE", label: "Active" },

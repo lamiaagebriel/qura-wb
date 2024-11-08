@@ -26,6 +26,9 @@ import { cartPaymentSchema } from "@/lib/redux/validations";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { AlertDialogCancel, AlertDialogFooter } from "../ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { orderCreateSchema } from "@/validations/orders";
+import { createOrder } from "@/servers/orders";
+import { toast } from "sonner";
 // const SUMMARY: { label: React.ReactNode; value: React.ReactNode }[] = [
 // 	{
 // 		label: "Subtotal",
@@ -68,6 +71,7 @@ const SHIPPING_COST = 10;
 type CartOrderStepsProps = {};
 export function CartOrderSteps({}: CartOrderStepsProps) {
 	const cart = useCart();
+	const [loading, setLoading] = useState<boolean>(false);
 	const [crrStage, setCrrStage] = useState<number>(0);
 	const stages = [
 		{ value: "summary", label: "Order Summary", content: <OrderSummary /> },
@@ -75,9 +79,39 @@ export function CartOrderSteps({}: CartOrderStepsProps) {
 		{ value: "payment-method", label: "Payment Method", content: <OrderPaymentMethod /> },
 	];
 
-	function onCheckout() {
-		// create order
-		console.log("Checkout");
+	async function onCheckout() {
+		try {
+			setLoading(true);
+			const data = {
+				storeId: cart?.["products"]?.["0"]?.["product"]?.["storeId"],
+				status: "PENDING",
+				details: {
+					products: cart?.["products"]?.map((e) => ({
+						productId: e?.["product"]?.["id"],
+						price: e?.["product"]?.["price"],
+						quantity: e?.["quantity"],
+						attributes: e?.["attributes"],
+					})),
+					address: cart?.["address"]!,
+					paymentMethod: cart?.["payment-method"] ?? "cash",
+				},
+			} satisfies z.infer<typeof orderCreateSchema>;
+			await orderCreateSchema.parse(data);
+			const result = await createOrder(data);
+
+			if (result && typeof result === "object" && "error" in result) {
+				toast.error(result?.["error"]);
+				return;
+			}
+
+			toast.success("created successfully.");
+			cart.clear();
+			// router.push(`/dashboard/o/${}`);
+		} catch (err: any) {
+			toast.error(err?.["message"]);
+		} finally {
+			setLoading(false);
+		}
 	}
 
 	const isLast = crrStage === stages?.["length"] - 1;
@@ -94,7 +128,7 @@ export function CartOrderSteps({}: CartOrderStepsProps) {
 			<div className="my-2 flex items-center justify-between gap-4">
 				<Button
 					variant="outline"
-					disabled={crrStage == 0}
+					disabled={crrStage == 0 || loading}
 					onClick={() => setCrrStage((pre) => pre - 1)}
 				>
 					Previous
@@ -105,7 +139,8 @@ export function CartOrderSteps({}: CartOrderStepsProps) {
 						onClick={() => setCrrStage((pre) => pre + 1)}
 						disabled={
 							(crrStage === 1 && !cart?.["address"]) ||
-							(crrStage === 2 && !cart?.["payment-method"])
+							(crrStage === 2 && !cart?.["payment-method"]) ||
+							loading
 						}
 					>
 						Next
@@ -122,8 +157,9 @@ export function CartOrderSteps({}: CartOrderStepsProps) {
 							size="lg"
 							className="mt-4 w-full gap-4 rounded-full"
 							onClick={onCheckout}
-							disabled={!cart?.["payment-method"]}
+							disabled={!cart?.["payment-method"] || loading}
 						>
+							{loading && <Icons.spinner />}
 							Checkout
 						</Button>
 					)}

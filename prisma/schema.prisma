@@ -25,6 +25,7 @@ model User {
   googleId String? // googleAuth
 
   stores Store[]
+  orders Order[]
 
   @@map("users")
 }
@@ -50,10 +51,35 @@ model Store {
   // TODO: add location, online, onsite --- largest online stores profiles
 
   products Product[]
+  orders   Order[]
 
   @@map("stores")
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+  DELIEVERING
+  DELIEVERED
+  CANCELED
+}
+
+model Order {
+  id        String   @id @map("_id")
+  storeId   String
+  store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
+  userId    String
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  details Json
+  status  OrderStatus @default(PENDING)
+
+  @@map("orders")
+}
+
+// store -- products
 enum ProductStatus {
   DRAFT
   ACTIVE

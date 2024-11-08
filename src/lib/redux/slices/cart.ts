@@ -92,6 +92,10 @@ export const cartSlice = createSlice({
 			state["payment-method"] = payload?.["payment-method"];
 			setCookie("cart", JSON.stringify(state));
 		},
+		clear: (state: CartState) => {
+			state = initialState;
+			setCookie("cart", JSON.stringify(state));
+		},
 	},
 });
 
@@ -116,6 +120,9 @@ export const useCart = () => {
 		},
 		addCartPayment: (payload: PayloadAction<Pick<CartState, "payment-method">>["payload"]) => {
 			dispatch(cartSlice?.["actions"].addCartPayment(payload));
+		},
+		clear: () => {
+			dispatch(cartSlice?.["actions"].clear());
 		},
 	};
 };
