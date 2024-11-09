@@ -12,3 +12,26 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String    @id @map("_id")
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+
+  name     String
+  email    String  @unique
+  image    String?
+  password String? // creadentials
+  googleId String? // googleAuth
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @map("_id")
+  userId    String
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  expiresAt DateTime
+
+  @@map("sessions")
+}

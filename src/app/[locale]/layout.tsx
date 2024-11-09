@@ -4,6 +4,9 @@ import type { Metadata } from "next";
 import { getDictionary, i18n } from "@/lib/locale";
 import { LocaleProps } from "@/types/locale";
 import { cn } from "@/lib/shadcn";
+import { getAuth } from "@/lib/lucia";
+import { SessionProvider } from "@/components/session-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 type RootLayoutProps = Readonly<{
 	children: React.ReactNode;
@@ -27,14 +30,17 @@ export async function generateMetadata({
 
 export default async function RootLayout({ children, params }: RootLayoutProps) {
 	const { locale } = await params;
+	const session = await getAuth();
 
 	return (
-		<html
-			lang={locale}
-			dir={locale === "ar" ? "rtl" : "ltr"}
-			className={cn("leading-relaxed tracking-tight")}
-		>
-			<body>{children}</body>
+		<html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={cn("text-sm")}>
+			<body>
+				<SessionProvider value={session}>
+					{children}
+
+					<Toaster />
+				</SessionProvider>
+			</body>
 		</html>
 	);
 }
