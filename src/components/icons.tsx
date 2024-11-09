@@ -1,5 +1,15 @@
 import { cva, VariantProps } from "class-variance-authority";
-import { ChevronLeft, Globe, Loader2, User, type LucideProps } from "lucide-react";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Globe,
+	Image,
+	Loader2,
+	LogOut,
+	User,
+	X,
+	type LucideProps,
+} from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
 export const IconsVariants = cva("size-4 shrink-0");
@@ -45,8 +55,20 @@ export const Icons = {
 	chevronLeft: ({ className, ...props }: IconProps) => (
 		<ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
 	),
+	chevronRight: ({ className, ...props }: IconProps) => (
+		<ChevronRight className={cn(IconsVariants({}), className)} {...props} />
+	),
 	user: ({ className, ...props }: IconProps) => (
 		<User className={cn(IconsVariants({}), className)} {...props} />
+	),
+	logout: ({ className, ...props }: IconProps) => (
+		<LogOut className={cn(IconsVariants({}), className)} {...props} />
+	),
+	image: ({ className, ...props }: IconProps) => (
+		<Image className={cn(IconsVariants({}), className)} {...props} />
+	),
+	x: ({ className, ...props }: IconProps) => (
+		<X className={cn(IconsVariants({}), className)} {...props} />
 	),
 	globe: ({ className, ...props }: IconProps) => (
 		<Globe className={cn(IconsVariants({}), className)} {...props} />

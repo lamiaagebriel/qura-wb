@@ -24,6 +24,8 @@ model User {
   password String? // creadentials
   googleId String? // googleAuth
 
+  stores Store[]
+
   @@map("users")
 }
 
@@ -34,4 +36,20 @@ model Session {
   expiresAt DateTime
 
   @@map("sessions")
+}
+
+model Store {
+  id        String   @id @map("_id")
+  userId    String
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  name     String
+  username String  @unique()
+  bio      String?
+  logo     String?
+  category String
+  location Json
+
+  @@map("stores")
 }

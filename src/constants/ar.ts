@@ -24,6 +24,21 @@ const ar = {
 			"privacy policy": "سياسة الخصوصية",
 		},
 	},
+	// _stores
+	"store-form": {
+		name: {
+			name: "Name",
+			"ovve.eg": "Ovve.eg",
+		},
+	},
+	"store-create-button": {
+		"created successfully.": "created successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"create store": "create store",
+		"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
 
 	// _users
 	"user-form": {
@@ -78,6 +93,14 @@ const ar = {
 			"لم يتم تحديث حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
 		"your user account was not deleted. please try again.":
 			"لم يتم حذف حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
+
+		// stores: {
+		"your store was not created. please try again.":
+			"your store was not created. Please try again.",
+		"your store was not updated. please try again.":
+			"your store was not updated. Please try again.",
+		"your store was not deleted. please try again.":
+			"your store was not deleted. Please try again.",
 	},
 };
 

@@ -25,6 +25,40 @@ const en = {
 		},
 	},
 
+	// _stores
+	"store-form": {
+		name: {
+			name: "Name",
+			"ovve.eg": "Ovve.eg",
+		},
+		username: {
+			username: "Username",
+			ovve: "Ovve",
+		},
+		bio: {
+			bio: "Bio",
+			"type about your store...": "Type about your store...",
+		},
+		location: {
+			"address-line": {
+				"address line": "Address Line",
+				"03 aprt., 808 building": "03 Aprt., 808 Building",
+			},
+			zip: { zip: "Zip", "185047": "185047" },
+			state: { state: "State", obour: "Obour" },
+			city: { city: "City", cairo: "Cairo" },
+			country: { country: "Country", egypt: "Egypt" },
+		},
+	},
+	"store-create-button": {
+		"created successfully.": "created successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"create store": "create store",
+		"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+
 	// _users
 	"user-form": {
 		name: {
@@ -79,6 +113,14 @@ const en = {
 			"your user account was not updated. Please try again.",
 		"your user account was not deleted. please try again.":
 			"your user account was not deleted. Please try again.",
+
+		// stores: {
+		"your store was not created. please try again.":
+			"your store was not created. Please try again.",
+		"your store was not updated. please try again.":
+			"your store was not updated. Please try again.",
+		"your store was not deleted. please try again.":
+			"your store was not deleted. Please try again.",
 	},
 };
 

@@ -8,6 +8,7 @@ import { cn } from "@/lib/shadcn";
 import { getAuth } from "@/lib/lucia";
 import { SessionProvider } from "@/components/session-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
 
@@ -43,9 +44,11 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 		>
 			<body>
 				<SessionProvider value={session}>
-					{children}
+					<TooltipProvider delayDuration={0} disableHoverableContent={true}>
+						{children}
 
-					<Toaster />
+						<Toaster />
+					</TooltipProvider>
 				</SessionProvider>
 			</body>
 		</html>
