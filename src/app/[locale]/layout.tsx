@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import type { Metadata } from "next";
+import { Cairo } from "next/font/google";
 
 import { getDictionary, i18n } from "@/lib/locale";
 import { LocaleProps } from "@/types/locale";
@@ -7,6 +8,8 @@ import { cn } from "@/lib/shadcn";
 import { getAuth } from "@/lib/lucia";
 import { SessionProvider } from "@/components/session-provider";
 import { Toaster } from "@/components/ui/sonner";
+
+const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
 
 type RootLayoutProps = Readonly<{
 	children: React.ReactNode;
@@ -33,7 +36,11 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 	const session = await getAuth();
 
 	return (
-		<html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={cn("text-sm")}>
+		<html
+			lang={locale}
+			dir={locale === "ar" ? "rtl" : "ltr"}
+			className={cn("tracking-tight", cairo?.["className"])}
+		>
 			<body>
 				<SessionProvider value={session}>
 					{children}

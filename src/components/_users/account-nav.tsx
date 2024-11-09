@@ -16,9 +16,8 @@ import {
 import { LocaleLink } from "@/components/locale-link";
 import { useSession } from "@/components/session-provider";
 import { SelectItem } from "@/types";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Icons } from "../icons";
-import { cn } from "@/lib/shadcn";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Icons } from "@/components/icons";
 
 type UserAccountNavProps = {
 	items: SelectItem[];
@@ -49,12 +48,12 @@ export function UserAccountNav({
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
-				<div className="flex items-start justify-start gap-2 p-2">
+				<div dir="ltr" className="flex items-start justify-start gap-2 p-2">
 					<div className="flex flex-col gap-1 leading-none">
 						<div className="flex items-center justify-between gap-4">
 							<p className="font-medium">{user?.["name"]}</p>
 						</div>
-						<p className="text-muted-foreground w-[200px] truncate text-sm">{user?.["email"]}</p>
+						<p className="text-muted-foreground w-[200px] truncate text-xs">{user?.["email"]}</p>
 					</div>
 				</div>
 

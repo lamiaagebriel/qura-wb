@@ -28,29 +28,29 @@ const ar = {
 	// _users
 	"user-form": {
 		name: {
-			"full name": "Full Name",
-			"joe doe": "Joe Doe",
+			"full name": "الاسم الكامل",
+			"joe doe": "joe doe",
 		},
 		email: {
-			email: "Email",
+			email: "البريد الإلكتروني",
 		},
 		password: {
-			password: "Password",
+			password: "كلمة المرور",
 		},
 	},
 	"user-login-form": {
-		"or continue with": "or continue with",
-		"sign in with email": "Sign In with Email",
-		"sign in with google": "Sign In with Google",
-		"forgot password": "Forgot Password?",
+		"or continue with": "أو تابع باستخدام",
+		"sign in with email": "تسجيل الدخول باستخدام البريد الإلكتروني",
+		"sign in with google": "تسجيل الدخول باستخدام جوجل",
+		"forgot password": "نسيت كلمة المرور؟",
 	},
 	"user-register-form": {
-		"or continue with": "or continue with",
-		"sign up with email": "Sign Up with Email",
-		"sign up with google": "Sign Up with Google",
+		"or continue with": "أو تابع باستخدام",
+		"sign up with email": "التسجيل باستخدام البريد الإلكتروني",
+		"sign up with google": "التسجيل باستخدام جوجل",
 	},
 	"user-account-nav": {
-		logout: "Logout",
+		logout: "تسجيل الخروج",
 	},
 
 	"locale-switcher": {

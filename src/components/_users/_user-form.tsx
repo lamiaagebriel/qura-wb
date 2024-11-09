@@ -33,7 +33,7 @@ export const UserForm = {
 					<FormItem>
 						<FormLabel>{c?.["full name"]}</FormLabel>
 						<FormControl>
-							<Input placeholder={c?.["joe doe"]} disabled={loading} {...field} />
+							<Input {...field} disabled={loading} dir="ltr" placeholder={c?.["joe doe"]} />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -57,14 +57,14 @@ export const UserForm = {
 						<FormLabel>{c?.["email"]}</FormLabel>
 						<FormControl>
 							<Input
+								{...field}
+								disabled={loading}
 								dir="ltr"
 								type="email"
 								placeholder="name@example.com"
 								autoCapitalize="none"
 								autoComplete="email"
 								autoCorrect="off"
-								disabled={loading}
-								{...field}
 							/>
 						</FormControl>
 						<FormMessage />
@@ -89,14 +89,14 @@ export const UserForm = {
 						<FormLabel>{c?.["password"]}</FormLabel>
 						<FormControl>
 							<Input
+								{...field}
+								disabled={loading}
 								dir="ltr"
 								type="password"
 								placeholder="******"
 								autoCapitalize="none"
 								autoComplete="password"
 								autoCorrect="off"
-								disabled={loading}
-								{...field}
 							/>
 						</FormControl>
 						<FormMessage />
