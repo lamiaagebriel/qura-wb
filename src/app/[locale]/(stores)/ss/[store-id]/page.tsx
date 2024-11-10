@@ -9,7 +9,6 @@ type DashboardProps = Readonly<{
 export const metadata: Metadata = { title: "Dashboard" };
 export default async function Dashboard({ params }: DashboardProps) {
 	const { locale } = await params;
-	const dic = await getDictionary({ locale });
 
 	return (
 		<div className="container">

@@ -81,19 +81,19 @@ const ar = {
 					items: [
 						{
 							segments: ["settings"],
-							value: "/dashboard/settings",
+							value: "/settings",
 							label: "الإعدادات",
 							icon: "settings",
 						},
 						{
-							segments: ["settings"],
-							value: "/dashboard/settings",
+							segments: ["support"],
+							value: "/support",
 							label: "الدعم",
 							icon: "lifeBuoy",
 						},
 						{
-							segments: ["settings"],
-							value: "/dashboard/settings",
+							segments: ["feedback"],
+							value: "/feedback",
 							label: "إعطاء تقييم للموقع",
 							icon: "send",
 						},
@@ -101,6 +101,25 @@ const ar = {
 				},
 			] as { label?: string; items: NavItem[] }[],
 			userNavs: [{ value: "/pricing", label: "ترقية الحساب للبرو", icon: "stars" }] as SelectItem[],
+
+			settings: {
+				"main-nav": [
+					{ segments: [null], value: "/settings", label: "الملف الشخصي" },
+					{ segments: ["appearance"], value: "/settings/appearance", label: "المظهر" },
+				] as NavItem[],
+				settings: "الإعدادات",
+				"manage your account details, privacy settings, and how others perceive you on the platform.":
+					"إدارة تفاصيل حسابك، إعدادات الخصوصية، وكيفية رؤية الآخرين لك على المنصة.",
+				appearance: {
+					appearance: "المظهر",
+					"customize your appearance settings and preferences.": "تخصيص إعدادات المظهر وتفضيلاتك.",
+				},
+				profile: {
+					profile: "الملف الشخصي",
+					"this is how others will see you on the site.":
+						"هذه هي الطريقة التي سيراك بها الآخرون على الموقع.",
+				},
+			},
 		},
 	},
 
@@ -202,6 +221,18 @@ const ar = {
 		"or continue with": "أو تابع باستخدام",
 		"sign up with email": "التسجيل باستخدام البريد الإلكتروني",
 		"sign up with google": "التسجيل باستخدام جوجل",
+	},
+
+	"appearance-form": {
+		theme: "الثيم",
+		"automatically switch between day and night themes.":
+			"التبديل التلقائي بين الثيمات النهارية والليلية.",
+		light: "فاتح",
+		dark: "داكن",
+		system: "نظام",
+		language: "اللغة",
+		"automatically switch between languages.": "التبديل التلقائي بين اللغات.",
+		"update preferences": "تحديث التفضيلات",
 	},
 
 	"locale-switcher": {

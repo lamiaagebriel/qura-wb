@@ -24,6 +24,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarProvider,
+	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Icons } from "@/components/icons";
 import { LocaleLink, NavLink } from "@/components/links";
@@ -262,7 +263,10 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 				</SidebarFooter>
 			</SidebarWrapper>
 
-			<SidebarInset>{children}</SidebarInset>
+			<SidebarInset>
+				<SidebarTrigger />
+				{children}
+			</SidebarInset>
 		</SidebarProvider>
 	);
 }

@@ -81,19 +81,19 @@ const en = {
 					items: [
 						{
 							segments: ["settings"],
-							value: "/dashboard/settings",
+							value: "/settings",
 							label: "Settings",
 							icon: "settings",
 						},
 						{
-							segments: ["settings"],
-							value: "/dashboard/settings",
+							segments: ["support"],
+							value: "/support",
 							label: "Support",
 							icon: "lifeBuoy",
 						},
 						{
-							segments: ["settings"],
-							value: "/dashboard/settings",
+							segments: ["feedback"],
+							value: "/feedback",
 							label: "Feedback",
 							icon: "send",
 						},
@@ -101,6 +101,27 @@ const en = {
 				},
 			] as { label?: string; items: NavItem[] }[],
 			userNavs: [{ value: "/pricing", label: "Upgrade to Pro", icon: "stars" }] as SelectItem[],
+
+			settings: {
+				"main-nav": [
+					{ segments: [null], value: "/settings/", label: "Profile" },
+					{ segments: ["appearance"], value: "/settings/appearance", label: "Appearance" },
+				] as NavItem[],
+				settings: "Settings",
+				"manage your account details, privacy settings, and how others perceive you on the platform.":
+					"manage your account details, privacy settings, and how others perceive you on the platform.",
+
+				appearance: {
+					appearance: "Appearance",
+					"customize your appearance settings and preferences.":
+						"Customize your appearance settings and preferences.",
+				},
+				profile: {
+					profile: "Profile",
+					"this is how others will see you on the site.":
+						"this is how others will see you on the site.",
+				},
+			},
 		},
 	},
 
@@ -204,6 +225,18 @@ const en = {
 		"or continue with": "or continue with",
 		"sign up with email": "Sign Up with Email",
 		"sign up with google": "Sign Up with Google",
+	},
+
+	"appearance-form": {
+		theme: "Theme",
+		"automatically switch between day and night themes.":
+			"Automatically switch between day and night themes.",
+		light: "Light",
+		dark: "Dark",
+		system: "System",
+		language: "Language",
+		"automatically switch between languages.": "Automatically switch between languages.",
+		"update preferences": "update preferences",
 	},
 
 	"locale-switcher": {

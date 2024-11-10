@@ -9,6 +9,8 @@ import { getAuth } from "@/lib/lucia";
 import { SessionProvider } from "@/components/session-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
 
 const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
 
@@ -44,11 +46,14 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 		>
 			<body>
 				<SessionProvider value={session}>
+					{/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
 					<TooltipProvider delayDuration={0} disableHoverableContent={true}>
 						{children}
 
 						<Toaster />
+						<TailwindIndicator />
 					</TooltipProvider>
+					{/* </ThemeProvider> */}
 				</SessionProvider>
 			</body>
 		</html>
