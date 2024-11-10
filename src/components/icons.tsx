@@ -21,6 +21,11 @@ import {
 	Check,
 	ChevronsUpDown,
 	Sparkles,
+	Shirt,
+	Star,
+	Stars,
+	File,
+	Files,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -94,23 +99,27 @@ export const Icons = {
 	globe: ({ className, ...props }: IconProps) => (
 		<Globe className={cn(IconsVariants({}), className)} {...props} />
 	),
-	sparkles: ({ className, ...props }: IconProps) => (
-		<Sparkles className={cn(IconsVariants({}), className)} {...props} />
-	),
+
 	dashboard: ({ className, ...props }: IconProps) => (
 		<LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />
 	),
-	gift: ({ className, ...props }: IconProps) => (
-		<Gift className={cn(IconsVariants({}), className)} {...props} />
-	),
-	users: ({ className, ...props }: IconProps) => (
-		<Users className={cn(IconsVariants({}), className)} {...props} />
+	shirt: ({ className, ...props }: IconProps) => (
+		<Shirt className={cn(IconsVariants({}), className)} {...props} />
 	),
 	packagePlus: ({ className, ...props }: IconProps) => (
 		<PackagePlus className={cn(IconsVariants({}), className)} {...props} />
 	),
+	users: ({ className, ...props }: IconProps) => (
+		<Users className={cn(IconsVariants({}), className)} {...props} />
+	),
+	stars: ({ className, ...props }: IconProps) => (
+		<Stars className={cn(IconsVariants({}), className)} {...props} />
+	),
 	percent: ({ className, ...props }: IconProps) => (
 		<Percent className={cn(IconsVariants({}), className)} {...props} />
+	),
+	files: ({ className, ...props }: IconProps) => (
+		<Files className={cn(IconsVariants({}), className)} {...props} />
 	),
 	settings: ({ className, ...props }: IconProps) => (
 		<Settings className={cn(IconsVariants({}), className)} {...props} />

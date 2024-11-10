@@ -1,3 +1,5 @@
+import { NavItem, SelectItem } from "@/types";
+
 const ar = {
 	site: {
 		name: "كن رقمي",
@@ -24,20 +26,156 @@ const ar = {
 			"privacy policy": "سياسة الخصوصية",
 		},
 	},
+
+	ss: {
+		store: {
+			navs: [
+				{
+					label: "المتجر",
+					items: [
+						{
+							segments: [null],
+							value: "/",
+							label: "نظرة عامة",
+							icon: "dashboard",
+						},
+						{
+							segments: ["products"],
+							value: "/products",
+							label: "المنتجات",
+							icon: "shirt",
+						},
+						{
+							segments: ["orders"],
+							value: "/orders",
+							label: "الطلبات",
+							icon: "packagePlus",
+						},
+						{
+							segments: ["customers"],
+							value: "/customers",
+							label: "العملاء",
+							icon: "users",
+						},
+						{
+							segments: ["reviews"],
+							value: "/reviews",
+							label: "التقييمات",
+							icon: "stars",
+						},
+						{
+							segments: ["promotions"],
+							value: "/promotions",
+							label: "العروض",
+							icon: "percent",
+						},
+						{
+							segments: ["pages"],
+							value: "/pages",
+							label: "الصفحات التعريفية",
+							icon: "files",
+						},
+					],
+				},
+				{
+					items: [
+						{
+							segments: ["settings"],
+							value: "/dashboard/settings",
+							label: "الإعدادات",
+							icon: "settings",
+						},
+						{
+							segments: ["settings"],
+							value: "/dashboard/settings",
+							label: "الدعم",
+							icon: "lifeBuoy",
+						},
+						{
+							segments: ["settings"],
+							value: "/dashboard/settings",
+							label: "إعطاء تقييم للموقع",
+							icon: "send",
+						},
+					],
+				},
+			] as { label?: string; items: NavItem[] }[],
+			userNavs: [{ value: "/pricing", label: "ترقية الحساب للبرو", icon: "stars" }] as SelectItem[],
+		},
+	},
+
 	// _stores
 	"store-form": {
 		name: {
-			name: "Name",
-			"ovve.eg": "Ovve.eg",
+			name: "الإسم",
+			"ovve.eg": "متجر أوفي للألعاب",
+		},
+		username: {
+			username: "Username",
+			ovve: "ovvegames",
+		},
+		logo: { logo: "الصورة التعريفية" },
+		bio: {
+			bio: "الوصف",
+			"type about your store...": "قُم بوصف متجرك...",
+		},
+		location: {
+			"address-line": {
+				"address line": "العنوان بالتفصيل",
+				"03 aprt., 808 building": "الشقة 3، المبني رقم 800",
+			},
+			zip: { zip: "Zip", "185047": "185047" },
+			state: { state: "State", obour: "العبور" },
+			city: { city: "City", cairo: "القاهرة" },
+			country: { country: "Country", egypt: "مصر" },
 		},
 	},
 	"store-create-button": {
-		"created successfully.": "created successfully.",
-		submit: "submit",
-		cancel: "cancel",
-		"create store": "create store",
-		"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
-			"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+		"create store": "إنشاء متجر",
+	},
+	"store-create-steps": {
+		"created successfully.": "تم الإنشاء بنجاح.",
+		previous: "السابق",
+		next: "التالي",
+		submit: "إنشاء",
+
+		Sector: "القطاع",
+		"Select Your Store Category": "إختر القطاع التجاري للمتجر",
+		"Choose the category that best represents your store's offerings.":
+			"Choose the category that best represents your store's offerings.",
+		categories: [
+			{ name: "إلكترونيات", icon: "Tv" },
+			{ name: "Fashion and Apparel", icon: "ShoppingBag" },
+			{ name: "Home and Furniture", icon: "Sofa" },
+			{ name: "Health and Beauty", icon: "Heart" },
+			{ name: "Groceries and Food", icon: "Utensils" },
+			{ name: "Books and Stationery", icon: "BookOpen" },
+			// { name: "Sports and Outdoor Equipment", icon: <Football className=" size-4" /> },
+			{ name: "Toys and Games", icon: "Gamepad" },
+			{
+				name: "Automotive Parts and Accessories",
+				icon: "Car",
+			},
+			{ name: "Jewelry and Accessories", icon: "Diamond" },
+			{ name: "Pet Supplies", icon: "Dog" },
+			{ name: "Office Supplies", icon: "Briefcase" },
+			{ name: "Baby and Kids", icon: "Baby" },
+			{ name: "Arts and Crafts", icon: "Paintbrush" },
+			{ name: "Musical Instruments", icon: "Music" },
+			{ name: "Software and Digital Products", icon: "Code" },
+		],
+
+		Username: "الإسم الفريد للمتجر",
+		"Select Your Store Unique Name": "الإسم الفريد للمتجر",
+		"Choose the category that best represents your store's offerings. this could be changed later.":
+			"Choose the category that best represents your store's offerings. this could be changed later.",
+
+		"Basic Details": "Basic Details",
+		"Fill These Details": "قُم بملئ هذه البيانات",
+		"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga sunt quibusdam, cum voluptas vero error eveniet animi.":
+			"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga sunt quibusdam, cum voluptas vero error eveniet animi.",
+		"Address Details": "بيانات عنوان المتجر",
+		"Store Address": "بيانات عنوان المتجر",
 	},
 
 	// _users
@@ -53,6 +191,7 @@ const ar = {
 			password: "كلمة المرور",
 		},
 	},
+	"logout-button": { logout: "تسجيل الخروج", "logging out...": "جاري تسجيل الخروج..." },
 	"user-login-form": {
 		"or continue with": "أو تابع باستخدام",
 		"sign in with email": "تسجيل الدخول باستخدام البريد الإلكتروني",
@@ -63,9 +202,6 @@ const ar = {
 		"or continue with": "أو تابع باستخدام",
 		"sign up with email": "التسجيل باستخدام البريد الإلكتروني",
 		"sign up with google": "التسجيل باستخدام جوجل",
-	},
-	"user-account-nav": {
-		logout: "تسجيل الخروج",
 	},
 
 	"locale-switcher": {
@@ -95,12 +231,10 @@ const ar = {
 			"لم يتم حذف حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
 
 		// stores: {
-		"your store was not created. please try again.":
-			"your store was not created. Please try again.",
+		"your store was not created. please try again.": "لم يتم إنشاء المتجر. يرجى المحاولة مرة أخرى.",
 		"your store was not updated. please try again.":
-			"your store was not updated. Please try again.",
-		"your store was not deleted. please try again.":
-			"your store was not deleted. Please try again.",
+			"لم يتم تحديث بيانات المتجر. يرجى المحاولة مرة أخرى.",
+		"your store was not deleted. please try again.": "لم يتم حذف المتجر. يرجى المحاولة مرة أخرى.",
 	},
 };
 
