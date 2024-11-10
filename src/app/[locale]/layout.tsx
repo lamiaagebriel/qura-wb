@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
+
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Inter } from "next/font/google";
 
 import { getDictionary, i18n } from "@/lib/locale";
 import { LocaleProps } from "@/types/locale";
@@ -12,6 +13,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 
+const inter = Inter({ subsets: ["latin", "latin-ext"] });
 const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
 
 type RootLayoutProps = Readonly<{
@@ -42,18 +44,21 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 		<html
 			lang={locale}
 			dir={locale === "ar" ? "rtl" : "ltr"}
-			className={cn("tracking-tight", cairo?.["className"])}
+			className={cn(
+				"tracking-tight",
+				locale === "ar" ? cairo?.["className"] : inter?.["className"],
+			)}
 		>
 			<body>
 				<SessionProvider value={session}>
-					{/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-					<TooltipProvider delayDuration={0} disableHoverableContent={true}>
-						{children}
+					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+						<TooltipProvider delayDuration={0} disableHoverableContent={true}>
+							{children}
 
-						<Toaster />
-						<TailwindIndicator />
-					</TooltipProvider>
-					{/* </ThemeProvider> */}
+							<Toaster />
+							<TailwindIndicator />
+						</TooltipProvider>
+					</ThemeProvider>
 				</SessionProvider>
 			</body>
 		</html>
