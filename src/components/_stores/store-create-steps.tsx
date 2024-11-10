@@ -127,7 +127,7 @@ export function StoreCreateSteps({
 		{
 			label: c?.["Username"],
 			children: (
-				<div className="flex flex-col gap-4">
+				<div dir="ltr" className="flex flex-col gap-4">
 					<div className="flex flex-col items-center">
 						<h1 className="text-center font-bold">{c?.["Select Your Store Unique Name"]}</h1>
 						<p className="max-w-prose text-center text-sm text-muted-foreground">
@@ -212,7 +212,7 @@ export function StoreCreateSteps({
 						<StepsContent key={i} value={`${i}`}>
 							{e?.["children"]}
 
-							<div className="my-4 flex items-center justify-between gap-4">
+							<div dir="ltr" className="my-4 flex items-center justify-between gap-4">
 								<StepsPrevious disabled={loading}>{c?.["previous"]}</StepsPrevious>
 								{i < steps?.["length"] - 1 ? (
 									<StepsNext disabled={loading}>
