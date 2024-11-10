@@ -65,9 +65,9 @@ export async function uploadImages({ images, ...props }: { images: string[] } & 
 					...props,
 				});
 				return { image: uploadedImage, index };
-			} else {
-				return { image, index }; // keep URL images as they are
 			}
+
+			return { image, index }; // keep URL images as they are
 		}),
 	);
 

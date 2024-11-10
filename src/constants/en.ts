@@ -1,3 +1,5 @@
+import { NavItem, SelectItem } from "@/types";
+
 const en = {
 	site: {
 		name: "ConCom",
@@ -25,6 +27,71 @@ const en = {
 		},
 	},
 
+	ss: {
+		store: {
+			navs: [
+				{
+					label: "Store",
+					items: [
+						{
+							segments: [null],
+							value: "/",
+							label: "Overview",
+							icon: "dashboard",
+						},
+						{
+							segments: ["products"],
+							value: "/dashboard/products",
+							label: "Products",
+							icon: "gift",
+						},
+						{
+							segments: ["customers"],
+							value: "/dashboard/customers",
+							label: "Customers",
+							icon: "users",
+						},
+						{
+							segments: ["orders"],
+							value: "/dashboard/orders",
+							label: "Orders",
+							icon: "packagePlus",
+						},
+						{
+							segments: ["promotions"],
+							value: "/dashboard/promotions",
+							label: "Promotions",
+							icon: "percent",
+						},
+					],
+				},
+				{
+					items: [
+						{
+							segments: ["settings"],
+							value: "/dashboard/settings",
+							label: "Settings",
+							icon: "settings",
+						},
+						{
+							segments: ["settings"],
+							value: "/dashboard/settings",
+							label: "Support",
+							icon: "lifeBuoy",
+						},
+						{
+							segments: ["settings"],
+							value: "/dashboard/settings",
+							label: "Feedback",
+							icon: "send",
+						},
+					],
+				},
+			] as { label?: string; items: NavItem[] }[],
+			userNavs: [{ value: "/pricing", label: "Upgrade to Pro", icon: "sparkles" }] as SelectItem[],
+		},
+	},
+
 	// _stores
 	"store-form": {
 		name: {
@@ -34,6 +101,9 @@ const en = {
 		username: {
 			username: "Username",
 			ovve: "Ovve",
+		},
+		logo: {
+			logo: "Logo",
 		},
 		bio: {
 			bio: "Bio",
@@ -51,12 +121,51 @@ const en = {
 		},
 	},
 	"store-create-button": {
-		"created successfully.": "created successfully.",
-		submit: "submit",
-		cancel: "cancel",
 		"create store": "create store",
-		"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
-			"create a A well-structured store that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"store-create-steps": {
+		"created successfully.": "created successfully.",
+		previous: "Previous",
+		next: "Next",
+		submit: "Submit",
+
+		Sector: "Sector",
+		"Select Your Store Category": "Select Your Store Category",
+		"Choose the category that best represents your store's offerings.":
+			"Choose the category that best represents your store's offerings.",
+		categories: [
+			{ name: "Electronics", icon: "Tv" },
+			{ name: "Fashion and Apparel", icon: "ShoppingBag" },
+			{ name: "Home and Furniture", icon: "Sofa" },
+			{ name: "Health and Beauty", icon: "Heart" },
+			{ name: "Groceries and Food", icon: "Utensils" },
+			{ name: "Books and Stationery", icon: "BookOpen" },
+			// { name: "Sports and Outdoor Equipment", icon: <Football className=" size-4" /> },
+			{ name: "Toys and Games", icon: "Gamepad" },
+			{
+				name: "Automotive Parts and Accessories",
+				icon: "Car",
+			},
+			{ name: "Jewelry and Accessories", icon: "Diamond" },
+			{ name: "Pet Supplies", icon: "Dog" },
+			{ name: "Office Supplies", icon: "Briefcase" },
+			{ name: "Baby and Kids", icon: "Baby" },
+			{ name: "Arts and Crafts", icon: "Paintbrush" },
+			{ name: "Musical Instruments", icon: "Music" },
+			{ name: "Software and Digital Products", icon: "Code" },
+		],
+
+		Username: "Username",
+		"Select Your Store Unique Name": "Select Your Store Unique Name",
+		"Choose the category that best represents your store's offerings. this could be changed later.":
+			"Choose the category that best represents your store's offerings. this could be changed later.",
+
+		"Basic Details": "Basic Details",
+		"Fill These Details": "Fill These Details",
+		"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga sunt quibusdam, cum voluptas vero error eveniet animi.":
+			"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga sunt quibusdam, cum voluptas vero error eveniet animi.",
+		"Address Details": "Address Details",
+		"Store Address": "Store Address",
 	},
 
 	// _users
@@ -78,13 +187,11 @@ const en = {
 		"sign in with google": "Sign In with Google",
 		"forgot password": "Forgot Password?",
 	},
+	"logout-button": { logout: "Logout", "logging out...": "logging out..." },
 	"user-register-form": {
 		"or continue with": "or continue with",
 		"sign up with email": "Sign Up with Email",
 		"sign up with google": "Sign Up with Google",
-	},
-	"user-account-nav": {
-		logout: "Logout",
 	},
 
 	"locale-switcher": {

@@ -22,7 +22,10 @@ export default async function CreateFirstStore({ params }: CreateFirstStoreProps
 	return (
 		<div className="flex flex-col items-center justify-center">
 			<div className="container max-w-screen-sm">
-				<StoreCreateSteps dic={dic} />
+				<StoreCreateSteps
+					dic={dic}
+					className="flex min-h-screen flex-col justify-between gap-10 py-8"
+				/>
 			</div>
 		</div>
 	);

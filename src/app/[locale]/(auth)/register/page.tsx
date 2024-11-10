@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { Icons } from "@/components/icons";
 import { UserRegisterForm } from "@/components/_users/register-form";
-import { LocaleLink } from "@/components/locale-link";
+import { LocaleLink } from "@/components/links";
 import { cn } from "@/lib/shadcn";
 import { buttonVariants } from "@/components/ui/button";
 import { LocaleProps } from "@/types/locale";

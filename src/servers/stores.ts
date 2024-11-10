@@ -9,8 +9,9 @@ import { revalidatePath } from "next/cache";
 import { getLocale, handleError } from "@/servers/utils";
 import { ID } from "@/constants/utils";
 import { getDictionary } from "@/lib/locale";
+import { uploadImages } from "@/lib/utils";
 
-export async function createStore({ ...data }: z.infer<typeof storeCreateSchema>) {
+export async function createStore({ logo: logoProp, ...data }: z.infer<typeof storeCreateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary({ locale });
 
@@ -23,12 +24,22 @@ export async function createStore({ ...data }: z.infer<typeof storeCreateSchema>
 				message: c?.["this action needs you to be logged in."],
 			});
 
+		const logo = logoProp
+			? ((
+					await uploadImages({
+						Key: `stores/logo-`, // maintain unique naming if needed
+						images: [logoProp],
+					})
+				)?.pop() ?? null)
+			: null;
+
 		const id = ID.generate();
 		await db.store.create({
 			data: {
 				...data,
 				id,
 				userId: user?.["id"],
+				logo,
 			},
 		});
 

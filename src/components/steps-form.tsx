@@ -39,13 +39,18 @@ StepsList.displayName = "StepsList";
 const StepsTrigger = React.forwardRef<
 	React.ElementRef<typeof TabsTrigger>,
 	React.ComponentPropsWithoutRef<typeof TabsTrigger>
->(({ value, ...props }, ref) => {
+>(({ value, disabled, ...props }, ref) => {
 	const context = React.useContext(StepsFormContext);
 	if (!context) throw new Error("StepsFormTrigger must be used within a StepsFormProvider");
 	const { value: currentValue } = context;
 
 	return (
-		<TabsTrigger ref={ref} value={value} disabled={Number(value) != currentValue} {...props} />
+		<TabsTrigger
+			ref={ref}
+			value={value}
+			disabled={disabled ?? Number(value) != currentValue}
+			{...props}
+		/>
 	);
 });
 StepsTrigger.displayName = "StepsTrigger";
@@ -59,12 +64,12 @@ StepsContent.displayName = "StepsContent";
 const StepsProgress = React.forwardRef<
 	React.ElementRef<typeof Progress>,
 	React.ComponentPropsWithoutRef<typeof Progress>
->(({ ...props }, ref) => {
+>(({ value, ...props }, ref) => {
 	const context = React.useContext(StepsFormContext);
 	if (!context) throw new Error("StepsFormTrigger must be used within a StepsFormProvider");
 	const { value: currentValue, totalSteps } = context;
 
-	return <Progress ref={ref} value={((currentValue + 1) / totalSteps) * 100} {...props} />;
+	return <Progress ref={ref} value={value ?? ((currentValue + 1) / totalSteps) * 100} {...props} />;
 });
 
 StepsProgress.displayName = "StepsProgress";
@@ -72,7 +77,7 @@ StepsProgress.displayName = "StepsProgress";
 const StepsNext = React.forwardRef<
 	React.ElementRef<typeof Button>,
 	React.ComponentPropsWithoutRef<typeof Button>
->(({ ...props }, ref) => {
+>(({ disabled, ...props }, ref) => {
 	const context = React.useContext(StepsFormContext);
 	if (!context) throw new Error("StepsFormTrigger must be used within a StepsFormProvider");
 	const { value, setValue, totalSteps } = context;
@@ -81,7 +86,7 @@ const StepsNext = React.forwardRef<
 		<Button
 			ref={ref}
 			onClick={() => setValue(value + 1)}
-			disabled={value >= totalSteps - 1}
+			disabled={disabled ?? value >= totalSteps - 1}
 			{...props}
 		/>
 	);
@@ -92,16 +97,16 @@ StepsNext.displayName = "StepsNext";
 const StepsPrevious = React.forwardRef<
 	React.ElementRef<typeof Button>,
 	React.ComponentPropsWithoutRef<typeof Button>
->(({ ...props }, ref) => {
+>(({ disabled, ...props }, ref) => {
 	const context = React.useContext(StepsFormContext);
 	if (!context) throw new Error("StepsFormTrigger must be used within a StepsFormProvider");
-	const { value, setValue, totalSteps } = context;
+	const { value, setValue } = context;
 
 	return (
 		<Button
 			ref={ref}
 			variant="outline"
-			disabled={value === 0}
+			disabled={disabled || value === 0}
 			onClick={() => setValue(value - 1)}
 			{...props}
 		/>

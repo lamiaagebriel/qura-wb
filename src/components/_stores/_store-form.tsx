@@ -8,10 +8,10 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { storeCreateSchema, storeUpdateSchema } from "@/validations/stores";
 import { Input } from "@/components/ui/input";
 import { Dictionary } from "@/types/locale";
-import { Textarea } from "../ui/textarea";
-import { Image } from "../image";
-import { Button } from "../ui/button";
-import { Icons } from "../icons";
+import { Textarea } from "@/components/ui/textarea";
+import { Image } from "@/components/image";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
 import { fileToBase64 } from "@/lib/utils";
 
 export type StoreFormProps = {
@@ -61,7 +61,7 @@ export const StoreForm = {
 					<FormControl>
 						<div className="relative overflow-hidden">
 							<Input {...field} disabled={loading} placeholder={c?.["ovve"]} className="pl-28" />
-							<div className="bg-muted text-muted-foreground absolute left-0.5 top-0.5 flex h-8 flex-col items-center justify-center rounded-l-md px-2">
+							<div className="absolute left-0.5 top-0.5 flex h-8 flex-col items-center justify-center rounded-l-md bg-muted px-2 text-muted-foreground">
 								<p>concom.com/</p>
 							</div>
 						</div>
@@ -97,7 +97,13 @@ export const StoreForm = {
 			)}
 		/>
 	),
-	logo: function Component({ loading, form }: StoreFormProps) {
+	logo: function Component({
+		dic: {
+			"store-form": { logo: c },
+		},
+		loading,
+		form,
+	}: StoreFormProps) {
 		return (
 			<FormField
 				control={form?.["control"]}
@@ -124,10 +130,7 @@ export const StoreForm = {
 								)}
 							</div>
 
-							<FormLabel className="sr-only">
-								logo
-								{/* {c?.["label"]} */}
-							</FormLabel>
+							<FormLabel className="sr-only">{c?.["logo"]}</FormLabel>
 							<FormControl>
 								<Input
 									{...field}

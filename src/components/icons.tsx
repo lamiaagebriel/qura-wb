@@ -4,11 +4,23 @@ import {
 	ChevronRight,
 	Globe,
 	Image,
+	LayoutDashboard,
 	Loader2,
 	LogOut,
+	Plus,
 	User,
 	X,
+	Gift,
+	LifeBuoy,
+	PackagePlus,
+	Percent,
+	Send,
+	Settings,
+	Users,
 	type LucideProps,
+	Check,
+	ChevronsUpDown,
+	Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -58,8 +70,17 @@ export const Icons = {
 	chevronRight: ({ className, ...props }: IconProps) => (
 		<ChevronRight className={cn(IconsVariants({}), className)} {...props} />
 	),
+	chevronsUpDown: ({ className, ...props }: IconProps) => (
+		<ChevronsUpDown className={cn(IconsVariants({}), className)} {...props} />
+	),
+	check: ({ className, ...props }: IconProps) => (
+		<Check className={cn(IconsVariants({}), className)} {...props} />
+	),
 	user: ({ className, ...props }: IconProps) => (
 		<User className={cn(IconsVariants({}), className)} {...props} />
+	),
+	add: ({ className, ...props }: IconProps) => (
+		<Plus className={cn(IconsVariants({}), className)} {...props} />
 	),
 	logout: ({ className, ...props }: IconProps) => (
 		<LogOut className={cn(IconsVariants({}), className)} {...props} />
@@ -72,6 +93,33 @@ export const Icons = {
 	),
 	globe: ({ className, ...props }: IconProps) => (
 		<Globe className={cn(IconsVariants({}), className)} {...props} />
+	),
+	sparkles: ({ className, ...props }: IconProps) => (
+		<Sparkles className={cn(IconsVariants({}), className)} {...props} />
+	),
+	dashboard: ({ className, ...props }: IconProps) => (
+		<LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />
+	),
+	gift: ({ className, ...props }: IconProps) => (
+		<Gift className={cn(IconsVariants({}), className)} {...props} />
+	),
+	users: ({ className, ...props }: IconProps) => (
+		<Users className={cn(IconsVariants({}), className)} {...props} />
+	),
+	packagePlus: ({ className, ...props }: IconProps) => (
+		<PackagePlus className={cn(IconsVariants({}), className)} {...props} />
+	),
+	percent: ({ className, ...props }: IconProps) => (
+		<Percent className={cn(IconsVariants({}), className)} {...props} />
+	),
+	settings: ({ className, ...props }: IconProps) => (
+		<Settings className={cn(IconsVariants({}), className)} {...props} />
+	),
+	lifeBuoy: ({ className, ...props }: IconProps) => (
+		<LifeBuoy className={cn(IconsVariants({}), className)} {...props} />
+	),
+	send: ({ className, ...props }: IconProps) => (
+		<Send className={cn(IconsVariants({}), className)} {...props} />
 	),
 	google: ({ className, ...props }: IconProps) => (
 		<svg
