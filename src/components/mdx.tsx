@@ -1,3 +1,5 @@
+import "@/styles/mdx.css";
+
 import { cn } from "@/lib/shadcn";
 import { compileMDX } from "next-mdx-remote/rsc";
 import Image from "next/image";

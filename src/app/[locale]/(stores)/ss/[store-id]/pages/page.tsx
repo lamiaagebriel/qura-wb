@@ -1,11 +1,10 @@
-import "@/styles/mdx.css";
-
 import type { Metadata } from "next";
 import { LocaleProps } from "@/types/locale";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { promises as fs } from "fs";
 import path from "path";
 import { MDX } from "@/components/mdx";
+import { MDXEditor } from "@/components/mdx-editor";
 
 type DashboardProps = Readonly<{
 	params: Promise<LocaleProps>;
@@ -16,9 +15,9 @@ export default async function Dashboard({ params }: DashboardProps) {
 	const markdown = await fs.readFile(path.join(process.cwd(), "/src/app", "markdown.mdx"), "utf8");
 
 	return (
-		<article className="container relative max-w-3xl py-6 lg:py-10">
-			<MDX markdown={markdown} />
-			<hr className="mt-12" />
-		</article>
+		<div className="container max-w-screen-md py-6">
+			<MDXEditor markdown={markdown} />
+			{/* <MDX markdown={markdown} /> */}
+		</div>
 	);
 }
