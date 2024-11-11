@@ -158,9 +158,9 @@ const en = {
 	},
 	"store-create-steps": {
 		"created successfully.": "created successfully.",
-		previous: "Previous",
-		next: "Next",
-		submit: "Submit",
+		"go back": "Go back",
+		"next step": "Next step",
+		"create store": "Create Store",
 
 		Sector: "Sector",
 		"Select Your Store Category": "Select Your Store Category",

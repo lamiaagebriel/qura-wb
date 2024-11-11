@@ -213,15 +213,18 @@ export function StoreCreateSteps({
 							{e?.["children"]}
 
 							<div dir="ltr" className="my-4 flex items-center justify-between gap-4">
-								<StepsPrevious disabled={loading}>{c?.["previous"]}</StepsPrevious>
+								<StepsPrevious disabled={loading}>
+									<Icons.arrowLeft />
+									{c?.["go back"]}
+								</StepsPrevious>
 								{i < steps?.["length"] - 1 ? (
 									<StepsNext disabled={loading}>
-										{c?.["next"]} <Icons.chevronRight />
+										{c?.["next step"]} <Icons.chevronRight />
 									</StepsNext>
 								) : (
 									<Button type="submit" disabled={loading} className="w-full">
 										{loading && <Icons.spinner />}
-										{c?.["submit"]}
+										{c?.["create store"]}
 									</Button>
 								)}
 							</div>

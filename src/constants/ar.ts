@@ -154,9 +154,9 @@ const ar = {
 	},
 	"store-create-steps": {
 		"created successfully.": "تم الإنشاء بنجاح.",
-		previous: "السابق",
-		next: "التالي",
-		submit: "إنشاء",
+		"go back": "الخطوة السابقة",
+		"next step": "الخطوة التالية",
+		"create store": "إنشاء المتجر",
 
 		Sector: "القطاع",
 		"Select Your Store Category": "إختر القطاع التجاري للمتجر",

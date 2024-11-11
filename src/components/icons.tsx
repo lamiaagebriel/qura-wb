@@ -26,6 +26,7 @@ import {
 	Stars,
 	File,
 	Files,
+	ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -68,6 +69,9 @@ export const Icons = {
 	),
 	spinner: ({ className, ...props }: IconProps) => (
 		<Loader2 className={cn(IconsVariants({}), "animate-spin", className)} {...props} />
+	),
+	arrowLeft: ({ className, ...props }: IconProps) => (
+		<ArrowLeft className={cn(IconsVariants({}), className)} {...props} />
 	),
 	chevronLeft: ({ className, ...props }: IconProps) => (
 		<ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
