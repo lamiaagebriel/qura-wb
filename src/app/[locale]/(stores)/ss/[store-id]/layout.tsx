@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 	const selectedStore = stores?.find((e) => e?.["id"] === storeId);
 	if (!selectedStore) return <div>NO STORE</div>;
 	return (
-		<SidebarProvider>
+		<SidebarProvider defaultOpen={false}>
 			<SidebarWrapper side={locale === "ar" ? "right" : "left"} variant="inset" collapsible="icon">
 				<SidebarHeader>
 					<SidebarMenu>
@@ -263,10 +263,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 				</SidebarFooter>
 			</SidebarWrapper>
 
-			<SidebarInset>
-				<SidebarTrigger />
-				{children}
-			</SidebarInset>
+			<SidebarInset>{children}</SidebarInset>
 		</SidebarProvider>
 	);
 }

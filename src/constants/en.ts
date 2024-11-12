@@ -201,6 +201,35 @@ const en = {
 		"Store Address": "Store Address",
 	},
 
+	// _stores/pages
+	"page-form": {
+		url: {
+			url: "URL",
+			about: "about",
+		},
+		title: {
+			title: "Title",
+			"about us": "About Us",
+		},
+		description: {
+			description: "Description",
+			"type the page description...": "Type the page description...",
+		},
+		body: {
+			body: "Content",
+			"type the page content...": "Type the page content...",
+		},
+	},
+	"page-create-button": {
+		"create page": "Create Page",
+	},
+	"page-create-steps": {
+		"created successfully.": "created successfully.",
+		"go back": "Go back",
+		"next step": "Next step",
+		"create page": "Create Page",
+	},
+
 	// _users
 	"user-form": {
 		name: {
@@ -273,6 +302,11 @@ const en = {
 			"your store was not updated. Please try again.",
 		"your store was not deleted. please try again.":
 			"your store was not deleted. Please try again.",
+
+		// stores/pages: {
+		"your page was not created. please try again.": "your page was not created. Please try again.",
+		"your page was not updated. please try again.": "your page was not updated. Please try again.",
+		"your page was not deleted. please try again.": "your page was not deleted. Please try again.",
 	},
 };
 

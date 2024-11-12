@@ -50,6 +50,7 @@ model Store {
   logo     String?
   category String
   location Json
+  pages    Json[]  @default([])
 
   @@map("stores")
 }

@@ -197,6 +197,35 @@ const ar = {
 		"Store Address": "بيانات عنوان المتجر",
 	},
 
+	// _stores/pages
+	"page-form": {
+		url: {
+			url: "العنوان التعريفي",
+			about: "about",
+		},
+		title: {
+			title: "العنوان",
+			"about us": "عننا",
+		},
+		description: {
+			description: "Description",
+			"type the page description...": "قُم بوصف الصفحة...",
+		},
+		body: {
+			body: "Content",
+			"type the page content...": "قُم بكتابة محتوي الصحفة...",
+		},
+	},
+	"page-create-button": {
+		"create page": "إنشاء صفحة",
+	},
+	"page-create-steps": {
+		"created successfully.": "تم الإنشاء بنجاح.",
+		"go back": "الخطوة السابقة",
+		"next step": "الخطوة التالية",
+		"create page": "إنشاء المتجر",
+	},
+
 	// _users
 	"user-form": {
 		name: {
@@ -266,6 +295,11 @@ const ar = {
 		"your store was not updated. please try again.":
 			"لم يتم تحديث بيانات المتجر. يرجى المحاولة مرة أخرى.",
 		"your store was not deleted. please try again.": "لم يتم حذف المتجر. يرجى المحاولة مرة أخرى.",
+
+		// stores/pages: {
+		"your page was not created. please try again.": "لم يتم إنشاء الصفحة. يرجى المحاولة مرة أخرى.",
+		"your page was not updated. please try again.": "لم يتم تحديث الصفحة. يرجى المحاولة مرة أخرى.",
+		"your page was not deleted. please try again.": "لم يتم حذف الصفحة. يرجى المحاولة مرة أخرى.",
 	},
 };
 

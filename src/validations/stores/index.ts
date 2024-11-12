@@ -1,4 +1,5 @@
 import { z } from "@/lib/zod";
+import { pageSchema } from "./pages";
 
 export const addressSchema = z.object({
 	// name: z.stringRequired("name"),
@@ -10,6 +11,10 @@ export const addressSchema = z.object({
 	state: z.stringRequired("state"),
 	city: z.stringRequired("city"),
 	country: z.stringRequired("country"),
+	// coordinates: {
+	// 	latitude: 40.7128,
+	// 	longitude: -74.0060,
+	// },
 });
 
 export const storeSchema = z.object({
@@ -21,6 +26,7 @@ export const storeSchema = z.object({
 	logo: z.string("logo").nullable().optional(),
 	category: z.stringRequired("category"),
 	location: addressSchema,
+	pages: z.array(pageSchema).default([]),
 });
 
 export const storeCreateSchema = storeSchema.pick({
