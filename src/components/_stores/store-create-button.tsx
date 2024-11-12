@@ -5,6 +5,7 @@ import { Button, ButtonProps } from "@/components/ui/button";
 import { Dictionary } from "@/types/locale";
 import {
 	AlertDialog,
+	AlertDialogCancelCircle,
 	AlertDialogContent,
 	AlertDialogTitle,
 	AlertDialogTrigger,
@@ -29,6 +30,7 @@ export function StoreCreateButton({
 			</AlertDialogTrigger>
 			<AlertDialogContent className="max-h-[95svh] overflow-auto rounded-md">
 				<AlertDialogTitle className="hidden"></AlertDialogTitle>
+				<AlertDialogCancelCircle />
 				<StoreCreateSteps dic={dic} />
 			</AlertDialogContent>
 		</AlertDialog>

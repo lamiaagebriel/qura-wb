@@ -9,8 +9,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dictionary } from "@/types/locale";
-import { DotSquare } from "lucide-react";
-// import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
 export type DataTableRowActionsProps = {
 	children?: React.ReactNode;
@@ -25,7 +24,7 @@ export function DataTableRowActions({
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" size="icon" className="data-[state=open]:bg-muted">
-						<DotSquare className="h-4 w-4 shrink-0" />
+						<DotsHorizontalIcon className="h-4 w-4 shrink-0" />
 						<span className="sr-only">{c?.["open menu"]}</span>
 					</Button>
 				</DropdownMenuTrigger>

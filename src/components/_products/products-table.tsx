@@ -10,15 +10,16 @@ import { Product } from "@prisma/client";
 import { CardTitle } from "@/components/ui/card";
 import { Dictionary } from "@/types/locale";
 import { ColumnDef } from "@tanstack/react-table";
-// import {
-// 	ProductDeleteButton,
-// 	ProductDeleteButtonProps,
-// } from "@/components/_products/product-delete-button";
+import {
+	ProductDeleteButton,
+	ProductDeleteButtonProps,
+} from "@/components/_products/product-delete-button";
 import { ProductAttribute } from "@/types/db";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Image } from "@/components/image";
 import { cn } from "@/lib/shadcn";
+import { LocaleLink } from "../links";
 
 type ColumnType = Product & {
 	attributes: ProductAttribute[];
@@ -26,7 +27,7 @@ type ColumnType = Product & {
 type ProductsTableProps = {
 	data: ColumnType[];
 } & Pick<DataTableProps<any, any>, "dic"> &
-	// Pick<ProductDeleteButtonProps, "dic"> &
+	Pick<ProductDeleteButtonProps, "dic"> &
 	Dictionary["products-table"];
 
 export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: ProductsTableProps) {
@@ -104,26 +105,26 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						enableSorting: false,
 						enableHiding: false,
 					},
-					// {
-					// 	id: "actions",
-					// 	cell: ({ row: { original: r } }) => {
-					// 		return (
-					// 			<>
-					// 				<DataTableRowActions dic={dic}>
-					// 					<Link href={`/dashboard/s/${r?.["storeId"]}/p/${r?.["id"]}`}>
-					// 						<DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
-					// 					</Link>
-					// 					<ProductDeleteButton
-					// 						dic={dic}
-					// 						product={r}
-					// 						variant="ghost"
-					// 						className="w-full justify-start px-2 text-start font-normal"
-					// 					/>
-					// 				</DataTableRowActions>
-					// 			</>
-					// 		);
-					// 	},
-					// },
+					{
+						id: "actions",
+						cell: ({ row: { original: r } }) => {
+							return (
+								<>
+									<DataTableRowActions dic={dic}>
+										<LocaleLink href={`/ss/${r?.["storeId"]}/products/${r?.["id"]}`}>
+											<DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+										</LocaleLink>
+										<ProductDeleteButton
+											dic={dic}
+											product={r}
+											variant="ghost"
+											className="w-full justify-start px-2 text-start font-normal"
+										/>
+									</DataTableRowActions>
+								</>
+							);
+						},
+					},
 				] as ColumnDef<ColumnType>[]
 			}
 		/>

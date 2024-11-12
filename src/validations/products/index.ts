@@ -20,3 +20,18 @@ export const productSchema = z.object({
 export const productCreateSchema = productSchema.pick({
 	storeId: true,
 });
+
+export const productUpdateSchema = productSchema.pick({
+	id: true,
+	name: true,
+	description: true,
+	status: true,
+	price: true,
+	stock: true,
+	images: true,
+	attributes: true,
+});
+
+export const productDeleteSchema = productSchema.pick({
+	id: true,
+});

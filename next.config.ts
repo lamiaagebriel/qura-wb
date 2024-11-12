@@ -6,6 +6,10 @@ const remotePatterns: RemotePattern[] = [
 		protocol: "https",
 		hostname: "oaidalleapiprodscus.blob.core.windows.net",
 	},
+	{
+		protocol: "https",
+		hostname: "con-com.s3.eu-north-1.amazonaws.com",
+	},
 ];
 
 const nextConfig: NextConfig = {

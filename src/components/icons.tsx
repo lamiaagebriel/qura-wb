@@ -31,6 +31,7 @@ import {
 	ArrowUp,
 	ArrowDown,
 	ArrowUpDown,
+	Upload,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -97,6 +98,9 @@ export const Icons = {
 	),
 	chevronsUpDown: ({ className, ...props }: IconProps) => (
 		<ChevronsUpDown className={cn(IconsVariants({}), className)} {...props} />
+	),
+	upload: ({ className, ...props }: IconProps) => (
+		<Upload className={cn(IconsVariants({}), className)} {...props} />
 	),
 	check: ({ className, ...props }: IconProps) => (
 		<Check className={cn(IconsVariants({}), className)} {...props} />

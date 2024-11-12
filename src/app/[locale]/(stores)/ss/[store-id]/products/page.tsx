@@ -5,6 +5,9 @@ import { ProductsTable } from "@/components/_products/products-table";
 import { getDictionary } from "@/lib/locale";
 import { ProductCreateButton } from "@/components/_products/product-create-button";
 import { Icons } from "@/components/icons";
+import { db } from "@/lib/prisma";
+import { ProductAttribute } from "@/types/db";
+import { Product } from "@prisma/client";
 
 type ProductsProps = Readonly<{
 	params: Promise<{ "store-id": string } & LocaleProps>;
@@ -13,6 +16,8 @@ export const metadata: Metadata = { title: "Products" };
 export default async function Products({ params }: ProductsProps) {
 	const { locale, "store-id": storeId } = await params;
 	const dic = await getDictionary({ locale });
+	const products = await db.product.findMany({ where: { storeId } });
+
 	return (
 		<div>
 			<Breadcrumbs items={[{ segments: [], value: "", label: "Products" }]} />
@@ -32,7 +37,10 @@ export default async function Products({ params }: ProductsProps) {
 			</div>
 
 			<div className="container py-4">
-				<ProductsTable dic={dic} data={[]} />
+				<ProductsTable
+					dic={dic}
+					data={products as (Product & { attributes: ProductAttribute[] })[]}
+				/>
 			</div>
 		</div>
 	);

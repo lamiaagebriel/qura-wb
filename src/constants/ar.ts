@@ -153,6 +153,26 @@ const ar = {
 	},
 
 	// _products
+	"product-form": {
+		name: {
+			name: "Name",
+			"blue jacket": "Blue Jacket",
+		},
+		description: {
+			description: "Description",
+			"describe the product...": "Describe the product...",
+		},
+		status: {
+			status: "Status",
+			"select status...": "select status...",
+		},
+		price: {
+			price: "Price",
+		},
+		stock: {
+			stock: "Stock",
+		},
+	},
 	"product-create-button": {
 		"created successfully.": "تم الإنشاء بنجاح.",
 		submit: "إرسال",
@@ -161,9 +181,31 @@ const ar = {
 		"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
+	"product-delete-button": {
+		"deleted successfully.": "deleted successfully.",
+		delete: "delete",
+		confirm: "confirm",
+		cancel: "cancel",
+		"delete product": "delete product",
+		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"product-editor": {
+		"updated successfully.": "updated successfully.",
+		back: "Back",
+		"save changes": "Save Changes",
+		discard: "Discard",
+	},
 	"products-table": {
 		name: "الإسم",
 		createdAt: "تم الإنشاء في",
+	},
+	// _products/attributes
+	"attribute-form": {
+		name: {
+			name: "Name",
+			sizes: "Sizes",
+		},
 	},
 
 	// _stores
