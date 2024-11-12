@@ -52,5 +52,33 @@ model Store {
   location Json
   pages    Json[]  @default([])
 
+  products Product[]
+
   @@map("stores")
+}
+
+// store -- products
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVE
+}
+
+model Product {
+  id        String   @id @map("_id")
+  storeId   String
+  store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  name        String
+  description String?
+  status      ProductStatus @default(DRAFT)
+  images      String[]      @default([])
+
+  price Int
+  stock Int
+
+  attributes Json
+
+  @@map("products")
 }

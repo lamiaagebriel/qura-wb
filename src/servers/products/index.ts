@@ -1,0 +1,46 @@
+"use server";
+
+import { productCreateSchema } from "@/validations/products";
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { getLocale, handleError } from "@/servers/utils";
+import { getDictionary } from "@/lib/locale";
+import { getAuth } from "@/lib/lucia";
+import { ID } from "@/constants/utils";
+import { db } from "@/lib/prisma";
+
+export async function createProduct({ ...data }: z.infer<typeof productCreateSchema>) {
+	const locale = await getLocale();
+	const { actions: c } = await getDictionary({ locale });
+
+	try {
+		const { user } = await getAuth();
+		if (!user)
+			return handleError({
+				locale,
+				error: null,
+				message: c?.["this action needs you to be logged in."],
+			});
+
+		const id = ID.generate();
+		await db.product.create({
+			data: {
+				...data,
+				id,
+				name: "Untitled Product",
+				price: 0,
+				stock: 0,
+				attributes: [],
+			},
+		});
+
+		revalidatePath("/", "layout");
+		return { id };
+	} catch (error: any) {
+		return handleError({
+			locale,
+			error,
+			message: c?.["your product was not created. please try again."],
+		});
+	}
+}

@@ -1,4 +1,5 @@
 import { NavItem, SelectItem } from "@/types";
+import { ProductStatus } from "@prisma/client";
 
 const en = {
 	site: {
@@ -123,6 +124,48 @@ const en = {
 				},
 			},
 		},
+	},
+
+	// _data-table
+	"data-table-column-header": {
+		asc: "Asc",
+		desc: "Desc",
+		hide: "Hide",
+	},
+	"data-table-pagination": {
+		of: "of",
+		"row(s) selected.": "row(s) selected.",
+		"rows per page": "rows per page",
+		"go to first page": "Go to first page",
+		"go to previous page": "Go to previous page",
+		"go to next page": "Go to next page",
+		"go to last page": "Go to last page",
+		page: "page",
+	},
+	"data-table-row-actions": {
+		actions: "Actions",
+		"open menu": "Open menu",
+	},
+	"data-table-view-options": {
+		view: "View",
+		"toggle columns": "Toggle columns",
+	},
+	"data-table": {
+		"no results.": "No Results.",
+	},
+
+	// _products
+	"product-create-button": {
+		"created successfully.": "created successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"create product": "create product",
+		"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"products-table": {
+		name: "name",
+		createdAt: "createdAt",
 	},
 
 	// _stores
@@ -307,6 +350,26 @@ const en = {
 		"your page was not created. please try again.": "your page was not created. Please try again.",
 		"your page was not updated. please try again.": "your page was not updated. Please try again.",
 		"your page was not deleted. please try again.": "your page was not deleted. Please try again.",
+
+		// products: {
+		"your product was not created. please try again.":
+			"your product was not created. Please try again.",
+		"your product was not updated. please try again.":
+			"your product was not updated. Please try again.",
+		"your product was not deleted. please try again.":
+			"your product was not deleted. Please try again.",
+	},
+
+	db: {
+		enums: {
+			"product-status": [
+				{ value: "DRAFT", label: "Draft" },
+				{ value: "ACTIVE", label: "Active" },
+				{ value: "ARCHIVE", label: "Archive" },
+			] as (SelectItem & {
+				value: ProductStatus;
+			})[],
+		},
 	},
 };
 

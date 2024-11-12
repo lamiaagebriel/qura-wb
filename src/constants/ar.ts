@@ -1,4 +1,5 @@
 import { NavItem, SelectItem } from "@/types";
+import { ProductStatus } from "@prisma/client";
 
 const ar = {
 	site: {
@@ -121,6 +122,48 @@ const ar = {
 				},
 			},
 		},
+	},
+
+	// _data-table
+	"data-table-column-header": {
+		asc: "تصاعدي",
+		desc: "تنازلي",
+		hide: "إخفاء",
+	},
+	"data-table-pagination": {
+		of: "من",
+		"row(s) selected.": "صف(وف) مختار(ة).",
+		"rows per page": "الصفوف لكل صفحة",
+		"go to first page": "انتقل إلى الصفحة الأولى",
+		"go to previous page": "انتقل إلى الصفحة السابقة",
+		"go to next page": "انتقل إلى الصفحة التالية",
+		"go to last page": "انتقل إلى الصفحة الأخيرة",
+		page: "الصفحة",
+	},
+	"data-table-row-actions": {
+		actions: "التحرير",
+		"open menu": "إفتح القائمة",
+	},
+	"data-table-view-options": {
+		view: "عرض",
+		"toggle columns": "تبديل الأعمدة",
+	},
+	"data-table": {
+		"no results.": "لا توجد نتائج.",
+	},
+
+	// _products
+	"product-create-button": {
+		"created successfully.": "تم الإنشاء بنجاح.",
+		submit: "إرسال",
+		cancel: "إلغاء",
+		"create product": "إنشاء مٌنتج",
+		"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"products-table": {
+		name: "الإسم",
+		createdAt: "تم الإنشاء في",
 	},
 
 	// _stores
@@ -300,6 +343,26 @@ const ar = {
 		"your page was not created. please try again.": "لم يتم إنشاء الصفحة. يرجى المحاولة مرة أخرى.",
 		"your page was not updated. please try again.": "لم يتم تحديث الصفحة. يرجى المحاولة مرة أخرى.",
 		"your page was not deleted. please try again.": "لم يتم حذف الصفحة. يرجى المحاولة مرة أخرى.",
+
+		// products: {
+		"your product was not created. please try again.":
+			"لم يتم إنشاء المُنتج. يرجى المحاولة مرة أخرى.",
+		"your product was not updated. please try again.":
+			"لم يتم تحديث المُنتج. يرجى المحاولة مرة أخرى.",
+		"your product was not deleted. please try again.":
+			"لم يتم حذف المُنتج. يرجى المحاولة مرة أخرى.",
+	},
+
+	db: {
+		enums: {
+			"product-status": [
+				{ value: "DRAFT", label: "درافت" },
+				{ value: "ACTIVE", label: "مفعل" },
+				{ value: "ARCHIVE", label: "أرشيف" },
+			] as (SelectItem & {
+				value: ProductStatus;
+			})[],
+		},
 	},
 };
 

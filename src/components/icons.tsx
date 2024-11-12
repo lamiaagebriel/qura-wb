@@ -27,6 +27,10 @@ import {
 	File,
 	Files,
 	ArrowLeft,
+	ArrowRight,
+	ArrowUp,
+	ArrowDown,
+	ArrowUpDown,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -72,6 +76,18 @@ export const Icons = {
 	),
 	arrowLeft: ({ className, ...props }: IconProps) => (
 		<ArrowLeft className={cn(IconsVariants({}), className)} {...props} />
+	),
+	arrowRight: ({ className, ...props }: IconProps) => (
+		<ArrowRight className={cn(IconsVariants({}), className)} {...props} />
+	),
+	arrowUp: ({ className, ...props }: IconProps) => (
+		<ArrowUp className={cn(IconsVariants({}), className)} {...props} />
+	),
+	arrowDown: ({ className, ...props }: IconProps) => (
+		<ArrowDown className={cn(IconsVariants({}), className)} {...props} />
+	),
+	arrowUpDown: ({ className, ...props }: IconProps) => (
+		<ArrowUpDown className={cn(IconsVariants({}), className)} {...props} />
 	),
 	chevronLeft: ({ className, ...props }: IconProps) => (
 		<ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
