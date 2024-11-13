@@ -5,6 +5,7 @@ import { attributeSchema } from "@/validations/products/attributes";
 export const productSchema = z.object({
 	id: z.stringRequired("id"),
 	storeId: z.stringRequired("storeId"),
+	slug: z.stringRequired("slug"),
 	name: z.stringRequired("name"),
 	description: z.string("description").nullable().optional(),
 	status: z.enum(PRODUCT_STATUS_ARR),
@@ -24,6 +25,7 @@ export const productCreateSchema = productSchema.pick({
 export const productUpdateSchema = productSchema.pick({
 	id: true,
 	name: true,
+	slug: true,
 	description: true,
 	status: true,
 	price: true,

@@ -45,7 +45,7 @@ model Store {
   createdAt DateTime @default(now())
 
   name     String
-  username String  @unique()
+  username String  @unique
   bio      String?
   logo     String?
   category String
@@ -71,6 +71,7 @@ model Product {
   createdAt DateTime @default(now())
 
   name        String
+  slug        String?       @unique
   description String?
   status      ProductStatus @default(DRAFT)
   images      String[]      @default([])

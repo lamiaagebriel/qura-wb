@@ -155,23 +155,23 @@ const ar = {
 	// _products
 	"product-form": {
 		name: {
-			name: "Name",
-			"blue jacket": "Blue Jacket",
+			name: "الإسم",
+			"blue jacket": "جاكيت أزرق غامق",
+		},
+		slug: {
+			slug: "الإسم التعريفي الفريد",
+			"blue-jacket": "blue-jacket",
 		},
 		description: {
-			description: "Description",
-			"describe the product...": "Describe the product...",
+			description: "الوصف",
+			"describe the product...": "قُم بوصف المُنتج...",
 		},
 		status: {
-			status: "Status",
-			"select status...": "select status...",
+			status: "حالة المُنتج",
+			"select status...": "إختر حالة...",
 		},
-		price: {
-			price: "Price",
-		},
-		stock: {
-			stock: "Stock",
-		},
+		price: { price: "السعر" },
+		stock: { stock: "الكمية بالمخزن" },
 	},
 	"product-create-button": {
 		"created successfully.": "تم الإنشاء بنجاح.",
@@ -182,19 +182,19 @@ const ar = {
 			"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
 	"product-delete-button": {
-		"deleted successfully.": "deleted successfully.",
-		delete: "delete",
-		confirm: "confirm",
-		cancel: "cancel",
-		"delete product": "delete product",
+		"deleted successfully.": "تم الحذف بنجاح.",
+		delete: "حذف المُنتج",
+		confirm: "تأكيد الحذف",
+		cancel: "إلغاء الحف",
+		"delete product": "حذف المُنتج",
 		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
 	"product-editor": {
-		"updated successfully.": "updated successfully.",
-		back: "Back",
-		"save changes": "Save Changes",
-		discard: "Discard",
+		"updated successfully.": "تم التحديث بنجاح.",
+		back: "العودة",
+		"save changes": "حفظ التغيرات",
+		discard: "تجاهل",
 	},
 	"products-table": {
 		name: "الإسم",
@@ -203,8 +203,8 @@ const ar = {
 	// _products/attributes
 	"attribute-form": {
 		name: {
-			name: "Name",
-			sizes: "Sizes",
+			name: "الإسم",
+			sizes: "المقاس",
 		},
 	},
 

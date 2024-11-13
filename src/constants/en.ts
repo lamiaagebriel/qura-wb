@@ -160,6 +160,10 @@ const en = {
 			name: "Name",
 			"blue jacket": "Blue Jacket",
 		},
+		slug: {
+			slug: "Slug",
+			"blue-jacket": "blue-jacket",
+		},
 		description: {
 			description: "Description",
 			"describe the product...": "Describe the product...",

@@ -64,6 +64,27 @@ export const ProductForm = {
 			)}
 		/>
 	),
+	slug: ({
+		dic: {
+			"product-form": { slug: c },
+		},
+		loading,
+		form,
+	}: ProductFormProps) => (
+		<FormField
+			control={form.control}
+			name="slug"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["slug"]}</FormLabel>
+					<FormControl>
+						<Input {...field} disabled={loading} placeholder={c?.["blue-jacket"]} />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
 	description: ({
 		dic: {
 			"product-form": { description: c },
@@ -81,6 +102,7 @@ export const ProductForm = {
 						<MDXEditor
 							markdown={form.watch("description") ?? ""}
 							onChange={(md) => form.setValue("description", md)}
+							contentEditableClassName="min-h-60"
 						/>
 						{/* <Textarea
 							{...field}
@@ -110,7 +132,7 @@ export const ProductForm = {
 				name="status"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{c?.["status"]}</FormLabel>
+						<FormLabel className="sr-only">{c?.["status"]}</FormLabel>
 						<Select
 							disabled={loading}
 							defaultValue={field?.["value"]}

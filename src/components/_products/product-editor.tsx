@@ -118,14 +118,14 @@ export function ProductEditor({
 								<div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
 									<Card>
 										<CardHeader>
-											<CardTitle>Product Details</CardTitle>
-											<CardDescription>
-												Lipsum dolor sit amet, consectetur adipiscing elit
-											</CardDescription>
+											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+												Product Details
+											</CardTitle>
 										</CardHeader>
 										<CardContent>
 											<div className="grid gap-6">
 												<ProductForm.name dic={dic} form={form as any} loading={loading} />
+												<ProductForm.slug dic={dic} form={form as any} loading={loading} />
 												<ProductForm.description dic={dic} form={form as any} loading={loading} />
 											</div>
 										</CardContent>
@@ -133,10 +133,9 @@ export function ProductEditor({
 
 									<Card>
 										<CardHeader>
-											<CardTitle>Stock</CardTitle>
-											<CardDescription>
-												Lipsum dolor sit amet, consectetur adipiscing elit
-											</CardDescription>
+											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+												Stock
+											</CardTitle>
 										</CardHeader>
 										<CardContent>
 											<div className="grid grid-cols-2 gap-4">
@@ -149,53 +148,16 @@ export function ProductEditor({
 												loading={loading}
 												attributes={attributes}
 											/>
-											{/* <TruthTable form={form} loading={loading} /> */}
 										</CardContent>
-										<CardFooter className="justify-center border-t p-4">
-											{/* <HandleOptions form={form} loading={loading} /> */}
-										</CardFooter>
+										<CardFooter className="justify-center border-t p-4"></CardFooter>
 									</Card>
-
-									{/* <Card>
-											<CardHeader>
-												<CardTitle>Product Category</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className="grid gap-6 sm:grid-cols-3">
-													<div className="grid gap-3">
-														<Label htmlFor="category">Category</Label>
-														<Select>
-													<SelectTrigger id="category" aria-label="Select category">
-														<SelectValue placeholder="Select category" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="clothing">Clothing</SelectItem>
-														<SelectItem value="electronics">Electronics</SelectItem>
-														<SelectItem value="accessories">Accessories</SelectItem>
-													</SelectContent>
-												</Select>
-													</div>
-													<div className="grid gap-3">
-														<Label htmlFor="subcategory">Subcategory (optional)</Label>
-														<Select>
-													<SelectTrigger id="subcategory" aria-label="Select subcategory">
-														<SelectValue placeholder="Select subcategory" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="t-shirts">T-Shirts</SelectItem>
-														<SelectItem value="hoodies">Hoodies</SelectItem>
-														<SelectItem value="sweatshirts">Sweatshirts</SelectItem>
-													</SelectContent>
-												</Select>
-													</div>
-												</div>
-											</CardContent>
-										</Card> */}
 								</div>
 								<div className="grid auto-rows-max items-start gap-4 lg:gap-8">
 									<Card>
 										<CardHeader>
-											<CardTitle>Product Status</CardTitle>
+											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+												{dic?.["product-form"]?.["status"]?.["status"]}
+											</CardTitle>
 										</CardHeader>
 										<CardContent>
 											<div className="grid gap-6">
@@ -207,27 +169,12 @@ export function ProductEditor({
 									</Card>
 									<Card className="overflow-hidden">
 										<CardHeader>
-											<CardTitle>Product Images</CardTitle>
-											{/* <CardDescription>
-													Lipsum dolor sit amet, consectetur adipiscing elit
-												</CardDescription> */}
+											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+												Product Images
+											</CardTitle>
 										</CardHeader>
 										<CardContent>
 											<ProductForm.images dic={dic} form={form as any} loading={loading} />
-										</CardContent>
-									</Card>
-									<Card>
-										<CardHeader>
-											<CardTitle>Archive Product</CardTitle>
-											<CardDescription>
-												Lipsum dolor sit amet, consectetur adipiscing elit.
-											</CardDescription>
-										</CardHeader>
-										<CardContent>
-											<div></div>
-											<Button size="sm" variant="secondary">
-												Archive Product
-											</Button>
 										</CardContent>
 									</Card>
 								</div>
