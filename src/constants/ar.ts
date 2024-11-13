@@ -151,6 +151,8 @@ const ar = {
 	"data-table": {
 		"no results.": "لا توجد نتائج.",
 	},
+	// _customers
+	"customers-table": { createdAt: "تم الإنشاء في" },
 
 	// _orders
 	"order-create-button": { submit: "التأكيد" },

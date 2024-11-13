@@ -8,8 +8,9 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getLocale, handleError } from "@/servers/utils";
 import { getDictionary } from "@/lib/locale";
+import { ID } from "@/constants/utils";
 
-export async function createPage({ storeId, ...data }: z.infer<typeof pageCreateSchema>) {
+export async function createPage({ ...data }: z.infer<typeof pageCreateSchema>) {
 	const locale = await getLocale();
 	const { actions: c } = await getDictionary({ locale });
 
@@ -22,11 +23,11 @@ export async function createPage({ storeId, ...data }: z.infer<typeof pageCreate
 				message: c?.["this action needs you to be logged in."],
 			});
 
-		await db.store.update({
+		await db.page.create({
 			data: {
-				pages: { push: { ...data } },
+				id: ID.generate(),
+				...data,
 			},
-			where: { id: storeId },
 		});
 
 		revalidatePath("/", "layout");

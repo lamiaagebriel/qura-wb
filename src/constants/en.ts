@@ -154,6 +154,9 @@ const en = {
 		"no results.": "No Results.",
 	},
 
+	// _customers
+	"customers-table": { createdAt: "createdAt" },
+
 	// _orders
 	"order-create-button": { submit: "submit" },
 	"order-delete-button": {

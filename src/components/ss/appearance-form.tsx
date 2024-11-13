@@ -15,9 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { LocaleSwitcher } from "./locale-switcher";
-import { Label } from "./ui/label";
-import { Button } from "./ui/button";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const appearanceFormSchema = z.object({
