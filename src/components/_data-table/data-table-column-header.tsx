@@ -31,10 +31,12 @@ export function DataTableColumnHeader<TData, TValue>({
 	className,
 	...props
 }: DataTableColumnHeaderProps<TData, TValue>) {
-	if (!column.getCanSort())
+	if (!column.getCanSort() && !column.getCanHide())
 		return (
 			<div className={cn("flex items-center justify-start gap-2", className)} {...props}>
-				{title}
+				<Button variant="ghost" size="sm" className="hover:bg-transparent">
+					<span>{title}</span>
+				</Button>
 			</div>
 		);
 
@@ -54,19 +56,25 @@ export function DataTableColumnHeader<TData, TValue>({
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="start">
-					<DropdownMenuItem className="gap-2" onClick={() => column.toggleSorting(false)}>
-						<Icons.arrowUp className="size-3.5 text-muted-foreground/70" />
-						{c?.["asc"]}
-					</DropdownMenuItem>
-					<DropdownMenuItem className="gap-2" onClick={() => column.toggleSorting(true)}>
-						<Icons.arrowDown className="size-3.5 text-muted-foreground/70" />
-						{c?.["desc"]}
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem className="gap-2" onClick={() => column.toggleVisibility(false)}>
-						<EyeClosed className="size-3.5 text-muted-foreground/70" />
-						{c?.["hide"]}
-					</DropdownMenuItem>
+					{column.getCanSort() ? (
+						<>
+							<DropdownMenuItem className="gap-2" onClick={() => column.toggleSorting(false)}>
+								<Icons.arrowUp className="size-3.5 text-muted-foreground/70" />
+								{c?.["asc"]}
+							</DropdownMenuItem>
+							<DropdownMenuItem className="gap-2" onClick={() => column.toggleSorting(true)}>
+								<Icons.arrowDown className="size-3.5 text-muted-foreground/70" />
+								{c?.["desc"]}
+							</DropdownMenuItem>
+							{column.getCanHide() ? <DropdownMenuSeparator className="last:hidden" /> : null}
+						</>
+					) : null}
+					{column.getCanHide() ? (
+						<DropdownMenuItem className="gap-2" onClick={() => column.toggleVisibility(false)}>
+							<EyeClosed className="size-3.5 text-muted-foreground/70" />
+							{c?.["hide"]}
+						</DropdownMenuItem>
+					) : null}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

@@ -26,26 +26,22 @@ export default async function Products({ params }: ProductsProps) {
 		{
 			value: "all",
 			label: c?.["tabs"]?.["all"],
-			content: <ProductsTable dic={dic} data={products} />,
+			products: products,
 		},
 		{
 			value: "ACTIVE",
 			label: c?.["tabs"]?.["active"],
-			content: (
-				<ProductsTable dic={dic} data={products?.filter((e) => e?.["status"] == "ACTIVE")} />
-			),
+			products: products?.filter((e) => e?.["status"] == "ACTIVE"),
 		},
 		{
 			value: "DRAFT",
 			label: c?.["tabs"]?.["draft"],
-			content: <ProductsTable dic={dic} data={products?.filter((e) => e?.["status"] == "DRAFT")} />,
+			products: products?.filter((e) => e?.["status"] == "DRAFT"),
 		},
 		{
 			value: "ARCHIVE",
 			label: c?.["tabs"]?.["archive"],
-			content: (
-				<ProductsTable dic={dic} data={products?.filter((e) => e?.["status"] == "ARCHIVE")} />
-			),
+			products: products?.filter((e) => e?.["status"] == "ARCHIVE"),
 		},
 	];
 	return (
@@ -68,17 +64,21 @@ export default async function Products({ params }: ProductsProps) {
 
 			<div className="container py-4">
 				<Tabs defaultValue="all">
-					<TabsList className="justify-start rtl:flex-row-reverse">
+					<TabsList className="mb-4 h-fit justify-start rounded-none border-b bg-transparent p-0 rtl:flex-row-reverse">
 						{tabs?.map((e, i) => (
-							<TabsTrigger key={i} value={e?.["value"]} className="w-fit">
-								{e?.["label"]}
+							<TabsTrigger
+								key={i}
+								value={e?.["value"]}
+								className="w-fit rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+							>
+								{e?.["label"]} {e?.["products"]?.["length"]}
 							</TabsTrigger>
 						))}
 					</TabsList>
 
 					{tabs?.map((e, i) => (
 						<TabsContent key={i} value={e?.["value"]}>
-							{e?.["content"]}
+							<ProductsTable dic={dic} data={e?.["products"]} />
 						</TabsContent>
 					))}
 				</Tabs>

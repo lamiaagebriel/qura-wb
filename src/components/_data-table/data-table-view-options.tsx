@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Dictionary } from "@/types/locale";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-// import { MixerHorizontalIcon } from "@radix-ui/react-icons";
+import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
 
 export type DataTableViewOptionsProps<TData> = {
@@ -25,7 +25,7 @@ export function DataTableViewOptions<TData>({
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="outline" size="sm" className="flex h-8 gap-2">
-					{/* <MixerHorizontalIcon className="h-4 w-4" /> */}
+					<MixerHorizontalIcon className="h-4 w-4" />
 					{c?.["view"]}
 				</Button>
 			</DropdownMenuTrigger>

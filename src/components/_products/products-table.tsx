@@ -39,24 +39,25 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 		<DataTable
 			dic={dic}
 			data={data}
+			filterBy="name"
 			columns={
 				[
 					{
 						accessorKey: "images",
+						enableSorting: false,
+						enableHiding: true,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["product image"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div className={cn("h-28 p-2")}>
+							<div className={cn("aspect-square h-20 p-2")}>
 								<Image
 									src={r?.["images"]?.[0]}
 									alt={`${r?.["name"]} Image`}
-									className="aspect-square size-24 rounded-xl"
+									className="aspect-square rounded-xl"
 								/>
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						accessorKey: "name",
@@ -93,13 +94,9 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 								</div>
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						accessorKey: "price",
-						enableSorting: false,
-						enableHiding: false,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["price"]} />
 						),
@@ -123,8 +120,6 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 					},
 					{
 						accessorKey: "stock",
-						enableSorting: false,
-						enableHiding: false,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["stock"]} />
 						),
@@ -137,7 +132,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 					{
 						accessorKey: "attributes",
 						enableSorting: false,
-						enableHiding: false,
+						enableHiding: true,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["options"]} />
 						),
@@ -154,14 +149,12 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 					},
 					{
 						accessorKey: "createdAt",
-						enableSorting: false,
-						enableHiding: false,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["createdAt"]} />
 						),
 						cell: ({ row: { original: r } }) => (
 							<div className="flex items-center gap-2">
-								{new Date(r?.["createdAt"]!)?.toLocaleDateString()}
+								{new Date(r?.["createdAt"]!)?.toLocaleString()}
 							</div>
 						),
 					},

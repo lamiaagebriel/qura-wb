@@ -39,12 +39,13 @@ import { DataTableViewOptionsProps } from "@/components/_data-table/data-table-v
 export type DataTableProps<TData, TValue> = {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
-} & Pick<DataTableToolbarProps<TData>, "filterBy" | "filterOptions" | "view"> &
+} & Pick<DataTableToolbarProps<TData>, "filterBy" | "filterOptions"> &
 	Dictionary["data-table"] &
 	Pick<DataTablePaginationProps<TData>, "dic"> &
 	Pick<DataTableViewOptionsProps<TData>, "dic"> &
 	// optional
 	Pick<DataTableRowActionsProps, "dic"> &
+	Pick<DataTableToolbarProps<TData>, "dic"> &
 	Pick<DataTableColumnHeaderProps<TData, TValue>, "dic">;
 
 export * from "./data-table-column-header";
@@ -60,7 +61,6 @@ export function DataTable<TData, TValue>({
 	data,
 	filterBy,
 	filterOptions,
-	view,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<div className="space-y-4">
-			{view ||
+			{/* {view ||
 				(filterBy && filterOptions && (
 					<DataTableToolbar
 						dic={dic}
@@ -98,8 +98,17 @@ export function DataTable<TData, TValue>({
 						filterBy={filterBy}
 						filterOptions={filterOptions}
 					/>
-				))}
-			<div className="rounded-xl border bg-card shadow">
+				))} */}
+
+			{filterBy && (
+				<DataTableToolbar
+					dic={dic}
+					table={table}
+					filterBy={filterBy}
+					filterOptions={filterOptions}
+				/>
+			)}
+			<div className="rounded-xl shadow">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup, i) => (
@@ -139,6 +148,7 @@ export function DataTable<TData, TValue>({
 					</TableBody>
 				</Table>
 			</div>
+
 			<DataTablePagination dic={dic} table={table} />
 		</div>
 	);

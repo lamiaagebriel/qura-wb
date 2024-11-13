@@ -137,6 +137,7 @@ const en = {
 		desc: "Desc",
 		hide: "Hide",
 	},
+	"data-table-toolbar": { "filter ...": "Filter ...", reset: "Reset" },
 	"data-table-pagination": {
 		of: "of",
 		"row(s) selected.": "row(s) selected.",
@@ -166,10 +167,10 @@ const en = {
 	"order-create-button": { submit: "submit" },
 	"order-delete-button": {
 		"deleted successfully.": "deleted successfully.",
-		delete: "delete",
-		confirm: "confirm",
-		cancel: "cancel",
-		"delete order": "delete order",
+		delete: "Delete",
+		confirm: "Confirm",
+		cancel: "Cancel",
+		"delete order": "Delete Order",
 		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
@@ -210,10 +211,10 @@ const en = {
 	},
 	"product-delete-button": {
 		"deleted successfully.": "deleted successfully.",
-		delete: "delete",
-		confirm: "confirm",
-		cancel: "cancel",
-		"delete product": "delete product",
+		delete: "Delete",
+		confirm: "Confirm",
+		cancel: "Cancel",
+		"delete product": "Delete Product",
 		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
@@ -236,7 +237,7 @@ const en = {
 		"unit(s)": "unit(s)",
 		options: "options",
 		createdAt: "createdAt",
-		edit: "edit",
+		edit: "Edit",
 	},
 	// _products/attributes
 	"attribute-form": {

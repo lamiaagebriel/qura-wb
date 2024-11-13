@@ -135,6 +135,7 @@ const ar = {
 		desc: "تنازلي",
 		hide: "إخفاء",
 	},
+	"data-table-toolbar": { "filter ...": "البحث...", reset: "الإعادة" },
 	"data-table-pagination": {
 		of: "من",
 		"row(s) selected.": "صف(وف) مختار(ة).",
@@ -165,7 +166,7 @@ const ar = {
 		"deleted successfully.": "تم الحذف بنجاح.",
 		delete: "حذف الطلب",
 		confirm: "تأكيد الحذف",
-		cancel: "إلغاء الحف",
+		cancel: "إلغاء",
 		"delete order": "حذف الطلب",
 		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
@@ -207,7 +208,7 @@ const ar = {
 		"deleted successfully.": "تم الحذف بنجاح.",
 		delete: "حذف المنتج",
 		confirm: "تأكيد الحذف",
-		cancel: "إلغاء الحف",
+		cancel: "إلغاء",
 		"delete product": "حذف المنتج",
 		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
