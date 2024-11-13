@@ -5,7 +5,7 @@ import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { pageCreateSchema, pageUpdateSchema } from "@/validations/stores/pages";
+import { pageCreateSchema, pageUpdateSchema } from "@/validations/pages";
 import { Input } from "@/components/ui/input";
 import { Dictionary } from "@/types/locale";
 import { Textarea } from "@/components/ui/textarea";

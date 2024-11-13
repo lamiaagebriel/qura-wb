@@ -1,6 +1,6 @@
 "use server";
 
-import { pageCreateSchema } from "@/validations/stores/pages";
+import { pageCreateSchema } from "@/validations/pages";
 import { z } from "zod";
 
 import { getAuth } from "@/lib/lucia";

@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { PageForm, PageFormProps } from "@/components/_stores/_pages/_page-form";
-import { pageCreateSchema } from "@/validations/stores/pages";
+import { PageForm, PageFormProps } from "@/components/_pages/_page-form";
+import { pageCreateSchema } from "@/validations/pages";
 import { Icons } from "@/components/icons";
 import {
 	Steps,
@@ -17,11 +17,9 @@ import {
 } from "@/components/steps-form";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useLocale } from "@/hooks/use-locale";
 import { Dictionary } from "@/types/locale";
 import { Store } from "@prisma/client";
-import { createPage } from "@/servers/stores/pages";
+import { createPage } from "@/servers/pages";
 
 export type PageCreateStepsProps = { store: Pick<Store, "id"> } & Omit<
 	React.ComponentPropsWithoutRef<typeof Steps>,

@@ -1,7 +1,21 @@
-import { PRODUCT_STATUS_ARR } from "@/constants/enums";
 import { z } from "@/lib/zod";
-import { attributeSchema } from "@/validations/products/attributes";
+import { PRODUCT_STATUS_ARR } from "@/constants/enums";
 
+export const attributeSchema = z.object({
+	name: z.stringRequired("name"),
+	values: z.array(
+		z.object({
+			name: z.stringRequired("name"),
+			description: z.string("description").optional(),
+		}),
+	),
+});
+
+export const attributesSchema = z.object({
+	attributes: z.array(attributeSchema).default([]),
+});
+
+// -------- products
 export const productSchema = z.object({
 	id: z.stringRequired("id"),
 	storeId: z.stringRequired("storeId"),

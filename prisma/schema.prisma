@@ -50,14 +50,28 @@ model Store {
   logo     String?
   category String
   location Json
-  pages    Json[]  @default([])
 
   products Product[]
+  pages    Page[]
 
   @@map("stores")
 }
 
-// store -- products
+model Page {
+  id        String   @id @map("_id")
+  storeId   String
+  store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  url         String
+  title       String
+  description String?
+  body        String?
+
+  @@unique([storeId, url])
+  @@map("pages")
+}
+
 enum ProductStatus {
   DRAFT
   ACTIVE

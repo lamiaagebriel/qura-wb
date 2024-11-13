@@ -4,7 +4,7 @@ import { useFieldArray, UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { attributesSchema } from "@/validations/products/attributes";
+import { attributesSchema } from "@/validations/products";
 import { Input } from "@/components/ui/input";
 import { Dictionary } from "@/types/locale";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,9 @@ export const AttributeForm = {
 		i,
 		attributes,
 	}: AttributeFormProps) => {
-		const suggestions = attributes
-			?.find((e) => e?.["name"] === form?.getValues(`attributes.${i}.name`))
-			?.["values"]?.map((e) => e?.["name"]);
+		// const suggestions = attributes
+		// 	?.find((e) => e?.["name"] === form?.getValues(`attributes.${i}.name`))
+		// 	?.["values"]?.map((e) => e?.["name"]);
 
 		return (
 			<FormField

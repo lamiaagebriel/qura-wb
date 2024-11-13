@@ -3,10 +3,10 @@ import { LocaleProps } from "@/types/locale";
 import { promises as fs } from "fs";
 import path from "path";
 import { db } from "@/lib/prisma";
-import { PageCreateSteps } from "@/components/_stores/_pages/page-create-steps";
+import { PageCreateSteps } from "@/components/_pages/page-create-steps";
 import { getDictionary } from "@/lib/locale";
 import { StorePage } from "@/types/db";
-import { DisplayPages } from "@/components/_stores/_pages/display-pages";
+import { DisplayPages } from "@/components/_pages/display-pages";
 
 type StorePagesProps = Readonly<{
 	params: Promise<{ "store-id": string } & LocaleProps>;

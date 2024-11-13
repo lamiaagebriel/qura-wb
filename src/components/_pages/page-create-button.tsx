@@ -10,10 +10,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-	PageCreateSteps,
-	PageCreateStepsProps,
-} from "@/components/_stores/_pages/page-create-steps";
+import { PageCreateSteps, PageCreateStepsProps } from "@/components/_pages/page-create-steps";
 
 export type PageCreateButtonProps = {} & ButtonProps &
 	Dictionary["page-create-button"] &

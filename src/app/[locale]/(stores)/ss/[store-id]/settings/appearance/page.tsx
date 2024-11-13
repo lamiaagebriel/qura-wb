@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { LocaleProps } from "@/types/locale";
-import { AppearanceForm } from "@/components/appearance-form";
+import { AppearanceForm } from "@/components/ss/appearance-form";
 import { getDictionary } from "@/lib/locale";
 
 type AppearanceProps = Readonly<{
