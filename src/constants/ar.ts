@@ -1,5 +1,5 @@
 import { NavItem, SelectItem } from "@/types";
-import { ProductStatus } from "@prisma/client";
+import { OrderStatus, ProductStatus } from "@prisma/client";
 
 const ar = {
 	site: {
@@ -152,6 +152,19 @@ const ar = {
 		"no results.": "لا توجد نتائج.",
 	},
 
+	// _orders
+	"order-create-button": { submit: "التأكيد" },
+	"order-delete-button": {
+		"deleted successfully.": "تم الحذف بنجاح.",
+		delete: "حذف الطلب",
+		confirm: "تأكيد الحذف",
+		cancel: "إلغاء الحف",
+		"delete order": "حذف الطلب",
+		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"orders-table": { createdAt: "تم الإنشاء في" },
+
 	// _products
 	"product-form": {
 		name: {
@@ -282,7 +295,7 @@ const ar = {
 		"Store Address": "بيانات عنوان المتجر",
 	},
 
-	// _stores/pages
+	// _pages
 	"page-form": {
 		url: {
 			url: "العنوان التعريفي",
@@ -381,7 +394,7 @@ const ar = {
 			"لم يتم تحديث بيانات المتجر. يرجى المحاولة مرة أخرى.",
 		"your store was not deleted. please try again.": "لم يتم حذف المتجر. يرجى المحاولة مرة أخرى.",
 
-		// stores/pages: {
+		// pages: {
 		"your page was not created. please try again.": "لم يتم إنشاء الصفحة. يرجى المحاولة مرة أخرى.",
 		"your page was not updated. please try again.": "لم يتم تحديث الصفحة. يرجى المحاولة مرة أخرى.",
 		"your page was not deleted. please try again.": "لم يتم حذف الصفحة. يرجى المحاولة مرة أخرى.",
@@ -393,16 +406,32 @@ const ar = {
 			"لم يتم تحديث المُنتج. يرجى المحاولة مرة أخرى.",
 		"your product was not deleted. please try again.":
 			"لم يتم حذف المُنتج. يرجى المحاولة مرة أخرى.",
+
+		// orders: {
+		"your order was not created. please try again.": "لم يتم إنشاء الطلب. يرجى المحاولة مرة أخرى.",
+		"your order was not updated. please try again.": "لم يتم تحديث الطلب. يرجى المحاولة مرة أخرى.",
+		"your order was not deleted. please try again.": "لم يتم حذف الطلب. يرجى المحاولة مرة أخرى.",
 	},
 
 	db: {
 		enums: {
 			"product-status": [
-				{ value: "DRAFT", label: "درافت" },
-				{ value: "ACTIVE", label: "مفعل" },
+				{ value: "DRAFT", label: "غير نشط" },
+				{ value: "ACTIVE", label: "نشط" },
 				{ value: "ARCHIVE", label: "أرشيف" },
 			] as (SelectItem & {
 				value: ProductStatus;
+			})[],
+
+			"order-status": [
+				{ value: "PENDING", label: "مُعلق" },
+				{ value: "CONFIRMED", label: "تم التأكيد" },
+				{ value: "DECLINED", label: "مرفوض" },
+				{ value: "DELIEVERING", label: "يتم الشحن" },
+				{ value: "DELIEVERED", label: "تم الشحن" },
+				{ value: "CANCELED", label: "ملغي" },
+			] as (SelectItem & {
+				value: OrderStatus;
 			})[],
 		},
 	},

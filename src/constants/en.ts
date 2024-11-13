@@ -1,5 +1,5 @@
 import { NavItem, SelectItem } from "@/types";
-import { ProductStatus } from "@prisma/client";
+import { OrderStatus, ProductStatus } from "@prisma/client";
 
 const en = {
 	site: {
@@ -154,6 +154,21 @@ const en = {
 		"no results.": "No Results.",
 	},
 
+	// _orders
+	"order-create-button": { submit: "submit" },
+	"order-delete-button": {
+		"deleted successfully.": "deleted successfully.",
+		delete: "delete",
+		confirm: "confirm",
+		cancel: "cancel",
+		"delete order": "delete order",
+		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"orders-table": {
+		createdAt: "createdAt",
+	},
+
 	// _products
 	"product-form": {
 		name: {
@@ -290,7 +305,7 @@ const en = {
 		"Store Address": "Store Address",
 	},
 
-	// _stores/pages
+	// _pages
 	"page-form": {
 		url: {
 			url: "URL",
@@ -392,7 +407,7 @@ const en = {
 		"your store was not deleted. please try again.":
 			"your store was not deleted. Please try again.",
 
-		// stores/pages: {
+		// pages: {
 		"your page was not created. please try again.": "your page was not created. Please try again.",
 		"your page was not updated. please try again.": "your page was not updated. Please try again.",
 		"your page was not deleted. please try again.": "your page was not deleted. Please try again.",
@@ -404,6 +419,14 @@ const en = {
 			"your product was not updated. Please try again.",
 		"your product was not deleted. please try again.":
 			"your product was not deleted. Please try again.",
+
+		// orders: {
+		"your order was not created. please try again.":
+			"your order was not created. Please try again.",
+		"your order was not updated. please try again.":
+			"your order was not updated. Please try again.",
+		"your order was not deleted. please try again.":
+			"your order was not deleted. Please try again.",
 	},
 
 	db: {
@@ -414,6 +437,17 @@ const en = {
 				{ value: "ARCHIVE", label: "Archive" },
 			] as (SelectItem & {
 				value: ProductStatus;
+			})[],
+
+			"order-status": [
+				{ value: "PENDING", label: "Pending" },
+				{ value: "CONFIRMED", label: "Confirmed" },
+				{ value: "DECLINED", label: "Declined" },
+				{ value: "DELIEVERING", label: "Delievering" },
+				{ value: "DELIEVERED", label: "Delievered" },
+				{ value: "CANCELED", label: "Canceled" },
+			] as (SelectItem & {
+				value: OrderStatus;
 			})[],
 		},
 	},
