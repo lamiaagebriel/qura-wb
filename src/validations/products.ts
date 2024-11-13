@@ -28,7 +28,9 @@ export const productSchema = z.object({
 	status: z.enum(PRODUCT_STATUS_ARR),
 	images: z.array(z.string("images")).default([]),
 
+	cost: z.number("cost").min(0, "cost can't be below'0."),
 	price: z.number("price").min(0, "price can't be below'0."),
+	discount: z.number("discount").min(0, "discount can't be below'0."),
 	stock: z.number("stock").min(0, "stock can't be below'0."),
 
 	// TODO: use attributesSchema
@@ -45,7 +47,9 @@ export const productUpdateSchema = productSchema.pick({
 	slug: true,
 	description: true,
 	status: true,
+	cost: true,
 	price: true,
+	discount: true,
 	stock: true,
 	images: true,
 	attributes: true,

@@ -11,7 +11,7 @@ import { productUpdateSchema } from "@/validations/products";
 import { Product } from "@prisma/client";
 
 import { Icons } from "@/components/icons";
-import { CardDescription, CardFooter, CardTitle } from "@/components/ui/card";
+import { CardFooter, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { cn } from "@/lib/shadcn";
 import { ProductAttribute } from "@/types/db";
@@ -27,6 +27,8 @@ import {
 	ProductDeleteButtonProps,
 } from "@/components/_products/product-delete-button";
 import { LocaleLink } from "../links";
+import { productStatus } from "@/constants/enums";
+import { useLocale } from "@/hooks/use-locale";
 
 type ProductEditorProps = {
 	product: Product & { attributes: ProductAttribute[] };
@@ -41,12 +43,17 @@ export function ProductEditor({
 	product,
 	attributes,
 }: ProductEditorProps) {
+	const locale = useLocale();
 	const router = useRouter();
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const form = useForm<z.infer<typeof productUpdateSchema>>({
 		resolver: zodResolver(productUpdateSchema),
-		defaultValues: { ...product },
+		defaultValues: {
+			...product,
+			cost: product?.["cost"] ?? 0,
+			discount: product?.["discount"] ?? 0,
+		},
 	});
 
 	async function onSubmit(data: z.infer<typeof productUpdateSchema>) {
@@ -84,10 +91,14 @@ export function ProductEditor({
 							</LocaleLink>
 
 							<h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-								Product Details
+								{c?.["product details"]}
 							</h1>
 							<Badge variant="outline" className="ml-auto sm:ml-0">
-								In stock
+								{
+									productStatus({ locale })?.find((e) => e?.["value"] === product?.["status"])?.[
+										"label"
+									]
+								}
 							</Badge>
 						</div>
 
@@ -125,7 +136,7 @@ export function ProductEditor({
 									<Card>
 										<CardHeader>
 											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												Product Details
+												{c?.["product details"]}
 											</CardTitle>
 										</CardHeader>
 										<CardContent>
@@ -140,14 +151,34 @@ export function ProductEditor({
 									<Card>
 										<CardHeader>
 											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												Stock
+												{c?.["price"]}
 											</CardTitle>
 										</CardHeader>
 										<CardContent>
-											<div className="grid grid-cols-2 gap-4">
-												<ProductForm.price dic={dic} form={form as any} loading={loading} />
-												<ProductForm.stock dic={dic} form={form as any} loading={loading} />
-											</div>
+											<ProductForm.cost dic={dic} form={form as any} loading={loading} />
+											<ProductForm.price dic={dic} form={form as any} loading={loading} />
+											<ProductForm.discount dic={dic} form={form as any} loading={loading} />
+										</CardContent>
+									</Card>
+
+									<Card>
+										<CardHeader>
+											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+												{c?.["stock"]}
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<ProductForm.stock dic={dic} form={form as any} loading={loading} />
+										</CardContent>
+									</Card>
+
+									<Card>
+										<CardHeader>
+											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+												{c?.["options"]}
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
 											<AttributesForm
 												dic={dic}
 												form={form as any}
@@ -155,7 +186,6 @@ export function ProductEditor({
 												attributes={attributes}
 											/>
 										</CardContent>
-										<CardFooter className="justify-center border-t p-4"></CardFooter>
 									</Card>
 								</div>
 								<div className="grid auto-rows-max items-start gap-4 lg:gap-8">
@@ -176,7 +206,7 @@ export function ProductEditor({
 									<Card className="overflow-hidden">
 										<CardHeader>
 											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												Product Images
+												{c?.["images"]}
 											</CardTitle>
 										</CardHeader>
 										<CardContent>

@@ -51,14 +51,14 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
 		>
 			<body>
 				<SessionProvider value={session}>
-					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-						<TooltipProvider delayDuration={0} disableHoverableContent={true}>
-							{children}
+					{/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
+					<TooltipProvider delayDuration={0} disableHoverableContent={true}>
+						{children}
 
-							<Toaster />
-							<TailwindIndicator />
-						</TooltipProvider>
-					</ThemeProvider>
+						<Toaster />
+						<TailwindIndicator />
+					</TooltipProvider>
+					{/* </ThemeProvider> */}
 				</SessionProvider>
 			</body>
 		</html>

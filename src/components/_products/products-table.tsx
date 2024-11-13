@@ -19,7 +19,9 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Image } from "@/components/image";
 import { cn } from "@/lib/shadcn";
-import { LocaleLink } from "../links";
+import { LocaleLink } from "@/components/links";
+import { productStatus } from "@/constants/enums";
+import { useLocale } from "@/hooks/use-locale";
 
 type ColumnType = Product & {
 	attributes: ProductAttribute[];
@@ -31,6 +33,8 @@ type ProductsTableProps = {
 	Dictionary["products-table"];
 
 export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: ProductsTableProps) {
+	const locale = useLocale();
+
 	return (
 		<DataTable
 			dic={dic}
@@ -38,46 +42,104 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 			columns={
 				[
 					{
-						accessorKey: "name",
+						accessorKey: "images",
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={"Product Code"} />
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["product image"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div className={cn("flex h-28 w-full items-start justify-start gap-2 px-4 py-2")}>
+							<div className={cn("h-28 p-2")}>
 								<Image
 									src={r?.["images"]?.[0]}
 									alt={`${r?.["name"]} Image`}
 									className="aspect-square size-24 rounded-xl"
 								/>
-
+							</div>
+						),
+						enableSorting: false,
+						enableHiding: false,
+					},
+					{
+						accessorKey: "name",
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["product details"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div className="w-full">
 								<div className="space-y-2">
-									<CardTitle>{r?.["name"]}</CardTitle>
+									<div className="flex items-start gap-2">
+										<div>
+											<Badge
+												variant={(() => {
+													switch (r?.["status"]) {
+														case "ACTIVE":
+															return "default";
+														case "ARCHIVE":
+															return "secondary";
+														default:
+															return "outline";
+													}
+												})()}
+											>
+												{
+													productStatus({ locale })?.find((e) => e?.["value"] === r?.["status"])?.[
+														"label"
+													]
+												}
+											</Badge>
+										</div>
 
-									<Badge
-										variant={(() => {
-											switch (r?.["status"]) {
-												case "ACTIVE":
-													return "default";
-												case "ARCHIVE":
-													return "secondary";
-												default:
-													return "outline";
-											}
-										})()}
-									>
-										{r?.["status"]}
-									</Badge>
+										<h1 className="font-medium">{r?.["name"]}</h1>
+									</div>
 								</div>
 							</div>
 						),
 						enableSorting: false,
 						enableHiding: false,
 					},
-
+					{
+						accessorKey: "price",
+						enableSorting: false,
+						enableHiding: false,
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["price"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div>
+								<span
+									className={cn(
+										r?.["discount"] && r?.["discount"] > 0 && "text-destructive line-through",
+									)}
+								>
+									{r?.["price"]}$
+								</span>
+								{r?.["discount"] && r?.["discount"] > 0 ? (
+									<>
+										{" "}
+										- <span className="font-medium">{r?.["discount"]}$</span>
+									</>
+								) : null}
+							</div>
+						),
+					},
+					{
+						accessorKey: "stock",
+						enableSorting: false,
+						enableHiding: false,
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["stock"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div>
+								{r?.["stock"]} {c?.["unit(s)"]}
+							</div>
+						),
+					},
 					{
 						accessorKey: "attributes",
+						enableSorting: false,
+						enableHiding: false,
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={"Options"} />
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["options"]} />
 						),
 						cell: ({ row: { original: r } }) => (
 							<div>
@@ -89,11 +151,11 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 								))}
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						accessorKey: "createdAt",
+						enableSorting: false,
+						enableHiding: false,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["createdAt"]} />
 						),
@@ -102,8 +164,6 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 								{new Date(r?.["createdAt"]!)?.toLocaleDateString()}
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						id: "actions",
@@ -112,7 +172,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 								<>
 									<DataTableRowActions dic={dic}>
 										<LocaleLink href={`/ss/${r?.["storeId"]}/products/${r?.["id"]}`}>
-											<DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+											<DropdownMenuItem className="cursor-pointer">{c?.["edit"]}</DropdownMenuItem>
 										</LocaleLink>
 										<ProductDeleteButton
 											dic={dic}

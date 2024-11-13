@@ -39,6 +39,17 @@ model Session {
   @@map("sessions")
 }
 
+enum CURRENCY {
+  EGY
+  US
+  SAR
+}
+
+enum LANGUAGE {
+  EN
+  AR
+}
+
 model Store {
   id        String   @id @map("_id")
   userId    String
@@ -50,6 +61,8 @@ model Store {
   bio      String?
   logo     String?
   category String
+  // currency  CURRENCY
+  // languages LANGUAGE // [] @default([])
   location Json
 
   products Product[]
@@ -92,10 +105,16 @@ model Product {
   status      ProductStatus @default(DRAFT)
   images      String[]      @default([])
 
-  price Int
-  stock Int
+  cost     Int?
+  price    Int
+  discount Int?
+  stock    Int
+  // isAlwaysAvailable
 
   attributes Json
+
+  // compinations Json // cost, price, discount, stock, isAlwaysAvailable
+  // الخصائص، نوع الكاميرا ....
 
   @@map("products")
 }

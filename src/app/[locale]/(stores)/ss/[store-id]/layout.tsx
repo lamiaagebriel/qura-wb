@@ -24,7 +24,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarProvider,
-	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Icons } from "@/components/icons";
 import { LocaleLink, NavLink } from "@/components/links";
@@ -42,7 +41,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 	const { locale, "store-id": storeId } = await params;
 	const { user } = await getAuth();
 	const dic = await getDictionary({ locale });
-	const c = dic?.["ss"];
+	const c = dic?.["ss"]?.["store"];
 
 	if (!user) redirect(`/${locale}/login`);
 	const stores = await db.store.findMany({ where: { userId: user?.["id"] } });
@@ -82,7 +81,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 									</SidebarMenuButton>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent
-									className="w-[--radix-dropdown-menu-trigger-width]"
+									className="min-w-[--radix-dropdown-menu-trigger-width]"
 									align="start"
 								>
 									{stores?.map((e, i) => (
@@ -118,10 +117,21 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 							</DropdownMenu>
 						</SidebarMenuItem>
 					</SidebarMenu>
+
+					<SidebarMenu>
+						<SidebarMenuItem>
+							<LocaleLink href={`/s/${storeId}`} target="_blank">
+								<SidebarMenuButton variant="outline" size="default" tooltip={c?.["preview"]}>
+									<Icons.eye />
+									{c?.["preview"]}
+								</SidebarMenuButton>
+							</LocaleLink>
+						</SidebarMenuItem>
+					</SidebarMenu>
 				</SidebarHeader>
 
 				<SidebarContent>
-					{c?.["store"]?.["navs"]?.slice(0, -1)?.map((g, i) => (
+					{c?.["navs"]?.slice(0, -1)?.map((g, i) => (
 						<SidebarGroup key={i}>
 							{g?.["label"] && <SidebarGroupLabel>{g?.["label"]}</SidebarGroupLabel>}
 							{g?.["items"] && (
@@ -153,7 +163,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 				</SidebarContent>
 
 				<SidebarFooter>
-					{c?.["store"]?.["navs"]?.slice(-1)?.map((g, i) => (
+					{c?.["navs"]?.slice(-1)?.map((g, i) => (
 						<SidebarGroup key={i} className="px-0">
 							{g?.["label"] && <SidebarGroupLabel>{g?.["label"]}</SidebarGroupLabel>}
 							{g?.["items"] && (
@@ -239,7 +249,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
 											<DropdownMenuSeparator />
 											<DropdownMenuGroup>
-												{c?.["store"]?.["userNavs"]?.map((e, i) => {
+												{c?.["userNavs"]?.map((e, i) => {
 													const Icon = e?.["icon"] ? (Icons[e?.["icon"]] ?? null) : null;
 
 													return (

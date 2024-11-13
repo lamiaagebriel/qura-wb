@@ -102,7 +102,12 @@ const en = {
 				},
 			] as { label?: string; items: NavItem[] }[],
 			userNavs: [{ value: "/pricing", label: "Upgrade to Pro", icon: "stars" }] as SelectItem[],
-
+			preview: "preview",
+			products: {
+				products: "Products",
+				"browse all products, edit, and filter.": "Browse all products, edit, and filter.",
+				tabs: { all: "All", active: "Active", draft: "Draft", archive: "Archive" },
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings/", label: "Profile" },
@@ -190,12 +195,10 @@ const en = {
 			status: "Status",
 			"select status...": "select status...",
 		},
-		price: {
-			price: "Price",
-		},
-		stock: {
-			stock: "Stock",
-		},
+		cost: { cost: "Cost" },
+		price: { price: "Price" },
+		discount: { discount: "Discount" },
+		stock: { stock: "Stock" },
 	},
 	"product-create-button": {
 		"created successfully.": "created successfully.",
@@ -219,10 +222,21 @@ const en = {
 		back: "Back",
 		"save changes": "Save Changes",
 		discard: "Discard",
+		"product details": "Product Details",
+		price: "Price",
+		stock: "stock",
+		images: "images",
+		options: "options",
 	},
 	"products-table": {
-		name: "name",
+		"product image": "product image",
+		"product details": "product details",
+		price: "price",
+		stock: "stock",
+		"unit(s)": "unit(s)",
+		options: "options",
 		createdAt: "createdAt",
+		edit: "edit",
 	},
 	// _products/attributes
 	"attribute-form": {

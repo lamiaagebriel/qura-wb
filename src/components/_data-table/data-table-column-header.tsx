@@ -33,13 +33,13 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
 	if (!column.getCanSort())
 		return (
-			<div className={className} {...props}>
+			<div className={cn("flex items-center justify-start gap-2", className)} {...props}>
 				{title}
 			</div>
 		);
 
 	return (
-		<div className={cn("flex items-center gap-2", className)} {...props}>
+		<div className={cn("flex items-center justify-start gap-2", className)} {...props}>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" size="sm" className="gap-2 data-[state=open]:bg-accent">

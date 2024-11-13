@@ -157,6 +157,40 @@ export const ProductForm = {
 			/>
 		);
 	},
+	cost: ({
+		dic: {
+			"product-form": { cost: c },
+		},
+		loading,
+		form,
+	}: ProductFormProps) => (
+		<FormField
+			control={form.control}
+			name="cost"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["cost"]}</FormLabel>
+					<FormControl>
+						<Input
+							{...field}
+							type="number"
+							disabled={loading}
+							placeholder={`10`}
+							onChange={(e) => {
+								const evt = {
+									...e,
+									target: { ...e?.["target"], value: Number(e?.["target"]?.["value"]) },
+								};
+
+								field?.onChange(evt);
+							}}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
 	price: ({
 		dic: {
 			"product-form": { price: c },
@@ -176,6 +210,40 @@ export const ProductForm = {
 							type="number"
 							disabled={loading}
 							placeholder={`20`}
+							onChange={(e) => {
+								const evt = {
+									...e,
+									target: { ...e?.["target"], value: Number(e?.["target"]?.["value"]) },
+								};
+
+								field?.onChange(evt);
+							}}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
+	discount: ({
+		dic: {
+			"product-form": { discount: c },
+		},
+		loading,
+		form,
+	}: ProductFormProps) => (
+		<FormField
+			control={form.control}
+			name="discount"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["discount"]}</FormLabel>
+					<FormControl>
+						<Input
+							{...field}
+							type="number"
+							disabled={loading}
+							placeholder={`15`}
 							onChange={(e) => {
 								const evt = {
 									...e,

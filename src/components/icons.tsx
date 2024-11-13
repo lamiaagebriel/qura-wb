@@ -32,6 +32,7 @@ import {
 	ArrowDown,
 	ArrowUpDown,
 	Upload,
+	Eye,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -123,7 +124,9 @@ export const Icons = {
 	globe: ({ className, ...props }: IconProps) => (
 		<Globe className={cn(IconsVariants({}), className)} {...props} />
 	),
-
+	eye: ({ className, ...props }: IconProps) => (
+		<Eye className={cn(IconsVariants({}), className)} {...props} />
+	),
 	dashboard: ({ className, ...props }: IconProps) => (
 		<LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />
 	),

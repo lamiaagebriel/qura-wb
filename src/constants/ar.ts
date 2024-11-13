@@ -102,7 +102,12 @@ const ar = {
 				},
 			] as { label?: string; items: NavItem[] }[],
 			userNavs: [{ value: "/pricing", label: "ترقية الحساب للبرو", icon: "stars" }] as SelectItem[],
-
+			preview: "معاينه المتجر",
+			products: {
+				products: "المنتجات",
+				"browse all products, edit, and filter.": "يمكنك تصفح وتعديل وتصفية جميع المنتجات.",
+				tabs: { all: "جميع المنتجات", active: "نشط", draft: "غير نشط", archive: "أرشيف" },
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings", label: "الملف الشخصي" },
@@ -152,7 +157,7 @@ const ar = {
 		"no results.": "لا توجد نتائج.",
 	},
 	// _customers
-	"customers-table": { createdAt: "تم الإنشاء في" },
+	"customers-table": { createdAt: "تاريخ الإضافة" },
 
 	// _orders
 	"order-create-button": { submit: "التأكيد" },
@@ -165,7 +170,7 @@ const ar = {
 		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
-	"orders-table": { createdAt: "تم الإنشاء في" },
+	"orders-table": { createdAt: "تاريخ الإضافة" },
 
 	// _products
 	"product-form": {
@@ -179,13 +184,15 @@ const ar = {
 		},
 		description: {
 			description: "الوصف",
-			"describe the product...": "قُم بوصف المُنتج...",
+			"describe the product...": "قُم بوصف المنتج...",
 		},
 		status: {
-			status: "حالة المُنتج",
+			status: "حالة المنتج",
 			"select status...": "إختر حالة...",
 		},
-		price: { price: "السعر" },
+		cost: { cost: "السعر الأصلي" },
+		price: { price: "سعر البيع" },
+		discount: { discount: "السعر بعد الخصم" },
 		stock: { stock: "الكمية بالمخزن" },
 	},
 	"product-create-button": {
@@ -198,10 +205,10 @@ const ar = {
 	},
 	"product-delete-button": {
 		"deleted successfully.": "تم الحذف بنجاح.",
-		delete: "حذف المُنتج",
+		delete: "حذف المنتج",
 		confirm: "تأكيد الحذف",
 		cancel: "إلغاء الحف",
-		"delete product": "حذف المُنتج",
+		"delete product": "حذف المنتج",
 		"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
@@ -210,10 +217,21 @@ const ar = {
 		back: "العودة",
 		"save changes": "حفظ التغيرات",
 		discard: "تجاهل",
+		"product details": "تفاصيل المنتج",
+		price: "السعر",
+		stock: "المخزون",
+		images: "الصور",
+		options: "الأختيارات",
 	},
 	"products-table": {
-		name: "الإسم",
-		createdAt: "تم الإنشاء في",
+		"product image": "صورة المنتح",
+		"product details": "بيانات المنتج",
+		price: "السعر",
+		stock: "المخزون",
+		"unit(s)": "الوحدات",
+		options: "الأختيارات",
+		createdAt: "تاريخ الإضافة",
+		edit: "التعديل",
 	},
 	// _products/attributes
 	"attribute-form": {
@@ -403,11 +421,10 @@ const ar = {
 
 		// products: {
 		"your product was not created. please try again.":
-			"لم يتم إنشاء المُنتج. يرجى المحاولة مرة أخرى.",
+			"لم يتم إنشاء المنتج. يرجى المحاولة مرة أخرى.",
 		"your product was not updated. please try again.":
-			"لم يتم تحديث المُنتج. يرجى المحاولة مرة أخرى.",
-		"your product was not deleted. please try again.":
-			"لم يتم حذف المُنتج. يرجى المحاولة مرة أخرى.",
+			"لم يتم تحديث المنتج. يرجى المحاولة مرة أخرى.",
+		"your product was not deleted. please try again.": "لم يتم حذف المنتج. يرجى المحاولة مرة أخرى.",
 
 		// orders: {
 		"your order was not created. please try again.": "لم يتم إنشاء الطلب. يرجى المحاولة مرة أخرى.",
