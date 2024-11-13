@@ -92,7 +92,13 @@ export function ProductEditor({
 						</div>
 
 						<div className="hidden items-center gap-2 md:flex">
-							<ProductDeleteButton dic={dic} product={product} variant="destructive" size="sm" />
+							<ProductDeleteButton
+								dic={dic}
+								product={product}
+								variant="destructive"
+								size="sm"
+								disabled={loading}
+							/>
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
 									<Button
@@ -182,7 +188,13 @@ export function ProductEditor({
 						</form>
 					</Form>
 					<div className="flex items-center justify-center gap-2 md:hidden">
-						<ProductDeleteButton dic={dic} product={product} variant="destructive" size="sm" />
+						<ProductDeleteButton
+							dic={dic}
+							product={product}
+							variant="destructive"
+							size="sm"
+							disabled={loading}
+						/>
 						<Form {...form}>
 							<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
 								<Button variant="outline" size="sm" onClick={() => form.reset()}>

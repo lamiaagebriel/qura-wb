@@ -5,7 +5,10 @@ import { attributeSchema } from "@/validations/products/attributes";
 export const productSchema = z.object({
 	id: z.stringRequired("id"),
 	storeId: z.stringRequired("storeId"),
-	slug: z.stringRequired("slug"),
+	slug: z.stringRequired("slug").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+		message:
+			"it must only contain lowercase english letters, numbers, and hyphens, and cannot start or end with a hyphen.",
+	}),
 	name: z.stringRequired("name"),
 	description: z.string("description").nullable().optional(),
 	status: z.enum(PRODUCT_STATUS_ARR),

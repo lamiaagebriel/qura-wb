@@ -36,10 +36,8 @@ export function ProductCreateButton({
 			setLoading(true);
 			const result = await createProduct(data);
 
-			if (result && typeof result === "object" && "error" in result) {
-				toast.error(result?.["error"]);
-				return;
-			}
+			if (result && typeof result === "object" && "error" in result)
+				throw new Error(result?.["error"]);
 
 			toast.success(c?.["created successfully."]);
 			router.push(`/ss/${store?.["id"]}/products/${result?.["id"]}`);
