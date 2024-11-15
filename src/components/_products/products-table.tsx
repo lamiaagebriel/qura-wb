@@ -45,7 +45,6 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 					{
 						accessorKey: "images",
 						enableSorting: false,
-						enableHiding: true,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["product image"]} />
 						),
@@ -132,7 +131,6 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 					{
 						accessorKey: "attributes",
 						enableSorting: false,
-						enableHiding: true,
 						header: ({ column }) => (
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["options"]} />
 						),

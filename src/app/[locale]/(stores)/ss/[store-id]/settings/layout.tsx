@@ -1,6 +1,7 @@
 import { NavLink } from "@/components/links";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getDictionary } from "@/lib/locale";
 import { cn } from "@/lib/shadcn";
 import { LocaleProps } from "@/types/locale";
@@ -19,7 +20,10 @@ export default async function SettingsLayout({ children, params }: SettingsLayou
 			<div className="container flex max-w-screen-lg flex-1 flex-col gap-6 py-6">
 				<div>
 					<div className="space-y-0.5">
-						<h2 className="text-2xl font-bold tracking-tight">{c?.["settings"]}</h2>
+						<h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+							<SidebarTrigger />
+							{c?.["settings"]}
+						</h2>
 						<p className="text-sm text-muted-foreground">
 							{
 								c?.[
