@@ -24,9 +24,9 @@ export function PageCreateButton({
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant="ghost" className="w-full justify-start" {...props}>
+				<Button variant="ghost" size="icon" {...props}>
 					<Icons.add />
-					{c?.["create page"]}
+					{/* {c?.["create page"]} */}
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent className="max-h-[95svh] overflow-auto rounded-md">

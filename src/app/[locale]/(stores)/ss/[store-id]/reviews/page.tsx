@@ -52,7 +52,7 @@ export default async function Reviews({ params }: ReviewsProps) {
 			<div className="container flex items-center justify-between gap-2">
 				<div>
 					<h1 className="flex items-center gap-2 text-2xl font-semibold">
-						<Icons.shirt className="size-5" />
+						<Icons.stars className="size-5" />
 						{c?.["reviews"]}
 					</h1>
 					<p className="max-w-prose text-sm text-muted-foreground">
