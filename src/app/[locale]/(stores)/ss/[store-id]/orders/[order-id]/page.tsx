@@ -136,7 +136,7 @@ export default async function Order({ params }: OrderProps) {
 			<Breadcrumbs
 				items={[
 					{ segments: [], value: `/ss/${storeId}/orders`, label: "Orders" },
-					{ segments: [], value: ``, label: `Order #${order?.["id"]}` },
+					{ segments: [], value: ``, label: `${c?.["order"]} #${order?.["id"]}` },
 				]}
 			/>
 
@@ -200,18 +200,21 @@ export default async function Order({ params }: OrderProps) {
 										<Table>
 											<TableHeader>
 												<TableRow>
-													<TableHead>{c?.["order details"]}</TableHead>
-													<TableHead>Quantity</TableHead>
-													<TableHead>Total</TableHead>
-													<TableHead className="sr-only">Actions</TableHead>
+													<TableHead className="text-start">{c?.["order details"]}</TableHead>
+													<TableHead>{c?.["quantity"]}</TableHead>
+													<TableHead>{c?.["total"]}</TableHead>
+													<TableHead className="sr-only">{c?.["actions"]}</TableHead>
 												</TableRow>
 											</TableHeader>
 											<TableBody>
 												{order?.["products"]?.map((e, i) => (
 													<TableRow key={i}>
 														<TableCell>
-															<LocaleLink href={`/s/${order?.["storeId"]}/p/${e?.["productId"]}`}>
-																<div className="flex items-start gap-2">
+															<LocaleLink
+																href={`/s/${order?.["storeId"]}/p/${e?.["productId"]}`}
+																className="flex w-full items-center"
+															>
+																<div className="flex items-center justify-start gap-2">
 																	<Image
 																		src={e?.["images"]?.[0]!}
 																		alt=""
@@ -257,7 +260,7 @@ export default async function Order({ params }: OrderProps) {
 								<CardHeader className="flex-row items-center justify-between">
 									<div>
 										<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-											Summary
+											{c?.["summary"]}
 										</CardTitle>
 									</div>
 									<div>
@@ -271,8 +274,8 @@ export default async function Order({ params }: OrderProps) {
 										<TableBody>
 											{Object.entries(order?.["summary"])?.map(([key, value], i) => (
 												<TableRow key={i}>
-													<TableCell className="px-0 font-medium">{key}</TableCell>
-													<TableCell className="px-0 text-right">{value}</TableCell>
+													<TableCell className="px-0 text-start font-medium">{key}</TableCell>
+													<TableCell className="px-0 text-end">{value}</TableCell>
 												</TableRow>
 											))}
 										</TableBody>
@@ -284,24 +287,24 @@ export default async function Order({ params }: OrderProps) {
 								<CardHeader className="flex flex-row items-center justify-between">
 									<div>
 										<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-											Timeline
+											{c?.["timeline"]}
 										</CardTitle>
 									</div>
 									<div>
 										<Button variant="secondary" size="sm">
-											change status
+											{c?.["change status"]}
 										</Button>
 									</div>
 								</CardHeader>
 								<CardContent>
 									<div className="relative">
-										<div className="absolute left-4 top-0 h-full w-0.5 bg-gray-300" />
+										<div className="absolute left-4 top-0 h-full w-0.5 bg-gray-300 rtl:right-4" />
 
 										<div className="space-y-3">
 											{order?.["timelines"]?.map((e, i) => (
 												<div key={i} className="relative flex items-start gap-2">
 													<div className="flex flex-shrink-0">
-														<Avatar className="size-8 rounded-full border-4 border-white">
+														<Avatar className="size-9 rounded-full border-4 border-white">
 															<AvatarImage src={e?.["user"]?.["image"]!} alt="" />
 															<AvatarFallback text={e?.["user"]?.["name"]}>
 																<Icons.user className="size-3" />
@@ -333,7 +336,7 @@ export default async function Order({ params }: OrderProps) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-										Customer Details
+										{c?.["customer details"]}
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
@@ -357,7 +360,7 @@ export default async function Order({ params }: OrderProps) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-										Customer Preview
+										{c?.["customer preview"]}
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
@@ -365,8 +368,8 @@ export default async function Order({ params }: OrderProps) {
 										<TableBody>
 											{Object.entries(order?.["customer"]?.["preview"])?.map(([key, value], i) => (
 												<TableRow key={i}>
-													<TableCell className="px-0 font-medium">{key}</TableCell>
-													<TableCell className="px-0 text-right">{value}</TableCell>
+													<TableCell className="px-0 text-start font-medium">{key}</TableCell>
+													<TableCell className="px-0 text-end">{value}</TableCell>
 												</TableRow>
 											))}
 										</TableBody>
@@ -378,7 +381,7 @@ export default async function Order({ params }: OrderProps) {
 								<CardHeader className="flex-row items-center justify-between">
 									<div>
 										<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-											Shipping Address
+											{c?.["shipping address"]}
 										</CardTitle>
 									</div>
 									<div>
@@ -393,8 +396,8 @@ export default async function Order({ params }: OrderProps) {
 										<TableBody>
 											{Object.entries(order?.["address"])?.map(([key, value], i) => (
 												<TableRow key={i}>
-													<TableCell className="px-0 font-medium">{key}</TableCell>
-													<TableCell className="px-0 text-right">{value}</TableCell>
+													<TableCell className="px-0 text-start font-medium">{key}</TableCell>
+													<TableCell className="px-0 text-end">{value}</TableCell>
 												</TableRow>
 											))}
 										</TableBody>

@@ -14,17 +14,26 @@ import {
 	OrderDeleteButtonProps,
 } from "@/components/_orders/order-delete-button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Image } from "@/components/image";
 import { cn } from "@/lib/shadcn";
-import { LocaleLink } from "../links";
+import { LocaleLink } from "@/components/links";
+import { orderStatus } from "@/constants/enums";
+import { useLocale } from "@/hooks/use-locale";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Icons } from "../icons";
 
 type ColumnType = Order;
 type OrdersTableProps = {
 	data: ColumnType[];
+	order: any;
 } & Pick<DataTableProps<any, any>, "dic"> &
 	Pick<OrderDeleteButtonProps, "dic"> &
 	Dictionary["orders-table"];
 
-export function OrdersTable({ dic: { "orders-table": c, ...dic }, data }: OrdersTableProps) {
+export function OrdersTable({ dic: { "orders-table": c, ...dic }, data, order }: OrdersTableProps) {
+	const locale = useLocale();
+
 	return (
 		<DataTable
 			dic={dic}
@@ -32,35 +41,120 @@ export function OrdersTable({ dic: { "orders-table": c, ...dic }, data }: Orders
 			columns={
 				[
 					{
-						accessorKey: "details",
+						accessorKey: "id",
+						enableSorting: false,
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={"Order Code"} />
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["order"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div className={cn("flex h-28 w-full items-start justify-start gap-2 px-4 py-2")}>
-								{r?.["details"]?.["products"]?.["length"]}
+							<div className="flex w-full items-center justify-center">
+								<div className="flex items-start gap-2">
+									<div>
+										<Badge
+											variant={(() => {
+												switch (r?.["status"]) {
+													case "CONFIRMED":
+														return "default";
+													case "DELIVERYED":
+														return "secondary";
+													default:
+														return "outline";
+												}
+											})()}
+										>
+											{
+												orderStatus({ locale })?.find((e) => e?.["value"] === r?.["status"])?.[
+													"label"
+												]
+											}
+										</Badge>
+									</div>
+
+									<h1 className="font-medium">#{r?.["id"]?.slice(0, 6)}</h1>
+								</div>
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
-						accessorKey: "attributes",
+						accessorKey: "id",
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={"Options"} />
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["customer"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div>
-								{r?.["details"]?.["products"]?.["0"]?.["attributes"]?.map((e, i) => (
-									<div key={i} className="flex items-center gap-1">
-										<h1 className="font-medium">{e?.["name"]}: </h1>
-										<p className="text-sm text-muted-foreground">{`[${e?.["value"]}]`}</p>
+							<div className="flex items-center justify-center">
+								<div className="flex items-center gap-2">
+									<Avatar>
+										<AvatarImage src={order?.["customer"]?.["image"]!} alt="" />
+										<AvatarFallback text={order?.["customer"]?.["name"]!}>
+											<Icons.user />
+										</AvatarFallback>
+									</Avatar>
+									<div>
+										<h2>{order?.["customer"]?.["name"]}</h2>
+										<p className="text-xs text-muted-foreground">
+											{order?.["customer"]?.["email"]}
+										</p>
 									</div>
-								))}
+								</div>
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
+					},
+					{
+						accessorKey: "id",
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["total"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div className="flex items-center justify-center">
+								<p>${10}</p>
+							</div>
+						),
+					},
+					{
+						accessorKey: "id",
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["products"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div className="flex items-center justify-center">
+								<p>{3}</p>
+							</div>
+						),
+					},
+					{
+						accessorKey: "id",
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["shipping type"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div className="flex items-center justify-center">
+								<div>Fast Shipping</div>{" "}
+							</div>
+						),
+					},
+					{
+						accessorKey: "id",
+						header: ({ column }) => (
+							<DataTableColumnHeader dic={dic} column={column} title={c?.["payment status"]} />
+						),
+						cell: ({ row: { original: r } }) => (
+							<div className="flex items-center justify-center">
+								<Badge
+									variant={(() => {
+										switch ("CONFIRMED") {
+											case "CONFIRMED":
+												return "default";
+											// case "DELIVERYED":
+											// 	return "secondary";
+											default:
+												return "outline";
+										}
+									})()}
+								>
+									{orderStatus({ locale })?.find((e) => e?.["value"] === "CONFIRMED")?.["label"]}
+								</Badge>
+							</div>
+						),
 					},
 					{
 						accessorKey: "createdAt",
@@ -68,21 +162,21 @@ export function OrdersTable({ dic: { "orders-table": c, ...dic }, data }: Orders
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["createdAt"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div className="flex items-center gap-2">
-								{new Date(r?.["createdAt"]!)?.toLocaleDateString()}
+							<div className="flex items-center justify-center">
+								<div className="flex items-center gap-2">
+									{new Date(r?.["createdAt"]!)?.toLocaleString()}
+								</div>
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						id: "actions",
 						cell: ({ row: { original: r } }) => {
 							return (
-								<>
+								<div className="flex items-center justify-center">
 									<DataTableRowActions dic={dic}>
 										<LocaleLink href={`/ss/${r?.["storeId"]}/orders/${r?.["id"]}`}>
-											<DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+											<DropdownMenuItem className="cursor-pointer">{c?.["edit"]}</DropdownMenuItem>
 										</LocaleLink>
 										<OrderDeleteButton
 											dic={dic}
@@ -91,7 +185,7 @@ export function OrdersTable({ dic: { "orders-table": c, ...dic }, data }: Orders
 											className="w-full justify-start px-2 text-start font-normal"
 										/>
 									</DataTableRowActions>
-								</>
+								</div>
 							);
 						},
 					},

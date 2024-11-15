@@ -33,7 +33,7 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
 	if (!column.getCanSort() && !column.getCanHide())
 		return (
-			<div className={cn("flex items-center justify-start gap-2", className)} {...props}>
+			<div className={cn("flex items-center justify-center gap-2", className)} {...props}>
 				<Button variant="ghost" size="sm" className="hover:bg-transparent">
 					<span>{title}</span>
 				</Button>
@@ -41,7 +41,7 @@ export function DataTableColumnHeader<TData, TValue>({
 		);
 
 	return (
-		<div className={cn("flex items-center justify-start gap-2", className)} {...props}>
+		<div className={cn("flex items-center justify-center gap-2", className)} {...props}>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" size="sm" className="gap-2 data-[state=open]:bg-accent">

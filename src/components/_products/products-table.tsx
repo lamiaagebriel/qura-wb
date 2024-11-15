@@ -7,7 +7,6 @@ import {
 	DataTableRowActions,
 } from "@/components/_data-table";
 import { Product } from "@prisma/client";
-import { CardTitle } from "@/components/ui/card";
 import { Dictionary } from "@/types/locale";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -46,7 +45,12 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						accessorKey: "images",
 						enableSorting: false,
 						header: ({ column }) => (
-							<DataTableColumnHeader dic={dic} column={column} title={c?.["product image"]} />
+							<DataTableColumnHeader
+								dic={dic}
+								column={column}
+								title={c?.["product image"]}
+								className="justify-start"
+							/>
 						),
 						cell: ({ row: { original: r } }) => (
 							<div className={cn("aspect-square h-20 p-2")}>
@@ -64,7 +68,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["product details"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div className="w-full">
+							<div className="flex w-full items-center justify-center">
 								<div className="space-y-2">
 									<div className="flex items-start gap-2">
 										<div>
@@ -100,7 +104,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["price"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div>
+							<div className="flex items-center justify-center">
 								<span
 									className={cn(
 										r?.["discount"] && r?.["discount"] > 0 && "text-destructive line-through",
@@ -123,8 +127,10 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["stock"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div>
-								{r?.["stock"]} {c?.["unit(s)"]}
+							<div className="flex items-center justify-center">
+								<div>
+									{r?.["stock"]} {c?.["unit(s)"]}
+								</div>
 							</div>
 						),
 					},
@@ -135,7 +141,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["options"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div>
+							<div className="flex items-center justify-center">
 								{r?.["attributes"]?.map((e, i) => (
 									<div key={i} className="flex items-center gap-1">
 										<h1 className="font-medium">{e?.["name"]}: </h1>
@@ -151,8 +157,10 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 							<DataTableColumnHeader dic={dic} column={column} title={c?.["createdAt"]} />
 						),
 						cell: ({ row: { original: r } }) => (
-							<div className="flex items-center gap-2">
-								{new Date(r?.["createdAt"]!)?.toLocaleString()}
+							<div className="flex items-center justify-center">
+								<div className="flex items-center gap-2">
+									{new Date(r?.["createdAt"]!)?.toLocaleString()}
+								</div>
 							</div>
 						),
 					},
@@ -160,7 +168,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 						id: "actions",
 						cell: ({ row: { original: r } }) => {
 							return (
-								<>
+								<div className="flex items-center justify-center">
 									<DataTableRowActions dic={dic}>
 										<LocaleLink href={`/ss/${r?.["storeId"]}/products/${r?.["id"]}`}>
 											<DropdownMenuItem className="cursor-pointer">{c?.["edit"]}</DropdownMenuItem>
@@ -172,7 +180,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 											className="w-full justify-start px-2 text-start font-normal"
 										/>
 									</DataTableRowActions>
-								</>
+								</div>
 							);
 						},
 					},

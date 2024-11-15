@@ -108,6 +108,11 @@ const ar = {
 				"browse all products, edit, and filter.": "يمكنك تصفح وتعديل وتصفية جميع المنتجات.",
 				tabs: { all: "جميع المنتجات", active: "نشط", draft: "غير نشط", archive: "أرشيف" },
 			},
+			orders: {
+				orders: "الطلبات",
+				"browse all orders, edit, and filter.": "يمكنك تصفح وتعديل وتصفية جميع الطلبات.",
+				tabs: { all: "جميع الطلبات", active: "نشط", draft: "غير نشط", archive: "أرشيف" },
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings", label: "الملف الشخصي" },
@@ -172,17 +177,32 @@ const ar = {
 			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
 	"order-editor": {
+		order: "الطلب",
 		"updated successfully.": "تم التحديث بنجاح.",
 		back: "العودة",
 		"save changes": "حفظ التغيرات",
 		discard: "تجاهل",
 		"order details": "تفاصيل الطلب",
-		price: "السعر",
-		stock: "المخزون",
-		images: "الصور",
-		options: "الأختيارات",
+		quantity: "الكمية",
+		total: "المبلغ الكلي",
+		actions: "التحرير",
+		summary: "نظرة عامة",
+		timeline: "التسلسل الزمني",
+		"change status": "تغيير",
+		"customer details": "تفاصيل العميل",
+		"customer preview": "نظرة عامة عن طلبات العميل",
+		"shipping address": "عنوان الشحن",
 	},
-	"orders-table": { createdAt: "تاريخ الإضافة" },
+	"orders-table": {
+		order: "الطلب",
+		total: "المبلغ",
+		customer: "العميل",
+		products: "المنتجات",
+		"payment status": "حالة الدفع",
+		"shipping type": "نوع الشحن",
+		edit: "تعديل",
+		createdAt: "تاريخ الإضافة",
+	},
 
 	// _products
 	"product-form": {
