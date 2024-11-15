@@ -118,6 +118,11 @@ const en = {
 				"browse all customers, preview, and filter.": "Browse all customers, preview, and filter.",
 				tabs: { all: "All", active: "Active", draft: "Draft", archive: "Archive" },
 			},
+			reviews: {
+				reviews: "Reviews",
+				"browse all reviews, edit, and filter.": "Browse all reviews, edit, and filter.",
+				tabs: { all: "All", active: "Active", draft: "Draft", archive: "Archive" },
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings/", label: "Profile" },
@@ -284,6 +289,32 @@ const en = {
 			name: "Name",
 			sizes: "Sizes",
 		},
+	},
+
+	// _reviews
+	"review-form": {
+		rating: {
+			rating: "Rating",
+			"choose 0-5": "choose 0-5",
+		},
+		content: {
+			content: "Content",
+			"describe you experience...": "Describe you experience...",
+		},
+	},
+	"review-create-button": {
+		"created successfully.": "created successfully.",
+		submit: "submit",
+		cancel: "cancel",
+		"create review": "create review",
+		"create a A well-structured review that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured review that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"reviews-table": {
+		product: "product",
+		customer: "customer",
+		"rating details": "rating details",
+		createdAt: "createdAt",
 	},
 
 	// _stores
@@ -484,6 +515,14 @@ const en = {
 			"your order was not updated. Please try again.",
 		"your order was not deleted. please try again.":
 			"your order was not deleted. Please try again.",
+
+		// reviews: {
+		"your review was not created. please try again.":
+			"your review was not created. Please try again.",
+		"your review was not updated. please try again.":
+			"your review was not updated. Please try again.",
+		"your review was not deleted. please try again.":
+			"your page was not deleted. Please try again.",
 	},
 
 	db: {

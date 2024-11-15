@@ -117,6 +117,11 @@ const ar = {
 				customers: "العملاء",
 				"browse all customers, preview, and filter.": "يمكنك تصفح وعرض تفاصيل وتصفية جميع العملاء.",
 			},
+			reviews: {
+				reviews: "التقييمات",
+				"browse all reviews, edit, and filter.": "يمكنك تصفح وتعديل وتصفية جميع التقييمات.",
+				tabs: { all: "جميع التقييمات", active: "نشط", draft: "غير نشط", archive: "أرشيف" },
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings", label: "الملف الشخصي" },
@@ -240,7 +245,7 @@ const ar = {
 		"created successfully.": "تم الإنشاء بنجاح.",
 		submit: "إرسال",
 		cancel: "إلغاء",
-		"create product": "إنشاء مٌنتج",
+		"create product": "إنشاء منتج",
 		"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"create a A well-structured product that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
 	},
@@ -280,6 +285,32 @@ const ar = {
 			name: "الإسم",
 			sizes: "المقاس",
 		},
+	},
+
+	// _reviews
+	"review-form": {
+		rating: {
+			rating: "التقييم",
+			"choose 0-5": "إختر 0-5",
+		},
+		content: {
+			content: "المحتوي",
+			"describe you experience...": "تكلم عن تجربتك...",
+		},
+	},
+	"review-create-button": {
+		"created successfully.": "تم الإنشاء بنجاح.",
+		submit: "إرسال",
+		cancel: "إلغاء",
+		"create review": "إنشاء تقييم",
+		"create a A well-structured review that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
+			"create a A well-structured review that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"reviews-table": {
+		product: "المنتج",
+		customer: "العميل",
+		"rating details": "تفاصيل التقييم",
+		createdAt: "تاريخ الإضافة",
 	},
 
 	// _stores
@@ -471,6 +502,13 @@ const ar = {
 		"your order was not created. please try again.": "لم يتم إنشاء الطلب. يرجى المحاولة مرة أخرى.",
 		"your order was not updated. please try again.": "لم يتم تحديث الطلب. يرجى المحاولة مرة أخرى.",
 		"your order was not deleted. please try again.": "لم يتم حذف الطلب. يرجى المحاولة مرة أخرى.",
+
+		// reviews: {
+		"your review was not created. please try again.":
+			"لم يتم إنشاء التقييم. يرجى المحاولة مرة أخرى.",
+		"your review was not updated. please try again.":
+			"لم يتم تحديث التقييم. يرجى المحاولة مرة أخرى.",
+		"your review was not deleted. please try again.": "لم يتم حذف التقييم. يرجى المحاولة مرة أخرى.",
 	},
 
 	db: {

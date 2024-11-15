@@ -1,5 +1,6 @@
 import { cva, VariantProps } from "class-variance-authority";
 import {
+	type LucideProps,
 	ChevronLeft,
 	ChevronRight,
 	Globe,
@@ -10,21 +11,17 @@ import {
 	Plus,
 	User,
 	X,
-	Gift,
 	LifeBuoy,
 	PackagePlus,
 	Percent,
 	Send,
 	Settings,
 	Users,
-	type LucideProps,
 	Check,
 	ChevronsUpDown,
-	Sparkles,
 	Shirt,
 	Star,
 	Stars,
-	File,
 	Files,
 	ArrowLeft,
 	ArrowRight,
@@ -33,8 +30,6 @@ import {
 	ArrowUpDown,
 	Upload,
 	Eye,
-	Edit,
-	Trash,
 	Trash2,
 	Edit2,
 } from "lucide-react";
@@ -148,6 +143,9 @@ export const Icons = {
 	),
 	users: ({ className, ...props }: IconProps) => (
 		<Users className={cn(IconsVariants({}), className)} {...props} />
+	),
+	star: ({ className, ...props }: IconProps) => (
+		<Star className={cn(IconsVariants({}), className)} {...props} />
 	),
 	stars: ({ className, ...props }: IconProps) => (
 		<Stars className={cn(IconsVariants({}), className)} {...props} />

@@ -26,6 +26,7 @@ model User {
 
   stores Store[]
   orders Order[]
+  reviews Review[]
 
   @@map("users")
 }
@@ -67,7 +68,7 @@ model Store {
 
   products Product[]
   pages    Page[]
-  orders   Order[]
+  orders   Order[] 
 
   @@map("stores")
 }
@@ -116,6 +117,7 @@ model Product {
   // compinations Json // cost, price, discount, stock, isAlwaysAvailable
   // الخصائص، نوع الكاميرا ....
 
+  reviews Review[]
   @@map("products")
 }
 
@@ -141,3 +143,19 @@ model Order {
 
   @@map("orders")
 }
+
+model Review {
+  id         String   @id @map("_id")
+  productId  String
+  product    Product  @relation(references: [id], fields: [productId], onDelete: Cascade)
+  userId     String
+  user       User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+
+  content    String
+  rating     Int    // (e.g., 1-5 stars)
+  
+  @@map("reviews")
+}
+

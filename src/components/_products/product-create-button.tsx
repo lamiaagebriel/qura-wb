@@ -24,7 +24,6 @@ export function ProductCreateButton({
 }: ProductCreateButtonProps) {
 	const router = useRouter();
 	const [loading, setLoading] = useState<boolean>(false);
-	const [open, setOpen] = useState<boolean>(false);
 
 	const form = useForm<z.infer<typeof productCreateSchema>>({
 		resolver: zodResolver(productCreateSchema),
