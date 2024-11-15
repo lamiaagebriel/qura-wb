@@ -15,13 +15,11 @@ import {
 } from "@/components/_orders/order-delete-button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Image } from "@/components/image";
-import { cn } from "@/lib/shadcn";
 import { LocaleLink } from "@/components/links";
 import { orderStatus } from "@/constants/enums";
 import { useLocale } from "@/hooks/use-locale";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Icons } from "../icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Icons } from "@/components/icons";
 
 type ColumnType = Order;
 type OrdersTableProps = {

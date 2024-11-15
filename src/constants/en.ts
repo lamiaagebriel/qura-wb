@@ -113,6 +113,11 @@ const en = {
 				"browse all orders, edit, and filter.": "Browse all orders, edit, and filter.",
 				tabs: { all: "All", active: "Active", draft: "Draft", archive: "Archive" },
 			},
+			customers: {
+				customers: "Customers",
+				"browse all customers, preview, and filter.": "Browse all customers, preview, and filter.",
+				tabs: { all: "All", active: "Active", draft: "Draft", archive: "Archive" },
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings/", label: "Profile" },
@@ -166,7 +171,12 @@ const en = {
 	},
 
 	// _customers
-	"customers-table": { createdAt: "createdAt" },
+	"customers-table": {
+		"customer details": "customer details",
+		orders: "orders",
+		createdAt: "createdAt",
+		preview: "Preview",
+	},
 
 	// _orders
 	"order-create-button": { "create order": "Create Order" },

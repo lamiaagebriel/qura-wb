@@ -113,6 +113,10 @@ const ar = {
 				"browse all orders, edit, and filter.": "يمكنك تصفح وتعديل وتصفية جميع الطلبات.",
 				tabs: { all: "جميع الطلبات", active: "نشط", draft: "غير نشط", archive: "أرشيف" },
 			},
+			customers: {
+				customers: "العملاء",
+				"browse all customers, preview, and filter.": "يمكنك تصفح وعرض تفاصيل وتصفية جميع العملاء.",
+			},
 			settings: {
 				"main-nav": [
 					{ segments: [null], value: "/settings", label: "الملف الشخصي" },
@@ -163,7 +167,12 @@ const ar = {
 		"no results.": "لا توجد نتائج.",
 	},
 	// _customers
-	"customers-table": { createdAt: "تاريخ الإضافة" },
+	"customers-table": {
+		"customer details": "تفاصيل العميل",
+		orders: "الطلبات",
+		createdAt: "تاريخ الإضافة",
+		preview: "عرض التفاصيل",
+	},
 
 	// _orders
 	"order-create-button": { "create order": "إنشاء طلب جديد" },
