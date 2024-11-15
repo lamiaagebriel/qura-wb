@@ -124,7 +124,7 @@ export const AttributesForm = ({ dic, form, loading, attributes = [] }: Attribut
 
 			<div>
 				<Card>
-					<CardContent className="py-6">
+					<CardContent>
 						{form.watch("attributes")?.["length"] ? (
 							<div>
 								{form.watch("attributes")?.map((e, i) => {

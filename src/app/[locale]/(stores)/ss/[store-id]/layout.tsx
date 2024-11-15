@@ -65,9 +65,10 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 										<div className="flex items-center gap-2">
 											<Avatar className="flex aspect-square size-8 items-center justify-center rounded-lg border shadow-sm">
 												<AvatarImage src={selectedStore?.["logo"]!} alt="" />
-												<AvatarFallback className="rounded-none">
-													{selectedStore?.["username"]?.[0]?.toUpperCase()}
-												</AvatarFallback>
+												<AvatarFallback
+													text={selectedStore?.["username"]?.toUpperCase()}
+													className="rounded-none"
+												/>
 											</Avatar>
 
 											<div className="flex flex-col gap-0.5 leading-none">
@@ -90,9 +91,10 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 												<div className="flex items-center justify-start gap-2">
 													<Avatar className="flex aspect-square size-8 items-center justify-center rounded-lg border shadow-sm">
 														<AvatarImage src={e?.["logo"]!} alt="" />
-														<AvatarFallback className="rounded-none">
-															{e?.["username"]?.[0]?.toUpperCase()}
-														</AvatarFallback>
+														<AvatarFallback
+															text={e?.["username"]?.toUpperCase()}
+															className="rounded-none"
+														/>
 													</Avatar>
 
 													<div className="flex flex-col gap-0.5 leading-none">
@@ -206,13 +208,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 												<div className="flex items-center gap-2">
 													<Avatar className="h-8 w-8 rounded-lg">
 														<AvatarImage src={user?.["image"] ?? ""} alt={user?.["name"]} />
-														<AvatarFallback className="rounded-lg">
-															{user?.["name"]
-																?.split(" ")
-																?.slice(0, 2)
-																?.map((e: string) => e?.[0]?.toUpperCase())
-																?.join("")}
-														</AvatarFallback>
+														<AvatarFallback text={user?.["name"]} className="rounded-lg" />
 													</Avatar>
 													<div className="grid flex-1 text-left text-sm leading-tight">
 														<span className="truncate font-semibold">{user?.["name"]}</span>
@@ -232,13 +228,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 												<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 													<Avatar className="h-8 w-8 rounded-lg">
 														<AvatarImage src={user?.["image"] ?? ""} alt={user?.["name"]} />
-														<AvatarFallback className="rounded-lg">
-															{user?.["name"]
-																?.split(" ")
-																?.slice(0, 2)
-																?.map((e: string) => e?.[0]?.toUpperCase())
-																?.join("")}
-														</AvatarFallback>
+														<AvatarFallback text={user?.["name"]} className="rounded-lg" />
 													</Avatar>
 													<div className="grid flex-1 text-left text-sm leading-tight">
 														<span className="truncate font-semibold">{user?.["name"]}</span>

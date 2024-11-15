@@ -33,6 +33,10 @@ import {
 	ArrowUpDown,
 	Upload,
 	Eye,
+	Edit,
+	Trash,
+	Trash2,
+	Edit2,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -120,6 +124,12 @@ export const Icons = {
 	),
 	x: ({ className, ...props }: IconProps) => (
 		<X className={cn(IconsVariants({}), className)} {...props} />
+	),
+	edit: ({ className, ...props }: IconProps) => (
+		<Edit2 className={cn(IconsVariants({}), className)} {...props} />
+	),
+	trash: ({ className, ...props }: IconProps) => (
+		<Trash2 className={cn(IconsVariants({}), className)} {...props} />
 	),
 	globe: ({ className, ...props }: IconProps) => (
 		<Globe className={cn(IconsVariants({}), className)} {...props} />

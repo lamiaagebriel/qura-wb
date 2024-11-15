@@ -76,169 +76,158 @@ export function ProductEditor({
 	}
 
 	return (
-		<div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-			<main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-				<div className="mx-auto grid max-w-screen-lg flex-1 auto-rows-max gap-4">
-					<div className="flex items-center justify-between gap-4">
-						<div className="flex items-center gap-2">
-							<LocaleLink
-								href={`/ss/${product?.["storeId"]}/products`}
-								className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-7 w-7")}
-								disabled={loading}
-							>
-								<Icons.arrowLeft className="rtl:rotate-180" />
-								<span className="sr-only">{c?.["back"]}</span>
-							</LocaleLink>
+		<main className="flex flex-col gap-4">
+			<div className="flex items-center justify-between gap-4">
+				<div className="flex items-center gap-2">
+					<LocaleLink
+						href={`/ss/${product?.["storeId"]}/products`}
+						className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-7 w-7")}
+						disabled={loading}
+					>
+						<Icons.arrowLeft className="rtl:rotate-180" />
+						<span className="sr-only">{c?.["back"]}</span>
+					</LocaleLink>
 
-							<h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-								{c?.["product details"]}
-							</h1>
-							<Badge variant="outline" className="ml-auto sm:ml-0">
-								{
-									productStatus({ locale })?.find((e) => e?.["value"] === product?.["status"])?.[
-										"label"
-									]
-								}
-							</Badge>
-						</div>
+					<h1 className="flex-1 text-xl font-semibold tracking-tight">{c?.["product details"]}</h1>
+					<Badge variant="outline">
+						{
+							productStatus({ locale })?.find((e) => e?.["value"] === product?.["status"])?.[
+								"label"
+							]
+						}
+					</Badge>
+				</div>
 
-						<div className="hidden items-center gap-2 md:flex">
-							<ProductDeleteButton
-								dic={dic}
-								product={product}
-								variant="destructive"
-								size="sm"
-								disabled={loading}
-							/>
-							<Form {...form}>
-								<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
-									<Button
-										variant="outline"
-										size="sm"
-										disabled={loading}
-										onClick={() => form.reset()}
-									>
-										{c?.["discard"]}
-									</Button>
-									<Button type="submit" size="sm" disabled={loading}>
-										{loading && <Icons.spinner />}
-										{c?.["save changes"]}
-									</Button>
-								</form>
-							</Form>
-						</div>
-					</div>
-
+				<div className="hidden items-center gap-2 md:flex">
+					<ProductDeleteButton
+						dic={dic}
+						product={product}
+						variant="destructive"
+						size="sm"
+						disabled={loading}
+					/>
 					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)}>
-							<div className="grid gap-4 md:grid-cols-[1fr,250px] lg:grid-cols-3 lg:gap-8">
-								<div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-									<Card>
-										<CardHeader>
-											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												{c?.["product details"]}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<div className="grid gap-6">
-												<ProductForm.name dic={dic} form={form as any} loading={loading} />
-												<ProductForm.slug dic={dic} form={form as any} loading={loading} />
-												<ProductForm.description dic={dic} form={form as any} loading={loading} />
-											</div>
-										</CardContent>
-									</Card>
-
-									<Card>
-										<CardHeader>
-											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												{c?.["price"]}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<ProductForm.cost dic={dic} form={form as any} loading={loading} />
-											<ProductForm.price dic={dic} form={form as any} loading={loading} />
-											<ProductForm.discount dic={dic} form={form as any} loading={loading} />
-										</CardContent>
-									</Card>
-
-									<Card>
-										<CardHeader>
-											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												{c?.["stock"]}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<ProductForm.stock dic={dic} form={form as any} loading={loading} />
-										</CardContent>
-									</Card>
-
-									<Card>
-										<CardHeader>
-											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												{c?.["options"]}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<AttributesForm
-												dic={dic}
-												form={form as any}
-												loading={loading}
-												attributes={attributes}
-											/>
-										</CardContent>
-									</Card>
-								</div>
-								<div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-									<Card>
-										<CardHeader>
-											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												{dic?.["product-form"]?.["status"]?.["status"]}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<div className="grid gap-6">
-												<div className="grid gap-3">
-													<ProductForm.status dic={dic} form={form as any} loading={loading} />
-												</div>
-											</div>
-										</CardContent>
-									</Card>
-									<Card className="overflow-hidden">
-										<CardHeader>
-											<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-												{c?.["images"]}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<ProductForm.images dic={dic} form={form as any} loading={loading} />
-										</CardContent>
-									</Card>
-								</div>
-							</div>
+						<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
+							<Button variant="outline" size="sm" disabled={loading} onClick={() => form.reset()}>
+								{c?.["discard"]}
+							</Button>
+							<Button type="submit" size="sm" disabled={loading}>
+								{loading && <Icons.spinner />}
+								{c?.["save changes"]}
+							</Button>
 						</form>
 					</Form>
-					<div className="flex items-center justify-center gap-2 md:hidden">
-						<ProductDeleteButton
-							dic={dic}
-							product={product}
-							variant="destructive"
-							size="sm"
-							disabled={loading}
-						/>
-						<Form {...form}>
-							<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
-								<Button variant="outline" size="sm" onClick={() => form.reset()}>
-									{c?.["discard"]}
-								</Button>
-								<Button type="submit" size="sm" disabled={loading}>
-									{loading && <Icons.spinner />}
-									{c?.["save changes"]}
-								</Button>
-							</form>
-						</Form>
-					</div>
 				</div>
-			</main>
-		</div>
+			</div>
+
+			<Form {...form}>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="grid gap-2 md:grid-cols-[1fr,250px] lg:grid-cols-3 lg:gap-4"
+				>
+					<div className="grid auto-rows-max items-start gap-2 lg:col-span-2 lg:gap-4">
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{c?.["product details"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="grid gap-2">
+									<ProductForm.name dic={dic} form={form as any} loading={loading} />
+									<ProductForm.slug dic={dic} form={form as any} loading={loading} />
+									<ProductForm.description dic={dic} form={form as any} loading={loading} />
+								</div>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{c?.["price"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<ProductForm.cost dic={dic} form={form as any} loading={loading} />
+								<ProductForm.price dic={dic} form={form as any} loading={loading} />
+								<ProductForm.discount dic={dic} form={form as any} loading={loading} />
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{c?.["stock"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<ProductForm.stock dic={dic} form={form as any} loading={loading} />
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{c?.["options"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<AttributesForm
+									dic={dic}
+									form={form as any}
+									loading={loading}
+									attributes={attributes}
+								/>
+							</CardContent>
+						</Card>
+					</div>
+					<div className="grid auto-rows-max items-start gap-2 lg:gap-4">
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{dic?.["product-form"]?.["status"]?.["status"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="grid gap-2">
+									<ProductForm.status dic={dic} form={form as any} loading={loading} />
+								</div>
+							</CardContent>
+						</Card>
+						<Card className="overflow-hidden">
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{c?.["images"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<ProductForm.images dic={dic} form={form as any} loading={loading} />
+							</CardContent>
+						</Card>
+					</div>
+				</form>
+			</Form>
+
+			<div className="flex items-center justify-center gap-2 md:hidden">
+				<ProductDeleteButton
+					dic={dic}
+					product={product}
+					variant="destructive"
+					size="sm"
+					disabled={loading}
+				/>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
+						<Button variant="outline" size="sm" onClick={() => form.reset()}>
+							{c?.["discard"]}
+						</Button>
+						<Button type="submit" size="sm" disabled={loading}>
+							{loading && <Icons.spinner />}
+							{c?.["save changes"]}
+						</Button>
+					</form>
+				</Form>
+			</div>
+		</main>
 	);
 }

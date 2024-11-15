@@ -164,7 +164,7 @@ const en = {
 	"customers-table": { createdAt: "createdAt" },
 
 	// _orders
-	"order-create-button": { submit: "submit" },
+	"order-create-button": { "create order": "Create Order" },
 	"order-delete-button": {
 		"deleted successfully.": "deleted successfully.",
 		delete: "Delete",
@@ -173,6 +173,17 @@ const en = {
 		"delete order": "Delete Order",
 		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"order-editor": {
+		"updated successfully.": "updated successfully.",
+		back: "Back",
+		"save changes": "Save Changes",
+		discard: "Discard",
+		"order details": "Order Details",
+		price: "Price",
+		stock: "stock",
+		images: "images",
+		options: "options",
 	},
 	"orders-table": {
 		createdAt: "createdAt",
@@ -461,10 +472,10 @@ const en = {
 				{ value: "PENDING", label: "Pending" },
 				{ value: "CONFIRMED", label: "Confirmed" },
 				{ value: "DECLINED", label: "Declined" },
-				{ value: "DELIEVERING", label: "Delievering" },
-				{ value: "DELIEVERED", label: "Delievered" },
-				{ value: "CANCELED", label: "Canceled" },
-			] as (SelectItem & {
+				{ value: "DELIVERYING", label: "Delievering" },
+				{ value: "DELIVERYED", label: "Delievered" },
+				{ value: "CANCELLED", label: "Canceled" },
+			] satisfies (SelectItem & {
 				value: OrderStatus;
 			})[],
 		},

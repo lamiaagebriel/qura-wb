@@ -71,7 +71,7 @@ export function OrderCreateButton({
 	return (
 		<Button onClick={onSubmit} disabled={loading}>
 			{loading && <Icons.spinner />}
-			{c?.["submit"]}
+			{c?.["create order"]}
 		</Button>
 	);
 }

@@ -43,7 +43,7 @@ export default async function Product({ params }: ProductProps) {
 				]}
 			/>
 
-			<div className="container">
+			<div className="container max-w-screen-lg py-4">
 				<ProductEditor dic={dic} product={product} attributes={rAttributes} />
 			</div>
 		</div>

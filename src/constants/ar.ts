@@ -161,7 +161,7 @@ const ar = {
 	"customers-table": { createdAt: "تاريخ الإضافة" },
 
 	// _orders
-	"order-create-button": { submit: "التأكيد" },
+	"order-create-button": { "create order": "إنشاء طلب جديد" },
 	"order-delete-button": {
 		"deleted successfully.": "تم الحذف بنجاح.",
 		delete: "حذف الطلب",
@@ -170,6 +170,17 @@ const ar = {
 		"delete order": "حذف الطلب",
 		"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.":
 			"delete a A well-structured order that helps highlight the unique features, target audience, market strategy, and performance metrics of your project.",
+	},
+	"order-editor": {
+		"updated successfully.": "تم التحديث بنجاح.",
+		back: "العودة",
+		"save changes": "حفظ التغيرات",
+		discard: "تجاهل",
+		"order details": "تفاصيل الطلب",
+		price: "السعر",
+		stock: "المخزون",
+		images: "الصور",
+		options: "الأختيارات",
 	},
 	"orders-table": { createdAt: "تاريخ الإضافة" },
 
@@ -447,9 +458,9 @@ const ar = {
 				{ value: "PENDING", label: "مُعلق" },
 				{ value: "CONFIRMED", label: "تم التأكيد" },
 				{ value: "DECLINED", label: "مرفوض" },
-				{ value: "DELIEVERING", label: "يتم الشحن" },
-				{ value: "DELIEVERED", label: "تم الشحن" },
-				{ value: "CANCELED", label: "ملغي" },
+				{ value: "DELIVERYED", label: "يتم الشحن" },
+				{ value: "DELIVERYED", label: "تم الشحن" },
+				{ value: "CANCELLED", label: "ملغي" },
 			] as (SelectItem & {
 				value: OrderStatus;
 			})[],
