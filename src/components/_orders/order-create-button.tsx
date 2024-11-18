@@ -36,7 +36,7 @@ export function OrderCreateButton({
 						quantity: i + 1,
 						attributes: e?.["attributes"]?.map((x) => ({
 							name: x?.["name"],
-							value: x?.["values"]?.["0"]?.["name"],
+							value: x?.["values"]?.["0"],
 						})),
 					})),
 					address: {

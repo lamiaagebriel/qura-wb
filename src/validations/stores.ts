@@ -1,38 +1,44 @@
 import { z } from "@/lib/zod";
-import { pageSchema } from "./pages";
 
 export const addressSchema = z.object({
-	// name: z.stringRequired("name"),
-	// phone: z
-	// 	.stringRequired("phone number")
-	// 	.regex(/^01[0,1,2,5][0-9]{8}$/, "only an egyptian phone number is valid."),
-	addressLine: z.string("address line").optional(),
-	zip: z.stringRequired("zip").regex(/^\d{5}$/, "Only egyptian zip is valid."),
-	state: z.stringRequired("state"),
-	city: z.stringRequired("city"),
 	country: z.stringRequired("country"),
-	// coordinates: {
-	// 	latitude: 40.7128,
-	// 	longitude: -74.0060,
-	// },
+	city: z.stringRequired("city"),
+	state: z.stringRequired("state"),
+	zip: z.stringRequired("zip").regex(/^\d{5}$/, "Only egyptian zip is valid."),
+
+	addressLine: z.string("address line").optional(),
+	coordinates: z
+		.object({
+			lat: z.number("latitude"),
+			lng: z.number("longitude"),
+		})
+		.optional(),
 });
 
 export const storeSchema = z.object({
 	id: z.stringRequired("id"),
 	userId: z.stringRequired("userId"),
+
 	name: z.stringRequired("name"),
+	category: z.stringRequired("category"),
+	currency: z.stringRequired("currency"),
+	language: z.stringRequired("language"),
+
 	username: z.stringRequired("username"),
+
 	bio: z.string("bio").nullable().optional(),
 	logo: z.string("logo").nullable().optional(),
-	category: z.stringRequired("category"),
 	location: addressSchema,
-	pages: z.array(pageSchema).default([]),
 });
 
 export const storeCreateSchema = storeSchema.pick({
 	name: true,
-	username: true,
 	category: true,
+	currency: true,
+	language: true,
+
+	username: true,
+
 	bio: true,
 	logo: true,
 	location: true,

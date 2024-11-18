@@ -13,6 +13,7 @@ import { Image } from "@/components/image";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { fileToBase64 } from "@/lib/utils";
+import { MapPicker } from "@/components/forms/map-picker";
 
 export type StoreFormProps = {
 	loading: boolean;
@@ -51,26 +52,36 @@ export const StoreForm = {
 		},
 		loading,
 		form,
-	}: StoreFormProps) => (
-		<FormField
-			control={form.control}
-			name="username"
-			render={({ field }) => (
-				<FormItem>
-					<FormLabel>{c?.["username"]}</FormLabel>
-					<FormControl>
-						<div className="relative overflow-hidden">
-							<Input {...field} disabled={loading} placeholder={c?.["ovve"]} className="pl-28" />
-							<div className="absolute left-0.5 top-0.5 flex h-8 flex-col items-center justify-center rounded-l-md bg-muted px-2 text-muted-foreground">
-								<p>concom.com/</p>
+	}: StoreFormProps) => {
+		const prefix = "concom.com/";
+
+		return (
+			<FormField
+				control={form.control}
+				name="username"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>{c?.["username"]}</FormLabel>
+						<FormControl>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 flex items-center rounded-l-md bg-muted pl-2 pr-0.5 text-sm">
+									<span className="text-foreground">{prefix}</span>
+								</div>
+
+								<Input
+									{...field}
+									disabled={loading}
+									placeholder={c?.["ovve"]}
+									style={{ paddingLeft: `calc(${prefix?.["length"]}ch + 0.125rem)` }} // Fallback if pl-[calc()] fails
+								/>
 							</div>
-						</div>
-					</FormControl>
-					<FormMessage />
-				</FormItem>
-			)}
-		/>
-	),
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		);
+	},
 	bio: ({
 		dic: {
 			"store-form": { bio: c },
@@ -109,7 +120,7 @@ export const StoreForm = {
 				control={form?.["control"]}
 				name="logo"
 				render={({ field }) => (
-					<FormItem>
+					<FormItem className="flex items-center justify-center">
 						<div className="relative flex aspect-square h-20 cursor-pointer items-center justify-center rounded-full border border-dashed p-0 transition-all hover:bg-gray-50">
 							<div className="relative">
 								{form.watch("logo") ? (
@@ -159,6 +170,66 @@ export const StoreForm = {
 			/>
 		);
 	},
+	currency: ({
+		dic: {
+			"store-form": { currency: c },
+		},
+		loading,
+		form,
+	}: StoreFormProps) => (
+		<FormField
+			control={form.control}
+			name="currency"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["currency"]}</FormLabel>
+					<FormControl>
+						<Input {...field} disabled={loading} placeholder={c?.["USD"]} />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
+	language: ({
+		dic: {
+			"store-form": { language: c },
+		},
+		loading,
+		form,
+	}: StoreFormProps) => (
+		<FormField
+			control={form.control}
+			name="language"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>{c?.["language"]}</FormLabel>
+					<FormControl>
+						<Input {...field} disabled={loading} placeholder={c?.["EN"]} />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
+	map: ({ loading, form }: StoreFormProps) => (
+		<FormField
+			control={form.control}
+			name="location"
+			render={({ field }) => (
+				<FormItem>
+					{/* <FormLabel className="sr-only">{c?.["label"]}</FormLabel> */}
+					<FormControl>
+						<MapPicker
+							selected={form?.watch("location.coordinates")}
+							onSelectedChange={(p) => form.setValue("location.coordinates", p)}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	),
 };
 
 export const AddressForm = {

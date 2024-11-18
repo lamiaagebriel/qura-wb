@@ -3,12 +3,8 @@ import { PRODUCT_STATUS_ARR } from "@/constants/enums";
 
 export const attributeSchema = z.object({
 	name: z.stringRequired("name"),
-	values: z.array(
-		z.object({
-			name: z.stringRequired("name"),
-			description: z.string("description").optional(),
-		}),
-	),
+	description: z.string("description").optional(),
+	values: z.array(z.stringRequired("value")).min(1, "this attribute should have at least 1 value."),
 });
 
 export const attributesSchema = z.object({

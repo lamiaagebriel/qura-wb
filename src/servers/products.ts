@@ -32,8 +32,8 @@ export async function createProduct({ ...data }: z.infer<typeof productCreateSch
 			data: {
 				...data,
 				id,
-				slug: `slug-${ID.generate({ len: 5 })}`,
-				name: "Untitled Product",
+				slug: `slug-${id}`,
+				title: "Untitled Product",
 				price: 0,
 				stock: 0,
 				attributes: [],

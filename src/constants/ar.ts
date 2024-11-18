@@ -86,18 +86,18 @@ const ar = {
 							label: "الإعدادات",
 							icon: "settings",
 						},
-						{
-							segments: ["support"],
-							value: "/support",
-							label: "الدعم",
-							icon: "lifeBuoy",
-						},
-						{
-							segments: ["feedback"],
-							value: "/feedback",
-							label: "إعطاء تقييم للموقع",
-							icon: "send",
-						},
+						// {
+						// 	segments: ["support"],
+						// 	value: "/support",
+						// 	label: "الدعم",
+						// 	icon: "lifeBuoy",
+						// },
+						// {
+						// 	segments: ["feedback"],
+						// 	value: "/feedback",
+						// 	label: "إعطاء تقييم للموقع",
+						// 	icon: "send",
+						// },
 					],
 				},
 			] as { label?: string; items: NavItem[] }[],
@@ -327,6 +327,14 @@ const ar = {
 		bio: {
 			bio: "الوصف",
 			"type about your store...": "قُم بوصف متجرك...",
+		},
+		currency: {
+			currency: "العملة",
+			USD: "USD",
+		},
+		language: {
+			language: "اللغة",
+			EN: "English",
 		},
 		location: {
 			"address-line": {

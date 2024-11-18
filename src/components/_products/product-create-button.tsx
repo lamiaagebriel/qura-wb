@@ -38,7 +38,7 @@ export function ProductCreateButton({
 			if (result && typeof result === "object" && "error" in result)
 				throw new Error(result?.["error"]);
 
-			toast.success(c?.["created successfully."]);
+			// toast.success(c?.["created successfully."]);
 			router.push(`/ss/${store?.["id"]}/products/${result?.["id"]}`);
 		} catch (err: any) {
 			toast.error(err?.["message"]);

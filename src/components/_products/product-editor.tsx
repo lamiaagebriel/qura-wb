@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -55,15 +55,17 @@ export function ProductEditor({
 			discount: product?.["discount"] ?? 0,
 		},
 	});
+	const attributesForm = useFieldArray({
+		name: "attributes",
+		control: form?.["control"],
+	});
 
 	async function onSubmit(data: z.infer<typeof productUpdateSchema>) {
 		try {
 			setLoading(true);
 			const result = await updateProduct(data);
-			if (result && typeof result === "object" && "error" in result) {
-				toast.error(result?.["error"]);
-				return;
-			}
+			if (result && typeof result === "object" && "error" in result)
+				throw new Error(result?.["error"]);
 
 			form.reset({ ...data });
 			toast.success(c?.["updated successfully."]);
@@ -155,21 +157,21 @@ export function ProductEditor({
 						</Card>
 
 						<Card>
-							<CardHeader>
-								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-									{c?.["stock"]}
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<ProductForm.stock dic={dic} form={form as any} loading={loading} />
-							</CardContent>
-						</Card>
-
-						<Card>
-							<CardHeader>
-								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-									{c?.["options"]}
-								</CardTitle>
+							<CardHeader className="flex flex-row items-center justify-between">
+								<div>
+									<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+										{c?.["options"]}
+									</CardTitle>
+								</div>
+								<div>
+									<Button
+										variant="ghost"
+										size="icon"
+										onClick={() => attributesForm.append({ name: "", values: [] })}
+									>
+										<Icons.add />
+									</Button>
+								</div>
 							</CardHeader>
 							<CardContent>
 								<AttributesForm
@@ -202,6 +204,16 @@ export function ProductEditor({
 							</CardHeader>
 							<CardContent>
 								<ProductForm.images dic={dic} form={form as any} loading={loading} />
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+									{c?.["stock"]}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<ProductForm.stock dic={dic} form={form as any} loading={loading} />
 							</CardContent>
 						</Card>
 					</div>

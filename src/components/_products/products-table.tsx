@@ -145,7 +145,7 @@ export function ProductsTable({ dic: { "products-table": c, ...dic }, data }: Pr
 								{r?.["attributes"]?.map((e, i) => (
 									<div key={i} className="flex items-center gap-1">
 										<h1 className="font-medium">{e?.["name"]}: </h1>
-										<p className="text-sm text-muted-foreground">{`[${e?.["values"]?.map((x) => x?.["name"])?.join(", ")}]`}</p>
+										<p className="text-sm text-muted-foreground">{`[${e?.["values"]?.join(", ")}]`}</p>
 									</div>
 								))}
 							</div>

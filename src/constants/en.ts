@@ -86,18 +86,18 @@ const en = {
 							label: "Settings",
 							icon: "settings",
 						},
-						{
-							segments: ["support"],
-							value: "/support",
-							label: "Support",
-							icon: "lifeBuoy",
-						},
-						{
-							segments: ["feedback"],
-							value: "/feedback",
-							label: "Feedback",
-							icon: "send",
-						},
+						// {
+						// 	segments: ["support"],
+						// 	value: "/support",
+						// 	label: "Support",
+						// 	icon: "lifeBuoy",
+						// },
+						// {
+						// 	segments: ["feedback"],
+						// 	value: "/feedback",
+						// 	label: "Feedback",
+						// 	icon: "send",
+						// },
 					],
 				},
 			] as { label?: string; items: NavItem[] }[],
@@ -329,6 +329,14 @@ const en = {
 		},
 		logo: {
 			logo: "Logo",
+		},
+		currency: {
+			currency: "Currency",
+			USD: "USD",
+		},
+		language: {
+			language: "Language",
+			EN: "English",
 		},
 		bio: {
 			bio: "Bio",

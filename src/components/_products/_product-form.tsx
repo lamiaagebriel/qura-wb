@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	AlertDialog,
 	AlertDialogCancel,
+	AlertDialogCancelCircle,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
@@ -369,12 +370,9 @@ export const ProductForm = {
 							</AlertDialogTrigger>
 							<AlertDialogContent className="max-h-[95svh] overflow-auto rounded-md">
 								<AlertDialogHeader>
-									<AlertDialogTitle className="justify-start">edit images</AlertDialogTitle>
-									<AlertDialogDescription className="max-w-prose">
-										edit images
-									</AlertDialogDescription>
+									<AlertDialogTitle className="sr-only">Edit images</AlertDialogTitle>
 								</AlertDialogHeader>
-
+								<AlertDialogCancelCircle />
 								<Tabs defaultValue="0">
 									<TabsList className="h-auto w-full max-w-full flex-1 justify-stretch gap-4 overflow-auto bg-transparent">
 										{form.watch("images")?.map((e, i) => (
@@ -418,12 +416,6 @@ export const ProductForm = {
 										</TabsContent>
 									))}
 								</Tabs>
-
-								<AlertDialogFooter>
-									<Button disabled={loading} className="w-full md:w-fit">
-										Confirm
-									</Button>
-								</AlertDialogFooter>
 							</AlertDialogContent>
 						</AlertDialog>
 					) : (

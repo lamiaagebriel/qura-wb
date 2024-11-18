@@ -49,16 +49,20 @@ export function StoreCreateSteps({
 		resolver: zodResolver(storeCreateSchema),
 		defaultValues: {
 			name: "",
-			username: "",
-			logo: "",
-			bio: "",
 			category: "",
+			currency: "",
+			language: "",
+
+			username: "",
+
+			bio: "",
+			logo: "",
 			location: {
-				addressLine: "",
-				zip: "",
-				state: "",
-				city: "",
 				country: "",
+				city: "",
+				state: "",
+				zip: "",
+				addressLine: "",
 			},
 		},
 	});
@@ -68,10 +72,8 @@ export function StoreCreateSteps({
 			setLoading(true);
 			const result = await createStore(data);
 
-			if (result && typeof result === "object" && "error" in result) {
-				toast.error(result?.["error"]);
-				return;
-			}
+			if (result && typeof result === "object" && "error" in result)
+				throw new Error(result?.["error"]);
 
 			// toast.success(c?.["created successfully."]);
 			router.push(`/${locale}/ss/${result?.["id"]}`);
@@ -125,24 +127,6 @@ export function StoreCreateSteps({
 			),
 		},
 		{
-			label: c?.["Username"],
-			children: (
-				<div dir="ltr" className="flex flex-col gap-4">
-					<div className="flex flex-col items-center">
-						<h1 className="text-center font-bold">{c?.["Select Your Store Unique Name"]}</h1>
-						<p className="max-w-prose text-center text-sm text-muted-foreground">
-							{
-								c?.[
-									"Choose the category that best represents your store's offerings. this could be changed later."
-								]
-							}
-						</p>
-					</div>
-					<StoreForm.username dic={dic} form={form as any} loading={loading} />
-				</div>
-			),
-		},
-		{
 			label: c?.["Basic Details"],
 			children: (
 				<div className="flex flex-col gap-4">
@@ -162,6 +146,29 @@ export function StoreCreateSteps({
 					</div>
 					<StoreForm.name dic={dic} form={form as any} loading={loading} />
 					<StoreForm.bio dic={dic} form={form as any} loading={loading} />
+
+					<div className="flex items-center gap-4">
+						<StoreForm.currency dic={dic} form={form as any} loading={loading} />
+						<StoreForm.language dic={dic} form={form as any} loading={loading} />
+					</div>
+				</div>
+			),
+		},
+		{
+			label: c?.["Username"],
+			children: (
+				<div dir="ltr" className="flex flex-col gap-4">
+					<div className="flex flex-col items-center">
+						<h1 className="text-center font-bold">{c?.["Select Your Store Unique Name"]}</h1>
+						<p className="max-w-prose text-center text-sm text-muted-foreground">
+							{
+								c?.[
+									"Choose the category that best represents your store's offerings. this could be changed later."
+								]
+							}
+						</p>
+					</div>
+					<StoreForm.username dic={dic} form={form as any} loading={loading} />
 				</div>
 			),
 		},
@@ -179,13 +186,20 @@ export function StoreCreateSteps({
 							}
 						</p>
 					</div>
+					<div>
+						<div>
+							<StoreForm.map dic={dic} form={form as any} loading={loading} />
+						</div>
 
-					<AddressForm.addressLine dic={dic} form={form as any} loading={loading} />
-					<div className="grid grid-cols-2 gap-2">
-						<AddressForm.zip dic={dic} form={form as any} loading={loading} />
-						<AddressForm.state dic={dic} form={form as any} loading={loading} />
-						<AddressForm.city dic={dic} form={form as any} loading={loading} />
-						<AddressForm.country dic={dic} form={form as any} loading={loading} />
+						<div>
+							<AddressForm.addressLine dic={dic} form={form as any} loading={loading} />
+							<div className="grid grid-cols-2 gap-2">
+								<AddressForm.zip dic={dic} form={form as any} loading={loading} />
+								<AddressForm.state dic={dic} form={form as any} loading={loading} />
+								<AddressForm.city dic={dic} form={form as any} loading={loading} />
+								<AddressForm.country dic={dic} form={form as any} loading={loading} />
+							</div>
+						</div>
 					</div>
 				</div>
 			),

@@ -24,8 +24,8 @@ model User {
   password String? // creadentials
   googleId String? // googleAuth
 
-  stores Store[]
-  orders Order[]
+  stores  Store[]
+  orders  Order[]
   reviews Review[]
 
   @@map("users")
@@ -40,17 +40,6 @@ model Session {
   @@map("sessions")
 }
 
-enum CURRENCY {
-  EGY
-  US
-  SAR
-}
-
-enum LANGUAGE {
-  EN
-  AR
-}
-
 model Store {
   id        String   @id @map("_id")
   userId    String
@@ -58,17 +47,19 @@ model Store {
   createdAt DateTime @default(now())
 
   name     String
-  username String  @unique
+  category String
+  currency String? // base currency
+  language String? // base language
+
+  username String @unique
+
   bio      String?
   logo     String?
-  category String
-  // currency  CURRENCY
-  // languages LANGUAGE // [] @default([])
   location Json
 
   products Product[]
   pages    Page[]
-  orders   Order[] 
+  orders   Order[]
 
   @@map("stores")
 }
@@ -79,10 +70,9 @@ model Page {
   store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  url         String
-  title       String
-  description String?
-  body        String?
+  url   String
+  title String
+  body  String?
 
   @@unique([storeId, url])
   @@map("pages")
@@ -100,27 +90,33 @@ model Product {
   store     Store    @relation(references: [id], fields: [storeId], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  name        String
-  slug        String        @unique
+  title       String
+  slug        String  @unique
   description String?
-  status      ProductStatus @default(DRAFT)
-  images      String[]      @default([])
 
-  cost     Int?
+  status ProductStatus @default(DRAFT)
+
+  images String[] @default([])
+
   price    Int
   discount Int?
-  stock    Int
-  // isAlwaysAvailable
+  cost     Int?
 
-  attributes Json
+  tax Int? // default to 0
 
+  stock                 Int? // limited amount || always avaliable
+  limitedAmountPerOrder Int?
+
+  attributes Json[]   @default([]) // {name: string, desc?: string, values: string[]}
   // compinations Json // cost, price, discount, stock, isAlwaysAvailable
   // الخصائص، نوع الكاميرا ....
+  // properties // {name: brand, value: Apple}
+  reviews    Review[]
 
-  reviews Review[]
   @@map("products")
 }
 
+// not yet
 enum OrderStatus {
   PENDING
   CONFIRMED
@@ -145,17 +141,15 @@ model Order {
 }
 
 model Review {
-  id         String   @id @map("_id")
-  productId  String
-  product    Product  @relation(references: [id], fields: [productId], onDelete: Cascade)
-  userId     String
-  user       User     @relation(references: [id], fields: [userId], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String   @id @map("_id")
+  productId String
+  product   Product  @relation(references: [id], fields: [productId], onDelete: Cascade)
+  userId    String
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
+  content String
+  rating  Int // (e.g., 1-5 stars)
 
-  content    String
-  rating     Int    // (e.g., 1-5 stars)
-  
   @@map("reviews")
 }
-

@@ -65,20 +65,13 @@ export const AttributeForm = {
 		attributes,
 	}: AttributeFormProps) => {
 		const suggestions = form?.watch(`attributes.${i}.name`)
-			? attributes
-					?.find((e) => e?.["name"] === form?.watch(`attributes.${i}.name`))
-					?.["values"]?.map((e) => e?.["name"])
+			? attributes?.find((e) => e?.["name"] === form?.watch(`attributes.${i}.name`))?.["values"]
 			: [];
 
 		return (
 			<TagsInput
-				selected={form.watch(`attributes.${i}.values`)?.map((e) => e?.["name"])}
-				onSelectedChange={(values) =>
-					form.setValue(
-						`attributes.${i}.values`,
-						values.map((value) => ({ name: value })),
-					)
-				}
+				selected={form.watch(`attributes.${i}.values`)}
+				onSelectedChange={(values) => form.setValue(`attributes.${i}.values`, values)}
 				suggestions={suggestions}
 			/>
 		);
@@ -98,74 +91,47 @@ export const AttributesForm = ({ dic, form, loading, attributes = [] }: Attribut
 	});
 
 	return (
-		<div className="space-y-2">
-			<div className="flex items-center gap-2">
-				<div className="flex w-full items-center justify-between gap-2">
-					<p className="items-center justify-start">
-						Options{" "}
-						{form.watch("attributes")?.["length"] ? (
-							<span className="text-sm text-muted-foreground">
-								- {form.watch("attributes")?.["length"]} unit(s)
-							</span>
-						) : null}
-					</p>
-				</div>
-
-				<div>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => attributesForm.append({ name: "", values: [] })}
-					>
-						<Icons.add />
-					</Button>
-				</div>
-			</div>
-
-			<div>
+		<div>
+			{form.watch("attributes")?.["length"] ? (
 				<Card>
 					<CardContent>
-						{form.watch("attributes")?.["length"] ? (
-							<div>
-								{form.watch("attributes")?.map((e, i) => {
-									return (
-										<div key={i} className="mb-2 space-y-4 border-b-4 last:border-none">
-											<div className="flex w-full items-center justify-between gap-2">
-												<AttributeForm.name
-													dic={dic}
-													form={form as any}
-													loading={loading}
-													i={i}
-													attributes={attributes}
-												/>
+						<div>
+							{form.watch("attributes")?.map((e, i) => {
+								return (
+									<div key={i} className="mb-2 space-y-4 border-b-4 last:border-none">
+										<div className="flex w-full items-center justify-between gap-2">
+											<AttributeForm.name
+												dic={dic}
+												form={form as any}
+												loading={loading}
+												i={i}
+												attributes={attributes}
+											/>
 
-												<Button
-													variant="destructive"
-													size="icon"
-													onClick={() => attributesForm.remove(i)}
-												>
-													<Icons.x />
-												</Button>
-											</div>
-											<div>
-												<AttributeForm.values
-													dic={dic}
-													form={form as any}
-													loading={loading}
-													i={i}
-													attributes={attributes}
-												/>
-											</div>
+											<Button
+												variant="destructive"
+												size="icon"
+												onClick={() => attributesForm.remove(i)}
+											>
+												<Icons.x />
+											</Button>
 										</div>
-									);
-								})}
-							</div>
-						) : (
-							<div>No Attributes</div>
-						)}
+										<div>
+											<AttributeForm.values
+												dic={dic}
+												form={form as any}
+												loading={loading}
+												i={i}
+												attributes={attributes}
+											/>
+										</div>
+									</div>
+								);
+							})}
+						</div>
 					</CardContent>
 				</Card>
-			</div>
+			) : null}
 		</div>
 	);
 };

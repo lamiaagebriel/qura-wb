@@ -224,9 +224,7 @@ export default async function Order({ params }: OrderProps) {
 																		<CardTitle>{e?.["name"]}</CardTitle>
 																		<CardDescription>
 																			{e?.["attributes"]
-																				?.map((e) =>
-																					[e?.["name"], e?.["values"]?.[0]?.["name"]]?.join(": "),
-																				)
+																				?.map((e) => [e?.["name"], e?.["values"]]?.join(": "))
 																				?.join(", ")}
 																		</CardDescription>
 																	</div>
