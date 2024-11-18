@@ -36,7 +36,7 @@ import { Image } from "@/components/image";
 export type ProductFormProps = {
 	loading: boolean;
 	form: UseFormReturn<
-		z.infer<typeof productCreateSchema> | z.infer<typeof productUpdateSchema>,
+		z.infer<typeof productUpdateSchema> | z.infer<typeof productCreateSchema>,
 		any,
 		undefined
 	>;
@@ -301,8 +301,7 @@ export const ProductForm = {
 		form,
 	}: ProductFormProps) {
 		const imagesForm = useFieldArray({
-			// @ts-expect-error
-			name: "images",
+			name: "images" as any,
 			control: form?.["control"],
 		});
 
@@ -479,7 +478,6 @@ export const ProductForm = {
 													const file = files?.[i];
 													if (file) {
 														const base64 = (await fileToBase64({ file }))?.toString();
-														// @ts-expect-error
 														imagesForm.append(base64 ?? "");
 													}
 												}
