@@ -1,6 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ThemeProvider as NextThemesProvider, ThemeProviderProps } from "next-themes";
-export function ThemeProvider({ ...props }: ThemeProviderProps) {
-	return <NextThemesProvider {...props} />;
-}
+
+export const ThemeProvider = dynamic<ThemeProviderProps>(
+	() => Promise.resolve(({ ...props }) => <NextThemesProvider {...props} />),
+	{ ssr: false },
+);

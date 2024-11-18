@@ -32,12 +32,12 @@ import { StoreCreateButton } from "@/components/_stores/store-create-button";
 import { getDictionary } from "@/lib/locale";
 import { LogoutButton } from "@/components/_users/logout-button";
 
-type DashboardLayoutProps = Readonly<{
+type StoreLayoutProps = Readonly<{
 	children: React.ReactNode;
 	params: Promise<{ "store-id": string } & LocaleProps>;
 }>;
 
-export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
+export default async function StoreLayout({ children, params }: StoreLayoutProps) {
 	const { locale, "store-id": storeId } = await params;
 	const { user } = await getAuth();
 	const dic = await getDictionary({ locale });

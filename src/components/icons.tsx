@@ -32,6 +32,7 @@ import {
 	Eye,
 	Trash2,
 	Edit2,
+	Store,
 } from "lucide-react";
 import { cn } from "@/lib/shadcn";
 
@@ -137,6 +138,9 @@ export const Icons = {
 	),
 	shirt: ({ className, ...props }: IconProps) => (
 		<Shirt className={cn(IconsVariants({}), className)} {...props} />
+	),
+	store: ({ className, ...props }: IconProps) => (
+		<Store className={cn(IconsVariants({}), className)} {...props} />
 	),
 	packagePlus: ({ className, ...props }: IconProps) => (
 		<PackagePlus className={cn(IconsVariants({}), className)} {...props} />

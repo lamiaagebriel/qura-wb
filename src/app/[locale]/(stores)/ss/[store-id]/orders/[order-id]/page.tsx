@@ -298,13 +298,13 @@ export default async function Order({ params }: OrderProps) {
 								</CardHeader>
 								<CardContent>
 									<div className="relative">
-										<div className="absolute left-4 top-0 h-full w-0.5 bg-gray-300 rtl:right-4" />
+										<div className="absolute left-4 top-0 h-full w-0.5 bg-muted rtl:right-4" />
 
 										<div className="space-y-3">
 											{order?.["timelines"]?.map((e, i) => (
 												<div key={i} className="relative flex items-start gap-2">
 													<div className="flex flex-shrink-0">
-														<Avatar className="size-9 rounded-full border-4 border-white">
+														<Avatar className="size-9 rounded-full border-4 border-primary">
 															<AvatarImage src={e?.["user"]?.["image"]!} alt="" />
 															<AvatarFallback text={e?.["user"]?.["name"]}>
 																<Icons.user className="size-3" />

@@ -18,7 +18,7 @@ import { Icons } from "@/components/icons";
 
 export type LocaleSwitcherProps = {} & Dictionary["locale-switcher"];
 export function LocaleSwitcher({ dic: { "locale-switcher": c } }: LocaleSwitcherProps) {
-	const lang = useLocale();
+	const locale = useLocale();
 	const pathname = usePathname();
 
 	function redirectedPathname(pathname: string, locale: Locale) {
@@ -31,8 +31,9 @@ export function LocaleSwitcher({ dic: { "locale-switcher": c } }: LocaleSwitcher
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="icon">
+				<Button variant="ghost" size="sm">
 					<Icons.globe />
+					<span>{c?.[locale]}</span>
 					<span className="sr-only">{c?.["current locale of the website"]!}</span>
 				</Button>
 			</DropdownMenuTrigger>
