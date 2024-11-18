@@ -50,7 +50,7 @@ export function TagsInput({ selected, onSelectedChange, suggestions = [] }: Fanc
 				return;
 			}
 		},
-		[selected, onSelectedChange, value],
+		[selected, onSelectedChange, value, handleNewValue],
 	);
 
 	const selectables = suggestions.filter((val) => !selected.includes(val));
