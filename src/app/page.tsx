@@ -1,7 +1,16 @@
-import type { Metadata } from "next"
+import type { Metadata } from "next";
 
-type HomeProps =  Readonly<{}>
-export const metadata: Metadata = { title: "Home" }
-export default function Home({}:HomeProps) {
-  return <div>Home</div>
-};
+import { getDictionary } from "@/lib/locale";
+
+type HomeProps = Readonly<{}>;
+export const metadata: Metadata = { title: "Home" };
+export default async function Home({}: HomeProps) {
+  const dic = await getDictionary();
+  return (
+    <div>
+      Home
+      <br />
+      {dic?.["site"]?.["name"]}
+    </div>
+  );
+}

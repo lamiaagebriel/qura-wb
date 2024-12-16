@@ -1,10 +1,42 @@
 import "./globals.css";
 
-type RootLayoutProps =  Readonly<React.PropsWithChildren<{}>>
-export default function RootLayout({ children }:RootLayoutProps) {
+import type { Metadata } from "next";
+import { Cairo, Inter } from "next/font/google";
+
+import { getDictionary } from "@/lib/locale";
+import { cn } from "@/lib/utils";
+
+import { LocaleProvider } from "@/components/locale-provider";
+
+const inter = Inter({ subsets: ["latin", "latin-ext"] });
+const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { site: c } = await getDictionary();
+
+  return {
+    title: { template: `%s | ${c?.["name"]}`, default: `${c?.["name"]}` },
+    description: c?.["description"],
+  };
+}
+// export const revalidate = 86400; // One day
+
+type RootLayoutProps = Readonly<React.PropsWithChildren<{}>>;
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const { locale, ...dic } = await getDictionary();
+
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html
+      lang={locale}
+      dir={locale === "ar" ? "rtl" : "ltr"}
+      className={cn(
+        "",
+        locale === "ar" ? cairo?.["className"] : inter?.["className"]
+      )}
+    >
+      <body>
+        <LocaleProvider value={{ ...dic, locale }}>{children}</LocaleProvider>
+      </body>
     </html>
   );
 }
