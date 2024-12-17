@@ -3,10 +3,10 @@
 import { cookies as nextCookies } from "next/headers";
 
 import { createServerAction } from "@/servers/utils";
-import { z } from "zod";
 
 import { Locale } from "@/lib/locale";
-import { validations } from "@/lib/validations";
+import { delay } from "@/lib/utils";
+import { Validation, validations } from "@/lib/validations";
 
 const site = {
   ar: () => import("@/constants/ar").then((module) => module?.["default"]),
@@ -21,13 +21,11 @@ export const getDictionary = async () => {
   const dic = await site[locale]();
   return { locale, ...dic };
 };
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const schema = validations?.["locale-switcher"];
 export const localeSwitcher = createServerAction(
-  async (formData: z.infer<typeof schema>) => {
+  async (formData: Validation["locale-switcher"]) => {
     await delay(20000);
-    const { locale } = schema?.parse(formData);
+    const { locale } = validations?.["locale-switcher"]?.parse(formData);
 
     const cookies = await nextCookies();
     cookies.set("locale", locale, {

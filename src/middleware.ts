@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+
+import { verifyRequestOrigin } from "lucia";
 
 import { i18n, Locale } from "@/lib/locale";
 
@@ -16,8 +18,8 @@ export function middleware(request: NextRequest) {
       ? (headerLocale as Locale)
       : i18n?.["defaultLocale"];
 
-  const response = NextResponse.next();
-  if (!cookieLocale)
+  if (!cookieLocale) {
+    const response = NextResponse.next();
     response.cookies.set("locale", locale, {
       httpOnly: true,
       sameSite: "strict",
@@ -25,7 +27,22 @@ export function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365, // 1 year
     });
 
-  return response;
+    return response;
+  }
+
+  // ----------------- authorization
+  if (request.method === "GET") return NextResponse.next();
+
+  const originHeader = request.headers.get("Origin");
+  const hostHeader = request.headers.get("Host");
+  if (
+    !originHeader ||
+    !hostHeader ||
+    !verifyRequestOrigin(originHeader, [hostHeader])
+  )
+    return new NextResponse(null, { status: 403 });
+
+  return NextResponse.next();
 }
 
 export const config = {

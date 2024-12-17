@@ -30,7 +30,7 @@ const Button = withFormAwareness(
         size,
 
         asChild = false,
-        loading = false,
+        loading = "false",
         disabled,
         Icon,
 
@@ -42,7 +42,6 @@ const Button = withFormAwareness(
       ref
     ) => {
       const Comp = asChild ? Slot : "button";
-
       return (
         <Comp
           ref={ref}
@@ -51,7 +50,7 @@ const Button = withFormAwareness(
           className={cn(buttonVariants({ variant, size, className }))}
           {...props}
         >
-          {type === "submit" && loading ? <Icons.spinner /> : Icon}
+          {type === "submit" && loading === "true" ? <Icons.spinner /> : Icon}
           {children}
         </Comp>
       );

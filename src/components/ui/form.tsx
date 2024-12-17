@@ -1,5 +1,7 @@
 "use client";
 
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
 import * as React from "react";
 
 import { SelectItem as SelectItemType, ServerActionError } from "@/types";
@@ -18,9 +20,10 @@ import {
   useForm as useReactHookForm,
 } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { cn } from "@/lib/utils";
-import { Validation, ValidationInfer, validations } from "@/lib/validations";
+import { Validation, ValidationName, validations } from "@/lib/validations";
 
 import { Input, InputProps } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,11 +38,11 @@ import {
 type PromiseT<Data = any> = Promise<Data> | (() => Promise<Data>);
 type PromiseTResult<Data = any> = (data: Data) => void;
 
-type FormProps<T extends Validation, R> = {
-  validation: T;
-  formProps?: UseFormProps<ValidationInfer<T>>;
+type FormProps<T extends ValidationName, R> = {
+  validation?: T;
+  formProps?: UseFormProps<Validation[T]>;
   actions: {
-    onSubmit: (data: ValidationInfer<T>) => Promise<R> | Promise<R>;
+    onSubmit: (data: Validation[T]) => Promise<R> | Promise<R>;
     onSuccess?: PromiseTResult<R>;
     onError?: PromiseTResult<ServerActionError>;
   };
@@ -51,17 +54,17 @@ type FormProps<T extends Validation, R> = {
   "onSubmit"
 >;
 
-const Form = <T extends Validation, R>({
+const Form = <T extends ValidationName, R>({
   validation,
   actions,
   formProps,
   ...props
 }: FormProps<T, R>) => {
-  const schema = validations?.[validation];
+  const schema = validation ? validations?.[validation] : z.object({});
   const { onSubmit: actionFn, onSuccess, onError } = actions;
   // const [loading, setLoading] = React.useState<boolean>(false);
 
-  const form = useReactHookForm<ValidationInfer<T>>({
+  const form = useReactHookForm<Validation[T]>({
     mode: "onBlur",
     resolver: zodResolver(schema),
     ...formProps,
@@ -87,18 +90,30 @@ const Form = <T extends Validation, R>({
         !result?.["ok"]
       )
         throw result;
-
       success?.(result);
+
+      if (result && typeof result === "object" && "toast" in result)
+        toast?.["success"]?.(
+          // @ts-expect-error may exist or not
+          result?.["toast"]?.["message"],
+          // @ts-expect-error may exist or not
+          result?.["toast"]?.["data"]
+        );
+
+      if (result && typeof result === "object" && "redirect" in result)
+        // @ts-expect-error may exist or not
+        redirect(result?.["redirect"]);
+
       return result;
     } catch (err: any) {
-      // Handle Zod validation errors
-      console.log({ err });
-
       if (error) {
         error(err);
-        return;
+
+        return null;
       }
-      console.log("zodIssues" in err && Array.isArray(err?.["zodIssues"]));
+
+      if (isRedirectError(err) && err.digest?.startsWith("NEXT_REDIRECT"))
+        return null;
 
       if ("zodIssues" in err && Array.isArray(err?.["zodIssues"])) {
         err?.["zodIssues"]?.forEach((e) => {
@@ -108,11 +123,13 @@ const Form = <T extends Validation, R>({
           form.setError(path as any, { message: e?.["message"]! });
         });
 
-        return;
+        return null;
       }
 
-      if ("message" in err && typeof err?.["message"] === "string")
+      if ("message" in err && typeof err?.["message"] === "string") {
         toast.error(err?.["message"]);
+        return null;
+      }
 
       return null;
     } finally {
@@ -120,7 +137,7 @@ const Form = <T extends Validation, R>({
     }
   }
 
-  async function onSubmit(data: ValidationInfer<T>) {
+  async function onSubmit(data: Validation[T]) {
     await handleServerAction(actionFn(data), {
       success: onSuccess,
       error: onError,
@@ -362,7 +379,10 @@ const FormSelectField = <
 };
 FormSelectField.displayName = "FormSelectField";
 
-export type WithFormAwarenessProps = { disabled?: boolean; loading?: boolean };
+export type WithFormAwarenessProps = {
+  disabled?: boolean;
+  loading?: "true" | "false";
+};
 function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
   WrappedComponent:
     | React.ComponentType<T>
@@ -373,11 +393,12 @@ function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
     const loading = JSON.parse(
       form?.["formState"]?.["isSubmitting"]?.toString() ?? "false"
     );
+
     const disabled = loading || props?.["disabled"];
     return React.createElement(WrappedComponent as any, {
       ...props,
       ref,
-      loading,
+      loading: JSON.stringify(loading),
       disabled,
     });
   });

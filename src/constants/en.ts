@@ -10,6 +10,35 @@ const en = {
     en: "English (EN)",
     ar: "العربية (AR)",
   },
+
+  actions: {
+    "An unexpected error occured, please try again later.":
+      "An unexpected error occured, please try again later.",
+    // users: {
+    "you don't have access to do this action":
+      "you don't have access to do this action",
+    "this action needs you to be logged in.":
+      "this action needs you to be logged in.",
+    "this email has been already used.": "This email has been already used.",
+    "incorrect email address.": "Incorrect email address.",
+    "incorrect password": "Incorrect password",
+    "no password setted to that account, login using google.":
+      "No password setted to that account, Login using Google.",
+    "you are not logged in.": "You are not logged in.",
+
+    "your user account was not logged in. please try again.":
+      "your user account was not logged in. Please try again.",
+    "your user account was not created. please try again.":
+      "your user account was not created. Please try again.",
+    "your user account was not updated. please try again.":
+      "your user account was not updated. Please try again.",
+    "your user account was not deleted. please try again.":
+      "your user account was not deleted. Please try again.",
+  },
+  // functions: {
+  //   waitsUntil: ({ duration }: { duration: string }) =>
+  //     `Please wait ${duration} before resending.`,
+  // },
 };
 
 export default en;
