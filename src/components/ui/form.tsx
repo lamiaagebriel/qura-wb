@@ -18,7 +18,6 @@ import {
   useForm as useReactHookForm,
 } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { cn } from "@/lib/utils";
 import { Validation, ValidationInfer, validations } from "@/lib/validations";
@@ -138,9 +137,7 @@ const Form = <T extends Validation, R>({
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = {
-  name: TName;
-};
+> = { name: TName };
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue
@@ -286,6 +283,7 @@ const FormMessage = React.forwardRef<
 FormMessage.displayName = "FormMessage";
 
 // ---------------------- Custom Form Component
+
 type FormInputFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -364,6 +362,27 @@ const FormSelectField = <
 };
 FormSelectField.displayName = "FormSelectField";
 
+export type WithFormAwarenessProps = { disabled?: boolean; loading?: boolean };
+function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
+  WrappedComponent:
+    | React.ComponentType<T>
+    | React.ForwardRefRenderFunction<R, T>
+) {
+  return React.forwardRef<R, T>((props, ref) => {
+    const form = useFormContext() ?? undefined;
+    const loading = JSON.parse(
+      form?.["formState"]?.["isSubmitting"]?.toString() ?? "false"
+    );
+    const disabled = loading || props?.["disabled"];
+    return React.createElement(WrappedComponent as any, {
+      ...props,
+      ref,
+      loading,
+      disabled,
+    });
+  });
+}
+
 export {
   useFormField,
   Form,
@@ -373,7 +392,7 @@ export {
   FormDescription,
   FormMessage,
   FormField,
-
+  withFormAwareness,
   // ---------------------- Custom Form Component
   FormInputField,
   FormSelectField,

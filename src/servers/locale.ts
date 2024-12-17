@@ -21,10 +21,12 @@ export const getDictionary = async () => {
   const dic = await site[locale]();
   return { locale, ...dic };
 };
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const schema = validations?.["locale-switcher"];
 export const localeSwitcher = createServerAction(
   async (formData: z.infer<typeof schema>) => {
+    await delay(20000);
     const { locale } = schema?.parse(formData);
 
     const cookies = await nextCookies();

@@ -6,6 +6,7 @@ import { i18n } from "@/lib/locale";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormSelectField } from "@/components/ui/form";
+import { Icons } from "@/components/icons";
 
 type LocaleSwitcherProps = {};
 export async function LocaleSwitcher({}: LocaleSwitcherProps) {
@@ -22,7 +23,9 @@ export async function LocaleSwitcher({}: LocaleSwitcherProps) {
         label="Choose Language"
         placeholder="choose language"
       />
-      <Button type="submit">Submit</Button>
+      <Button type="submit" Icon={<Icons.logo />}>
+        Submit
+      </Button>
     </Form>
   );
 }
