@@ -4,10 +4,12 @@ import * as React from "react";
 
 import { Dictionary, Locale } from "@/lib/locale";
 
-type LocaleContext = Dictionary & { locale: Locale };
-const LocaleContext = React.createContext<LocaleContext | null>(null);
+type LocaleContextProps = Readonly<Dictionary & { locale: Locale }>;
+const LocaleContext = React.createContext<LocaleContextProps | null>(null);
 
-type LocaleProviderProps = React.PropsWithChildren<{ value: LocaleContext }>;
+type LocaleProviderProps = Readonly<
+  React.PropsWithChildren<{ value: LocaleContextProps }>
+>;
 export function LocaleProvider({ value, ...props }: LocaleProviderProps) {
   return <LocaleContext.Provider value={value} {...props} />;
 }

@@ -1,30 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const LOCALES = ["en", "fr", "de", "es"] as const;
-export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = "en";
+import { i18n, Locale } from "@/lib/locale";
 
 export function middleware(request: NextRequest) {
   // ----------------- localization
-  const cookieLocale = request.cookies.get("locale")?.value;
-  console.log({ cookieLocale });
-
-  const headerLocale = request.headers
+  const cookieLocale = request?.["cookies"]?.get("locale")?.["value"];
+  const headerLocale = request?.["headers"]
     .get("accept-language")
     ?.split(",")[0]
     .split("-")[0];
-  const locale =
-    cookieLocale ||
-    (LOCALES.includes(headerLocale as Locale) ? headerLocale : DEFAULT_LOCALE);
-  console.log({ locale });
+
+  const locale = i18n?.["locales"]?.includes(cookieLocale as Locale)
+    ? (cookieLocale as Locale)
+    : i18n?.["locales"]?.includes(headerLocale as Locale)
+      ? (headerLocale as Locale)
+      : i18n?.["defaultLocale"];
 
   const response = NextResponse.next();
-  response.cookies.set("locale", locale!, {
-    httpOnly: true,
-    sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 365, // 1 year
-    path: "/", // Ensure cookie is available across the entire site
-  });
+  if (!cookieLocale)
+    response.cookies.set("locale", locale, {
+      httpOnly: true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+    });
 
   return response;
 }

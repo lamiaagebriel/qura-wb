@@ -3,9 +3,11 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Cairo, Inter } from "next/font/google";
 
-import { getDictionary } from "@/lib/locale";
+import { getDictionary } from "@/servers/locale";
+
 import { cn } from "@/lib/utils";
 
+import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/components/locale-provider";
 
 const inter = Inter({ subsets: ["latin", "latin-ext"] });
@@ -35,7 +37,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       )}
     >
       <body>
-        <LocaleProvider value={{ ...dic, locale }}>{children}</LocaleProvider>
+        <LocaleProvider value={{ ...dic, locale }}>
+          {children}
+          <Toaster />
+        </LocaleProvider>
       </body>
     </html>
   );
