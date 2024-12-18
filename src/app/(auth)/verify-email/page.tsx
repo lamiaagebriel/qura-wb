@@ -1,83 +1,75 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants/utils";
-import { logout, resendVerificationEmail, verifyEmail } from "@/servers/auth";
 
+import { logout, resendVerificationEmail, verifyEmail } from "@/servers/auth";
+import { getDictionary } from "@/servers/locale";
 import { geAuth } from "@/lib/auth";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Form, FormInputField } from "@/components/ui/form";
+import { Form, FormButton, FormInputField } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { Icons } from "@/components/icons";
 
 type VerifyEmailProps = Readonly<{}>;
-export const metadata: Metadata = { title: "VerifyEmail" };
+export const metadata: Metadata = { title: "Verify Email" };
 export default async function VerifyEmail({}: VerifyEmailProps) {
   const { user } = await geAuth();
 
   if (!user) redirect(Paths.Login);
   if (user.emailVerified) redirect(Paths.Dashboard);
 
+  const { "form-fields": ff, ...dic } = await getDictionary();
+  const c = dic?.["auth"]?.["verify-email"];
+
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle>Verify Email</CardTitle>
-        <CardDescription>
-          Verification code was sent to <strong>{user.email}</strong>. Check
-          your spam folder if you can't find the email.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button variant="outline" className="w-full">
-          {/* <Link href="/login/discord" prefetch={false}>
-            <Icons.google className="mr-2 h-5 w-5" />
-            Log in with Discord
-          </Link> */}
-        </Button>
-        <div className="my-2 flex items-center">
-          <div className="flex-grow border-t border-muted" />
-          <div className="mx-2 text-muted-foreground">or</div>
-          <div className="flex-grow border-t border-muted" />
+    <div className="flex min-h-screen flex-col items-center justify-center overflow-auto">
+      <section className="container flex w-full max-w-sm flex-col justify-center gap-5">
+        <div className="flex flex-col gap-2 text-center">
+          <Icons.logo className="mx-auto size-16" />
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {c?.["verify email"]}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {c?.["verification code was sent to"]}{" "}
+            <span className="font-bold">{user?.["email"]}</span>.{" "}
+            {c?.["check your spam folder if you can't find the email."]}
+          </p>
         </div>
 
-        <Form
-          validation="verify-email-schema"
-          formProps={{ defaultValues: { code: "" } }}
-          actions={{ onSubmit: verifyEmail }}
-        >
-          <FormInputField
-            label="Verification Code"
-            placeholder="********"
-            field={{ name: "code" }}
-          />
+        <div>
+          <Form
+            validation="verify-email-schema"
+            formProps={{ defaultValues: { code: "" } }}
+            actions={{ onSubmit: verifyEmail }}
+          >
+            <div className="space-y-2">
+              <FormInputField
+                label={ff?.["verification code"]?.["verification code"]}
+                field={{ name: "code" }}
+                placeholder="********"
+              />
 
-          <Button type="submit" className="w-full">
-            Verify
-          </Button>
-          <Button variant="outline" className="w-full">
-            <Link href="/">Cancel</Link>
-          </Button>
-        </Form>
+              <FormButton type="submit" className="w-full">
+                {ff?.["verify"]}
+              </FormButton>
 
-        <Form actions={{ onSubmit: resendVerificationEmail }}>
-          <Button type="submit" className="w-full">
-            Resend Code
-          </Button>
-        </Form>
+              <FormButton className="w-full" onAction={resendVerificationEmail}>
+                {ff?.["resend code"]}
+              </FormButton>
+            </div>
+            <Separator className="mb-2 mt-4" />
 
-        <Form actions={{ onSubmit: logout }}>
-          <Button type="submit" variant="link" className="p-0 font-normal">
-            want to use another email? Log out now.
-          </Button>
-        </Form>
-      </CardContent>
-    </Card>
+            <FormButton
+              variant="link"
+              className="text-center text-sm text-muted-foreground"
+              onAction={logout}
+            >
+              {c?.["want to use another email? logout now."]}
+            </FormButton>
+          </Form>
+        </div>
+      </section>
+    </div>
   );
 }

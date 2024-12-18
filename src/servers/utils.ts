@@ -1,11 +1,11 @@
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
-import { getDictionary } from "@/servers/locale";
 import { ServerActionResult } from "@/types";
 import { Scrypt } from "lucia";
 import { z } from "zod";
 
+import { getDictionary } from "@/servers/locale";
 import { Dictionary } from "@/lib/locale";
 
 export async function hash(str: string) {
@@ -28,9 +28,10 @@ export function createServerAction<T, R>(
     try {
       return await actionFn(data);
     } catch (error: any) {
+      // console.log({ error });
+
       if (isRedirectError(error) && error.digest?.startsWith("NEXT_REDIRECT")) {
         const url = error?.["digest"]?.split(";")?.[2] ?? null;
-        console.log(url);
 
         if (url) redirect(url);
 

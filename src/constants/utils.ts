@@ -7,8 +7,9 @@ export const ID = {
 export enum Paths {
   Home = "/",
   Login = "/login",
-  LoginGoogle = "/login/google",
   Register = "/register",
+  TermsOfService = "/terms-of-service",
+  PrivacyPolicy = "/privacy-policy",
   VerifyEmail = "/verify-email",
   ResetPassword = "/reset-password",
   Dashboard = "/dashboard",

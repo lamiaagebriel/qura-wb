@@ -3,82 +3,118 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants/utils";
-import { loginWithPassword, registerWithPassword } from "@/servers/auth";
+
+import { loginWithGoogle, registerWithPassword } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
-
 import { geAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Form, FormInputField } from "@/components/ui/form";
+import { Form, FormButton, FormInputField } from "@/components/ui/form";
+import { buttonVariants } from "@/components/ui/vairants";
 import { Icons } from "@/components/icons";
 
 type RegisterProps = Readonly<{}>;
 export const metadata: Metadata = { title: "Register" };
 export default async function Register({}: RegisterProps) {
   const { user } = await geAuth();
-  const { locale, site, "locale-switcher": c } = await getDictionary();
-
   if (user) redirect(Paths.Dashboard);
 
+  const { "form-fields": ff, ...dic } = await getDictionary();
+  const c = dic?.["auth"]?.["register"];
+
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle>{site?.["name"]} Register</CardTitle>
-        <CardDescription>
-          Sign up to your account to access your dashboard
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Link href={Paths.LoginGoogle} prefetch={false}>
-          <Button variant="outline" className="w-full">
-            <Icons.google className="mr-2 h-5 w-5" />
-            Log in with Google
-          </Button>
-        </Link>{" "}
-        <div className="my-2 flex items-center">
-          <div className="flex-grow border-t border-muted" />
-          <div className="mx-2 text-muted-foreground">or</div>
-          <div className="flex-grow border-t border-muted" />
+    <div className="grid min-h-screen items-center justify-center overflow-auto lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <Link
+        href={Paths.Login}
+        className={cn(
+          buttonVariants({ variant: "ghost" }),
+          "absolute right-4 top-4"
+        )}
+      >
+        {c?.["login"]}
+      </Link>
+
+      <div className="hidden h-full bg-muted lg:block" />
+      <section className="container flex w-full max-w-sm flex-col justify-center gap-5">
+        <div className="flex flex-col gap-2 text-center">
+          <Icons.logo className="mx-auto size-16" />
+
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {c?.["create an account!"]} 🎉
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {
+              c?.[
+                "join our community and unlock amazing features to streamline your work and boost your productivity."
+              ]
+            }
+          </p>
         </div>
-        <Form
-          validation="register-with-password-schema"
-          formProps={{ defaultValues: { email: "", password: "" } }}
-          actions={{ onSubmit: registerWithPassword }}
-        >
-          <FormInputField
-            label="Email"
-            type="email"
-            placeholder="email@example.com"
-            autoComplete="email"
-            field={{ name: "email" }}
-          />
-          <FormInputField
-            label="Password"
-            type="password"
-            field={{ name: "password" }}
-          />
+        <div className="grid gap-4">
+          <Form
+            validation="register-with-password-schema"
+            formProps={{ defaultValues: { email: "", password: "" } }}
+            actions={{ onSubmit: registerWithPassword }}
+            className="grid grid-cols-1 gap-6"
+          >
+            <div className="space-y-2">
+              <FormInputField
+                type="email"
+                label={ff?.["email"]?.["email"]}
+                field={{ name: "email" }}
+              />
 
-          <div className="flex flex-wrap justify-between">
-            <Button variant={"link"} size={"sm"} className="p-0">
-              <Link href={Paths.Login}>Already signed up? Login instead.</Link>
-            </Button>
-          </div>
+              <FormInputField
+                type="password"
+                label={ff?.["password"]?.["password"]}
+                field={{ name: "password" }}
+              />
 
-          <Button type="submit" className="w-full">
-            Sign Up
-          </Button>
-          <Button variant="outline" className="w-full">
-            <Link href="/">Cancel</Link>
-          </Button>
-        </Form>
-      </CardContent>
-    </Card>
+              <FormButton type="submit" className="w-full">
+                {c?.["sign up with email"]}
+              </FormButton>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  {c?.["or continue with"]}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <FormButton
+                infiniteLoading
+                onAction={loginWithGoogle}
+                variant="outline"
+                className="w-full"
+                Icon={<Icons.google className="size-5" />}
+              >
+                {c?.["sign up with google"]}
+              </FormButton>
+            </div>
+          </Form>
+          <p className="px-8 text-center text-sm text-muted-foreground">
+            {c?.["by clicking continue, you agree to our"]}{" "}
+            <Link
+              href={Paths.TermsOfService}
+              className="hover:text-brand underline underline-offset-4"
+            >
+              {c?.["terms of service"]}
+            </Link>{" "}
+            {c?.["and"]}{" "}
+            <Link
+              href={Paths.PrivacyPolicy}
+              className="hover:text-brand underline underline-offset-4"
+            >
+              {c?.["privacy policy"]}
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }

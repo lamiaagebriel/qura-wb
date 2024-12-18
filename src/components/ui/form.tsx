@@ -1,10 +1,13 @@
 "use client";
 
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { redirect } from "next/navigation";
 import * as React from "react";
 
-import { SelectItem as SelectItemType, ServerActionError } from "@/types";
+import {
+  ExtendedFormState,
+  SelectItem as SelectItemType,
+  ServerActionError,
+} from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
@@ -14,9 +17,9 @@ import {
   FieldPath,
   FieldValues,
   FormProvider,
-  SubmitHandler,
   useFormContext,
   UseFormProps,
+  UseFormReturn,
   useForm as useReactHookForm,
 } from "react-hook-form";
 import { toast } from "sonner";
@@ -35,11 +38,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { Icons } from "../icons";
+import { Button, ButtonProps } from "./button";
+
 type PromiseT<Data = any> = Promise<Data> | (() => Promise<Data>);
 type PromiseTResult<Data = any> = (data: Data) => void;
 
 type FormProps<T extends ValidationName, R> = {
-  validation?: T;
+  validation: T;
   formProps?: UseFormProps<Validation[T]>;
   actions: {
     onSubmit: (data: Validation[T]) => Promise<R> | Promise<R>;
@@ -54,15 +60,79 @@ type FormProps<T extends ValidationName, R> = {
   "onSubmit"
 >;
 
+export async function handleServerAction<T>(
+  actionFn: PromiseT<T>,
+  options: {
+    form?: UseFormReturn<any>;
+    success?: PromiseTResult<T>;
+    error?: PromiseTResult;
+    finally?: () => void | Promise<void>;
+  }
+) {
+  const { form, success, error, finally: Finally } = options;
+  try {
+    const result =
+      typeof actionFn === "function" ? await actionFn() : await actionFn;
+
+    if (
+      result &&
+      typeof result === "object" &&
+      "ok" in result &&
+      !result?.["ok"]
+    )
+      throw result;
+    success?.(result);
+
+    // @ts-expect-error may exist or not
+    if (result?.["toast"]) {
+      // @ts-expect-error may exist or not
+      toast?.[result?.["toast"]?.["type"] ?? "success"]?.(
+        // @ts-expect-error may exist or not
+        result?.["toast"]?.["message"],
+        // @ts-expect-error may exist or not
+        result?.["toast"]?.["data"]
+      );
+    }
+
+    return result;
+  } catch (err: any) {
+    if (error) error(err);
+
+    if (isRedirectError(err) && err.digest?.startsWith("NEXT_REDIRECT"))
+      return null;
+
+    if ("zodIssues" in err && Array.isArray(err?.["zodIssues"])) {
+      err?.["zodIssues"]?.forEach((e) => {
+        const path = e?.["path"]?.join(".");
+        if (!path) return toast.error(e?.["message"]!);
+
+        form?.setError(path as any, { message: e?.["message"]! });
+      });
+
+      return null;
+    }
+
+    if ("message" in err && typeof err?.["message"] === "string") {
+      toast.error(err?.["message"]);
+      return null;
+    }
+
+    return null;
+  } finally {
+    Finally?.();
+  }
+}
+
 const Form = <T extends ValidationName, R>({
   validation,
   actions,
   formProps,
   ...props
 }: FormProps<T, R>) => {
-  const schema = validation ? validations?.[validation] : z.object({});
+  const schema = validations?.[validation];
   const { onSubmit: actionFn, onSuccess, onError } = actions;
-  // const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [disabled, setDisabled] = React.useState<boolean>(false);
 
   const form = useReactHookForm<Validation[T]>({
     mode: "onBlur",
@@ -70,83 +140,36 @@ const Form = <T extends ValidationName, R>({
     ...formProps,
   });
 
-  async function handleServerAction<T>(
-    actionFn: PromiseT<T>,
-    options: {
-      success?: PromiseTResult<T>;
-      error?: PromiseTResult;
-      finally?: () => void | Promise<void>;
-    }
-  ) {
-    const { success, error, finally: Finally } = options;
-    try {
-      const result =
-        typeof actionFn === "function" ? await actionFn() : await actionFn;
-
-      if (
-        result &&
-        typeof result === "object" &&
-        "ok" in result &&
-        !result?.["ok"]
-      )
-        throw result;
-      success?.(result);
-
-      if (result && typeof result === "object" && "toast" in result)
-        toast?.["success"]?.(
-          // @ts-expect-error may exist or not
-          result?.["toast"]?.["message"],
-          // @ts-expect-error may exist or not
-          result?.["toast"]?.["data"]
-        );
-
-      if (result && typeof result === "object" && "redirect" in result)
-        // @ts-expect-error may exist or not
-        redirect(result?.["redirect"]);
-
-      return result;
-    } catch (err: any) {
-      if (error) {
-        error(err);
-
-        return null;
-      }
-
-      if (isRedirectError(err) && err.digest?.startsWith("NEXT_REDIRECT"))
-        return null;
-
-      if ("zodIssues" in err && Array.isArray(err?.["zodIssues"])) {
-        err?.["zodIssues"]?.forEach((e) => {
-          const path = e?.["path"]?.join(".");
-          if (!path) return toast.error(e?.["message"]!);
-
-          form.setError(path as any, { message: e?.["message"]! });
-        });
-
-        return null;
-      }
-
-      if ("message" in err && typeof err?.["message"] === "string") {
-        toast.error(err?.["message"]);
-        return null;
-      }
-
-      return null;
-    } finally {
-      Finally?.();
-    }
-  }
-
-  async function onSubmit(data: Validation[T]) {
-    await handleServerAction(actionFn(data), {
-      success: onSuccess,
-      error: onError,
-    });
-  }
+  console.log(form.formState.errors);
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} {...props} />
+    //  @ts-ignore TODO: disabled/setDisabled are not seen
+    <FormProvider
+      {...{
+        ...form,
+        formState: {
+          ...form?.["formState"],
+          isLoading: loading,
+
+          disabled,
+          setDisabled,
+        },
+      }}
+    >
+      <form
+        onSubmit={form.handleSubmit(async (data) => {
+          setLoading(true);
+          await handleServerAction(actionFn(data), {
+            form,
+            success: onSuccess,
+            error: onError,
+            finally() {
+              setLoading(false);
+            },
+          });
+        })}
+        {...props}
+      />
     </FormProvider>
   );
 };
@@ -212,7 +235,11 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div
+        ref={ref}
+        className={cn("flex flex-col gap-1", className)}
+        {...props}
+      />
     </FormItemContext.Provider>
   );
 });
@@ -282,15 +309,13 @@ const FormMessage = React.forwardRef<
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message) : children;
 
-  if (!body) {
-    return null;
-  }
+  if (!body) return null;
 
   return (
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-[0.8rem] font-medium text-destructive", className)}
+      className={cn("text-xs font-medium text-destructive", className)}
       {...props}
     >
       {body}
@@ -379,6 +404,69 @@ const FormSelectField = <
 };
 FormSelectField.displayName = "FormSelectField";
 
+type FormButtonProps = {
+  onAction?: any;
+  infiniteLoading?: boolean;
+  Icon?: React.ReactNode;
+} & ButtonProps;
+
+const FormButton = React.forwardRef<HTMLButtonElement, FormButtonProps>(
+  (
+    {
+      onClick,
+      children,
+      onAction,
+      infiniteLoading = false,
+      Icon = null,
+      type,
+      ...props
+    },
+    ref
+  ) => {
+    const form:
+      | (UseFormReturn<FieldValues, any, undefined> & {
+          formState: ExtendedFormState;
+        })
+      | undefined = useFormContext?.();
+    const [loading, setLoading] = React.useState<boolean>(false);
+
+    return (
+      <Button
+        type={type}
+        onClick={async (e) => {
+          if (onAction) {
+            setLoading(true);
+            form?.formState?.setDisabled(true);
+            await handleServerAction(onAction({}), {
+              success() {
+                setLoading(infiniteLoading);
+                form?.formState?.setDisabled(infiniteLoading);
+              },
+              error() {
+                setLoading(false);
+                form?.formState?.setDisabled(false);
+              },
+            });
+          } else {
+            onClick?.(e);
+          }
+        }}
+        disabled={loading}
+        {...props}
+      >
+        {(type === "submit" && form?.formState.isLoading) || loading ? (
+          <Icons.spinner />
+        ) : (
+          Icon
+        )}
+
+        {children}
+      </Button>
+    );
+  }
+);
+FormButton.displayName = "FormButton";
+
 export type WithFormAwarenessProps = {
   disabled?: boolean;
   loading?: "true" | "false";
@@ -390,16 +478,18 @@ function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
 ) {
   return React.forwardRef<R, T>((props, ref) => {
     const form = useFormContext() ?? undefined;
+
     const loading = JSON.parse(
-      form?.["formState"]?.["isSubmitting"]?.toString() ?? "false"
+      form?.["formState"]?.["isLoading"]?.toString() ?? "false"
     );
 
-    const disabled = loading || props?.["disabled"];
+    const disabled =
+      loading || form?.formState?.disabled || props?.["disabled"];
     return React.createElement(WrappedComponent as any, {
       ...props,
       ref,
-      loading: JSON.stringify(loading),
       disabled,
+      loading: JSON.stringify(loading),
     });
   });
 }
@@ -415,6 +505,7 @@ export {
   FormField,
   withFormAwareness,
   // ---------------------- Custom Form Component
+  FormButton,
   FormInputField,
   FormSelectField,
 };

@@ -1,3 +1,4 @@
+import type { FormState } from "react-hook-form";
 import { ToastT } from "sonner";
 
 import { Icons } from "@/components/icons";
@@ -14,17 +15,21 @@ export type ServerActionResult<T = any> =
   | ServerActionSuccess<T>
   | ServerActionError;
 export type ServerActionSuccess<T = any> =
-  | (T & {
+  | ({
       ok: true;
-      redirect?: string;
       toast?: {
         type: "success" | "info" | "warning" | "error" | "message";
-        message: titleT | React.ReactNode;
+        message: string;
         data?: ExternalToast;
       };
-    })
+    } & T)
   | void;
 export type ServerActionError = { ok: false } & (
   | { zodIssues: z.ZodIssue[] }
   | { message: string }
 );
+
+export type ExtendedFormState = FormState & {
+  disabled: boolean;
+  setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+};

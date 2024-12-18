@@ -27,7 +27,10 @@ export const validations = {
   }),
   "verify-email-schema": z.object({ code: z.stringRequired("code") }),
   "send-password-reset-link-schema": userSchema.pick({ email: true }),
-  "reset-password-schema": userSchema
-    .pick({ password: true })
-    .and(z.object({ token: z.stringRequired("token") })),
+  "reset-password-schema": userSchema.pick({ password: true }).and(
+    z.object({
+      confirmPassword: z.stringRequired("confirm password"),
+      token: z.stringRequired("token"),
+    })
+  ),
 };

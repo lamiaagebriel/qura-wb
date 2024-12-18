@@ -1,10 +1,9 @@
 import * as React from "react";
 
 import { getDictionary, localeSwitcher } from "@/servers/locale";
-
 import { i18n } from "@/lib/locale";
 
-import { Button } from "@/components/ui/button";
+import { Button, FormButton } from "@/components/ui/button";
 import { Form, FormSelectField } from "@/components/ui/form";
 import { Icons } from "@/components/icons";
 
@@ -23,9 +22,9 @@ export async function LocaleSwitcher({}: LocaleSwitcherProps) {
         label="Choose Language"
         placeholder="choose language"
       />
-      <Button type="submit" Icon={<Icons.logo />}>
+      <FormButton type="submit" Icon={<Icons.logo />}>
         Submit
-      </Button>
+      </FormButton>
     </Form>
   );
 }

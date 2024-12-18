@@ -1,5 +1,13 @@
 import { cva, VariantProps } from "class-variance-authority";
-import { Loader2, type LucideProps } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronsUpDown,
+  Loader2,
+  LogOut,
+  MoreHorizontal,
+  User,
+  type LucideProps,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,6 +53,21 @@ export const Icons = {
       className={cn(IconsVariants({}), "animate-spin", className)}
       {...props}
     />
+  ),
+  chevronLeft: ({ className, ...props }: IconProps) => (
+    <ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  chevronsUpDown: ({ className, ...props }: IconProps) => (
+    <ChevronsUpDown className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  dotsHorizontal: ({ className, ...props }: IconProps) => (
+    <MoreHorizontal className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  user: ({ className, ...props }: IconProps) => (
+    <User className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  logout: ({ className, ...props }: IconProps) => (
+    <LogOut className={cn(IconsVariants({}), className)} {...props} />
   ),
   google: ({ className, ...props }: IconProps) => (
     <svg

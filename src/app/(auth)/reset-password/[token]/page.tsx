@@ -3,57 +3,86 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants/utils";
-import {
-  loginWithPassword,
-  registerWithPassword,
-  resetPassword,
-  sendPasswordResetLink,
-} from "@/servers/auth";
+
+import { resetPassword } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
+import { cn } from "@/lib/utils";
 
-import { geAuth } from "@/lib/auth";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Form, FormInputField } from "@/components/ui/form";
+import { Form, FormButton, FormInputField } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { buttonVariants } from "@/components/ui/vairants";
+import { Icons } from "@/components/icons";
 
 type ResetPasswordProps = Readonly<{ params: Promise<{ token: string }> }>;
-export const metadata: Metadata = { title: "ResetPassword" };
+export const metadata: Metadata = { title: "Reset Password" };
 export default async function ResetPassword({ params }: ResetPasswordProps) {
   const { token } = await params;
 
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle> Reset Password</CardTitle>
-        <CardDescription>Enter new password.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form
-          validation="reset-password-schema"
-          formProps={{ defaultValues: { token, password: "" } }}
-          actions={{ onSubmit: resetPassword }}
-        >
-          <FormInputField
-            label="Password"
-            type="password"
-            field={{ name: "password" }}
-          />
+  const { "form-fields": ff, ...dic } = await getDictionary();
+  const c = dic?.["auth"]?.["reset-password"];
 
-          <Button type="submit" className="w-full">
-            Reset Password
-          </Button>
-          <Button variant="outline" className="w-full">
-            <Link href="/">Cancel</Link>
-          </Button>
-        </Form>
-      </CardContent>
-    </Card>
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center overflow-auto">
+      <Link
+        href={Paths.Home}
+        className={cn(
+          buttonVariants({ variant: "ghost" }),
+          "absolute left-4 top-4 gap-2 rtl:flex-row-reverse"
+        )}
+      >
+        <Icons.chevronLeft />
+        {c?.["back home"]}
+      </Link>
+
+      <section className="container flex w-full max-w-sm flex-col justify-center gap-5">
+        <div className="flex flex-col gap-2 text-center">
+          <Icons.logo className="mx-auto size-16" />
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {c?.["reset password"]}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {c?.["enter a new strong password twice."]}
+          </p>
+        </div>
+
+        <div>
+          <Form
+            validation="reset-password-schema"
+            formProps={{
+              defaultValues: { token, password: "", confirmPassword: "" },
+            }}
+            actions={{ onSubmit: resetPassword }}
+          >
+            <div className="space-y-2">
+              <FormInputField
+                type="password"
+                label={ff?.["password"]?.["password"]}
+                field={{ name: "password" }}
+              />
+              <FormInputField
+                type="password"
+                label={ff?.["password"]?.["confirm password"]}
+                field={{ name: "confirmPassword" }}
+              />
+
+              <FormButton type="submit" className="w-full">
+                {ff?.["confirm"]}
+              </FormButton>
+            </div>
+
+            <Separator className="mb-2 mt-4" />
+
+            <p className="text-center text-sm text-muted-foreground">
+              <Link
+                href={Paths.Login}
+                className="underline underline-offset-4 hover:text-primary"
+              >
+                {c?.["remember password? login now"]}
+              </Link>
+            </p>
+          </Form>
+        </div>
+      </section>
+    </div>
   );
 }

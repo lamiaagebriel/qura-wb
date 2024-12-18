@@ -1,13 +1,13 @@
 import { cookies as nextCookies } from "next/headers";
 import { cache } from "react";
 
-import { db } from "@/servers/db";
-import { sessions, users, type User as DbUser } from "@/servers/db/schema";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { Google } from "arctic";
 import { Lucia, TimeSpan } from "lucia";
 import type { Session, User } from "lucia";
 
+import { db } from "@/servers/db";
+import { sessions, users, type User as DbUser } from "@/servers/db/schema";
 import { getURL } from "@/lib/utils";
 
 // Uncomment the following lines if you are using nodejs 18 or lower. Not required in Node.js 20, CloudFlare Workers, Deno, Bun, and Vercel Edge Functions.
@@ -31,14 +31,7 @@ export const lucia = new Lucia(adapter, {
     },
   },
   getUserAttributes: (attributes) => {
-    return {
-      id: attributes.id,
-      email: attributes.email,
-      emailVerified: attributes.emailVerified,
-      avatar: attributes.avatar,
-      createdAt: attributes.createdAt,
-      updatedAt: attributes.updatedAt,
-    };
+    return { ...attributes };
   },
 });
 

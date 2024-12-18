@@ -4,14 +4,15 @@ import { cookies as nextCookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { ID, Paths } from "@/constants/utils";
-import { db, orm, schema } from "@/servers/db";
-import { getDictionary } from "@/servers/locale";
-import { createServerAction, hash, verify } from "@/servers/utils";
+import { generateCodeVerifier, generateState } from "arctic";
 import { createDate, isWithinExpirationDate, TimeSpan } from "oslo";
 import { alphabet, generateRandomString } from "oslo/crypto";
 import { z } from "zod";
 
-import { geAuth, lucia } from "@/lib/auth";
+import { db, orm, schema } from "@/servers/db";
+import { getDictionary } from "@/servers/locale";
+import { createServerAction, hash, verify } from "@/servers/utils";
+import { geAuth, google, lucia } from "@/lib/auth";
 import { getURL } from "@/lib/utils";
 import { Validation, validations } from "@/lib/validations";
 
@@ -61,11 +62,38 @@ export const loginWithPassword = createServerAction(
       sessionCookie.attributes
     );
 
-    // redirect(Paths.Dashboard);
-    return { ok: true, redirect: Paths.Dashboard };
+    redirect(Paths.Dashboard);
   },
   { defaultMessage: "your user account was not logged in. please try again." }
 );
+
+export const loginWithGoogle = createServerAction(async () => {
+  const cookies = await nextCookies();
+  const state = generateState();
+  const codeVerifier = generateCodeVerifier();
+
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "profile",
+    "email",
+  ]);
+
+  cookies.set("google_oauth_state", state, {
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 60 * 10, // 10 minutes
+    sameSite: "lax",
+  });
+  cookies.set("google_oauth_code_verifier", codeVerifier, {
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 60 * 10, // 10 minutes
+    sameSite: "lax",
+  });
+
+  redirect(url?.toString());
+});
 
 export const logout = createServerAction(async () => {
   const { actions: c } = await getDictionary();
@@ -81,7 +109,7 @@ export const logout = createServerAction(async () => {
     sessionCookie.attributes
   );
 
-  return { ok: true, redirect: Paths.Home };
+  redirect(Paths.Home);
 });
 
 export const registerWithPassword = createServerAction(
@@ -146,11 +174,15 @@ export const resendVerificationEmail = createServerAction(async () => {
     where: (s, orm) => orm.eq(s?.["userId"], user?.["id"]),
   });
 
-  if (lastSent && isWithinExpirationDate(lastSent.expiresAt))
-    throw new Error(
+  if (lastSent && isWithinExpirationDate(lastSent.expiresAt)) {
+    console.log(
       `Please wait ${timeFromNow(lastSent.expiresAt)} before resending.`
     );
 
+    throw new Error(
+      `Please wait ${timeFromNow(lastSent.expiresAt)} before resending.`
+    );
+  }
   const verificationCode = await generateEmailVerificationCode({
     userId: user.id,
     email: user.email,
@@ -284,6 +316,14 @@ export const resetPassword = createServerAction(
     const data = validations?.["reset-password-schema"]?.parse(formData);
     const cookies = await nextCookies();
     const { actions: c } = await getDictionary();
+    if (data?.["password"] !== data?.["confirmPassword"])
+      throw new z.ZodError([
+        {
+          code: "custom",
+          path: ["confirmPassword"],
+          message: "the passwords doesn't match.",
+        },
+      ]);
 
     const token = await db.transaction(async (tx) => {
       const item = await tx.query.passwordResetTokens.findFirst({
@@ -318,16 +358,8 @@ export const resetPassword = createServerAction(
       sessionCookie.attributes
     );
 
-    return {
-      ok: true,
-      redirect: Paths.Dashboard,
-      toast: {
-        type: "success",
-        message: "your password has been updated successfylly.",
-      },
-    };
+    redirect(Paths.Dashboard);
   }
-  // { defaultMessage: "Failed to send reset password." }
 );
 
 const timeFromNow = (time: Date) => {

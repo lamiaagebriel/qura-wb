@@ -13,32 +13,14 @@ import {
 } from "@/components/ui/form";
 import { buttonVariants } from "@/components/ui/vairants";
 
-import { Icons } from "../icons";
-
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> &
-  WithFormAwarenessProps & {
-    asChild?: boolean;
-    Icon?: React.ReactNode;
-  };
+  WithFormAwarenessProps & { asChild?: boolean };
 
 const Button = withFormAwareness(
   React.forwardRef<HTMLButtonElement, ButtonProps>(
     (
-      {
-        variant,
-        size,
-
-        asChild = false,
-        loading = "false",
-        disabled,
-        Icon,
-
-        type = "button",
-        className,
-        children,
-        ...props
-      },
+      { variant, size, className, asChild = false, type = "button", ...props },
       ref
     ) => {
       const Comp = asChild ? Slot : "button";
@@ -46,13 +28,9 @@ const Button = withFormAwareness(
         <Comp
           ref={ref}
           type={type}
-          disabled={disabled}
           className={cn(buttonVariants({ variant, size, className }))}
           {...props}
-        >
-          {type === "submit" && loading === "true" ? <Icons.spinner /> : Icon}
-          {children}
-        </Comp>
+        />
       );
     }
   )
