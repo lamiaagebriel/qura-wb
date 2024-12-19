@@ -9,8 +9,8 @@ import { getDictionary } from "@/servers/locale";
 import { geAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
-import { buttonVariants } from "@/components/ui/vairants";
 import { Icons } from "@/components/icons";
 
 type LoginProps = Readonly<{}>;
@@ -53,8 +53,8 @@ export default async function Login({}: LoginProps) {
         <div>
           <Form
             validation="login-with-password-schema"
-            formProps={{ defaultValues: { email: "", password: "" } }}
-            actions={{ onSubmit: loginWithPassword }}
+            useForm={{ defaultValues: { email: "", password: "" } }}
+            onSubmit={loginWithPassword}
             className="grid grid-cols-1 gap-6"
           >
             <div className="space-y-2">

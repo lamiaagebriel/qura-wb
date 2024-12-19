@@ -1,6 +1,3 @@
-import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { redirect } from "next/navigation";
-
 import { ServerActionResult } from "@/types";
 import { Scrypt } from "lucia";
 import { z } from "zod";
@@ -28,16 +25,6 @@ export function createServerAction<T, R>(
     try {
       return await actionFn(data);
     } catch (error: any) {
-      // console.log({ error });
-
-      if (isRedirectError(error) && error.digest?.startsWith("NEXT_REDIRECT")) {
-        const url = error?.["digest"]?.split(";")?.[2] ?? null;
-
-        if (url) redirect(url);
-
-        return;
-      }
-
       // Convert any caught error to a standardized error result
       if (error instanceof z.ZodError)
         return { ok: false, zodIssues: error?.["issues"] };

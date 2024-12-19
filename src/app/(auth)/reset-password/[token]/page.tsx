@@ -8,9 +8,9 @@ import { resetPassword } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
 import { cn } from "@/lib/utils";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { buttonVariants } from "@/components/ui/vairants";
 import { Icons } from "@/components/icons";
 
 type ResetPasswordProps = Readonly<{ params: Promise<{ token: string }> }>;
@@ -48,10 +48,10 @@ export default async function ResetPassword({ params }: ResetPasswordProps) {
         <div>
           <Form
             validation="reset-password-schema"
-            formProps={{
+            useForm={{
               defaultValues: { token, password: "", confirmPassword: "" },
             }}
-            actions={{ onSubmit: resetPassword }}
+            onSubmit={resetPassword}
           >
             <div className="space-y-2">
               <FormInputField

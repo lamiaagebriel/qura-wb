@@ -2,6 +2,8 @@ import { cva, VariantProps } from "class-variance-authority";
 import {
   ChevronLeft,
   ChevronsUpDown,
+  Eye,
+  EyeOff,
   Loader2,
   LogOut,
   MoreHorizontal,
@@ -68,6 +70,12 @@ export const Icons = {
   ),
   logout: ({ className, ...props }: IconProps) => (
     <LogOut className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  eyeOff: ({ className, ...props }: IconProps) => (
+    <EyeOff className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  eye: ({ className, ...props }: IconProps) => (
+    <Eye className={cn(IconsVariants({}), className)} {...props} />
   ),
   google: ({ className, ...props }: IconProps) => (
     <svg

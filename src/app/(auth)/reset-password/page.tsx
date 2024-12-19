@@ -9,9 +9,9 @@ import { getDictionary } from "@/servers/locale";
 import { geAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { buttonVariants } from "@/components/ui/vairants";
 import { Icons } from "@/components/icons";
 
 type ForgotPasswordProps = Readonly<{}>;
@@ -50,8 +50,8 @@ export default async function ForgotPassword({}: ForgotPasswordProps) {
         <div>
           <Form
             validation="send-password-reset-link-schema"
-            formProps={{ defaultValues: { email: "" } }}
-            actions={{ onSubmit: sendPasswordResetLink }}
+            useForm={{ defaultValues: { email: "" } }}
+            onSubmit={sendPasswordResetLink}
           >
             <div className="space-y-2">
               <FormInputField

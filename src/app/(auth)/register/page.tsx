@@ -9,8 +9,8 @@ import { getDictionary } from "@/servers/locale";
 import { geAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
-import { buttonVariants } from "@/components/ui/vairants";
 import { Icons } from "@/components/icons";
 
 type RegisterProps = Readonly<{}>;
@@ -53,8 +53,8 @@ export default async function Register({}: RegisterProps) {
         <div className="grid gap-4">
           <Form
             validation="register-with-password-schema"
-            formProps={{ defaultValues: { email: "", password: "" } }}
-            actions={{ onSubmit: registerWithPassword }}
+            useForm={{ defaultValues: { email: "", password: "" } }}
+            onSubmit={registerWithPassword}
             className="grid grid-cols-1 gap-6"
           >
             <div className="space-y-2">

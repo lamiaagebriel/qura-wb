@@ -2,11 +2,10 @@ import { cookies as nextCookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 import { ID, Paths } from "@/constants/utils";
-import { db, schema } from "@/servers/db";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
-import { generateId } from "lucia";
 
+import { db, schema } from "@/servers/db";
 import { google, lucia } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
@@ -58,7 +57,7 @@ export async function GET(req: NextRequest) {
 
     // Find existing user
     const existingUser = await db.query.users.findFirst({
-      columns: { id: true, googleId: true, image: true },
+      columns: { id: true, googleId: true, image: true, emailVerified: true },
       where: (s, orm) => orm.eq(s?.["email"], googleUser.email),
     });
 
@@ -79,6 +78,13 @@ export async function GET(req: NextRequest) {
           await tx
             .update(schema?.["users"])
             .set({ image: googleUser.picture })
+            .where(eq(schema?.["users"]?.["id"], existingUser?.["id"]));
+        }
+
+        if (!existingUser.emailVerified) {
+          await tx
+            .update(schema?.["users"])
+            .set({ emailVerified: googleUser.verified_email })
             .where(eq(schema?.["users"]?.["id"], existingUser?.["id"]));
         }
       });

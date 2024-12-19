@@ -3,9 +3,7 @@
 import { cookies as nextCookies } from "next/headers";
 
 import { createServerAction } from "@/servers/utils";
-
 import { Locale } from "@/lib/locale";
-import { delay } from "@/lib/utils";
 import { Validation, validations } from "@/lib/validations";
 
 const site = {
@@ -24,7 +22,6 @@ export const getDictionary = async () => {
 
 export const localeSwitcher = createServerAction(
   async (formData: Validation["locale-switcher"]) => {
-    await delay(20000);
     const { locale } = validations?.["locale-switcher"]?.parse(formData);
 
     const cookies = await nextCookies();

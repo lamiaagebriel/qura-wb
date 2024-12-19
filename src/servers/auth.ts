@@ -1,7 +1,6 @@
 "use server";
 
 import { cookies as nextCookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 import { ID, Paths } from "@/constants/utils";
 import { generateCodeVerifier, generateState } from "arctic";
@@ -62,7 +61,7 @@ export const loginWithPassword = createServerAction(
       sessionCookie.attributes
     );
 
-    redirect(Paths.Dashboard);
+    return { ok: true, redirect: Paths.Dashboard };
   },
   { defaultMessage: "your user account was not logged in. please try again." }
 );
@@ -92,7 +91,7 @@ export const loginWithGoogle = createServerAction(async () => {
     sameSite: "lax",
   });
 
-  redirect(url?.toString());
+  return { ok: true, redirect: url?.toString() };
 });
 
 export const logout = createServerAction(async () => {
@@ -109,7 +108,7 @@ export const logout = createServerAction(async () => {
     sessionCookie.attributes
   );
 
-  redirect(Paths.Home);
+  return { ok: true, redirect: Paths.Login };
 });
 
 export const registerWithPassword = createServerAction(
@@ -158,7 +157,7 @@ export const registerWithPassword = createServerAction(
       sessionCookie.attributes
     );
 
-    redirect(Paths.VerifyEmail);
+    return { ok: true, redirect: Paths.VerifyEmail };
   },
   { defaultMessage: "your user account was not created. please try again." }
 );
@@ -167,7 +166,7 @@ export const resendVerificationEmail = createServerAction(async () => {
   const { actions: c } = await getDictionary();
 
   const { user } = await geAuth();
-  if (!user) return redirect(Paths.Login);
+  if (!user) return { ok: true, redirect: Paths.Login };
 
   const lastSent = await db.query.emailVerificationCodes.findFirst({
     columns: { expiresAt: true },
@@ -210,7 +209,7 @@ export const verifyEmail = createServerAction(
     const { actions: c } = await getDictionary();
 
     const { user } = await geAuth();
-    if (!user) return redirect(Paths.Login);
+    if (!user) return { ok: true, redirect: Paths.Login };
 
     const dbCode = await db.transaction(async (tx) => {
       const item = await tx.query.emailVerificationCodes.findFirst({
@@ -358,7 +357,7 @@ export const resetPassword = createServerAction(
       sessionCookie.attributes
     );
 
-    redirect(Paths.Dashboard);
+    return { ok: true, redirect: Paths.Dashboard };
   }
 );
 

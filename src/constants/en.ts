@@ -36,7 +36,6 @@ const en = {
       "forgot password?": "Forgot Password?",
       "password reset link will be sent to your email.":
         "Password reset link will be sent to your email.",
-      "send reset link": "send reset link",
       "don't have an account? sign up now":
         "Don't have an account? Sign Up now",
     },

@@ -1,4 +1,12 @@
+import { redirect } from "next/navigation";
+
+import {
+  HandleServerActionOnSubmit,
+  HandleServerActionOptions,
+  ServerActionSuccess,
+} from "@/types";
 import { clsx, type ClassValue } from "clsx";
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -31,4 +39,45 @@ export function getURL(path: string = "") {
 
   // Concatenate the URL and the path.
   return path ? `${url}/${path}` : url;
+}
+
+export async function handleServerAction<R>(
+  actionFn: HandleServerActionOnSubmit<R>,
+  options?: HandleServerActionOptions<R>
+) {
+  const result =
+    typeof actionFn === "function" ? await actionFn() : await actionFn;
+
+  if (!result) return;
+
+  if (!result.ok) {
+    if ("zodIssues" in result && Array.isArray(result?.["zodIssues"])) {
+      if (!options?.["form"]) {
+        if (process.env.NODE_ENV !== "production")
+          throw new Error("form is missing in handleServerAction.");
+
+        return;
+      }
+
+      result?.["zodIssues"]?.forEach((e) => {
+        const path = e?.["path"]?.join(".");
+        if (!path) return toast.error(e?.["message"]!);
+
+        options?.["form"]?.setError(path as any, { message: e?.["message"]! });
+      });
+    }
+
+    if ("message" in result && typeof result?.["message"] === "string") {
+      toast.error(result?.["message"]);
+    }
+    options?.onError?.(result);
+  }
+
+  if (result.ok) {
+    options?.onSuccess?.(result);
+    if (result?.toast)
+      toast?.[result?.["toast"]?.["type"]]?.(result?.["toast"]?.["message"]);
+
+    if (result?.redirect) redirect(result?.["redirect"]);
+  }
 }

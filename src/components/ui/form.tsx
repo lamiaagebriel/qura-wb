@@ -1,12 +1,13 @@
 "use client";
 
-import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
 import * as React from "react";
 
 import {
-  ExtendedFormState,
-  SelectItem as SelectItemType,
+  HandleServerActionOptions,
   ServerActionError,
+  ServerActionResult,
+  ServerActionSuccess,
 } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as LabelPrimitive from "@radix-ui/react-label";
@@ -17,154 +18,109 @@ import {
   FieldPath,
   FieldValues,
   FormProvider,
+  FormProviderProps,
   useFormContext,
   UseFormProps,
+  useForm as useFormReactHook,
   UseFormReturn,
-  useForm as useReactHookForm,
 } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
-import { cn } from "@/lib/utils";
+import { loginWithPassword } from "@/servers/auth";
+import { cn, handleServerAction } from "@/lib/utils";
 import { Validation, ValidationName, validations } from "@/lib/validations";
 
-import { Input, InputProps } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { Icons } from "../icons";
 import { Button, ButtonProps } from "./button";
+import { Input, InputProps } from "./input";
 
-type PromiseT<Data = any> = Promise<Data> | (() => Promise<Data>);
-type PromiseTResult<Data = any> = (data: Data) => void;
+type ExtendedUseForm<
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = any,
+  TTransformedValues extends FieldValues | undefined = undefined,
+> = UseFormReturn<TFieldValues, TContext, TTransformedValues> & {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  disabled: boolean;
+  setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export function useForm<
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = any,
+  TTransformedValues extends FieldValues | undefined = undefined,
+>(): ExtendedUseForm<TFieldValues, TContext, TTransformedValues> {
+  const form = useFormContext<TFieldValues, TContext, TTransformedValues>();
+
+  return { ...form } as ExtendedUseForm<
+    TFieldValues,
+    TContext,
+    TTransformedValues
+  >;
+}
 
 type FormProps<T extends ValidationName, R> = {
   validation: T;
-  formProps?: UseFormProps<Validation[T]>;
-  actions: {
-    onSubmit: (data: Validation[T]) => Promise<R> | Promise<R>;
-    onSuccess?: PromiseTResult<R>;
-    onError?: PromiseTResult<ServerActionError>;
-  };
-} & Omit<
-  React.DetailedHTMLProps<
-    React.FormHTMLAttributes<HTMLFormElement>,
-    HTMLFormElement
-  >,
-  "onSubmit"
->;
-
-export async function handleServerAction<T>(
-  actionFn: PromiseT<T>,
-  options: {
-    form?: UseFormReturn<any>;
-    success?: PromiseTResult<T>;
-    error?: PromiseTResult;
-    finally?: () => void | Promise<void>;
-  }
-) {
-  const { form, success, error, finally: Finally } = options;
-  try {
-    const result =
-      typeof actionFn === "function" ? await actionFn() : await actionFn;
-
-    if (
-      result &&
-      typeof result === "object" &&
-      "ok" in result &&
-      !result?.["ok"]
-    )
-      throw result;
-    success?.(result);
-
-    // @ts-expect-error may exist or not
-    if (result?.["toast"]) {
-      // @ts-expect-error may exist or not
-      toast?.[result?.["toast"]?.["type"] ?? "success"]?.(
-        // @ts-expect-error may exist or not
-        result?.["toast"]?.["message"],
-        // @ts-expect-error may exist or not
-        result?.["toast"]?.["data"]
-      );
-    }
-
-    return result;
-  } catch (err: any) {
-    if (error) error(err);
-
-    if (isRedirectError(err) && err.digest?.startsWith("NEXT_REDIRECT"))
-      return null;
-
-    if ("zodIssues" in err && Array.isArray(err?.["zodIssues"])) {
-      err?.["zodIssues"]?.forEach((e) => {
-        const path = e?.["path"]?.join(".");
-        if (!path) return toast.error(e?.["message"]!);
-
-        form?.setError(path as any, { message: e?.["message"]! });
-      });
-
-      return null;
-    }
-
-    if ("message" in err && typeof err?.["message"] === "string") {
-      toast.error(err?.["message"]);
-      return null;
-    }
-
-    return null;
-  } finally {
-    Finally?.();
-  }
-}
+  useForm?: UseFormProps<Validation[T]>;
+  onSubmit: (
+    data: Validation[T]
+  ) => Promise<ServerActionResult<R>> | Promise<ServerActionResult<R>>;
+  infiniteLoading?: boolean;
+} & Pick<HandleServerActionOptions<R>, "onError" | "onSuccess"> &
+  Omit<
+    React.DetailedHTMLProps<
+      React.FormHTMLAttributes<HTMLFormElement>,
+      HTMLFormElement
+    >,
+    "onSubmit"
+  >;
 
 const Form = <T extends ValidationName, R>({
   validation,
-  actions,
-  formProps,
+  onSubmit,
+  onError,
+  onSuccess,
+  infiniteLoading = false,
+  useForm: useFormProps,
   ...props
 }: FormProps<T, R>) => {
   const schema = validations?.[validation];
-  const { onSubmit: actionFn, onSuccess, onError } = actions;
+
   const [loading, setLoading] = React.useState<boolean>(false);
   const [disabled, setDisabled] = React.useState<boolean>(false);
 
-  const form = useReactHookForm<Validation[T]>({
+  const form = useFormReactHook<Validation[T]>({
     mode: "onBlur",
     resolver: zodResolver(schema),
-    ...formProps,
+    ...useFormProps,
   });
 
-  console.log(form.formState.errors);
-
   return (
-    //  @ts-ignore TODO: disabled/setDisabled are not seen
     <FormProvider
       {...{
-        ...form,
-        formState: {
-          ...form?.["formState"],
-          isLoading: loading,
-
+        ...({
+          ...form,
+          loading,
+          setLoading,
           disabled,
           setDisabled,
-        },
+        } as ExtendedUseForm<Validation[T]>),
       }}
     >
       <form
         onSubmit={form.handleSubmit(async (data) => {
           setLoading(true);
-          await handleServerAction(actionFn(data), {
+          await handleServerAction(onSubmit(data), {
             form,
-            success: onSuccess,
-            error: onError,
-            finally() {
+            onError(data) {
+              onError?.(data);
               setLoading(false);
+            },
+            onSuccess(data) {
+              onSuccess?.(data);
+              setLoading(infiniteLoading);
             },
           });
         })}
@@ -177,7 +133,9 @@ const Form = <T extends ValidationName, R>({
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = { name: TName };
+> = {
+  name: TName;
+};
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue
@@ -189,9 +147,11 @@ const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const form = useForm<TFieldValues>();
   return (
+    // TODO: name is not type-safed
     <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller {...props} />
+      <Controller control={form?.["control"]} {...props} />
     </FormFieldContext.Provider>
   );
 };
@@ -203,9 +163,8 @@ const useFormField = () => {
 
   const fieldState = getFieldState(fieldContext.name, formState);
 
-  if (!fieldContext) {
+  if (!fieldContext)
     throw new Error("useFormField should be used within <FormField>");
-  }
 
   const { id } = itemContext;
 
@@ -235,11 +194,7 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div
-        ref={ref}
-        className={cn("flex flex-col gap-1", className)}
-        {...props}
-      />
+      <div ref={ref} className={cn("space-y-1", className)} {...props} />
     </FormItemContext.Provider>
   );
 });
@@ -266,7 +221,7 @@ const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } =
+  const { error, formItemId, formDescriptionId, formMessageId, name } =
     useFormField();
 
   return (
@@ -324,7 +279,92 @@ const FormMessage = React.forwardRef<
 });
 FormMessage.displayName = "FormMessage";
 
-// ---------------------- Custom Form Component
+// ------------------------- custom fields
+type FormButtonProps = {
+  onAction?: any;
+  infiniteLoading?: boolean;
+  Icon?: React.ReactNode;
+} & ButtonProps;
+
+const FormButton = withFormAwareness(
+  React.forwardRef<HTMLButtonElement, FormButtonProps>(
+    (
+      {
+        onClick,
+        children,
+        onAction,
+        disabled,
+        infiniteLoading = false,
+        Icon = null,
+        type,
+        ...props
+      },
+      ref
+    ) => {
+      const form = useForm?.();
+      const [loading, setLoading] = React.useState<boolean>(false);
+
+      return (
+        <Button
+          type={type}
+          onClick={async (e) => {
+            if (onAction) {
+              setLoading(true);
+              form?.setDisabled?.(true);
+              await handleServerAction(onAction({}), {
+                onSuccess() {
+                  setLoading(infiniteLoading);
+                  form?.setDisabled?.(infiniteLoading);
+                },
+                onError() {
+                  setLoading(false);
+                  form?.setDisabled?.(false);
+                },
+              });
+            } else {
+              onClick?.(e);
+            }
+          }}
+          disabled={disabled || loading || form.disabled || form.loading}
+          {...props}
+        >
+          {(type === "submit" && form?.loading) || loading ? (
+            <Icons.spinner />
+          ) : (
+            Icon
+          )}
+
+          {children}
+        </Button>
+      );
+    }
+  )
+);
+FormButton.displayName = "FormButton";
+
+export type WithFormAwarenessProps = {
+  disabled?: boolean;
+  loading?: "true" | "false";
+};
+function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
+  WrappedComponent:
+    | React.ComponentType<T>
+    | React.ForwardRefRenderFunction<R, T>
+) {
+  return React.forwardRef<R, T>((props, ref) => {
+    const form = useForm?.() ?? undefined;
+
+    const loading = form?.["loading"];
+    const disabled =
+      form?.["loading"] || form?.["disabled"] || props?.["disabled"];
+    return React.createElement(WrappedComponent as any, {
+      ...props,
+      ref,
+      disabled,
+      loading: JSON.stringify(loading),
+    });
+  });
+}
 
 type FormInputFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -360,140 +400,6 @@ const FormInputField = <
   );
 };
 FormInputField.displayName = "FormInputField";
-
-type FormSelectFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = {
-  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  items: SelectItemType[];
-  label: string;
-} & InputProps;
-
-const FormSelectField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({
-  field,
-  items,
-  label,
-  placeholder,
-  ...props
-}: FormSelectFieldProps<TFieldValues, TName>) => {
-  return (
-    <FormField
-      {...field}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {items?.map((e, i) => <SelectItem key={i} {...e} />)}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-};
-FormSelectField.displayName = "FormSelectField";
-
-type FormButtonProps = {
-  onAction?: any;
-  infiniteLoading?: boolean;
-  Icon?: React.ReactNode;
-} & ButtonProps;
-
-const FormButton = React.forwardRef<HTMLButtonElement, FormButtonProps>(
-  (
-    {
-      onClick,
-      children,
-      onAction,
-      infiniteLoading = false,
-      Icon = null,
-      type,
-      ...props
-    },
-    ref
-  ) => {
-    const form:
-      | (UseFormReturn<FieldValues, any, undefined> & {
-          formState: ExtendedFormState;
-        })
-      | undefined = useFormContext?.();
-    const [loading, setLoading] = React.useState<boolean>(false);
-
-    return (
-      <Button
-        type={type}
-        onClick={async (e) => {
-          if (onAction) {
-            setLoading(true);
-            form?.formState?.setDisabled(true);
-            await handleServerAction(onAction({}), {
-              success() {
-                setLoading(infiniteLoading);
-                form?.formState?.setDisabled(infiniteLoading);
-              },
-              error() {
-                setLoading(false);
-                form?.formState?.setDisabled(false);
-              },
-            });
-          } else {
-            onClick?.(e);
-          }
-        }}
-        disabled={loading}
-        {...props}
-      >
-        {(type === "submit" && form?.formState.isLoading) || loading ? (
-          <Icons.spinner />
-        ) : (
-          Icon
-        )}
-
-        {children}
-      </Button>
-    );
-  }
-);
-FormButton.displayName = "FormButton";
-
-export type WithFormAwarenessProps = {
-  disabled?: boolean;
-  loading?: "true" | "false";
-};
-function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
-  WrappedComponent:
-    | React.ComponentType<T>
-    | React.ForwardRefRenderFunction<R, T>
-) {
-  return React.forwardRef<R, T>((props, ref) => {
-    const form = useFormContext() ?? undefined;
-
-    const loading = JSON.parse(
-      form?.["formState"]?.["isLoading"]?.toString() ?? "false"
-    );
-
-    const disabled =
-      loading || form?.formState?.disabled || props?.["disabled"];
-    return React.createElement(WrappedComponent as any, {
-      ...props,
-      ref,
-      disabled,
-      loading: JSON.stringify(loading),
-    });
-  });
-}
-
 export {
   useFormField,
   Form,
@@ -503,9 +409,6 @@ export {
   FormDescription,
   FormMessage,
   FormField,
-  withFormAwareness,
-  // ---------------------- Custom Form Component
   FormButton,
   FormInputField,
-  FormSelectField,
 };

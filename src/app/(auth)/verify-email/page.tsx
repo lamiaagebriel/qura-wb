@@ -40,8 +40,8 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
         <div>
           <Form
             validation="verify-email-schema"
-            formProps={{ defaultValues: { code: "" } }}
-            actions={{ onSubmit: verifyEmail }}
+            useForm={{ defaultValues: { code: "" } }}
+            onSubmit={verifyEmail}
           >
             <div className="space-y-2">
               <FormInputField
