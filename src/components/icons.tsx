@@ -4,9 +4,17 @@ import {
   ChevronsUpDown,
   Eye,
   EyeOff,
+  Files,
+  LayoutDashboard,
   Loader2,
   LogOut,
   MoreHorizontal,
+  PackagePlus,
+  Percent,
+  Settings,
+  Shirt,
+  Stars,
+  Store,
   User,
   type LucideProps,
 } from "lucide-react";
@@ -76,6 +84,30 @@ export const Icons = {
   ),
   eye: ({ className, ...props }: IconProps) => (
     <Eye className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  dashboard: ({ className, ...props }: IconProps) => (
+    <LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  store: ({ className, ...props }: IconProps) => (
+    <Store className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  settings: ({ className, ...props }: IconProps) => (
+    <Settings className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  shirt: ({ className, ...props }: IconProps) => (
+    <Shirt className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  packagePlus: ({ className, ...props }: IconProps) => (
+    <PackagePlus className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  stars: ({ className, ...props }: IconProps) => (
+    <Stars className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  percent: ({ className, ...props }: IconProps) => (
+    <Percent className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  files: ({ className, ...props }: IconProps) => (
+    <Files className={cn(IconsVariants({}), className)} {...props} />
   ),
   google: ({ className, ...props }: IconProps) => (
     <svg

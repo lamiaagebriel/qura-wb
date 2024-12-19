@@ -5,7 +5,7 @@ import { Paths } from "@/constants/utils";
 
 import { logout, resendVerificationEmail, verifyEmail } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
-import { geAuth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
@@ -14,7 +14,7 @@ import { Icons } from "@/components/icons";
 type VerifyEmailProps = Readonly<{}>;
 export const metadata: Metadata = { title: "Verify Email" };
 export default async function VerifyEmail({}: VerifyEmailProps) {
-  const { user } = await geAuth();
+  const { user } = await getAuth();
 
   if (!user) redirect(Paths.Login);
   if (user.emailVerified) redirect(Paths.Dashboard);
@@ -39,7 +39,7 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
 
         <div>
           <Form
-            validation="verify-email-schema"
+            validation="verify-email"
             useForm={{ defaultValues: { code: "" } }}
             onSubmit={verifyEmail}
           >

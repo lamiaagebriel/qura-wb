@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants/utils";
 
 import { sendPasswordResetLink } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
-import { geAuth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
+import { Link } from "@/components/link";
 
 type ForgotPasswordProps = Readonly<{}>;
 export const metadata: Metadata = { title: "Forgot Password" };
 export default async function ForgotPassword({}: ForgotPasswordProps) {
-  const { user } = await geAuth();
+  const { user } = await getAuth();
   if (user) redirect(Paths.Dashboard);
 
   const { "form-fields": ff, ...dic } = await getDictionary();
@@ -49,7 +49,7 @@ export default async function ForgotPassword({}: ForgotPasswordProps) {
 
         <div>
           <Form
-            validation="send-password-reset-link-schema"
+            validation="send-password-reset-link"
             useForm={{ defaultValues: { email: "" } }}
             onSubmit={sendPasswordResetLink}
           >

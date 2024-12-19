@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants/utils";
 
 import { loginWithGoogle, loginWithPassword } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
-import { geAuth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Icons } from "@/components/icons";
+import { Link } from "@/components/link";
 
 type LoginProps = Readonly<{}>;
 export const metadata: Metadata = { title: "Login" };
 export default async function Login({}: LoginProps) {
-  const { user } = await geAuth();
+  const { user } = await getAuth();
   if (user) redirect(Paths.Dashboard);
 
   const { "form-fields": ff, ...dic } = await getDictionary();
@@ -52,7 +52,7 @@ export default async function Login({}: LoginProps) {
 
         <div>
           <Form
-            validation="login-with-password-schema"
+            validation="login-with-password"
             useForm={{ defaultValues: { email: "", password: "" } }}
             onSubmit={loginWithPassword}
             className="grid grid-cols-1 gap-6"

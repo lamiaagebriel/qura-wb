@@ -11,13 +11,13 @@ import { z } from "zod";
 import { db, orm, schema } from "@/servers/db";
 import { getDictionary } from "@/servers/locale";
 import { createServerAction, hash, verify } from "@/servers/utils";
-import { geAuth, google, lucia } from "@/lib/auth";
+import { getAuth, google, lucia } from "@/lib/auth";
 import { getURL } from "@/lib/utils";
 import { Validation, validations } from "@/lib/validations";
 
 export const loginWithPassword = createServerAction(
-  async (formData: Validation["login-with-password-schema"]) => {
-    const data = validations?.["login-with-password-schema"]?.parse(formData);
+  async (formData: Validation["login-with-password"]) => {
+    const data = validations?.["login-with-password"]?.parse(formData);
     const { actions: c } = await getDictionary();
     const cookies = await nextCookies();
 
@@ -97,7 +97,7 @@ export const loginWithGoogle = createServerAction(async () => {
 export const logout = createServerAction(async () => {
   const { actions: c } = await getDictionary();
   const cookies = await nextCookies();
-  const { session } = await geAuth();
+  const { session } = await getAuth();
   if (!session) throw new Error(c?.["you are not logged in."]);
 
   await lucia.invalidateSession(session?.["id"]);
@@ -112,9 +112,8 @@ export const logout = createServerAction(async () => {
 });
 
 export const registerWithPassword = createServerAction(
-  async (formData: Validation["register-with-password-schema"]) => {
-    const data =
-      validations?.["register-with-password-schema"]?.parse(formData);
+  async (formData: Validation["register-with-password"]) => {
+    const data = validations?.["register-with-password"]?.parse(formData);
     const { actions: c } = await getDictionary();
     const cookies = await nextCookies();
 
@@ -165,7 +164,7 @@ export const registerWithPassword = createServerAction(
 export const resendVerificationEmail = createServerAction(async () => {
   const { actions: c } = await getDictionary();
 
-  const { user } = await geAuth();
+  const { user } = await getAuth();
   if (!user) return { ok: true, redirect: Paths.Login };
 
   const lastSent = await db.query.emailVerificationCodes.findFirst({
@@ -203,12 +202,12 @@ export const resendVerificationEmail = createServerAction(async () => {
 });
 
 export const verifyEmail = createServerAction(
-  async (formData: Validation["verify-email-schema"]) => {
-    const data = validations?.["verify-email-schema"]?.parse(formData);
+  async (formData: Validation["verify-email"]) => {
+    const data = validations?.["verify-email"]?.parse(formData);
     const cookies = await nextCookies();
     const { actions: c } = await getDictionary();
 
-    const { user } = await geAuth();
+    const { user } = await getAuth();
     if (!user) return { ok: true, redirect: Paths.Login };
 
     const dbCode = await db.transaction(async (tx) => {
@@ -265,9 +264,8 @@ export const verifyEmail = createServerAction(
 );
 
 export const sendPasswordResetLink = createServerAction(
-  async (formData: Validation["send-password-reset-link-schema"]) => {
-    const data =
-      validations?.["send-password-reset-link-schema"]?.parse(formData);
+  async (formData: Validation["send-password-reset-link"]) => {
+    const data = validations?.["send-password-reset-link"]?.parse(formData);
     const cookies = await nextCookies();
     const { actions: c } = await getDictionary();
 
@@ -311,8 +309,8 @@ export const sendPasswordResetLink = createServerAction(
 );
 
 export const resetPassword = createServerAction(
-  async (formData: Validation["reset-password-schema"]) => {
-    const data = validations?.["reset-password-schema"]?.parse(formData);
+  async (formData: Validation["reset-password"]) => {
+    const data = validations?.["reset-password"]?.parse(formData);
     const cookies = await nextCookies();
     const { actions: c } = await getDictionary();
     if (data?.["password"] !== data?.["confirmPassword"])

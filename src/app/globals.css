@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -60,6 +56,35 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+}
+
+@layer utilities {
+  /* Webkit-based browsers  */
+  ::-webkit-scrollbar-track {
+    @apply flex touch-none select-none rounded-full border bg-muted shadow-inner;
+  }
+
+  ::-webkit-scrollbar {
+    @apply size-2.5;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border/60 transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border;
+  }
+
+  /*  Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--muted);
+  }
+  /* Hides the scrollbar for Firefox  */
+  /* .scrollbar-none {
+    scrollbar-width: none;
+  } */
 }
 
 @layer base {

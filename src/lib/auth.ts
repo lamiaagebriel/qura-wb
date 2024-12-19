@@ -82,4 +82,4 @@ export const uncachedGetAuth = async (): Promise<
   return result;
 };
 
-export const geAuth = cache(uncachedGetAuth);
+export const getAuth = cache(uncachedGetAuth);

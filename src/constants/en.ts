@@ -1,3 +1,7 @@
+import { NavItem } from "@/types";
+
+import { Paths } from "./utils";
+
 const en = {
   site: {
     name: "ConCom",
@@ -56,6 +60,127 @@ const en = {
     },
   },
 
+  dashboard: {
+    "main-nav": [
+      {
+        segments: [null],
+        value: Paths.Dashboard,
+        children: "Overview",
+        icon: "dashboard",
+      },
+      {
+        segments: ["stores"],
+        value: Paths.DashboardStores,
+        children: "Stores",
+        icon: "store",
+      },
+    ] as NavItem[],
+    "user-nav": [
+      {
+        segments: ["settings"],
+        value: Paths.DashboardSettings,
+        children: "Settings",
+        icon: "settings",
+      },
+    ] as NavItem[],
+
+    overview: {
+      overview: "Overview",
+    },
+  },
+  stores: {
+    store: {
+      "main-nav": [
+        {
+          segments: [null],
+          value: "/",
+          children: "Overview",
+          icon: "dashboard",
+        },
+        {
+          segments: ["products"],
+          value: "/products",
+          children: "Products",
+          icon: "shirt",
+        },
+        {
+          segments: ["orders"],
+          value: "/orders",
+          children: "Orders",
+          icon: "packagePlus",
+        },
+        {
+          segments: ["customers"],
+          value: "/customers",
+          children: "Customers",
+          icon: "users",
+        },
+        {
+          segments: ["reviews"],
+          value: "/reviews",
+          children: "Reviews",
+          icon: "stars",
+        },
+        {
+          segments: ["promotions"],
+          value: "/promotions",
+          children: "Promotions",
+          icon: "percent",
+        },
+        {
+          segments: ["pages"],
+          value: "/pages",
+          children: "Pages",
+          icon: "files",
+        },
+      ] as NavItem[],
+      "user-nav": [
+        {
+          segments: ["settings"],
+          value: "/settings",
+          children: "Settings",
+          icon: "settings",
+        },
+      ] as NavItem[],
+
+      overview: "Overview",
+      "browse all overview, edit, and filter.":
+        "Browse all overview, edit, and filter.",
+
+      products: {
+        products: "Products",
+        "browse all products, edit, and filter.":
+          "Browse all products, edit, and filter.",
+      },
+      orders: {
+        orders: "Orders",
+        "browse all orders, edit, and filter.":
+          "Browse all orders, edit, and filter.",
+      },
+      customers: {
+        customers: "Customers",
+        "browse all customers, preview, and filter.":
+          "Browse all customers, preview, and filter.",
+      },
+      reviews: {
+        reviews: "Reviews",
+        "browse all reviews, edit, and filter.":
+          "Browse all reviews, edit, and filter.",
+      },
+
+      promotions: {
+        promotions: "Promotions",
+        "browse all promotions, preview, and filter.":
+          "Browse all promotions, preview, and filter.",
+      },
+
+      pages: {
+        pages: "Pages",
+        "browse all pages, preview, and filter.":
+          "Browse all pages, preview, and filter.",
+      },
+    },
+  },
   "locale-switcher": {
     "current locale of the website": "current locale of the website",
     en: "English (EN)",
@@ -117,6 +242,7 @@ const en = {
     cancel: "Cancel",
     delete: "Delete",
     edit: "Edit",
+    logout: "Logout",
   },
 
   actions: {
@@ -142,11 +268,47 @@ const en = {
       "your user account was not updated. Please try again.",
     "your user account was not deleted. please try again.":
       "your user account was not deleted. Please try again.",
+
+    // stores: {
+    "your store was not created. please try again.":
+      "your store was not created. Please try again.",
+    "your store was not updated. please try again.":
+      "your store was not updated. Please try again.",
+    "your store was not deleted. please try again.":
+      "your store was not deleted. Please try again.",
+
+    // pages: {
+    "your page was not created. please try again.":
+      "your page was not created. Please try again.",
+    "your page was not updated. please try again.":
+      "your page was not updated. Please try again.",
+    "your page was not deleted. please try again.":
+      "your page was not deleted. Please try again.",
+
+    // products: {
+    "your product was not created. please try again.":
+      "your product was not created. Please try again.",
+    "your product was not updated. please try again.":
+      "your product was not updated. Please try again.",
+    "your product was not deleted. please try again.":
+      "your product was not deleted. Please try again.",
+
+    // orders: {
+    "your order was not created. please try again.":
+      "your order was not created. Please try again.",
+    "your order was not updated. please try again.":
+      "your order was not updated. Please try again.",
+    "your order was not deleted. please try again.":
+      "your order was not deleted. Please try again.",
+
+    // reviews: {
+    "your review was not created. please try again.":
+      "your review was not created. Please try again.",
+    "your review was not updated. please try again.":
+      "your review was not updated. Please try again.",
+    "your review was not deleted. please try again.":
+      "your page was not deleted. Please try again.",
   },
-  // functions: {
-  //   waitsUntil: ({ duration }: { duration: string }) =>
-  //     `Please wait ${duration} before resending.`,
-  // },
 };
 
 export default en;

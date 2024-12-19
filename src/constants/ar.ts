@@ -1,3 +1,7 @@
+import { NavItem } from "@/types";
+
+import { Paths } from "./utils";
+
 const ar = {
   site: {
     name: "كن رقمي",
@@ -52,6 +56,127 @@ const ar = {
         "check your spam folder if you can't find the email.",
       "want to use another email? logout now.":
         "want to use another email? Logout now.",
+    },
+  },
+
+  dashboard: {
+    "main-nav": [
+      {
+        segments: [null],
+        value: Paths.Dashboard,
+        children: "نظرة عامة",
+        icon: "dashboard",
+      },
+      {
+        segments: ["stores"],
+        value: Paths.DashboardStores,
+        children: "المتاجر",
+        icon: "store",
+      },
+    ] as NavItem[],
+    "user-nav": [
+      {
+        segments: ["settings"],
+        value: Paths.DashboardSettings,
+        children: "الإعدادات",
+        icon: "settings",
+      },
+    ] as NavItem[],
+
+    overview: { overview: "نظرة عامة" },
+  },
+
+  stores: {
+    store: {
+      "main-nav": [
+        {
+          segments: [null],
+          value: "/",
+          children: "نظرة عامة",
+          icon: "dashboard",
+        },
+        {
+          segments: ["products"],
+          value: "/products",
+          children: "المنتجات",
+          icon: "shirt",
+        },
+        {
+          segments: ["orders"],
+          value: "/orders",
+          children: "الطلبات",
+          icon: "packagePlus",
+        },
+        {
+          segments: ["customers"],
+          value: "/customers",
+          children: "العملاء",
+          icon: "users",
+        },
+        {
+          segments: ["reviews"],
+          value: "/reviews",
+          children: "التقييمات",
+          icon: "stars",
+        },
+        {
+          segments: ["promotions"],
+          value: "/promotions",
+          children: "العروض",
+          icon: "percent",
+        },
+        {
+          segments: ["pages"],
+          value: "/pages",
+          children: "الصفحات التعريفية",
+          icon: "files",
+        },
+      ] as NavItem[],
+      "user-nav": [
+        {
+          segments: ["settings"],
+          value: "/settings",
+          children: "الإعدادات",
+          icon: "settings",
+        },
+      ] as NavItem[],
+
+      overview: "Overview",
+      "browse all overview, edit, and filter.":
+        "Browse all overview, edit, and filter.",
+
+      products: {
+        products: "Products",
+        "browse all products, edit, and filter.":
+          "Browse all products, edit, and filter.",
+      },
+      orders: {
+        orders: "Orders",
+        "browse all orders, edit, and filter.":
+          "Browse all orders, edit, and filter.",
+      },
+      customers: {
+        customers: "Customers",
+        "browse all customers, preview, and filter.":
+          "Browse all customers, preview, and filter.",
+      },
+      reviews: {
+        reviews: "Reviews",
+        "browse all reviews, edit, and filter.":
+          "Browse all reviews, edit, and filter.",
+      },
+
+      promotions: {
+        promotions: "Promotions",
+        "browse all promotions, preview, and filter.":
+          "Browse all promotions, preview, and filter.",
+      },
+
+      pages: {
+        pages: "Pages",
+        "browse all pages, preview, and filter.":
+          "Browse all pages, preview, and filter.",
+      },
     },
   },
 
@@ -118,6 +243,7 @@ const ar = {
     cancel: "إلغاء",
     delete: "حذف",
     edit: "تعديل",
+    logout: "تسجيل الخروج",
   },
   actions: {
     "An unexpected error occured, please try again later.":
@@ -139,12 +265,47 @@ const ar = {
       "لم يتم تحديث حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
     "your user account was not deleted. please try again.":
       "لم يتم حذف حساب المستخدم الخاص بك. يرجى المحاولة مرة أخرى.",
-  },
 
-  // functions: {
-  //   waitsUntil: ({ duration }: { duration: string }) =>
-  //     `رجاء الإنتظار لمدة ${duration} حتي ترسل مرة أخري.`,
-  // },
+    // stores: {
+    "your store was not created. please try again.":
+      "لم يتم إنشاء المتجر. يرجى المحاولة مرة أخرى.",
+    "your store was not updated. please try again.":
+      "لم يتم تحديث بيانات المتجر. يرجى المحاولة مرة أخرى.",
+    "your store was not deleted. please try again.":
+      "لم يتم حذف المتجر. يرجى المحاولة مرة أخرى.",
+
+    // pages: {
+    "your page was not created. please try again.":
+      "لم يتم إنشاء الصفحة. يرجى المحاولة مرة أخرى.",
+    "your page was not updated. please try again.":
+      "لم يتم تحديث الصفحة. يرجى المحاولة مرة أخرى.",
+    "your page was not deleted. please try again.":
+      "لم يتم حذف الصفحة. يرجى المحاولة مرة أخرى.",
+
+    // products: {
+    "your product was not created. please try again.":
+      "لم يتم إنشاء المنتج. يرجى المحاولة مرة أخرى.",
+    "your product was not updated. please try again.":
+      "لم يتم تحديث المنتج. يرجى المحاولة مرة أخرى.",
+    "your product was not deleted. please try again.":
+      "لم يتم حذف المنتج. يرجى المحاولة مرة أخرى.",
+
+    // orders: {
+    "your order was not created. please try again.":
+      "لم يتم إنشاء الطلب. يرجى المحاولة مرة أخرى.",
+    "your order was not updated. please try again.":
+      "لم يتم تحديث الطلب. يرجى المحاولة مرة أخرى.",
+    "your order was not deleted. please try again.":
+      "لم يتم حذف الطلب. يرجى المحاولة مرة أخرى.",
+
+    // reviews: {
+    "your review was not created. please try again.":
+      "لم يتم إنشاء التقييم. يرجى المحاولة مرة أخرى.",
+    "your review was not updated. please try again.":
+      "لم يتم تحديث التقييم. يرجى المحاولة مرة أخرى.",
+    "your review was not deleted. please try again.":
+      "لم يتم حذف التقييم. يرجى المحاولة مرة أخرى.",
+  },
 };
 
 export default ar;

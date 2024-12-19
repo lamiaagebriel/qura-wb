@@ -7,8 +7,11 @@ export type SelectItem = {
   value: string;
   children: string | React.ReactNode;
   disabled?: boolean;
-  // icon?: keyof typeof Icons;
+  icon?: keyof typeof Icons;
   // color?: string;
+};
+export type NavItem = SelectItem & {
+  segments: (string | null)[];
 };
 
 export type HandleServerActionOnSubmit<R> =

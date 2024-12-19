@@ -1,0 +1,54 @@
+"use server";
+
+import { revalidateTag } from "next/cache";
+import { cookies as nextCookies } from "next/headers";
+
+import { ID } from "@/constants/utils";
+import { z } from "zod";
+
+import { db, schema } from "@/servers/db";
+import { getDictionary } from "@/servers/locale";
+import { createServerAction } from "@/servers/utils";
+import { getAuth } from "@/lib/auth";
+import { Validation, validations } from "@/lib/validations";
+
+export const createStore = createServerAction(
+  async (formData: Validation["create-store"]) => {
+    const data = validations?.["create-store"]?.parse(formData);
+    const { actions: c, "form-fields": ff } = await getDictionary();
+    const cookies = await nextCookies();
+
+    const { user } = await getAuth();
+    if (!user || !user?.["id"])
+      throw new Error(c?.["this action needs you to be logged in."]);
+
+    const isUsernameExists = await db.query.stores.findFirst({
+      columns: { username: true },
+      where: (s, o) => o.eq(s?.["username"], data?.["username"]),
+    });
+
+    if (isUsernameExists)
+      throw new z.ZodError([
+        {
+          code: "custom",
+          path: ["username"],
+          message: "this name has been used before.",
+        },
+      ]);
+
+    const id = ID.generate({});
+    await db.insert(schema?.["stores"]).values({
+      id,
+      ...data,
+      userId: user?.["id"],
+    });
+
+    revalidateTag("stores");
+    return {
+      ok: true,
+      redirect: `/ss/${id}`,
+      toast: { type: "success", message: ff?.["created successfully."] },
+    };
+  },
+  { defaultMessage: "your store was not created. please try again." }
+);

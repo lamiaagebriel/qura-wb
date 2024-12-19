@@ -1,4 +1,6 @@
+import { unstable_cache as next_unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import {
   HandleServerActionOnSubmit,
@@ -6,6 +8,8 @@ import {
   ServerActionSuccess,
 } from "@/types";
 import { clsx, type ClassValue } from "clsx";
+import { DateArg, format, formatDistanceToNow, FormatOptions } from "date-fns";
+import * as DateFnsLocale from "date-fns/locale";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
@@ -80,4 +84,53 @@ export async function handleServerAction<R>(
 
     if (result?.redirect) redirect(result?.["redirect"]);
   }
+}
+
+// next_unstable_cache doesn't handle deduplication, so we wrap it in React's cache
+export const unstable_cache = <Inputs extends unknown[], Output>(
+  callback: (...args: Inputs) => Promise<Output>,
+  key?: string[],
+  options?: {
+    revalidate?: number | false;
+    tags?: string[];
+  }
+) =>
+  cache(
+    next_unstable_cache(callback, key, {
+      revalidate: 60 * 60 * 2, // two hours
+      ...options,
+    })
+  );
+
+export function formatDate(
+  date: DateArg<Date>,
+  opts: {
+    formatStr?: string;
+    type?: "default" | "distance";
+  } & Omit<FormatOptions, "locale"> = {
+    formatStr: "PPP",
+    type: "default",
+  }
+) {
+  if (opts?.["type"] == "distance") {
+    const result = formatDistanceToNow(date, {
+      locale: DateFnsLocale?.["enUS"],
+      // roundingMethod: "floor", // Ensure intervals are rounded down
+      // unit: "auto", // Automatically switch between s, m, h, d, etc.
+      includeSeconds: true,
+      addSuffix: true,
+    });
+    return result
+      .replace(/ seconds?/, "s ago")
+      .replace(/ minutes?/, "m ago")
+      .replace(/ hours?/, "h ago")
+      .replace(/ days?/, "d ago")
+      .replace(/ weeks?/, "w ago")
+      .replace(/ months?/, "mo ago")
+      .replace(/ years?/, "y ago");
+  }
+  return format(date, opts?.["formatStr"]!, {
+    locale: DateFnsLocale?.["enUS"],
+    ...opts,
+  });
 }

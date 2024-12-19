@@ -6,11 +6,15 @@ export const ID = {
 
 export enum Paths {
   Home = "/",
+
   Login = "/login",
   Register = "/register",
   TermsOfService = "/terms-of-service",
   PrivacyPolicy = "/privacy-policy",
   VerifyEmail = "/verify-email",
   ResetPassword = "/reset-password",
+
   Dashboard = "/dashboard",
+  DashboardStores = "/dashboard/stores",
+  DashboardSettings = "/dashboard/settings",
 }

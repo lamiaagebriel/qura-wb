@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "../icons";
 import { Button, ButtonProps } from "./button";
 import { Input, InputProps } from "./input";
+import { Textarea, TextareaProps } from "./textarea";
 
 type ExtendedUseForm<
   TFieldValues extends FieldValues = FieldValues,
@@ -286,7 +287,9 @@ type FormButtonProps = {
   Icon?: React.ReactNode;
 } & ButtonProps;
 
-const FormButton = withFormAwareness(
+const FormButton =
+  // withFormAwareness(
+
   React.forwardRef<HTMLButtonElement, FormButtonProps>(
     (
       {
@@ -338,33 +341,33 @@ const FormButton = withFormAwareness(
         </Button>
       );
     }
-  )
-);
+  );
+// );
 FormButton.displayName = "FormButton";
 
-export type WithFormAwarenessProps = {
-  disabled?: boolean;
-  loading?: "true" | "false";
-};
-function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
-  WrappedComponent:
-    | React.ComponentType<T>
-    | React.ForwardRefRenderFunction<R, T>
-) {
-  return React.forwardRef<R, T>((props, ref) => {
-    const form = useForm?.() ?? undefined;
+// export type WithFormAwarenessProps = {
+//   disabled?: boolean;
+//   loading?: "true" | "false";
+// };
+// function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
+//   WrappedComponent:
+//     | React.ComponentType<T>
+//     | React.ForwardRefRenderFunction<R, T>
+// ) {
+//   return React.forwardRef<R, T>((props, ref) => {
+//     const form = useForm?.() ?? undefined;
 
-    const loading = form?.["loading"];
-    const disabled =
-      form?.["loading"] || form?.["disabled"] || props?.["disabled"];
-    return React.createElement(WrappedComponent as any, {
-      ...props,
-      ref,
-      disabled,
-      loading: JSON.stringify(loading),
-    });
-  });
-}
+// const loading = form?.["loading"];
+// const disabled =
+//   form?.["loading"] || form?.["disabled"] || props?.["disabled"];
+//     return React.createElement(WrappedComponent as any, {
+//       ...props,
+//       ref,
+//       disabled,
+//       loading: JSON.stringify(loading),
+//     });
+//   });
+// }
 
 type FormInputFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -400,6 +403,42 @@ const FormInputField = <
   );
 };
 FormInputField.displayName = "FormInputField";
+
+type FormTextareaFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
+  label: string;
+} & TextareaProps;
+
+const FormTextareaField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  field,
+  label,
+  ...props
+}: FormTextareaFieldProps<TFieldValues, TName>) => {
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <Textarea {...field} {...props} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+};
+FormTextareaField.displayName = "FormTextareaField";
+
 export {
   useFormField,
   Form,
@@ -411,4 +450,5 @@ export {
   FormField,
   FormButton,
   FormInputField,
+  FormTextareaField,
 };

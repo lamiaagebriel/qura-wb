@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants/utils";
@@ -12,6 +11,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
+import { Link } from "@/components/link";
 
 type ResetPasswordProps = Readonly<{ params: Promise<{ token: string }> }>;
 export const metadata: Metadata = { title: "Reset Password" };
@@ -47,7 +47,7 @@ export default async function ResetPassword({ params }: ResetPasswordProps) {
 
         <div>
           <Form
-            validation="reset-password-schema"
+            validation="reset-password"
             useForm={{
               defaultValues: { token, password: "", confirmPassword: "" },
             }}
