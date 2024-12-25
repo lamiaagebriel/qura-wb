@@ -6,17 +6,17 @@ import { i18n, Locale } from "@/lib/locale";
 
 export function middleware(request: NextRequest) {
   // ----------------- localization
-  const cookieLocale = request?.["cookies"]?.get("locale")?.["value"];
-  const headerLocale = request?.["headers"]
+  const cookieLocale = request?.cookies?.get("locale")?.value;
+  const headerLocale = request?.headers
     .get("accept-language")
     ?.split(",")[0]
     .split("-")[0];
 
-  const locale = i18n?.["locales"]?.includes(cookieLocale as Locale)
+  const locale = i18n?.locales?.includes(cookieLocale as Locale)
     ? (cookieLocale as Locale)
-    : i18n?.["locales"]?.includes(headerLocale as Locale)
+    : i18n?.locales?.includes(headerLocale as Locale)
       ? (headerLocale as Locale)
-      : i18n?.["defaultLocale"];
+      : i18n?.defaultLocale;
 
   if (!cookieLocale) {
     const response = NextResponse.next();

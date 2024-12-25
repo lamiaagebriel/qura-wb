@@ -50,7 +50,7 @@ export const validations = {
   "user-schema": userSchema,
   "store-schema": storeSchema,
 
-  "locale-switcher": z.object({ locale: z.enum(i18n?.["locales"]) }),
+  "locale-switcher": z.object({ locale: z.enum(i18n?.locales) }),
   "login-with-password": userSchema.pick({
     email: true,
     password: true,

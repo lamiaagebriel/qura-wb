@@ -33,26 +33,26 @@ export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="size-8">
-          <AvatarImage src={user?.["image"]!} alt={user?.["name"] ?? ""} />
+          <AvatarImage src={user?.image!} alt={user?.name ?? ""} />
           <AvatarFallback>
             <Icons.user />
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="end" sideOffset={4}>
-        <DropdownMenuLabel>{user?.["email"]}</DropdownMenuLabel>
-        {items?.["length"] ? (
+        <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+        {items?.length ? (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {items?.map((e, i) => {
-                const Icon = e?.["icon"] ? (Icons[e?.["icon"]] ?? null) : null;
+                const Icon = e?.icon ? (Icons[e?.icon] ?? null) : null;
 
                 return (
-                  <Link key={i} href={e?.["value"]}>
+                  <Link key={i} href={e?.value}>
                     <DropdownMenuItem>
                       {Icon && <Icon />}
-                      {e?.["children"]}
+                      {e?.children}
                     </DropdownMenuItem>
                   </Link>
                 );

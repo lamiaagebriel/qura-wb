@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
 
-  const storedState = cookies.get("google_oauth_state")?.["value"];
+  const storedState = cookies.get("google_oauth_state")?.value;
   const storedCodeVerifier = cookies.get("google_oauth_code_verifier")?.[
     "value"
   ];
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     if (!googleUserResponse.ok) throw new Error("Failed to fetch user info");
     const googleUser = (await googleUserResponse.json()) as GoogleUser;
 
-    if (!googleUser.email || !googleUser?.["verified_email"]) {
+    if (!googleUser.email || !googleUser?.verified_email) {
       return new Response(
         "Your Google account must have a verified email address.",
         { status: 400, headers: { Location: Paths.Login } }
@@ -58,34 +58,34 @@ export async function GET(req: NextRequest) {
     // Find existing user
     const existingUser = await db.query.users.findFirst({
       columns: { id: true, googleId: true, image: true, emailVerified: true },
-      where: (s, orm) => orm.eq(s?.["email"], googleUser.email),
+      where: (s, orm) => orm.eq(s?.email, googleUser.email),
     });
 
     // Update existing user if needed
     if (existingUser) {
       await db.transaction(async (tx) => {
         if (
-          !existingUser?.["googleId"] ||
-          existingUser?.["googleId"] !== googleUser?.["id"]
+          !existingUser?.googleId ||
+          existingUser?.googleId !== googleUser?.id
         ) {
           await tx
-            .update(schema?.["users"])
-            .set({ googleId: googleUser?.["id"] })
-            .where(eq(schema?.["users"]?.["id"], existingUser?.["id"]));
+            .update(schema?.users)
+            .set({ googleId: googleUser?.id })
+            .where(eq(schema?.users?.id, existingUser?.id));
         }
 
         if (!existingUser.image) {
           await tx
-            .update(schema?.["users"])
+            .update(schema?.users)
             .set({ image: googleUser.picture })
-            .where(eq(schema?.["users"]?.["id"], existingUser?.["id"]));
+            .where(eq(schema?.users?.id, existingUser?.id));
         }
 
         if (!existingUser.emailVerified) {
           await tx
-            .update(schema?.["users"])
+            .update(schema?.users)
             .set({ emailVerified: googleUser.verified_email })
-            .where(eq(schema?.["users"]?.["id"], existingUser?.["id"]));
+            .where(eq(schema?.users?.id, existingUser?.id));
         }
       });
 
@@ -107,11 +107,11 @@ export async function GET(req: NextRequest) {
 
     // Create new user
     const userId = ID.generate();
-    await db.insert(schema?.["users"]).values({
+    await db.insert(schema?.users).values({
       id: userId,
       googleId: googleUser.id,
       email: googleUser.email,
-      emailVerified: googleUser?.["verified_email"],
+      emailVerified: googleUser?.verified_email,
       // name: googleUser.name,
       image: googleUser.picture,
     });

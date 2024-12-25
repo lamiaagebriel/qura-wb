@@ -22,7 +22,7 @@ export const loginWithPassword = createServerAction(
     const cookies = await nextCookies();
 
     const existingUser = await db.query.users.findFirst({
-      where: (table, { eq }) => eq(table.email, data?.["email"]),
+      where: (table, { eq }) => eq(table.email, data?.email),
     });
 
     if (!existingUser)
@@ -34,15 +34,12 @@ export const loginWithPassword = createServerAction(
         },
       ]);
 
-    if (!existingUser?.["password"])
+    if (!existingUser?.password)
       throw new Error(
         c?.["no password setted to that account, login using google."]
       );
 
-    const validPassword = await verify(
-      existingUser?.["password"],
-      data?.["password"]
-    );
+    const validPassword = await verify(existingUser?.password, data?.password);
 
     if (!validPassword)
       throw new z.ZodError([
@@ -53,8 +50,8 @@ export const loginWithPassword = createServerAction(
         },
       ]);
 
-    const session = await lucia.createSession(existingUser?.["id"], {});
-    const sessionCookie = lucia.createSessionCookie(session?.["id"]);
+    const session = await lucia.createSession(existingUser?.id, {});
+    const sessionCookie = lucia.createSessionCookie(session?.id);
     cookies.set(
       sessionCookie.name,
       sessionCookie.value,
@@ -100,7 +97,7 @@ export const logout = createServerAction(async () => {
   const { session } = await getAuth();
   if (!session) throw new Error(c?.["you are not logged in."]);
 
-  await lucia.invalidateSession(session?.["id"]);
+  await lucia.invalidateSession(session?.id);
   const sessionCookie = lucia.createBlankSessionCookie();
   cookies.set(
     sessionCookie.name,
@@ -119,7 +116,7 @@ export const registerWithPassword = createServerAction(
 
     const existingUser = await db.query.users.findFirst({
       columns: { email: true },
-      where: (table, { eq }) => eq(table.email, data?.["email"]),
+      where: (table, { eq }) => eq(table.email, data?.email),
     });
 
     if (existingUser)
@@ -132,16 +129,16 @@ export const registerWithPassword = createServerAction(
       ]);
 
     const userId = ID.generate();
-    const passwordHash = await hash(data?.["password"]);
-    await db.insert(schema?.["users"]).values({
+    const passwordHash = await hash(data?.password);
+    await db.insert(schema?.users).values({
       id: userId,
-      email: data?.["email"],
+      email: data?.email,
       password: passwordHash,
     });
 
     const verificationCode = await generateEmailVerificationCode({
       userId,
-      email: data?.["email"],
+      email: data?.email,
     });
 
     console.log({ verificationCode });
@@ -149,7 +146,7 @@ export const registerWithPassword = createServerAction(
     // await sendMail(email, EmailTemplate.EmailVerification, { code: verificationCode });
 
     const session = await lucia.createSession(userId, {});
-    const sessionCookie = lucia.createSessionCookie(session?.["id"]);
+    const sessionCookie = lucia.createSessionCookie(session?.id);
     cookies.set(
       sessionCookie.name,
       sessionCookie.value,
@@ -169,7 +166,7 @@ export const resendVerificationEmail = createServerAction(async () => {
 
   const lastSent = await db.query.emailVerificationCodes.findFirst({
     columns: { expiresAt: true },
-    where: (s, orm) => orm.eq(s?.["userId"], user?.["id"]),
+    where: (s, orm) => orm.eq(s?.userId, user?.id),
   });
 
   if (lastSent && isWithinExpirationDate(lastSent.expiresAt)) {
@@ -215,18 +212,16 @@ export const verifyEmail = createServerAction(
         columns: { id: true, email: true, expiresAt: true },
         where: (s, orm) =>
           orm.and(
-            orm.eq(s?.["userId"], user?.["id"]),
-            orm.eq(s?.["email"], user?.["email"]),
-            orm.eq(s?.["code"], data?.["code"])
+            orm.eq(s?.userId, user?.id),
+            orm.eq(s?.email, user?.email),
+            orm.eq(s?.code, data?.code)
           ),
       });
 
       if (item) {
         await tx
-          .delete(schema?.["emailVerificationCodes"])
-          .where(
-            orm.eq(schema?.["emailVerificationCodes"]?.["id"], item?.["id"])
-          );
+          .delete(schema?.emailVerificationCodes)
+          .where(orm.eq(schema?.emailVerificationCodes?.id, item?.id));
       }
 
       return item;
@@ -240,9 +235,9 @@ export const verifyEmail = createServerAction(
     await lucia.invalidateUserSessions(user.id);
 
     await db
-      .update(schema?.["users"])
+      .update(schema?.users)
       .set({ emailVerified: true })
-      .where(orm.eq(schema?.["users"]?.["id"], user?.["id"]));
+      .where(orm.eq(schema?.users?.id, user?.id));
 
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
@@ -271,7 +266,7 @@ export const sendPasswordResetLink = createServerAction(
 
     const user = await db.query.users.findFirst({
       columns: { id: true, emailVerified: true },
-      where: (s, orm) => orm.eq(s?.["email"], data?.["email"]),
+      where: (s, orm) => orm.eq(s?.email, data?.email),
     });
 
     if (!user || !user.emailVerified)
@@ -279,7 +274,7 @@ export const sendPasswordResetLink = createServerAction(
 
     const lastSent = await db.query.passwordResetTokens.findFirst({
       columns: { expiresAt: true },
-      where: (s, orm) => orm.eq(s?.["userId"], user?.["id"]),
+      where: (s, orm) => orm.eq(s?.userId, user?.id),
     });
 
     if (lastSent && isWithinExpirationDate(lastSent.expiresAt))
@@ -313,7 +308,7 @@ export const resetPassword = createServerAction(
     const data = validations?.["reset-password"]?.parse(formData);
     const cookies = await nextCookies();
     const { actions: c } = await getDictionary();
-    if (data?.["password"] !== data?.["confirmPassword"])
+    if (data?.password !== data?.confirmPassword)
       throw new z.ZodError([
         {
           code: "custom",
@@ -324,13 +319,13 @@ export const resetPassword = createServerAction(
 
     const token = await db.transaction(async (tx) => {
       const item = await tx.query.passwordResetTokens.findFirst({
-        where: (s, orm) => orm.eq(s?.["id"], data?.["token"]),
+        where: (s, orm) => orm.eq(s?.id, data?.token),
       });
 
       if (item)
         await tx
-          .delete(schema?.["passwordResetTokens"])
-          .where(orm.eq(schema?.["passwordResetTokens"]?.["id"], item?.["id"]));
+          .delete(schema?.passwordResetTokens)
+          .where(orm.eq(schema?.passwordResetTokens?.id, item?.id));
 
       return item;
     });
@@ -341,14 +336,14 @@ export const resetPassword = createServerAction(
       throw new Error("Password reset link expired.");
 
     await lucia.invalidateUserSessions(token.userId);
-    const password = await hash(data?.["password"]);
+    const password = await hash(data?.password);
     await db
-      .update(schema?.["users"])
+      .update(schema?.users)
       .set({ password })
-      .where(orm.eq(schema?.["users"]?.["id"], token?.["userId"]));
+      .where(orm.eq(schema?.users?.id, token?.userId));
 
-    const session = await lucia.createSession(token?.["userId"], {});
-    const sessionCookie = lucia.createSessionCookie(session?.["id"]);
+    const session = await lucia.createSession(token?.userId, {});
+    const sessionCookie = lucia.createSessionCookie(session?.id);
     cookies.set(
       sessionCookie.name,
       sessionCookie.value,
@@ -375,11 +370,11 @@ async function generateEmailVerificationCode({
   email: string;
 }): Promise<string> {
   await db
-    .delete(schema?.["emailVerificationCodes"])
-    .where(orm.eq(schema?.["emailVerificationCodes"]?.["userId"], userId));
+    .delete(schema?.emailVerificationCodes)
+    .where(orm.eq(schema?.emailVerificationCodes?.userId, userId));
 
   const code = generateRandomString(8, alphabet("0-9")); // 8 digit code
-  await db.insert(schema?.["emailVerificationCodes"]).values({
+  await db.insert(schema?.emailVerificationCodes).values({
     userId,
     email,
     code,
@@ -391,11 +386,11 @@ async function generateEmailVerificationCode({
 
 async function generatePasswordResetToken(userId: string): Promise<string> {
   await db
-    .delete(schema?.["passwordResetTokens"])
-    .where(orm.eq(schema?.["passwordResetTokens"]?.["userId"], userId));
+    .delete(schema?.passwordResetTokens)
+    .where(orm.eq(schema?.passwordResetTokens?.userId, userId));
 
   const tokenId = ID.generate({ len: 40 });
-  await db.insert(schema?.["passwordResetTokens"]).values({
+  await db.insert(schema?.passwordResetTokens).values({
     id: tokenId,
     userId,
     expiresAt: createDate(new TimeSpan(2, "h")),

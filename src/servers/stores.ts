@@ -10,11 +10,14 @@ import { db, schema } from "@/servers/db";
 import { getDictionary } from "@/servers/locale";
 import { createServerAction } from "@/servers/utils";
 import { getAuth } from "@/lib/auth";
+import { aws } from "@/lib/aws";
 import { Validation, validations } from "@/lib/validations";
 
 export const createStore = createServerAction(
   async (formData: Validation["create-store"]) => {
-    const data = validations?.["create-store"]?.parse(formData);
+    const { logo: logoProp, ...data } =
+      validations?.["create-store"]?.parse(formData);
+
     const { actions: c, "form-fields": ff } = await getDictionary();
     const cookies = await nextCookies();
 
@@ -36,10 +39,16 @@ export const createStore = createServerAction(
         },
       ]);
 
+    const logo = logoProp
+      ? ((await aws.uploadImages([logoProp], { Key: `stores/logo-` }))?.pop() ??
+        null)
+      : null;
+
     const id = ID.generate({});
     await db.insert(schema?.["stores"]).values({
       id,
       ...data,
+      logo,
       userId: user?.["id"],
     });
 

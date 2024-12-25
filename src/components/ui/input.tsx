@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { cva, VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn, fileToBase64 } from "@/lib/utils";
 
 import { Icons } from "@/components/icons";
 
@@ -17,13 +17,16 @@ export type InputProps = React.ComponentProps<"input"> &
   VariantProps<typeof inputVariants> & {};
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", className, ...props }, ref) => {
+  ({ type = "text", className, onChange, value, ...props }, ref) => {
     const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
     if (type === "password") {
       return (
         <div className="relative">
           <input
+            ref={ref}
+            onChange={onChange}
+            value={value}
             type={isPasswordVisible ? "text" : "password"}
             className={cn(
               inputVariants({ className }),
@@ -34,7 +37,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             autoCapitalize="none"
             autoComplete="password"
             autoCorrect="off"
-            ref={ref}
             {...props}
           />
 
@@ -59,6 +61,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           type={type}
+          onChange={onChange}
+          value={value}
           className={cn(inputVariants({ className }))}
           dir="ltr"
           placeholder="name@example.com"
@@ -69,10 +73,45 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
       );
 
+    if (type === "file")
+      return (
+        <input
+          ref={ref}
+          type={type}
+          className={cn(inputVariants({ className }))}
+          value={undefined}
+          onChange={async (e) => {
+            const files = e?.target?.files;
+            if (!files || files.length === 0) return null;
+
+            const fileBase64 = await Promise.all(
+              Array.from(files).map((file) =>
+                fileToBase64(file)?.then((r) => r?.toString())
+              )
+            );
+
+            onChange?.({
+              ...e,
+              target: {
+                ...e?.target,
+                // TODO: handle multiple files
+                value:
+                  fileBase64?.length === 1 && fileBase64?.[0]
+                    ? fileBase64?.[0]
+                    : "",
+              },
+            });
+          }}
+          {...props}
+        />
+      );
+
     return (
       <input
         ref={ref}
         type={type}
+        onChange={onChange}
+        value={value}
         className={cn(inputVariants({ className }))}
         {...props}
       />

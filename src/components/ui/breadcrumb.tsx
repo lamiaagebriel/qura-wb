@@ -118,7 +118,7 @@ const Breadcrumbs = React.forwardRef<
       {items?.map((e, i) => (
         <React.Fragment key={i}>
           <BreadcrumbItem>
-            <BreadcrumbLink href={e?.["value"]} {...e} />
+            <BreadcrumbLink href={e?.value} {...e} />
           </BreadcrumbItem>
           <BreadcrumbSeparator className="last:hidden">/</BreadcrumbSeparator>
         </React.Fragment>

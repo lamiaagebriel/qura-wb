@@ -44,6 +44,30 @@ export function getURL(path: string = "") {
   // Concatenate the URL and the path.
   return path ? `${url}/${path}` : url;
 }
+export function fileToBase64(file: File): Promise<string | ArrayBuffer | null> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => resolve(reader?.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
+export function base64ToBuffer(base64: string) {
+  const r = base64?.split(",")?.pop();
+  if (!r) throw Error("NO BASE64");
+
+  return Buffer.from(r, "base64");
+}
+export function getMimeType(base64: string) {
+  const r = base64?.split(",")?.[0];
+  if (!r) throw Error("NO MIME TYPE");
+
+  const regex = /^data:(.*?);base64,/;
+  const match = base64?.match(regex)!;
+
+  return match[1] ?? null;
+}
 
 export async function handleServerAction<R>(
   actionFn: HandleServerActionOnSubmit<R>,
@@ -55,34 +79,33 @@ export async function handleServerAction<R>(
   if (!result) return;
 
   if (!result.ok) {
-    if ("zodIssues" in result && Array.isArray(result?.["zodIssues"])) {
-      if (!options?.["form"]) {
+    if ("zodIssues" in result && Array.isArray(result?.zodIssues)) {
+      if (!options?.form) {
         if (process.env.NODE_ENV !== "production")
           throw new Error("form is missing in handleServerAction.");
 
         return;
       }
 
-      result?.["zodIssues"]?.forEach((e) => {
-        const path = e?.["path"]?.join(".");
-        if (!path) return toast.error(e?.["message"]!);
+      result?.zodIssues?.forEach((e) => {
+        const path = e?.path?.join(".");
+        if (!path) return toast.error(e?.message!);
 
-        options?.["form"]?.setError(path as any, { message: e?.["message"]! });
+        options?.form?.setError(path as any, { message: e?.message! });
       });
     }
 
-    if ("message" in result && typeof result?.["message"] === "string") {
-      toast.error(result?.["message"]);
+    if ("message" in result && typeof result?.message === "string") {
+      toast.error(result?.message);
     }
     options?.onError?.(result);
   }
 
   if (result.ok) {
     options?.onSuccess?.(result);
-    if (result?.toast)
-      toast?.[result?.["toast"]?.["type"]]?.(result?.["toast"]?.["message"]);
+    if (result?.toast) toast?.[result?.toast?.type]?.(result?.toast?.message);
 
-    if (result?.redirect) redirect(result?.["redirect"]);
+    if (result?.redirect) redirect(result?.redirect);
   }
 }
 
@@ -112,9 +135,9 @@ export function formatDate(
     type: "default",
   }
 ) {
-  if (opts?.["type"] == "distance") {
+  if (opts?.type == "distance") {
     const result = formatDistanceToNow(date, {
-      locale: DateFnsLocale?.["enUS"],
+      locale: DateFnsLocale?.enUS,
       // roundingMethod: "floor", // Ensure intervals are rounded down
       // unit: "auto", // Automatically switch between s, m, h, d, etc.
       includeSeconds: true,
@@ -129,8 +152,8 @@ export function formatDate(
       .replace(/ months?/, "mo ago")
       .replace(/ years?/, "y ago");
   }
-  return format(date, opts?.["formatStr"]!, {
-    locale: DateFnsLocale?.["enUS"],
+  return format(date, opts?.formatStr!, {
+    locale: DateFnsLocale?.enUS,
     ...opts,
   });
 }

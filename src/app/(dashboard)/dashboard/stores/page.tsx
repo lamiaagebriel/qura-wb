@@ -8,7 +8,7 @@ import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardDescription,
@@ -29,7 +29,7 @@ export default async function Stores({}: StoresProps) {
 
   if (!user) redirect(Paths.Login);
   const { data: stores } = await queries.stores.getMany({
-    userId: user?.["id"],
+    userId: user?.id,
   });
 
   return (
@@ -56,13 +56,14 @@ export default async function Stores({}: StoresProps) {
         </div>
       </div>
 
-      {stores?.["length"] ? (
+      {stores?.length ? (
         <div className="container grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {stores.map((e, i) => (
             <Card key={i}>
-              <Link href={`/ss/${e?.["id"]}`}>
+              <Link href={`/ss/${e?.id}`}>
                 <CardHeader className="flex flex-row items-start gap-2">
                   <Avatar>
+                    <AvatarImage src={e?.logo ?? ""} />
                     <AvatarFallback>
                       <Icons.store />
                     </AvatarFallback>
@@ -70,19 +71,17 @@ export default async function Stores({}: StoresProps) {
 
                   <div className="w-full">
                     <div className="flex items-start justify-between gap-4">
-                      <CardTitle className="line-clamp-1">
-                        {e?.["name"]}
-                      </CardTitle>
+                      <CardTitle className="line-clamp-1">{e?.name}</CardTitle>
 
                       <CardDescription className="whitespace-nowrap text-xs">
-                        {formatDate(e?.["createdAt"], { type: "distance" })}
+                        {formatDate(e?.createdAt, { type: "distance" })}
                       </CardDescription>
                     </div>
                     <CardDescription className="line-clamp-1 max-w-prose text-xs">
-                      {e?.["username"]}
+                      {e?.username}
                     </CardDescription>
                     <CardDescription className="line-clamp-1 max-w-prose">
-                      {e?.["bio"]}
+                      {e?.bio}
                     </CardDescription>
                   </div>
                 </CardHeader>

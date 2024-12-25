@@ -39,7 +39,7 @@ export async function StoreCreateButton() {
         <AlertDialogTrigger asChild>
           <Button variant="outline">create store</Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-h-[calc(100svh-4rem)] overflow-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -49,7 +49,7 @@ export async function StoreCreateButton() {
           </AlertDialogHeader>
 
           <Form
-            infiniteLoading
+            // infiniteLoading
             validation="create-store"
             onSubmit={createStore}
             useForm={{
@@ -74,6 +74,13 @@ export async function StoreCreateButton() {
             }}
             className="flex flex-col gap-4"
           >
+            <FormInputField
+              type="file"
+              accept="image/*"
+              multiple={false}
+              field={{ name: "logo" }}
+              label={ff?.["logo"]?.["logo"]}
+            />
             <FormInputField
               field={{ name: "name" }}
               label={ff?.["name"]?.["name"]}
@@ -110,18 +117,14 @@ export async function StoreCreateButton() {
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <FormInputField
-                field={{
-                  name: "location.addressLine",
-                }}
+                field={{ name: "location.addressLine" }}
                 label={ff?.["location"]?.["address-line"]?.["address line"]}
                 placeholder={
                   ff?.["location"]?.["address-line"]?.["03 aprt., 808 building"]
                 }
               />
               <FormInputField
-                field={{
-                  name: "location.zip",
-                }}
+                field={{ name: "location.zip" }}
                 label={ff?.["location"]?.["zip"]?.["zip"]}
                 placeholder={ff?.["location"]?.["zip"]?.["185047"]}
               />
@@ -129,24 +132,18 @@ export async function StoreCreateButton() {
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               <FormInputField
-                field={{
-                  name: "location.state",
-                }}
+                field={{ name: "location.state" }}
                 label={ff?.["location"]?.["state"]?.["state"]}
                 placeholder={ff?.["location"]?.["state"]?.["obour"]}
               />
 
               <FormInputField
-                field={{
-                  name: "location.city",
-                }}
+                field={{ name: "location.city" }}
                 label={ff?.["location"]?.["city"]?.["city"]}
                 placeholder={ff?.["location"]?.["city"]?.["cairo"]}
               />
               <FormInputField
-                field={{
-                  name: "location.country",
-                }}
+                field={{ name: "location.country" }}
                 label={ff?.["location"]?.["country"]?.["country"]}
                 placeholder={ff?.["location"]?.["country"]?.["egypt"]}
               />

@@ -1,7 +1,7 @@
 import { generateId } from "lucia";
 
 export const ID = {
-  generate: (props?: { len?: number }) => generateId(props?.["len"] ?? 21),
+  generate: (props?: { len?: number }) => generateId(props?.len ?? 21),
 };
 
 export enum Paths {

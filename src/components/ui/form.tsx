@@ -152,7 +152,7 @@ const FormField = <
   return (
     // TODO: name is not type-safed
     <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller control={form?.["control"]} {...props} />
+      <Controller control={form?.control} {...props} />
     </FormFieldContext.Provider>
   );
 };
@@ -357,9 +357,9 @@ FormButton.displayName = "FormButton";
 //   return React.forwardRef<R, T>((props, ref) => {
 //     const form = useForm?.() ?? undefined;
 
-// const loading = form?.["loading"];
+// const loading = form?.loading;
 // const disabled =
-//   form?.["loading"] || form?.["disabled"] || props?.["disabled"];
+//   form?.loading || form?.disabled || props?.disabled;
 //     return React.createElement(WrappedComponent as any, {
 //       ...props,
 //       ref,

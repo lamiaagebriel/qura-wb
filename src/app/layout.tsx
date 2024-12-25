@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Cairo, Inter } from "next/font/google";
 
 import { getDictionary } from "@/servers/locale";
-
 import { cn } from "@/lib/utils";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -17,8 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const { site: c } = await getDictionary();
 
   return {
-    title: { template: `%s | ${c?.["name"]}`, default: `${c?.["name"]}` },
-    description: c?.["description"],
+    title: { template: `%s | ${c?.name}`, default: `${c?.name}` },
+    description: c?.description,
   };
 }
 // export const revalidate = 86400; // One day
@@ -31,10 +30,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     <html
       lang={locale}
       dir={locale === "ar" ? "rtl" : "ltr"}
-      className={cn(
-        "",
-        locale === "ar" ? cairo?.["className"] : inter?.["className"]
-      )}
+      className={cn("", locale === "ar" ? cairo?.className : inter?.className)}
     >
       <body>
         <LocaleProvider value={{ ...dic, locale }}>

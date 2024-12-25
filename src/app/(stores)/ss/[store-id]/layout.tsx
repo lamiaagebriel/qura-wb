@@ -48,7 +48,7 @@ export default async function StoreLayout({
                       </AvatarFallback>
                     </Avatar>
                     <h1 className="hidden font-semibold sm:block">
-                      {dic?.["site"]?.["name"]}
+                      {dic?.site?.name}
                     </h1>
                   </div>
                 ),
@@ -58,11 +58,12 @@ export default async function StoreLayout({
                 children: (
                   <div className="flex items-center gap-2">
                     <Avatar className="size-6">
+                      <AvatarImage src={selectedStore?.logo ?? ""} />
                       <AvatarFallback>
                         <Icons.store />
                       </AvatarFallback>
                     </Avatar>
-                    <h1 className="font-semibold">{selectedStore?.["name"]}</h1>
+                    <h1 className="font-semibold">{selectedStore?.name}</h1>
                   </div>
                 ),
               },
@@ -72,7 +73,7 @@ export default async function StoreLayout({
           <UserAccountNav
             items={c?.["user-nav"]?.map((e) => ({
               ...e,
-              value: `/ss/${storeId}${e?.["value"]}`,
+              value: `/ss/${storeId}${e?.value}`,
             }))}
           />
         </div>
@@ -83,14 +84,14 @@ export default async function StoreLayout({
           <nav>
             <ul className="flex items-center gap-1">
               {c?.["main-nav"]?.map((e, i) => {
-                const Icon = e?.["icon"] ? Icons?.[e?.["icon"]] : null;
+                const Icon = e?.icon ? Icons?.[e?.icon] : null;
 
                 return (
                   <li key={i}>
                     <NavLink
-                      disabled={e?.["disabled"]}
-                      segments={e?.["segments"]}
-                      href={`/ss/${storeId}${e?.["value"]}`}
+                      disabled={e?.disabled}
+                      segments={e?.segments}
+                      href={`/ss/${storeId}${e?.value}`}
                       className={cn(buttonVariants({ variant: "ghost" }))}
                       activeClassNames={cn(
                         buttonVariants({ variant: "secondary" }),
@@ -98,7 +99,7 @@ export default async function StoreLayout({
                       )}
                     >
                       {Icon && <Icon />}
-                      {e?.["children"]}
+                      {e?.children}
                     </NavLink>
                   </li>
                 );
