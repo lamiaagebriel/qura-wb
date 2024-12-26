@@ -353,6 +353,33 @@ const ar = {
       ] satisfies (SelectItem & { value: PaymentStatus })[],
     },
   },
+
+  emails: {
+    "verify-email": {
+      subject: "تأكيد البريد الإلكتروني - ConCom Services",
+      title: "تفعيل حسابك",
+      greeting: "مرحباً",
+      message:
+        "شكراً لتسجيلك في ConCom Services. يرجى تأكيد بريدك الإلكتروني باستخدام الرمز أدناه:",
+      codeMessage: "رمز التحقق الخاص بك هو:",
+      validityMessage: "هذا الرمز صالح لمدة 30 دقيقة فقط.",
+      helpText:
+        "إذا لم تقم بإنشاء هذا الحساب، يرجى تجاهل هذا البريد الإلكتروني.",
+      contactMessage: "للمساعدة، يرجى التواصل معنا على:",
+    },
+    "password-reset-link": {
+      subject: "إعادة تعيين كلمة المرور - ConCom Services",
+      title: "إعادة تعيين كلمة المرور",
+      greeting: "مرحباً",
+      message:
+        "تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك. استخدم الرمز أدناه لإعادة تعيين كلمة المرور:",
+      codeMessage: "رمز إعادة التعيين هو:",
+      validityMessage: "هذا الرمز صالح لمدة 15 دقيقة فقط.",
+      warningMessage:
+        "إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تغيير كلمة المرور الخاصة بك فوراً وإبلاغنا.",
+      contactMessage: "للمساعدة، يرجى التواصل معنا على:",
+    },
+  },
 };
 
 export default ar;

@@ -11,6 +11,7 @@ import { db, orm, schema } from "@/servers/db";
 import { getDictionary } from "@/servers/locale";
 import { createServerAction, hash, userHelpers, verify } from "@/servers/utils";
 import { getAuth, google, lucia } from "@/lib/auth";
+import { mailer } from "@/lib/mailer";
 import { getURL } from "@/lib/utils";
 import { Validation, validations } from "@/lib/validations";
 
@@ -110,7 +111,7 @@ export const logout = createServerAction(async () => {
 export const registerWithPassword = createServerAction(
   async (formData: Validation["register-with-password"]) => {
     const data = validations?.["register-with-password"]?.parse(formData);
-    const { actions: c } = await getDictionary();
+    const { locale, actions: c, emails } = await getDictionary();
     const cookies = await nextCookies();
 
     const existingUser = await db.query.users.findFirst({
@@ -140,8 +141,9 @@ export const registerWithPassword = createServerAction(
       emailVerificationDetails,
     });
 
-    console.log({ emailVerificationDetails });
-    // await sendMail(email, EmailTemplate.EmailVerification, { code: verificationCode });
+    await mailer.send(data?.email, "verify-email", {
+      ...emailVerificationDetails,
+    });
 
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session?.id);
@@ -185,8 +187,9 @@ export const resendVerificationEmail = createServerAction(async () => {
     .set({ emailVerificationDetails })
     .where(orm.eq(schema?.users.id, user.id));
 
-  console.log({ emailVerificationDetails });
-  // await sendMail(user.email, EmailTemplate.EmailVerification, { code: verificationCode });
+  await mailer.send(user.email, "verify-email", {
+    ...emailVerificationDetails,
+  });
 
   return {
     ok: true,
@@ -280,8 +283,11 @@ export const sendPasswordResetLink = createServerAction(
       .where(orm.eq(schema?.users.id, user.id));
 
     const resetLink = `${getURL()}/reset-password/${resetPasswordDetails?.token}`;
-    console.log({ resetLink });
-    // await sendMail(user.email, EmailTemplate.PasswordReset, { link: resetLink });
+
+    await mailer.send(data?.email, "send-password-reset-link", {
+      ...resetPasswordDetails,
+      token: resetLink,
+    });
 
     return {
       ok: true,
@@ -309,18 +315,17 @@ export const resetPassword = createServerAction(
         },
       ]);
 
+    // TODO: handle it from users/schema
     const user = await db
       .execute(
-        orm.sql`SELECT ${schema?.users?.id?.name}, ${schema?.users?.resetPasswordDetails?.name} FROM ${schema?.users?.name} WHERE ${schema?.users?.resetPasswordDetails?.name} ->> 'token' = ${data?.token} LIMIT 1`
+        orm.sql`SELECT id, reset_details FROM users WHERE "reset_details" ->> 'token' = ${data?.token} LIMIT 1`
       )
       ?.then(
         (r) =>
           ({
             ...r?.rows?.[0],
-            resetPasswordDetails:
-              r?.rows?.[0]?.[schema?.users?.resetPasswordDetails?.name],
+            resetPasswordDetails: r?.rows?.[0]?.["reset_details"],
           }) as {
-            // TODO: handle it from users/schema
             id: string;
             resetPasswordDetails: Validation["password-reset-schema"];
           }

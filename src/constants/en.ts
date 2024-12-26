@@ -356,6 +356,31 @@ const en = {
       ] satisfies (SelectItem & { value: PaymentStatus })[],
     },
   },
+  emails: {
+    "verify-email": {
+      subject: "Verify Your Email - ConCom Services",
+      title: "Activate Your Account",
+      greeting: "Hello",
+      message:
+        "Thank you for registering with ConCom Services. Please verify your email using the code below:",
+      codeMessage: "Your verification code is:",
+      validityMessage: "This code is valid for 30 minutes only.",
+      helpText: "If you didn't create this account, please ignore this email.",
+      contactMessage: "For assistance, please contact us at:",
+    },
+    "password-reset-link": {
+      subject: "Password Reset - ConCom Services",
+      title: "Reset Your Password",
+      greeting: "Hello",
+      message:
+        "We received a request to reset your account password. Use the code below to reset your password:",
+      codeMessage: "Your reset code is:",
+      validityMessage: "This code is valid for 15 minutes only.",
+      warningMessage:
+        "If you didn't request a password reset, please change your password immediately and notify us.",
+      contactMessage: "For assistance, please contact us at:",
+    },
+  },
 };
 
 export default en;

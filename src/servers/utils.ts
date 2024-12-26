@@ -28,6 +28,8 @@ export function createServerAction<T, R>(
     try {
       return await actionFn(data);
     } catch (error: any) {
+      console.error(error);
+
       // Convert any caught error to a standardized error result
       if (error instanceof z.ZodError)
         return { ok: false, zodIssues: error?.["issues"] };
