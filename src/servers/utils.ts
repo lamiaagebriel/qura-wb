@@ -1,5 +1,8 @@
+import { ID } from "@/constants/utils";
 import { ServerActionResult } from "@/types";
 import { Scrypt } from "lucia";
+import { createDate, TimeSpan } from "oslo";
+import { alphabet, generateRandomString } from "oslo/crypto";
 import { z } from "zod";
 
 import { getDictionary } from "@/servers/locale";
@@ -39,3 +42,30 @@ export function createServerAction<T, R>(
     }
   };
 }
+
+export const userHelpers = {
+  generateVerificationCode: ({ email }: { email: string }) => ({
+    code: generateRandomString(8, alphabet("0-9")), // 8 digit code
+    expiresAt: createDate(new TimeSpan(10, "m")), // 10 minutes
+    attempts: 0,
+    email,
+  }),
+
+  generateResetPasswordToken: () => ({
+    token: ID.generate({ len: 40 }),
+    expiresAt: createDate(new TimeSpan(2, "h")),
+    used: false,
+  }),
+
+  // isVerificationValid: (
+  //   verification: Validation["email-verification-schema"] | null
+  // ) => {
+  //   if (!verification) return false;
+  //   return verification.expiresAt > new Date() && verification.attempts < 5;
+  // },
+
+  // isResetTokenValid: (reset: Validation["password-reset-schema"] | null) => {
+  //   if (!reset) return false;
+  //   return isWithinExpirationDate(new Date(reset.expiresAt)) && !reset.used;
+  // },
+};

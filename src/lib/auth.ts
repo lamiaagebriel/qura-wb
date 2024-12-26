@@ -7,14 +7,14 @@ import { Lucia, TimeSpan } from "lucia";
 import type { Session, User } from "lucia";
 
 import { db } from "@/servers/db";
-import { sessions, users, type User as DbUser } from "@/servers/db/schema";
+import { sessions, users, type User as DBUser } from "@/servers/db/schema";
 import { getURL } from "@/lib/utils";
 
 // Uncomment the following lines if you are using nodejs 18 or lower. Not required in Node.js 20, CloudFlare Workers, Deno, Bun, and Vercel Edge Functions.
 // import { webcrypto } from "node:crypto";
 // globalThis.crypto = webcrypto as Crypto;
 
-// TODO: as I am using not node-postgres not postgres.js
+// TODO: as I am using node-postgres not postgres.js
 const adapter = new DrizzlePostgreSQLAdapter(
   db as any,
   sessions as any,
@@ -45,7 +45,7 @@ declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
     DatabaseSessionAttributes: {};
-    DatabaseUserAttributes: Omit<DbUser, "hashedPassword">;
+    DatabaseUserAttributes: Omit<DBUser, "password">;
   }
 }
 

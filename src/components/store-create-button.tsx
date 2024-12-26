@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import {
   Form,
   FormButton,
@@ -21,7 +21,11 @@ import {
   FormTextareaField,
 } from "@/components/ui/form";
 
-export async function StoreCreateButton() {
+type StoreCreateButtonProps = {} & ButtonProps;
+export async function StoreCreateButton({
+  children,
+  ...props
+}: StoreCreateButtonProps) {
   const { user } = await getAuth();
   const { "form-fields": ff } = await getDictionary();
   // const [open, setOpen] = useState<boolean>(false);
@@ -37,7 +41,9 @@ export async function StoreCreateButton() {
       // }}
       >
         <AlertDialogTrigger asChild>
-          <Button variant="outline">create store</Button>
+          <Button variant="outline" {...props}>
+            {children ?? "create store"}
+          </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="max-h-[calc(100svh-4rem)] overflow-auto">
           <AlertDialogHeader>
@@ -67,8 +73,8 @@ export async function StoreCreateButton() {
                   country: "",
                   city: "",
                   state: "",
-                  zip: "",
-                  addressLine: "",
+                  postalCode: "",
+                  street: "",
                 },
               },
             }}
@@ -117,16 +123,16 @@ export async function StoreCreateButton() {
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <FormInputField
-                field={{ name: "location.addressLine" }}
-                label={ff?.["location"]?.["address-line"]?.["address line"]}
+                field={{ name: "location.street" }}
+                label={ff?.["location"]?.["street"]?.["street"]}
                 placeholder={
-                  ff?.["location"]?.["address-line"]?.["03 aprt., 808 building"]
+                  ff?.["location"]?.["street"]?.["03 aprt., 808 building"]
                 }
               />
               <FormInputField
-                field={{ name: "location.zip" }}
-                label={ff?.["location"]?.["zip"]?.["zip"]}
-                placeholder={ff?.["location"]?.["zip"]?.["185047"]}
+                field={{ name: "location.postalCode" }}
+                label={ff?.["location"]?.["postalCode"]?.["postalCode"]}
+                placeholder={ff?.["location"]?.["postalCode"]?.["185047"]}
               />
             </div>
 

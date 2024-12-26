@@ -1,4 +1,11 @@
-import { NavItem } from "@/types";
+import { NavItem, SelectItem } from "@/types";
+
+import {
+  OrderStatus,
+  PaymentStatus,
+  ProductStatus,
+  UserRole,
+} from "@/lib/validations";
 
 import { Paths } from "./utils";
 
@@ -86,6 +93,13 @@ const en = {
 
     overview: {
       overview: "Overview",
+      "browse all overview, edit, and filter.":
+        "Browse all overview, edit, and filter.",
+    },
+    stores: {
+      stores: "Stores",
+      "browse all stores, edit, and filter.":
+        "Browse all stores, edit, and filter.",
     },
   },
   stores: {
@@ -221,11 +235,11 @@ const en = {
       "type about your store...": "Type about your store...",
     },
     location: {
-      "address-line": {
-        "address line": "Address Line",
+      street: {
+        street: "Street",
         "03 aprt., 808 building": "03 Aprt., 808 Building",
       },
-      zip: { zip: "Zip", "185047": "185047" },
+      postalCode: { postalCode: "Postal Code", "185047": "185047" },
       state: { state: "State", obour: "Obour" },
       city: { city: "City", cairo: "Cairo" },
       country: { country: "Country", egypt: "Egypt" },
@@ -308,6 +322,39 @@ const en = {
       "your review was not updated. Please try again.",
     "your review was not deleted. please try again.":
       "your page was not deleted. Please try again.",
+  },
+
+  db: {
+    enums: {
+      "user-roles": [
+        { value: "ADMIN", children: "Admin" },
+        { value: "USER", children: "User" },
+        { value: "MERCHANT", children: "Merchant" },
+      ] satisfies (SelectItem & { value: UserRole })[],
+
+      "product-statuses": [
+        { value: "DRAFT", children: "Draft" },
+        { value: "ACTIVE", children: "Active" },
+        { value: "ARCHIVED", children: "Archived" },
+      ] satisfies (SelectItem & { value: ProductStatus })[],
+
+      "order-statuses": [
+        { value: "PENDING", children: "Pending" },
+        { value: "CONFIRMED", children: "Confirmed" },
+        { value: "PROCESSING", children: "Processing" },
+        { value: "SHIPPED", children: "Shipped" },
+        { value: "DELIVERED", children: "Delivered" },
+        { value: "CANCELLED", children: "Cancelled" },
+        { value: "REFUNDED", children: "Refunded" },
+      ] satisfies (SelectItem & { value: OrderStatus })[],
+
+      "payment-statuses": [
+        { value: "PENDING", children: "Pending" },
+        { value: "COMPLETED", children: "Completed" },
+        { value: "FAILED", children: "Failed" },
+        { value: "REFUNDED", children: "Refunded" },
+      ] satisfies (SelectItem & { value: PaymentStatus })[],
+    },
   },
 };
 

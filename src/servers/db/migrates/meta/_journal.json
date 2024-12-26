@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1734453428182,
-      "tag": "0000_simple_vapor",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1734574783242,
-      "tag": "0001_petite_machine_man",
+      "when": 1735198877577,
+      "tag": "0000_modern_spiral",
       "breakpoints": true
     }
   ]

@@ -1,10 +1,13 @@
 import { cva, VariantProps } from "class-variance-authority";
 import {
+  AlertCircle,
   ChevronLeft,
   ChevronsUpDown,
   Eye,
   EyeOff,
+  FileQuestion,
   Files,
+  Inbox,
   LayoutDashboard,
   Loader2,
   LogOut,
@@ -108,6 +111,15 @@ export const Icons = {
   ),
   files: ({ className, ...props }: IconProps) => (
     <Files className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  fileQuestion: ({ className, ...props }: IconProps) => (
+    <FileQuestion className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  alertCircle: ({ className, ...props }: IconProps) => (
+    <AlertCircle className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  inbox: ({ className, ...props }: IconProps) => (
+    <Inbox className={cn(IconsVariants({}), className)} {...props} />
   ),
   google: ({ className, ...props }: IconProps) => (
     <svg

@@ -16,6 +16,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  EmptyPlaceholder,
+  EmptyPlaceholderDescription,
+  EmptyPlaceHolderIcon,
+  EmptyPlaceholderTitle,
+} from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 import { StoreCreateButton } from "@/components/store-create-button";
@@ -25,7 +31,7 @@ export const metadata: Metadata = { title: "Stores" };
 export default async function Stores({}: StoresProps) {
   const dic = await getDictionary();
   const { user } = await getAuth();
-  const c = dic?.["dashboard"];
+  const c = dic?.["dashboard"]?.["stores"];
 
   if (!user) redirect(Paths.Login);
   const { data: stores } = await queries.stores.getMany({
@@ -39,59 +45,69 @@ export default async function Stores({}: StoresProps) {
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-0.5">
               <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-                Stores
+                {c?.["stores"]}
               </h2>
               <p className="max-w-prose text-sm text-muted-foreground">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ut
-                quidem.
+                {c?.["browse all stores, edit, and filter."]}
               </p>
             </div>
 
-            <div>
-              <StoreCreateButton />
-            </div>
+            <div>{!!stores?.length && <StoreCreateButton />}</div>
           </div>
 
           <Separator className="my-4" />
         </div>
       </div>
 
-      {stores?.length ? (
-        <div className="container grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {stores.map((e, i) => (
-            <Card key={i}>
-              <Link href={`/ss/${e?.id}`}>
-                <CardHeader className="flex flex-row items-start gap-2">
-                  <Avatar>
-                    <AvatarImage src={e?.logo ?? ""} />
-                    <AvatarFallback>
-                      <Icons.store />
-                    </AvatarFallback>
-                  </Avatar>
+      <div className="container">
+        {stores?.length ? (
+          <div className="container grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {stores.map((e, i) => (
+              <Card key={i}>
+                <Link href={`/ss/${e?.id}`}>
+                  <CardHeader className="flex flex-row items-start gap-2">
+                    <Avatar>
+                      <AvatarImage src={e?.logo ?? ""} />
+                      <AvatarFallback>
+                        <Icons.store />
+                      </AvatarFallback>
+                    </Avatar>
 
-                  <div className="w-full">
-                    <div className="flex items-start justify-between gap-4">
-                      <CardTitle className="line-clamp-1">{e?.name}</CardTitle>
+                    <div className="w-full">
+                      <div className="flex items-start justify-between gap-4">
+                        <CardTitle className="line-clamp-1">
+                          {e?.name}
+                        </CardTitle>
 
-                      <CardDescription className="whitespace-nowrap text-xs">
-                        {formatDate(e?.createdAt, { type: "distance" })}
+                        <CardDescription className="whitespace-nowrap text-xs">
+                          {formatDate(e?.createdAt, { type: "distance" })}
+                        </CardDescription>
+                      </div>
+                      <CardDescription className="line-clamp-1 max-w-prose text-xs">
+                        {e?.username}
+                      </CardDescription>
+                      <CardDescription className="line-clamp-1 max-w-prose">
+                        {e?.bio}
                       </CardDescription>
                     </div>
-                    <CardDescription className="line-clamp-1 max-w-prose text-xs">
-                      {e?.username}
-                    </CardDescription>
-                    <CardDescription className="line-clamp-1 max-w-prose">
-                      {e?.bio}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Link>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div>NO STORES</div>
-      )}
+                  </CardHeader>
+                </Link>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <EmptyPlaceholder>
+            <EmptyPlaceHolderIcon name="inbox" />
+            <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
+            <EmptyPlaceholderDescription>
+              Get started by creating your first item. <br />
+              You can add as many as you need.
+            </EmptyPlaceholderDescription>
+
+            <StoreCreateButton />
+          </EmptyPlaceholder>
+        )}
+      </div>
     </main>
   );
 }

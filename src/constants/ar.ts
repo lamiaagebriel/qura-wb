@@ -1,4 +1,11 @@
-import { NavItem } from "@/types";
+import { NavItem, SelectItem } from "@/types";
+
+import {
+  OrderStatus,
+  PaymentStatus,
+  ProductStatus,
+  UserRole,
+} from "@/lib/validations";
 
 import { Paths } from "./utils";
 
@@ -82,8 +89,16 @@ const ar = {
         icon: "settings",
       },
     ] as NavItem[],
-
-    overview: { overview: "نظرة عامة" },
+    overview: {
+      overview: "نظرة عامة",
+      "browse all overview, edit, and filter.":
+        "يمكنك تصفح وتعديل وتصفية جميع نظرة عامة.",
+    },
+    stores: {
+      stores: "المتاجر",
+      "browse all stores, edit, and filter.":
+        "يمكنك تصفح وتعديل وتصفية جميع المتاجر.",
+    },
   },
 
   stores: {
@@ -222,14 +237,14 @@ const ar = {
       EN: "English",
     },
     location: {
-      "address-line": {
-        "address line": "العنوان بالتفصيل",
+      street: {
+        street: "العنوان بالتفصيل",
         "03 aprt., 808 building": "الشقة 3، المبني رقم 800",
       },
-      zip: { zip: "Zip", "185047": "185047" },
-      state: { state: "State", obour: "العبور" },
-      city: { city: "City", cairo: "القاهرة" },
-      country: { country: "Country", egypt: "مصر" },
+      postalCode: { postalCode: "رقم البريد", "185047": "185047" },
+      state: { state: "الولاية", obour: "العبور" },
+      city: { city: "المدينة", cairo: "القاهرة" },
+      country: { country: "الدولة", egypt: "مصر" },
     },
 
     // commons
@@ -305,6 +320,38 @@ const ar = {
       "لم يتم تحديث التقييم. يرجى المحاولة مرة أخرى.",
     "your review was not deleted. please try again.":
       "لم يتم حذف التقييم. يرجى المحاولة مرة أخرى.",
+  },
+  db: {
+    enums: {
+      "user-roles": [
+        { value: "ADMIN", children: "الأدمن" },
+        { value: "USER", children: "مستخدم" },
+        { value: "MERCHANT", children: "بائع" },
+      ] satisfies (SelectItem & { value: UserRole })[],
+
+      "product-statuses": [
+        { value: "DRAFT", children: "مسودة" },
+        { value: "ACTIVE", children: "نشط" },
+        { value: "ARCHIVED", children: "مؤرشف" },
+      ] satisfies (SelectItem & { value: ProductStatus })[],
+
+      "order-statuses": [
+        { value: "PENDING", children: "قيد الانتظار" },
+        { value: "CONFIRMED", children: "مؤكد" },
+        { value: "PROCESSING", children: "قيد المعالجة" },
+        { value: "SHIPPED", children: "تم الشحن" },
+        { value: "DELIVERED", children: "تم التوصيل" },
+        { value: "CANCELLED", children: "ملغي" },
+        { value: "REFUNDED", children: "مسترد" },
+      ] satisfies (SelectItem & { value: OrderStatus })[],
+
+      "payment-statuses": [
+        { value: "PENDING", children: "قيد الانتظار" },
+        { value: "COMPLETED", children: "مكتمل" },
+        { value: "FAILED", children: "فشل" },
+        { value: "REFUNDED", children: "مسترد" },
+      ] satisfies (SelectItem & { value: PaymentStatus })[],
+    },
   },
 };
 
