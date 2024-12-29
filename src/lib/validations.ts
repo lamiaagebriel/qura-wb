@@ -186,6 +186,10 @@ const storeSchema = z.object({
   location: addressSchema,
 });
 
+const productSchema = z.object({
+  storeId: z.stringRequired("storeId"),
+});
+
 export type ValidationName = keyof typeof validations;
 export type Validation = {
   [K in ValidationName]: zod.infer<(typeof validations)[K]>;
@@ -234,4 +238,7 @@ export const validations = {
     logo: true,
     location: true,
   }),
+
+  // products
+  "create-product": productSchema.pick({ storeId: true }),
 };

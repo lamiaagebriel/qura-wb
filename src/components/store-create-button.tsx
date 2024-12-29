@@ -55,7 +55,7 @@ export async function StoreCreateButton({
           </AlertDialogHeader>
 
           <Form
-            // infiniteLoading
+            infiniteLoading
             validation="create-store"
             onSubmit={createStore}
             useForm={{

@@ -26,4 +26,29 @@ export const queries = {
       { tags: ["stores"] }
     ),
   },
+
+  products: {
+    get: unstable_cache(
+      async ({ id }: { id: string }) => {
+        const product = await db.query.products.findFirst({
+          where: (s, o) => o.eq(s?.["id"], id),
+        });
+        return { data: product };
+      },
+      ["products"],
+      { tags: ["products"] }
+    ),
+    getMany: unstable_cache(
+      async ({ storeId }: { storeId: string }) => {
+        const products = await db.query.products.findMany({
+          where: (s, o) => o.eq(s?.["storeId"], storeId),
+          orderBy: (s, o) => o.desc(s?.["createdAt"]),
+        });
+
+        return { data: products };
+      },
+      ["products"],
+      { tags: ["products"] }
+    ),
+  },
 };
