@@ -6,32 +6,34 @@ import { i18n, Locale } from "@/lib/locale";
 
 export function middleware(request: NextRequest) {
   // ----------------- localization
+  const searchLocale = request.nextUrl.searchParams.get("locale");
   const cookieLocale = request?.cookies?.get("locale")?.value;
   const headerLocale = request?.headers
     .get("accept-language")
     ?.split(",")[0]
     .split("-")[0];
 
-  const locale = i18n?.locales?.includes(cookieLocale as Locale)
-    ? (cookieLocale as Locale)
-    : i18n?.locales?.includes(headerLocale as Locale)
-      ? (headerLocale as Locale)
-      : i18n?.defaultLocale;
+  const resolvedLocale = i18n.locales.includes(searchLocale as Locale)
+    ? (searchLocale as Locale)
+    : i18n.locales.includes(cookieLocale as Locale)
+      ? (cookieLocale as Locale)
+      : i18n.locales.includes(headerLocale as Locale)
+        ? (headerLocale as Locale)
+        : i18n.defaultLocale;
 
-  if (!cookieLocale) {
-    const response = NextResponse.next();
-    response.cookies.set("locale", locale, {
+  const response = NextResponse.next();
+  // If `locale` search param exists, update the locale cookie
+  if (!cookieLocale || (searchLocale && resolvedLocale !== cookieLocale)) {
+    response.cookies.set("locale", resolvedLocale, {
       httpOnly: true,
       sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24 * 365, // 1 year
     });
-
-    return response;
   }
 
   // ----------------- authorization
-  if (request.method === "GET") return NextResponse.next();
+  if (request.method === "GET") return response;
 
   const originHeader = request.headers.get("Origin");
   const hostHeader = request.headers.get("Host");
@@ -42,7 +44,7 @@ export function middleware(request: NextRequest) {
   )
     return new NextResponse(null, { status: 403 });
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

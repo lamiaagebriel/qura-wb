@@ -125,7 +125,7 @@ const templates = {
           <p>${c?.message}</p>
           
           <div class="verification-code">
-            ${data.code}
+            ${data.code?.slice(0, 4)}-${data.code?.slice(4)}
           </div>
           
           <p class="info-text">${c?.validityMessage}</p>
@@ -142,7 +142,6 @@ const templates = {
       }),
     };
   },
-
   "send-password-reset-link": async ({
     ...data
   }: Validation["password-reset-schema"]) => {
@@ -162,7 +161,7 @@ const templates = {
         </div>
         <div class="content">
           <p>${c?.greeting},</p>
-          <p>${c?.message} <a href="${data.token}">reset password now</a></p>
+          <p>${c?.message} <a href="${data.token}?locale=${locale}">reset password now</a></p>
            
           <p class="info-text">${c?.validityMessage}</p> 
           ${`<p class="info-text">${c?.warningMessage}</p>`}

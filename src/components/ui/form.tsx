@@ -30,12 +30,18 @@ import { loginWithPassword } from "@/servers/auth";
 import { cn, handleServerAction } from "@/lib/utils";
 import { Validation, ValidationName, validations } from "@/lib/validations";
 
+import { Button, ButtonProps } from "@/components/ui/button";
+import { Input, InputProps } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPProps,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
-
-import { Icons } from "../icons";
-import { Button, ButtonProps } from "./button";
-import { Input, InputProps } from "./input";
-import { Textarea, TextareaProps } from "./textarea";
+import { Textarea, TextareaProps } from "@/components/ui/textarea";
+import { Icons } from "@/components/icons";
 
 type ExtendedUseForm<
   TFieldValues extends FieldValues = FieldValues,
@@ -69,6 +75,8 @@ type FormProps<T extends ValidationName, R> = {
     data: Validation[T]
   ) => Promise<ServerActionResult<R>> | Promise<ServerActionResult<R>>;
   infiniteLoading?: boolean;
+  reset?: boolean;
+  setOpenDialog?: React.Dispatch<React.SetStateAction<boolean>>;
 } & Pick<HandleServerActionOptions<R>, "onError" | "onSuccess"> &
   Omit<
     React.DetailedHTMLProps<
@@ -84,6 +92,8 @@ const Form = <T extends ValidationName, R>({
   onError,
   onSuccess,
   infiniteLoading = false,
+  reset = false,
+  setOpenDialog,
   useForm: useFormProps,
   ...props
 }: FormProps<T, R>) => {
@@ -111,17 +121,21 @@ const Form = <T extends ValidationName, R>({
       }}
     >
       <form
-        onSubmit={form.handleSubmit(async (data) => {
+        onSubmit={form?.handleSubmit(async (data) => {
           setLoading(true);
           await handleServerAction(onSubmit(data), {
             form,
-            onError(data) {
-              onError?.(data);
+            onError(_data) {
+              onError?.(_data);
               setLoading(false);
             },
-            onSuccess(data) {
-              onSuccess?.(data);
+            onSuccess(_data) {
+              onSuccess?.(_data);
               setLoading(infiniteLoading);
+              setOpenDialog?.(infiniteLoading);
+
+              if (reset) form?.reset();
+              else form?.reset(data);
             },
           });
         })}
@@ -345,29 +359,28 @@ const FormButton =
 // );
 FormButton.displayName = "FormButton";
 
-// export type WithFormAwarenessProps = {
-//   disabled?: boolean;
-//   loading?: "true" | "false";
-// };
-// function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
-//   WrappedComponent:
-//     | React.ComponentType<T>
-//     | React.ForwardRefRenderFunction<R, T>
-// ) {
-//   return React.forwardRef<R, T>((props, ref) => {
-//     const form = useForm?.() ?? undefined;
+export type WithFormAwarenessProps = {
+  disabled?: boolean;
+  loading?: "true" | "false";
+};
+export function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
+  WrappedComponent:
+    | React.ComponentType<T>
+    | React.ForwardRefRenderFunction<R, T>
+) {
+  return React.forwardRef<R, T>((props, ref) => {
+    const form = useForm?.() ?? undefined;
 
-// const loading = form?.loading;
-// const disabled =
-//   form?.loading || form?.disabled || props?.disabled;
-//     return React.createElement(WrappedComponent as any, {
-//       ...props,
-//       ref,
-//       disabled,
-//       loading: JSON.stringify(loading),
-//     });
-//   });
-// }
+    const loading = form?.loading;
+    const disabled = form?.loading || form?.disabled || props?.disabled;
+    return React.createElement(WrappedComponent as any, {
+      ...props,
+      ref,
+      disabled,
+      loading: JSON.stringify(loading),
+    });
+  });
+}
 
 type FormInputFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -439,6 +452,56 @@ const FormTextareaField = <
 };
 FormTextareaField.displayName = "FormTextareaField";
 
+type FormInputOTPFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
+  label: string;
+  maxLength: number;
+};
+// & InputOTPProps;
+
+const FormInputOTPField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  field: _field,
+  label,
+  maxLength,
+  ...props
+}: FormInputOTPFieldProps<TFieldValues, TName>) => {
+  return (
+    <FormField
+      {..._field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <InputOTP maxLength={maxLength} {...field} {...props}>
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSeparator />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                  <InputOTPSlot index={6} />
+                  <InputOTPSlot index={7} />
+                </InputOTPGroup>
+              </InputOTP>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+};
+FormInputOTPField.displayName = "FormInputOTPField";
+
 export {
   useFormField,
   Form,
@@ -451,4 +514,5 @@ export {
   FormButton,
   FormInputField,
   FormTextareaField,
+  FormInputOTPField,
 };

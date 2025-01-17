@@ -7,7 +7,12 @@ import { logout, resendVerificationEmail, verifyEmail } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
-import { Form, FormButton, FormInputField } from "@/components/ui/form";
+import {
+  Form,
+  FormButton,
+  FormInputField,
+  FormInputOTPField,
+} from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
 
@@ -39,15 +44,16 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
 
         <div>
           <Form
+            infiniteLoading
             validation="verify-email"
             useForm={{ defaultValues: { code: "" } }}
             onSubmit={verifyEmail}
           >
             <div className="space-y-2">
-              <FormInputField
-                label={ff?.["verification code"]?.["verification code"]}
+              <FormInputOTPField
+                maxLength={8}
                 field={{ name: "code" }}
-                placeholder="********"
+                label={ff?.["verification code"]?.["verification code"]}
               />
 
               <FormButton type="submit" className="w-full">

@@ -66,8 +66,8 @@ const emailVerificationSchema = z
   .object({
     code: z
       .string("code")
-      .min(6, "Verification code must be at least 6 characters")
-      .max(50, "Verification code too long"),
+      .min(8, "Verification code must be 8 characters")
+      .max(8, "Verification code must be 8 characters"),
     email: z.string("email").email("Invalid email address"),
     expiresAt: z.date("expiresAt"),
     attempts: z

@@ -52,6 +52,7 @@ export default async function Login({}: LoginProps) {
 
         <div>
           <Form
+            infiniteLoading
             validation="login-with-password"
             useForm={{ defaultValues: { email: "", password: "" } }}
             onSubmit={loginWithPassword}

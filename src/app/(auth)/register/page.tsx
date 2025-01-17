@@ -52,6 +52,7 @@ export default async function Register({}: RegisterProps) {
         </div>
         <div className="grid gap-4">
           <Form
+            infiniteLoading
             validation="register-with-password"
             useForm={{ defaultValues: { email: "", password: "" } }}
             onSubmit={registerWithPassword}
