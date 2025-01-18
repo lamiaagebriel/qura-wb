@@ -26,7 +26,7 @@ type UserAccountNavProps = {
 
 export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
   const { user } = await getAuth();
-  const { "form-fields": ff } = await getDictionary();
+  const { cmn } = await getDictionary();
   if (!user) return;
 
   return (
@@ -71,7 +71,7 @@ export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
             variant="ghost"
             className="focus-visible:ring-none w-full justify-start text-start focus:outline-none focus-visible:ring-0"
           >
-            {ff?.["logout"]}
+            {cmn?.["logout"]}
           </FormButton>
         </DropdownMenuItem>
       </DropdownMenuContent>

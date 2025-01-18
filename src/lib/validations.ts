@@ -187,7 +187,9 @@ const storeSchema = z.object({
 });
 
 const productSchema = z.object({
+  id: z.stringRequired("id"),
   storeId: z.stringRequired("storeId"),
+  title: z.stringRequired("title"),
 });
 
 export type ValidationName = keyof typeof validations;
@@ -241,4 +243,10 @@ export const validations = {
 
   // products
   "create-product": productSchema.pick({ storeId: true }),
+  "update-product": productSchema.pick({
+    id: true,
+    storeId: true,
+    title: true,
+  }),
+  "delete-product": productSchema.pick({ id: true, storeId: true }),
 };

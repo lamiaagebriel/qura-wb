@@ -201,79 +201,6 @@ const en = {
     ar: "العربية (AR)",
   },
 
-  "form-fields": {
-    name: {
-      "full name": "Full Name",
-      "joe doe": "Joe Doe",
-
-      name: "Name",
-      "ovve games": "Ovve Games",
-    },
-    email: { email: "Email" },
-    "verification code": { "verification code": "Verification Code" },
-    password: { password: "Password", "confirm password": "confirm password" },
-
-    username: {
-      username: "Username",
-      ovvegames: "ovvegames",
-    },
-    logo: { logo: "Logo" },
-    category: {
-      category: "Category",
-      "fashion and apparel": "Fashion and Apparel",
-    },
-    currency: {
-      currency: "Currency",
-      USD: "USD",
-    },
-    language: {
-      language: "Language",
-      EN: "English",
-    },
-    bio: {
-      bio: "Bio",
-      "type about your store...": "Type about your store...",
-    },
-    location: {
-      street: {
-        street: "Street",
-        "03 aprt., 808 building": "03 Aprt., 808 Building",
-      },
-      postalCode: { postalCode: "Postal Code", "185047": "185047" },
-      state: { state: "State", obour: "Obour" },
-      city: { city: "City", cairo: "Cairo" },
-      country: { country: "Country", egypt: "Egypt" },
-    },
-
-    // commons
-    "are you absolutely sure that you want to delete this transactions?":
-      "هل أنت متأكد تمامًا أنك تريد حذف هذه المعاملة النقدية؟",
-    "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
-      "لا يمكن التراجع عن هذا الإجراء. سيؤدي ذلك إلى طلب السحب نهائيًا وإزالته من خوادمنا.",
-
-    "created successfully.": "created successfully.",
-    "updated successfully.": "updated successfully.",
-    "deleted successfully.": "deleted successfully.",
-    "resend code": "Resend Code",
-    "save changes": "Save Changes",
-    verify: "Verify",
-    confirm: "Confirm",
-    cancel: "Cancel",
-    delete: "Delete",
-    edit: "Edit",
-    logout: "Logout",
-
-    "pick a date": "Pick a date",
-    "message sent successfully": "message sent successfully",
-    "update data": "تحديث البيانات",
-    "update preferences": "تحديث التفضيلات",
-    all: "الكل",
-    "check code": "التحقق من الكود",
-    "next step": "الخطوة التالية",
-    "pre step": "الخطوة السابقة",
-    back: "العودة",
-    discard: "تجاهل",
-  },
   // ui/data-table
   "data-table-column-header": {
     asc: "تصاعدي",
@@ -389,18 +316,6 @@ const en = {
 
   db: {
     enums: {
-      "user-roles": [
-        { value: "ADMIN", children: "Admin" },
-        { value: "USER", children: "User" },
-        { value: "MERCHANT", children: "Merchant" },
-      ] satisfies (SelectItem & { value: UserRole })[],
-
-      "product-statuses": [
-        { value: "DRAFT", children: "Draft" },
-        { value: "ACTIVE", children: "Active" },
-        { value: "ARCHIVED", children: "Archived" },
-      ] satisfies (SelectItem & { value: ProductStatus })[],
-
       "order-statuses": [
         { value: "PENDING", children: "Pending" },
         { value: "CONFIRMED", children: "Confirmed" },
@@ -418,7 +333,120 @@ const en = {
         { value: "REFUNDED", children: "Refunded" },
       ] satisfies (SelectItem & { value: PaymentStatus })[],
     },
+
+    users: {
+      id: { id: "الرمز التعريفي" },
+      createdAt: { createdAt: "CreatedAt" },
+      updatedAt: { updatedAt: "UpdatedAt" },
+
+      // Authentication fields
+      googleId: { google_id: "google_id" },
+      email: { email: "Email" },
+      password: {
+        password: "Password",
+        "confirm password": "confirm password",
+      },
+
+      // Email verification
+      emailVerified: { email_verified: "email_verified" },
+      emailVerificationDetails: {
+        code: { "verification code": "Verification Code" },
+      },
+      // Password reset
+      resetPasswordDetails: { reset_details: "reset_details" },
+
+      // Profile fields
+      role: {
+        role: "role",
+        enums: {
+          ADMIN: { label: "Admin" },
+          USER: { label: "User" },
+          MERCHANT: { label: "Merchant" },
+        } satisfies Record<UserRole, { label: string }>,
+      },
+      name: { name: "Name" },
+      image: { image: "image" },
+      phone: { phone: "phone" },
+      address: { address: "address" },
+      preferences: { preferences: "preferences" },
+    },
+    stores: {
+      id: { id: "id" },
+      createdAt: { created_at: "created_at" },
+      updatedAt: { updated_at: "updated_at" },
+      userId: { user_id: "user_id" },
+      username: { username: "Username", ovvegames: "ovvegames" },
+      name: { name: "Name", "ovve games": "Ovve Games" },
+      category: {
+        category: "Category",
+        "fashion and apparel": "Fashion and Apparel",
+      },
+      currency: {
+        currency: "Currency",
+        "select currency...": "select currency...",
+        enums: {
+          USD: { label: "USD" },
+          EGY: { label: "EGY" },
+          SRY: { label: "SRY" },
+        },
+      },
+      language: {
+        language: "Language",
+        "select language...": "select language...",
+        enums: {
+          EN: { label: "English" },
+          AR: { label: "Arabic" },
+        },
+      },
+      logo: { logo: "Logo" },
+      banner: { banner: "banner" },
+      bio: {
+        bio: "Bio",
+        "type about your store...": "Type about your store...",
+      },
+    },
+
+    products: {
+      id: { id: "ID" },
+      createdAt: { createdAt: "CreatedAt" },
+      updatedAt: { updatedAt: "UpdatedAt" },
+      storeId: { storeId: "StoreID" },
+      slug: { slug: "slug" },
+      title: { title: "title" },
+      description: { description: "description" },
+      status: {
+        status: "status",
+        "select status...": "select status...",
+        enums: {
+          DRAFT: { label: "Draft" },
+          ACTIVE: { label: "Active" },
+          ARCHIVED: { label: "Archived" },
+        } satisfies Record<ProductStatus, { label: string }>,
+      },
+      images: { images: "images" },
+      price: { price: "price" },
+      discount: { discount: "discount" },
+      cost: { cost: "cost" },
+      tax: { tax: "tax" },
+      stock: { stock: "stock" },
+      isAlwaysAvailable: { isAlwaysAvailable: "is_always_available" },
+      limitedAmountPerOrder: {
+        limitedAmountPerOrder: "limited_amount_per_order",
+      },
+      sku: { sku: "sku" },
+      barcode: { barcode: "barcode" },
+      weight: { weight: "weight" },
+      dimensions: { dimensions: "dimensions" },
+      attributes: { attributes: "attributes" },
+      combinations: { combinations: "combinations" },
+      properties: { properties: "properties" },
+      metaTitle: { metaTitle: "meta_title" },
+      metaDescription: { metaDescription: "meta_description" },
+      isPublished: { isPublished: "is_published" },
+      publishedAt: { publishedAt: "published_at" },
+    },
   },
+
   emails: {
     "verify-email": {
       subject: "Verify Your Email - ConCom Services",
@@ -443,6 +471,37 @@ const en = {
         "If you didn't request a password reset, please change your password immediately and notify us.",
       contactMessage: "For assistance, please contact us at:",
     },
+  },
+
+  // Commom phrases
+  cmn: {
+    "are you absolutely sure that you want to delete this transactions?":
+      "هل أنت متأكد تمامًا أنك تريد حذف هذه المعاملة النقدية؟",
+    "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
+      "لا يمكن التراجع عن هذا الإجراء. سيؤدي ذلك إلى طلب السحب نهائيًا وإزالته من خوادمنا.",
+
+    "created successfully.": "created successfully.",
+    "updated successfully.": "updated successfully.",
+    "deleted successfully.": "deleted successfully.",
+    "resend code": "Resend Code",
+    "save changes": "Save Changes",
+    verify: "Verify",
+    confirm: "Confirm",
+    cancel: "Cancel",
+    delete: "Delete",
+    edit: "Edit",
+    logout: "Logout",
+
+    "pick a date": "Pick a date",
+    "message sent successfully": "message sent successfully",
+    "update data": "تحديث البيانات",
+    "update preferences": "تحديث التفضيلات",
+    all: "الكل",
+    "check code": "التحقق من الكود",
+    "next step": "الخطوة التالية",
+    "pre step": "الخطوة السابقة",
+    back: "العودة",
+    discard: "تجاهل",
   },
 };
 

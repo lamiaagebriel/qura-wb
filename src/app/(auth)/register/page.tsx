@@ -19,7 +19,7 @@ export default async function Register({}: RegisterProps) {
   const { user } = await getAuth();
   if (user) redirect(Paths.Dashboard);
 
-  const { "form-fields": ff, ...dic } = await getDictionary();
+  const { db, ...dic } = await getDictionary();
   const c = dic?.["auth"]?.["register"];
 
   return (
@@ -61,13 +61,13 @@ export default async function Register({}: RegisterProps) {
             <div className="space-y-2">
               <FormInputField
                 type="email"
-                label={ff?.["email"]?.["email"]}
+                label={db?.["users"]?.["email"]?.["email"]}
                 field={{ name: "email" }}
               />
 
               <FormInputField
                 type="password"
-                label={ff?.["password"]?.["password"]}
+                label={db?.["users"]?.["password"]?.["password"]}
                 field={{ name: "password" }}
               />
 

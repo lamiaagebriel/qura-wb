@@ -24,7 +24,7 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
   if (!user) redirect(Paths.Login);
   if (user.emailVerified) redirect(Paths.Dashboard);
 
-  const { "form-fields": ff, ...dic } = await getDictionary();
+  const { db, cmn, ...dic } = await getDictionary();
   const c = dic?.["auth"]?.["verify-email"];
 
   return (
@@ -53,15 +53,19 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
               <FormInputOTPField
                 maxLength={8}
                 field={{ name: "code" }}
-                label={ff?.["verification code"]?.["verification code"]}
+                label={
+                  db?.["users"]?.["emailVerificationDetails"]?.["code"]?.[
+                    "verification code"
+                  ]
+                }
               />
 
               <FormButton type="submit" className="w-full">
-                {ff?.["verify"]}
+                {cmn?.["verify"]}
               </FormButton>
 
               <FormButton className="w-full" onAction={resendVerificationEmail}>
-                {ff?.["resend code"]}
+                {cmn?.["resend code"]}
               </FormButton>
             </div>
             <Separator className="mb-2 mt-4" />

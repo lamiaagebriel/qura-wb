@@ -20,7 +20,7 @@ export async function ProductCreateButton({
       infiniteLoading
       onAction={createProduct}
       useForm={{
-        defaultValues: { storeId: store?.id, sX: "xs" },
+        defaultValues: { storeId: store?.id },
       }}
       {...props}
     >

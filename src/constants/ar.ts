@@ -11,7 +11,7 @@ import { Paths } from "./utils";
 
 const ar = {
   site: {
-    name: "كن رقمي",
+    name: "كُن رقمي",
     description:
       "منصتنا تقدم خدمات أتمتة وسائل التواصل الاجتماعي المتقدمة باستخدام تقنية الذكاء الاصطناعي الحديثة. نحن نساعد العملاء في تنفيذ حملات تسويقية متكاملة خصيصًا لمشاريع العقارات. من خلال تحليل البيانات وتوقعات السوق، نقدم حلولاً مبتكرة تعزز الاستهداف، تزيد من تفاعل المحتوى، وتحسن أداء الحملات التسويقية. هدفنا هو تمكين العملاء من الوصول إلى جمهورهم المستهدف بكفاءة، وزيادة مبيعات العقارات بشكل استراتيجي، مع تقليل التكاليف وتسريع تحقيق النتائج.",
   },
@@ -201,80 +201,6 @@ const ar = {
     ar: "العربية (AR)",
   },
 
-  "form-fields": {
-    name: {
-      "full name": "الاسم الكامل",
-      "joe doe": "جو دو",
-
-      name: "الإسم",
-      "ovve games": "متجر أوفي للألعاب",
-    },
-    email: { email: "البريد الإلكتروني" },
-    "verification code": { "verification code": "Verification Code" },
-    password: {
-      password: "كلمة المرور",
-      "confirm password": "تأكيد كلمة المرور",
-    },
-    username: {
-      username: "الإسم التعريفي",
-      ovvegames: "ovvegames",
-    },
-    logo: { logo: "الصورة التعريفية" },
-    bio: {
-      bio: "الوصف",
-      "type about your store...": "قُم بوصف متجرك...",
-    },
-    category: {
-      category: "التصنييف",
-      "fashion and apparel": "الملابس والتصاميم",
-    },
-    currency: {
-      currency: "العملة",
-      USD: "USD",
-    },
-    language: {
-      language: "اللغة",
-      EN: "English",
-    },
-    location: {
-      street: {
-        street: "العنوان بالتفصيل",
-        "03 aprt., 808 building": "الشقة 3، المبني رقم 800",
-      },
-      postalCode: { postalCode: "رقم البريد", "185047": "185047" },
-      state: { state: "الولاية", obour: "العبور" },
-      city: { city: "المدينة", cairo: "القاهرة" },
-      country: { country: "الدولة", egypt: "مصر" },
-    },
-
-    // commons
-    "are you absolutely sure that you want to delete this transactions?":
-      "هل أنت متأكد تمامًا أنك تريد حذف هذه المعاملة النقدية؟",
-    "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
-      "لا يمكن التراجع عن هذا الإجراء. سيؤدي ذلك إلى طلب السحب نهائيًا وإزالته من خوادمنا.",
-
-    "pick a date": "إختر التاريخ",
-    "message sent successfully": "تم إرسال الرسالة بنجاح.",
-    "created successfully.": "تم الإنشاء بنجاح.",
-    "updated successfully.": "تم تحديث البيانات بنجاح.",
-    "deleted successfully.": "تم الحذف بنجاح.",
-    "resend code": "Resend Code",
-    "save changes": "حفظ التغييرات",
-    "update data": "تحديث البيانات",
-    "update preferences": "تحديث التفضيلات",
-    all: "الكل",
-    "check code": "التحقق من الكود",
-    "next step": "الخطوة التالية",
-    "pre step": "الخطوة السابقة",
-    verify: "Verify",
-    back: "العودة",
-    discard: "تجاهل",
-    confirm: "تأكيد",
-    cancel: "إلغاء",
-    delete: "حذف",
-    edit: "تعديل",
-    logout: "تسجيل الخروج",
-  },
   // ui/data-table
   "data-table-column-header": {
     asc: "تصاعدي",
@@ -322,6 +248,7 @@ const ar = {
     "automatically switch between languages.": "التبديل التلقائي بين اللغات.",
     "update preferences": "تحديث التفضيلات",
   },
+
   actions: {
     "An unexpected error occured, please try again later.":
       "حدث خطأ ما، الرجاء المحاولة في وقت لاحق.",
@@ -383,20 +310,9 @@ const ar = {
     "your review was not deleted. please try again.":
       "لم يتم حذف التقييم. يرجى المحاولة مرة أخرى.",
   },
+
   db: {
     enums: {
-      "user-roles": [
-        { value: "ADMIN", children: "الأدمن" },
-        { value: "USER", children: "مستخدم" },
-        { value: "MERCHANT", children: "بائع" },
-      ] satisfies (SelectItem & { value: UserRole })[],
-
-      "product-statuses": [
-        { value: "DRAFT", children: "مسودة" },
-        { value: "ACTIVE", children: "نشط" },
-        { value: "ARCHIVED", children: "مؤرشف" },
-      ] satisfies (SelectItem & { value: ProductStatus })[],
-
       "order-statuses": [
         { value: "PENDING", children: "قيد الانتظار" },
         { value: "CONFIRMED", children: "مؤكد" },
@@ -414,15 +330,128 @@ const ar = {
         { value: "REFUNDED", children: "مسترد" },
       ] satisfies (SelectItem & { value: PaymentStatus })[],
     },
+
+    users: {
+      id: { id: "الرمز التعريفي" },
+      createdAt: { createdAt: "CreatedAt" },
+      updatedAt: { updatedAt: "UpdatedAt" },
+
+      // Authentication fields
+      googleId: { google_id: "google_id" },
+      email: { email: "Email" },
+      password: {
+        password: "Password",
+        "confirm password": "confirm password",
+      },
+
+      // Email verification
+      emailVerified: { email_verified: "email_verified" },
+      emailVerificationDetails: {
+        code: { "verification code": "Verification Code" },
+      },
+
+      // Password reset
+      resetPasswordDetails: { reset_details: "reset_details" },
+
+      // Profile fields
+      role: {
+        role: "role",
+        enums: {
+          ADMIN: { label: "Admin" },
+          USER: { label: "User" },
+          MERCHANT: { label: "Merchant" },
+        } satisfies Record<UserRole, { label: string }>,
+      },
+      name: { name: "Name" },
+      image: { image: "image" },
+      phone: { phone: "phone" },
+      address: { address: "address" },
+      preferences: { preferences: "preferences" },
+    },
+    stores: {
+      id: { id: "id" },
+      createdAt: { created_at: "created_at" },
+      updatedAt: { updated_at: "updated_at" },
+      userId: { user_id: "user_id" },
+      username: { username: "Username", ovvegames: "ovvegames" },
+      name: { name: "Name", "ovve games": "Ovve Games" },
+      category: {
+        category: "Category",
+        "fashion and apparel": "Fashion and Apparel",
+      },
+      currency: {
+        currency: "Currency",
+        "select currency...": "select currency...",
+        enums: {
+          USD: { label: "USD" },
+          EGY: { label: "EGY" },
+          SRY: { label: "SRY" },
+        },
+      },
+      language: {
+        language: "Language",
+        "select language...": "select language...",
+        enums: {
+          EN: { label: "English" },
+          AR: { label: "Arabic" },
+        },
+      },
+      logo: { logo: "Logo" },
+      banner: { banner: "banner" },
+      bio: {
+        bio: "Bio",
+        "type about your store...": "Type about your store...",
+      },
+    },
+
+    products: {
+      id: { id: "ID" },
+      createdAt: { createdAt: "CreatedAt" },
+      updatedAt: { updatedAt: "UpdatedAt" },
+      storeId: { storeId: "StoreID" },
+      slug: { slug: "slug" },
+      title: { title: "title" },
+      description: { description: "description" },
+      status: {
+        status: "status",
+        "select status...": "select status...",
+        enums: {
+          DRAFT: { label: "Draft" },
+          ACTIVE: { label: "Active" },
+          ARCHIVED: { label: "Archived" },
+        } satisfies Record<ProductStatus, { label: string }>,
+      },
+      images: { images: "images" },
+      price: { price: "price" },
+      discount: { discount: "discount" },
+      cost: { cost: "cost" },
+      tax: { tax: "tax" },
+      stock: { stock: "stock" },
+      isAlwaysAvailable: { isAlwaysAvailable: "is_always_available" },
+      limitedAmountPerOrder: {
+        limitedAmountPerOrder: "limited_amount_per_order",
+      },
+      sku: { sku: "sku" },
+      barcode: { barcode: "barcode" },
+      weight: { weight: "weight" },
+      dimensions: { dimensions: "dimensions" },
+      attributes: { attributes: "attributes" },
+      combinations: { combinations: "combinations" },
+      properties: { properties: "properties" },
+      metaTitle: { metaTitle: "meta_title" },
+      metaDescription: { metaDescription: "meta_description" },
+      isPublished: { isPublished: "is_published" },
+      publishedAt: { publishedAt: "published_at" },
+    },
   },
 
   emails: {
     "verify-email": {
-      subject: "تأكيد البريد الإلكتروني - ConCom Services",
+      subject: "تأكيد البريد الإلكتروني - خدمات كُن رقمي",
       title: "تفعيل حسابك",
       greeting: "مرحباً",
       message:
-        "شكراً لتسجيلك في ConCom Services. يرجى تأكيد بريدك الإلكتروني باستخدام الرمز أدناه:",
+        "شكراً لتسجيلك في خدمات كُن رقمي. يرجى تأكيد بريدك الإلكتروني باستخدام الرمز أدناه:",
       codeMessage: "رمز التحقق الخاص بك هو:",
       validityMessage: "هذا الرمز صالح لمدة 30 دقيقة فقط.",
       helpText:
@@ -430,7 +459,7 @@ const ar = {
       contactMessage: "للمساعدة، يرجى التواصل معنا على:",
     },
     "password-reset-link": {
-      subject: "إعادة تعيين كلمة المرور - ConCom Services",
+      subject: "إعادة تعيين كلمة المرور - خدمات كُن رقمي",
       title: "إعادة تعيين كلمة المرور",
       greeting: "مرحباً",
       message:
@@ -441,6 +470,36 @@ const ar = {
         "إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تغيير كلمة المرور الخاصة بك فوراً وإبلاغنا.",
       contactMessage: "للمساعدة، يرجى التواصل معنا على:",
     },
+  },
+
+  // Commom phrases
+  cmn: {
+    "are you absolutely sure that you want to delete this transactions?":
+      "هل أنت متأكد تمامًا أنك تريد حذف هذه المعاملة النقدية؟",
+    "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
+      "لا يمكن التراجع عن هذا الإجراء. سيؤدي ذلك إلى طلب السحب نهائيًا وإزالته من خوادمنا.",
+
+    "pick a date": "إختر التاريخ",
+    "message sent successfully": "تم إرسال الرسالة بنجاح.",
+    "created successfully.": "تم الإنشاء بنجاح.",
+    "updated successfully.": "تم تحديث البيانات بنجاح.",
+    "deleted successfully.": "تم الحذف بنجاح.",
+    "resend code": "Resend Code",
+    "save changes": "حفظ التغييرات",
+    "update data": "تحديث البيانات",
+    "update preferences": "تحديث التفضيلات",
+    all: "الكل",
+    "check code": "التحقق من الكود",
+    "next step": "الخطوة التالية",
+    "pre step": "الخطوة السابقة",
+    verify: "Verify",
+    back: "العودة",
+    discard: "تجاهل",
+    confirm: "تأكيد",
+    cancel: "إلغاء",
+    delete: "حذف",
+    edit: "تعديل",
+    logout: "تسجيل الخروج",
   },
 };
 

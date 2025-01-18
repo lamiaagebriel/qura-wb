@@ -608,7 +608,7 @@ const FormSelectField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            <FormLabel className="sr-only">{label}</FormLabel>
 
             <Select
               onValueChange={field.onChange}
@@ -728,7 +728,7 @@ const FormDateField = <
   ...props
 }: FormDateFieldProps<TFieldValues, TName>) => {
   const form = useForm?.();
-  const { "form-fields": ff } = useLocale();
+  const { cmn } = useLocale();
 
   return (
     <FormField
@@ -751,7 +751,7 @@ const FormDateField = <
                     {field?.value ? (
                       format(field?.value, "PPP")
                     ) : (
-                      <span>{ff?.["pick a date"]}</span>
+                      <span>{cmn?.["pick a date"]}</span>
                     )}
                     <Icons.calendar className="opacity-50" />
                   </Button>
@@ -798,7 +798,7 @@ export function FormAlertDialogButton({
   isFooter = true,
   children,
 }: FormAlertDialogButtonProps) {
-  const { "form-fields": ff } = useLocale();
+  const { cmn } = useLocale();
   const [openDialog, setOpenDialog] = React.useState<boolean>(false);
 
   return (
@@ -827,10 +827,10 @@ export function FormAlertDialogButton({
           {isFooter ? (
             <AlertDialogFooter>
               <AlertDialogCancel asChild>
-                <FormButton variant="outline">{ff?.["cancel"]}</FormButton>
+                <FormButton variant="outline">{cmn?.["cancel"]}</FormButton>
               </AlertDialogCancel>
               <FormButton type="submit" className="w-full">
-                {ff?.["confirm"]}
+                {cmn?.["confirm"]}
               </FormButton>
             </AlertDialogFooter>
           ) : null}

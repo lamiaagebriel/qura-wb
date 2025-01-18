@@ -15,16 +15,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
 import {
   EmptyPlaceholder,
   EmptyPlaceholderDescription,
-  EmptyPlaceHolderIcon,
+  EmptyPlaceholderIcon,
   EmptyPlaceholderTitle,
 } from "@/components/empty-placeholder";
 import { Link } from "@/components/link";
 import { ProductCreateButton } from "@/components/product-create-button";
 import { StoreCreateButton } from "@/components/store-create-button";
+
+import { columns } from "./columns";
 
 type ProductsProps = Readonly<{ params: Promise<{ "store-id": string }> }>;
 export const metadata: Metadata = { title: "Products" };
@@ -36,6 +39,8 @@ export default async function Products({ params }: ProductsProps) {
 
   const dic = await getDictionary();
   const c = dic?.["stores"]?.["store"]?.["products"];
+  const pp = dic?.["db"]?.["products"];
+  const cmn = dic?.["cmn"];
 
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
@@ -70,36 +75,20 @@ export default async function Products({ params }: ProductsProps) {
 
       <div className="container">
         {products?.length ? (
-          <div className="container grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((e, i) => (
-              <Card key={i}>
-                <Link href={`/ss/${e?.id}`}>
-                  <CardHeader className="flex flex-row items-start gap-2">
-                    <div className="w-full">
-                      <div className="flex items-start justify-between gap-4">
-                        <CardTitle className="line-clamp-1">
-                          {e?.title}
-                        </CardTitle>
-
-                        <CardDescription className="whitespace-nowrap text-xs">
-                          {formatDate(e?.createdAt, { type: "distance" })}
-                        </CardDescription>
-                      </div>
-                      <CardDescription className="line-clamp-1 max-w-prose text-xs">
-                        {e?.description}
-                      </CardDescription>
-                      <CardDescription className="line-clamp-1 max-w-prose">
-                        {e?.barcode}
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                </Link>
-              </Card>
-            ))}
-          </div>
+          <DataTableProvider data={products} columns={columns}>
+            <Card className="p-0">
+              <DataTable />
+            </Card>
+            {/* <DataTablePagination
+                    totalItems={
+                      tabs?.find((e) => e?.value === "ALL")?.total ??
+                      links?.length
+                    }
+                  /> */}
+          </DataTableProvider>
         ) : (
           <EmptyPlaceholder>
-            <EmptyPlaceHolderIcon name="inbox" />
+            <EmptyPlaceholderIcon name="inbox" />
             <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
             <EmptyPlaceholderDescription>
               Get started by creating your first item. <br />

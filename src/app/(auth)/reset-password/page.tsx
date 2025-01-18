@@ -20,7 +20,7 @@ export default async function ForgotPassword({}: ForgotPasswordProps) {
   const { user } = await getAuth();
   if (user) redirect(Paths.Dashboard);
 
-  const { "form-fields": ff, ...dic } = await getDictionary();
+  const { db, cmn, ...dic } = await getDictionary();
   const c = dic?.["auth"]?.["forgot-password"];
 
   return (
@@ -56,12 +56,12 @@ export default async function ForgotPassword({}: ForgotPasswordProps) {
             <div className="space-y-2">
               <FormInputField
                 type="email"
-                label={ff?.["email"]?.["email"]}
+                label={db?.["users"]?.["email"]?.["email"]}
                 field={{ name: "email" }}
               />
 
               <FormButton type="submit" className="w-full">
-                {ff?.["confirm"]}
+                {cmn?.["confirm"]}
               </FormButton>
             </div>
 

@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 
 import { ID } from "@/constants/utils";
 
-import { db, schema } from "@/servers/db";
+import { db, orm, schema } from "@/servers/db";
 import { getDictionary } from "@/servers/locale";
 import { createServerAction } from "@/servers/utils";
 import { getAuth } from "@/lib/auth";
@@ -13,13 +13,13 @@ import { Validation, validations } from "@/lib/validations";
 export const createProduct = createServerAction(
   async (formData: Validation["create-product"]) => {
     const data = validations?.["create-product"]?.parse(formData);
-    const { actions: c, "form-fields": ff } = await getDictionary();
+    const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
     if (!user) throw new Error(c?.["this action needs you to be logged in."]);
 
     const id = ID.generate();
-    await db.insert(schema?.["products"]).values({
+    await db.insert(schema?.products).values({
       id,
       ...data,
       slug: `slug-${Date.now()}`,
@@ -30,8 +30,56 @@ export const createProduct = createServerAction(
     return {
       ok: true,
       redirect: `/ss/${data?.storeId}/products/${id}`,
-      toast: { type: "success", message: ff?.["created successfully."] },
+      toast: { type: "success", message: cmn?.["created successfully."] },
     };
   },
   { defaultMessage: "your product was not created. please try again." }
+);
+
+export const updateProduct = createServerAction(
+  async (
+    // formData
+    data: any
+    //  Validation["update-product"]
+  ) => {
+    // const data = validations?.["update-product"]?.parse(formData);
+    const { actions: c, cmn } = await getDictionary();
+
+    const { user } = await getAuth();
+    if (!user) throw new Error(c?.["this action needs you to be logged in."]);
+
+    await db
+      .update(schema?.products)
+      .set({ ...data })
+      .where(orm?.eq(schema?.products?.id, data?.id));
+
+    revalidateTag("products");
+    return {
+      ok: true,
+      toast: { type: "success", message: cmn?.["updated successfully."] },
+    };
+  },
+  { defaultMessage: "your product was not updated. please try again." }
+);
+
+export const deleteProduct = createServerAction(
+  async (formData: Validation["delete-product"]) => {
+    const data = validations?.["delete-product"]?.parse(formData);
+    const { actions: c, cmn } = await getDictionary();
+
+    const { user } = await getAuth();
+    if (!user) throw new Error(c?.["this action needs you to be logged in."]);
+
+    await db
+      .delete(schema?.products)
+      .where(orm?.eq(schema?.products?.id, data?.id));
+
+    revalidateTag("products");
+    return {
+      ok: true,
+      redirect: `/ss/${data?.storeId}/products`,
+      toast: { type: "success", message: cmn?.["deleted successfully."] },
+    };
+  },
+  { defaultMessage: "your product was not deleted. please try again." }
 );

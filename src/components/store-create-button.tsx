@@ -6,6 +6,7 @@ import { ButtonProps } from "@/components/ui/button";
 import {
   FormAlertDialogButton,
   FormInputField,
+  FormSelectField,
   FormTextareaField,
 } from "@/components/ui/form";
 
@@ -14,7 +15,10 @@ export async function StoreCreateButton({
   children,
   ...props
 }: StoreCreateButtonProps) {
-  const { "form-fields": ff } = await getDictionary();
+  const {
+    cmn,
+    db: { stores: ss },
+  } = await getDictionary();
   const { user } = await getAuth();
   if (!user) return;
 
@@ -25,12 +29,12 @@ export async function StoreCreateButton({
         children: "create store",
       }}
       title={
-        ff?.[
+        cmn?.[
           "are you absolutely sure that you want to delete this transactions?"
         ]
       }
       description={
-        ff?.[
+        cmn?.[
           "this action cannot be undone. this will permanently delete your account and remove your data from our servers."
         ]
       }
@@ -65,71 +69,55 @@ export async function StoreCreateButton({
         accept="image/*"
         multiple={false}
         field={{ name: "logo" }}
-        label={ff?.["logo"]?.["logo"]}
+        label={ss?.["logo"]?.["logo"]}
       />
       <FormInputField
         field={{ name: "name" }}
-        label={ff?.["name"]?.["name"]}
-        placeholder={ff?.["name"]?.["ovve games"]}
+        label={ss?.["name"]?.["name"]}
+        placeholder={ss?.["name"]?.["ovve games"]}
       />
       <FormInputField
         field={{ name: "username" }}
-        label={ff?.["username"]?.["username"]}
-        placeholder={ff?.["username"]?.["ovvegames"]}
+        label={ss?.["username"]?.["username"]}
+        placeholder={ss?.["username"]?.["ovvegames"]}
       />
       <FormInputField
         field={{ name: "category" }}
-        label={ff?.["category"]?.["category"]}
-        placeholder={ff?.["category"]?.["fashion and apparel"]}
+        label={ss?.["category"]?.["category"]}
+        placeholder={ss?.["category"]?.["fashion and apparel"]}
       />
       <FormTextareaField
         field={{ name: "bio" }}
-        label={ff?.["bio"]?.["bio"]}
-        placeholder={ff?.["bio"]?.["type about your store..."]}
+        label={ss?.["bio"]?.["bio"]}
+        placeholder={ss?.["bio"]?.["type about your store..."]}
       />
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <FormInputField
+        <FormSelectField
           field={{ name: "currency" }}
-          label={ff?.["currency"]?.["currency"]}
-          placeholder={ff?.["currency"]?.["USD"]}
+          label={ss?.["currency"]?.["currency"]}
+          placeholder={ss?.["currency"]?.["select currency..."]}
+          items={(
+            Object.keys(ss?.["currency"]?.["enums"]) as (
+              | "USD"
+              | "EGY"
+              | "SRY"
+            )[]
+          )?.map((key) => ({
+            value: key,
+            children: ss?.["currency"]?.["enums"]?.[key]?.label ?? "",
+          }))}
         />
-        <FormInputField
+        <FormSelectField
           field={{ name: "language" }}
-          label={ff?.["language"]?.["language"]}
-          placeholder={ff?.["language"]?.["EN"]}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <FormInputField
-          field={{ name: "location.street" }}
-          label={ff?.["location"]?.["street"]?.["street"]}
-          placeholder={ff?.["location"]?.["street"]?.["03 aprt., 808 building"]}
-        />
-        <FormInputField
-          field={{ name: "location.postalCode" }}
-          label={ff?.["location"]?.["postalCode"]?.["postalCode"]}
-          placeholder={ff?.["location"]?.["postalCode"]?.["185047"]}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <FormInputField
-          field={{ name: "location.state" }}
-          label={ff?.["location"]?.["state"]?.["state"]}
-          placeholder={ff?.["location"]?.["state"]?.["obour"]}
-        />
-
-        <FormInputField
-          field={{ name: "location.city" }}
-          label={ff?.["location"]?.["city"]?.["city"]}
-          placeholder={ff?.["location"]?.["city"]?.["cairo"]}
-        />
-        <FormInputField
-          field={{ name: "location.country" }}
-          label={ff?.["location"]?.["country"]?.["country"]}
-          placeholder={ff?.["location"]?.["country"]?.["egypt"]}
+          label={ss?.["language"]?.["language"]}
+          placeholder={ss?.["language"]?.["select language..."]}
+          items={(
+            Object.keys(ss?.["language"]?.["enums"]) as ("EN" | "AR")[]
+          )?.map((key) => ({
+            value: key,
+            children: ss?.["language"]?.["enums"]?.[key]?.label ?? "",
+          }))}
         />
       </div>
     </FormAlertDialogButton>

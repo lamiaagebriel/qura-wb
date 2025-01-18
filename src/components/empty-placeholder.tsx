@@ -29,7 +29,7 @@ type EmptyPlaceholderIconProps = IconProps & {
   name: keyof typeof Icons;
 };
 
-export function EmptyPlaceHolderIcon({
+export function EmptyPlaceholderIcon({
   name,
   className,
   ...props

@@ -19,7 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   EmptyPlaceholder,
   EmptyPlaceholderDescription,
-  EmptyPlaceHolderIcon,
+  EmptyPlaceholderIcon,
   EmptyPlaceholderTitle,
 } from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
@@ -97,7 +97,7 @@ export default async function Stores({}: StoresProps) {
           </div>
         ) : (
           <EmptyPlaceholder>
-            <EmptyPlaceHolderIcon name="inbox" />
+            <EmptyPlaceholderIcon name="inbox" />
             <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
             <EmptyPlaceholderDescription>
               Get started by creating your first item. <br />

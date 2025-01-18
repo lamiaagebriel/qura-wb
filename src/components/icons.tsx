@@ -69,7 +69,10 @@ export const Icons = {
     />
   ),
   chevronLeft: ({ className, ...props }: IconProps) => (
-    <ChevronLeft className={cn(IconsVariants({}), className)} {...props} />
+    <ChevronLeft
+      className={cn(IconsVariants({}), "rtl:rotate-180", className)}
+      {...props}
+    />
   ),
   chevronsUpDown: ({ className, ...props }: IconProps) => (
     <ChevronsUpDown className={cn(IconsVariants({}), className)} {...props} />

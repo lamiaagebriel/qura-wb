@@ -16,7 +16,7 @@ export const createStore = createServerAction(
   async (formData: Validation["create-store"]) => {
     const { logo: logoProp, ...data } =
       validations?.["create-store"]?.parse(formData);
-    const { actions: c, "form-fields": ff } = await getDictionary();
+    const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
     if (!user || !user?.["id"])
@@ -53,7 +53,7 @@ export const createStore = createServerAction(
     return {
       ok: true,
       redirect: `/ss/${id}`,
-      toast: { type: "success", message: ff?.["created successfully."] },
+      toast: { type: "success", message: cmn?.["created successfully."] },
     };
   },
   { defaultMessage: "your store was not created. please try again." }

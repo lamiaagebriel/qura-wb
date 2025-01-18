@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "Reset Password" };
 export default async function ResetPassword({ params }: ResetPasswordProps) {
   const { token } = await params;
 
-  const { "form-fields": ff, ...dic } = await getDictionary();
+  const { db, cmn, ...dic } = await getDictionary();
   const c = dic?.["auth"]?.["reset-password"];
 
   return (
@@ -57,17 +57,17 @@ export default async function ResetPassword({ params }: ResetPasswordProps) {
             <div className="space-y-2">
               <FormInputField
                 type="password"
-                label={ff?.["password"]?.["password"]}
+                label={db?.["users"]?.["password"]?.["password"]}
                 field={{ name: "password" }}
               />
               <FormInputField
                 type="password"
-                label={ff?.["password"]?.["confirm password"]}
+                label={db?.["users"]?.["password"]?.["confirm password"]}
                 field={{ name: "confirmPassword" }}
               />
 
               <FormButton type="submit" className="w-full">
-                {ff?.["confirm"]}
+                {cmn?.["confirm"]}
               </FormButton>
             </div>
 
