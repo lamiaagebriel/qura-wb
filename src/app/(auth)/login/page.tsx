@@ -54,7 +54,6 @@ export default async function Login({}: LoginProps) {
           <Form
             infiniteLoading
             validation="login-with-password"
-            useForm={{ defaultValues: { email: "", password: "" } }}
             onSubmit={loginWithPassword}
             className="grid grid-cols-1 gap-6"
           >

@@ -178,8 +178,12 @@ const storeSchema = z.object({
 
   name: z.stringRequired("name"),
   category: z.stringRequired("category"),
-  currency: z.stringRequired("currency"),
-  language: z.stringRequired("language"),
+  currency: z
+    .stringRequired("currency")
+    .max(3, "max currency length supported is 3 chars."),
+  language: z
+    .stringRequired("language")
+    .max(2, "max language length supported is 2 chars."),
 
   logo: z.string("logo"),
   bio: z.string("bio"),
@@ -238,7 +242,7 @@ export const validations = {
     username: true,
     bio: true,
     logo: true,
-    location: true,
+    // location: true,
   }),
 
   // products

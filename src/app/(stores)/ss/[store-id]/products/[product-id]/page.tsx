@@ -7,20 +7,18 @@ import { queries } from "@/servers/db/queries";
 import { getDictionary } from "@/servers/locale";
 import { updateProduct } from "@/servers/products";
 import { getAuth } from "@/lib/auth";
-import { cn, formatDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ProductStatus } from "@/lib/validations";
 
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import {
   Form,
   FormButton,
   FormInputField,
   FormResetButton,
   FormSelectField,
+  FormTextareaField,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -31,8 +29,6 @@ import {
 } from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { ProductCreateButton } from "@/components/product-create-button";
-import { StoreCreateButton } from "@/components/store-create-button";
 
 type ProductProps = Readonly<{
   params: Promise<{ "store-id": string; "product-id": string }>;
@@ -69,7 +65,7 @@ export default async function Product({ params }: ProductProps) {
                 className={cn(buttonVariants({ size: "lg" }))}
               >
                 <Icons.shirt />
-                <span>جميع المسوقيين بالعمولة</span>
+                <span>جميع المنتجات</span>
               </Link>
             </EmptyPlaceholder>
           </div>
@@ -153,6 +149,10 @@ export default async function Product({ params }: ProductProps) {
                         field={{ name: "title" }}
                         label={pp?.["title"]?.["title"]}
                         // placeholder={cmn?.["title"]?.["joe doe"]}
+                      />
+                      <FormTextareaField
+                        field={{ name: "description" }}
+                        label={pp?.["description"]?.["description"]}
                       />
                     </div>
                   </CardContent>

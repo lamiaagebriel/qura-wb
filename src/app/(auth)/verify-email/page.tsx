@@ -46,7 +46,6 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
           <Form
             infiniteLoading
             validation="verify-email"
-            useForm={{ defaultValues: { code: "" } }}
             onSubmit={verifyEmail}
           >
             <div className="space-y-2">

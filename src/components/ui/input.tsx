@@ -30,7 +30,7 @@ const InputWithoutFormAwareness = React.forwardRef<
         <input
           ref={ref}
           onChange={onChange}
-          value={value}
+          value={value ?? ""}
           type={isPasswordVisible ? "text" : "password"}
           className={cn(
             inputVariants({ className }),
@@ -66,7 +66,7 @@ const InputWithoutFormAwareness = React.forwardRef<
         ref={ref}
         type={type}
         onChange={onChange}
-        value={value}
+        value={value ?? ""}
         className={cn(inputVariants({ className }))}
         dir="ltr"
         placeholder="name@example.com"
@@ -115,7 +115,7 @@ const InputWithoutFormAwareness = React.forwardRef<
       ref={ref}
       type={type}
       onChange={onChange}
-      value={value}
+      value={value ?? ""}
       className={cn(inputVariants({ className }))}
       {...props}
     />

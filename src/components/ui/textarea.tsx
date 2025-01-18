@@ -17,10 +17,11 @@ export type TextareaProps = React.ComponentProps<"textarea"> &
 const TextareaWithoutFormAwareness = React.forwardRef<
   HTMLTextAreaElement,
   TextareaProps
->(({ className, ...props }, ref) => {
+>(({ className, value, ...props }, ref) => {
   return (
     <textarea
       ref={ref}
+      value={value ?? ""}
       className={cn(textareaVariants({ className }))}
       {...props}
     />

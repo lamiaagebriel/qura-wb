@@ -22,7 +22,11 @@ export const columns: ColumnDef<Data>[] = [
     enableHiding: false,
     enableSorting: false,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="الرقم التعريفي" />
+      <DataTableColumnHeader
+        column={column}
+        title="الرقم التعريفي"
+        className="justify-start"
+      />
     ),
     cell: ({ row: { original: r } }) => {
       return (
@@ -42,9 +46,7 @@ export const columns: ColumnDef<Data>[] = [
     cell: ({ row: { original: r } }) => {
       return (
         <DataTableColumnCell>
-          <Link href={`/ss/${r?.storeId}/products/${r?.title}`}>
-            {r?.title}
-          </Link>
+          <Link href={`/ss/${r?.storeId}/products/${r?.id}`}>{r?.title}</Link>
         </DataTableColumnCell>
       );
     },

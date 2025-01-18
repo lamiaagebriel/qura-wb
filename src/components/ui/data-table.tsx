@@ -167,6 +167,7 @@ export function DataTable() {
           </TableRow>
         ))}
       </TableHeader>
+
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
@@ -278,6 +279,7 @@ export function DataTableColumnCell({
 export type DataTableRowActionsProps = React.PropsWithChildren<{}>;
 export function DataTableRowActions({ children }: DataTableRowActionsProps) {
   const { "data-table-row-actions": c } = useLocale();
+
   return (
     <div className="flex items-center justify-end">
       <DropdownMenu>
