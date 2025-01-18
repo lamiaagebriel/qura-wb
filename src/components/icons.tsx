@@ -1,6 +1,7 @@
 import { cva, VariantProps } from "class-variance-authority";
 import {
   AlertCircle,
+  Calendar,
   ChevronLeft,
   ChevronsUpDown,
   Eye,
@@ -108,6 +109,9 @@ export const Icons = {
   ),
   percent: ({ className, ...props }: IconProps) => (
     <Percent className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  calendar: ({ className, ...props }: IconProps) => (
+    <Calendar className={cn(IconsVariants({}), className)} {...props} />
   ),
   files: ({ className, ...props }: IconProps) => (
     <Files className={cn(IconsVariants({}), className)} {...props} />

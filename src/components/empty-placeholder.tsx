@@ -1,7 +1,5 @@
 import React from "react";
 
-import { AlertCircle, FileQuestion, Inbox } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 import { IconProps, Icons } from "./icons";

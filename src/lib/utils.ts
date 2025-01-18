@@ -13,6 +13,8 @@ import * as DateFnsLocale from "date-fns/locale";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
+import { Locale } from "./locale";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -125,35 +127,41 @@ export const unstable_cache = <Inputs extends unknown[], Output>(
     })
   );
 
+type FormatDateOptions = {
+  formatStr?: string;
+  type?: "default" | "distance";
+} & Omit<FormatOptions, "locale">;
+
 export function formatDate(
   date: DateArg<Date>,
-  opts: {
-    formatStr?: string;
-    type?: "default" | "distance";
-  } & Omit<FormatOptions, "locale"> = {
-    formatStr: "PPP",
-    type: "default",
-  }
+  { type, formatStr, ...opts }: FormatDateOptions = { formatStr: "PPP" }
 ) {
-  if (opts?.type == "distance") {
-    const result = formatDistanceToNow(date, {
+  if (type === "distance")
+    return formatDistanceToNow(date, {
       locale: DateFnsLocale?.enUS,
       // roundingMethod: "floor", // Ensure intervals are rounded down
       // unit: "auto", // Automatically switch between s, m, h, d, etc.
       includeSeconds: true,
       addSuffix: true,
     });
-    return result
-      .replace(/ seconds?/, "s ago")
-      .replace(/ minutes?/, "m ago")
-      .replace(/ hours?/, "h ago")
-      .replace(/ days?/, "d ago")
-      .replace(/ weeks?/, "w ago")
-      .replace(/ months?/, "mo ago")
-      .replace(/ years?/, "y ago");
-  }
-  return format(date, opts?.formatStr!, {
+
+  return format(date, formatStr!, {
     locale: DateFnsLocale?.enUS,
     ...opts,
   });
+}
+
+export function formatNumber(
+  number: number | string,
+  props: Intl.NumberFormatOptions
+) {
+  if (Number.isNaN(number)) return null;
+
+  return Number(
+    new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+      ...props,
+    }).format(Number(number))
+  );
 }

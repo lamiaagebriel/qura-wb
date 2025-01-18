@@ -14,19 +14,19 @@ export type TextareaProps = React.ComponentProps<"textarea"> &
   React.TextareaHTMLAttributes<HTMLTextAreaElement> &
   VariantProps<typeof textareaVariants> & {};
 
-const Textarea = withFormAwareness(
-  React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({ className, ...props }, ref) => {
-      return (
-        <textarea
-          ref={ref}
-          className={cn(textareaVariants({ className }))}
-          {...props}
-        />
-      );
-    }
-  )
-);
-Textarea.displayName = "Textarea";
+const TextareaWithoutFormAwareness = React.forwardRef<
+  HTMLTextAreaElement,
+  TextareaProps
+>(({ className, ...props }, ref) => {
+  return (
+    <textarea
+      ref={ref}
+      className={cn(textareaVariants({ className }))}
+      {...props}
+    />
+  );
+});
+TextareaWithoutFormAwareness.displayName = "Textarea";
+const Textarea = withFormAwareness(TextareaWithoutFormAwareness);
 
 export { Textarea };

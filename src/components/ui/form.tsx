@@ -5,13 +5,16 @@ import * as React from "react";
 
 import {
   HandleServerActionOptions,
+  SelectItem as SelectItemType,
   ServerActionError,
   ServerActionResult,
   ServerActionSuccess,
 } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as LabelPrimitive from "@radix-ui/react-label";
+import { SelectProps } from "@radix-ui/react-select";
 import { Slot } from "@radix-ui/react-slot";
+import { format } from "date-fns";
 import {
   Controller,
   ControllerProps,
@@ -26,11 +29,23 @@ import {
 } from "react-hook-form";
 import { toast } from "sonner";
 
-import { loginWithPassword } from "@/servers/auth";
 import { cn, handleServerAction } from "@/lib/utils";
 import { Validation, ValidationName, validations } from "@/lib/validations";
+import { useTranslation } from "@/hooks/use-translation";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button, ButtonProps } from "@/components/ui/button";
+import { Calendar, CalendarProps } from "@/components/ui/calendar";
 import { Input, InputProps } from "@/components/ui/input";
 import {
   InputOTP,
@@ -40,8 +55,22 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea, TextareaProps } from "@/components/ui/textarea";
 import { Icons } from "@/components/icons";
+import { useLocale } from "@/components/locale-provider";
 
 type ExtendedUseForm<
   TFieldValues extends FieldValues = FieldValues,
@@ -76,6 +105,7 @@ type FormProps<T extends ValidationName, R> = {
   ) => Promise<ServerActionResult<R>> | Promise<ServerActionResult<R>>;
   infiniteLoading?: boolean;
   reset?: boolean;
+
   setOpenDialog?: React.Dispatch<React.SetStateAction<boolean>>;
 } & Pick<HandleServerActionOptions<R>, "onError" | "onSuccess"> &
   Omit<
@@ -209,7 +239,7 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-1", className)} {...props} />
+      <div ref={ref} className={cn("w-full space-y-1", className)} {...props} />
     </FormItemContext.Provider>
   );
 });
@@ -277,7 +307,8 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message) : children;
+  const txt = useTranslation(error?.["message"] ?? "");
+  const body = error?.message ? txt : children;
 
   if (!body) return null;
 
@@ -295,10 +326,16 @@ const FormMessage = React.forwardRef<
 FormMessage.displayName = "FormMessage";
 
 // ------------------------- custom fields
+type FormReusingProps = Pick<
+  FormProps<any, any>,
+  "onSubmit" | "infiniteLoading" | "useForm" // "useForm": used for onActions props
+>;
 type FormButtonProps = {
-  onAction?: any;
-  infiniteLoading?: boolean;
+  onAction?: FormReusingProps["onSubmit"];
   Icon?: React.ReactNode;
+
+  infiniteLoading?: FormReusingProps["infiniteLoading"];
+  useForm?: FormReusingProps["useForm"];
 } & ButtonProps;
 
 const FormButton =
@@ -311,7 +348,10 @@ const FormButton =
         children,
         onAction,
         disabled,
+
         infiniteLoading = false,
+        useForm: useFormProps,
+
         Icon = null,
         type,
         ...props
@@ -323,26 +363,30 @@ const FormButton =
 
       return (
         <Button
+          ref={ref}
           type={type}
           onClick={async (e) => {
             if (onAction) {
               setLoading(true);
               form?.setDisabled?.(true);
-              await handleServerAction(onAction({}), {
-                onSuccess() {
-                  setLoading(infiniteLoading);
-                  form?.setDisabled?.(infiniteLoading);
-                },
-                onError() {
-                  setLoading(false);
-                  form?.setDisabled?.(false);
-                },
-              });
+              await handleServerAction(
+                onAction(useFormProps?.defaultValues ?? {}),
+                {
+                  onSuccess() {
+                    setLoading(infiniteLoading);
+                    form?.setDisabled?.(infiniteLoading);
+                  },
+                  onError() {
+                    setLoading(false);
+                    form?.setDisabled?.(false);
+                  },
+                }
+              );
             } else {
               onClick?.(e);
             }
           }}
-          disabled={disabled || loading || form.disabled || form.loading}
+          disabled={disabled || loading || form?.disabled || form?.loading}
           {...props}
         >
           {(type === "submit" && form?.loading) || loading ? (
@@ -359,6 +403,27 @@ const FormButton =
 // );
 FormButton.displayName = "FormButton";
 
+type FormResetButtonProps = {} & FormButtonProps;
+
+const FormResetButton = React.forwardRef<
+  HTMLButtonElement,
+  FormResetButtonProps
+>(({ onClick, ...props }, ref) => {
+  const form = useForm?.();
+
+  return (
+    <FormButton
+      ref={ref}
+      onClick={async (e) => {
+        form?.reset();
+        onClick?.(e);
+      }}
+      {...props}
+    />
+  );
+});
+FormResetButton.displayName = "FormResetButton";
+
 export type WithFormAwarenessProps = {
   disabled?: boolean;
   loading?: "true" | "false";
@@ -368,11 +433,11 @@ export function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
     | React.ComponentType<T>
     | React.ForwardRefRenderFunction<R, T>
 ) {
-  return React.forwardRef<R, T>((props, ref) => {
+  const result = React.forwardRef<R, T>((props, ref) => {
     const form = useForm?.() ?? undefined;
-
     const loading = form?.loading;
     const disabled = form?.loading || form?.disabled || props?.disabled;
+
     return React.createElement(WrappedComponent as any, {
       ...props,
       ref,
@@ -380,6 +445,9 @@ export function withFormAwareness<T extends WithFormAwarenessProps, R = any>(
       loading: JSON.stringify(loading),
     });
   });
+
+  result["displayName"] = WrappedComponent?.displayName;
+  return result;
 }
 
 type FormInputFieldProps<
@@ -388,6 +456,7 @@ type FormInputFieldProps<
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
   label: string;
+  description?: string;
 } & InputProps;
 
 const FormInputField = <
@@ -396,6 +465,7 @@ const FormInputField = <
 >({
   field,
   label,
+  description,
   ...props
 }: FormInputFieldProps<TFieldValues, TName>) => {
   return (
@@ -408,6 +478,9 @@ const FormInputField = <
             <FormControl>
               <Input {...field} {...props} />
             </FormControl>
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
             <FormMessage />
           </FormItem>
         );
@@ -416,41 +489,6 @@ const FormInputField = <
   );
 };
 FormInputField.displayName = "FormInputField";
-
-type FormTextareaFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = {
-  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
-} & TextareaProps;
-
-const FormTextareaField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({
-  field,
-  label,
-  ...props
-}: FormTextareaFieldProps<TFieldValues, TName>) => {
-  return (
-    <FormField
-      {...field}
-      render={({ field }) => {
-        return (
-          <FormItem>
-            <FormLabel>{label}</FormLabel>
-            <FormControl>
-              <Textarea {...field} {...props} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        );
-      }}
-    />
-  );
-};
-FormTextareaField.displayName = "FormTextareaField";
 
 type FormInputOTPFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -502,6 +540,306 @@ const FormInputOTPField = <
 };
 FormInputOTPField.displayName = "FormInputOTPField";
 
+type FormTextareaFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
+  label: string;
+  description?: string;
+} & TextareaProps;
+
+const FormTextareaField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  field,
+  label,
+  description,
+  ...props
+}: FormTextareaFieldProps<TFieldValues, TName>) => {
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <Textarea {...field} {...props} />
+            </FormControl>
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+};
+FormTextareaField.displayName = "FormTextareaField";
+
+type FormSelectFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
+  label: string;
+  placeholder: string;
+  items: SelectItemType[];
+  description?: string;
+} & SelectProps;
+
+const FormSelectField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  field,
+  label,
+  items,
+  description,
+  placeholder,
+  ...props
+}: FormSelectFieldProps<TFieldValues, TName>) => {
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+
+            <Select
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              {...props}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {items?.map((e, i) => <SelectItem key={i} {...e} />)}
+              </SelectContent>
+            </Select>
+
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+};
+FormSelectField.displayName = "FormSelectField";
+
+type FormSwitchFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
+  label: string;
+  items: (SelectItemType & { description?: string })[];
+  description?: string;
+} & SelectProps;
+
+const FormSwitchField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  field,
+  label,
+  items,
+  description,
+  ...props
+}: FormSwitchFieldProps<TFieldValues, TName>) => {
+  const form = useForm?.();
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+
+            <div className="flex flex-col gap-4">
+              {items?.map((e, i) => (
+                <FormControl key={i}>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-background p-4 text-foreground">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">{e?.children}</FormLabel>
+                      {e?.description ? (
+                        <FormDescription>{e?.description}</FormDescription>
+                      ) : null}
+                    </div>
+                    <FormControl>
+                      <Switch
+                        disabled={form?.disabled}
+                        checked={field?.value?.includes(e?.value)}
+                        onCheckedChange={(b) => {
+                          if (b) field.onChange([...field?.value, e?.value]);
+                          else
+                            field.onChange([
+                              ...field?.value?.filter(
+                                (v: any) => v !== e?.value
+                              ),
+                            ]);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                </FormControl>
+              ))}
+            </div>
+
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
+
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+};
+FormSwitchField.displayName = "FormSwitchField";
+
+type FormDateFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  field: Omit<ControllerProps<TFieldValues, TName>, "render">;
+  label: string;
+  description?: string;
+} & CalendarProps;
+
+const FormDateField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  field,
+  label,
+  description,
+  ...props
+}: FormDateFieldProps<TFieldValues, TName>) => {
+  const form = useForm?.();
+  const { "form-fields": ff } = useLocale();
+
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full items-center justify-between",
+                      !field?.["value"] && "text-muted-foreground"
+                    )}
+                  >
+                    {field?.value ? (
+                      format(field?.value, "PPP")
+                    ) : (
+                      <span>{ff?.["pick a date"]}</span>
+                    )}
+                    <Icons.calendar className="opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent>
+                <Calendar
+                  mode="single"
+                  selected={field?.value}
+                  // @ts-expect-error TODO: expected handler mismatches
+                  onSelect={field.onChange}
+                  disabled={(date) => form?.disabled || date < new Date()}
+                  initialFocus
+                  {...props}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+};
+FormDateField.displayName = "FormDateField";
+
+type FormAlertDialogButtonProps = React.PropsWithChildren<{
+  title?: string;
+  description?: string;
+  trigger: ButtonProps;
+  form: FormProps<any, any>;
+  isFooter?: boolean;
+}>;
+
+export function FormAlertDialogButton({
+  title,
+  description,
+  form: { className: formClassName, children: formChildren, ...formProps },
+  trigger: triggerProps,
+  isFooter = true,
+  children,
+}: FormAlertDialogButtonProps) {
+  const { "form-fields": ff } = useLocale();
+  const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+
+  return (
+    <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+      <AlertDialogTrigger asChild>
+        <Button {...triggerProps} />
+      </AlertDialogTrigger>
+
+      <AlertDialogContent className="max-h-[calc(100svh-4rem)] overflow-auto">
+        <Form
+          className={cn("flex flex-col gap-4", formClassName)}
+          setOpenDialog={setOpenDialog}
+          {...formProps}
+        >
+          {title || description ? (
+            <AlertDialogHeader>
+              {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
+              {description && (
+                <AlertDialogDescription>{description}</AlertDialogDescription>
+              )}
+            </AlertDialogHeader>
+          ) : null}
+
+          {children}
+
+          {isFooter ? (
+            <AlertDialogFooter>
+              <AlertDialogCancel asChild>
+                <FormButton variant="outline">{ff?.["cancel"]}</FormButton>
+              </AlertDialogCancel>
+              <FormButton type="submit" className="w-full">
+                {ff?.["confirm"]}
+              </FormButton>
+            </AlertDialogFooter>
+          ) : null}
+        </Form>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export {
   useFormField,
   Form,
@@ -512,7 +850,11 @@ export {
   FormMessage,
   FormField,
   FormButton,
+  FormResetButton,
   FormInputField,
-  FormTextareaField,
   FormInputOTPField,
+  FormTextareaField,
+  FormSelectField,
+  FormSwitchField,
+  FormDateField,
 };

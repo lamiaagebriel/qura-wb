@@ -246,6 +246,11 @@ const en = {
     },
 
     // commons
+    "are you absolutely sure that you want to delete this transactions?":
+      "هل أنت متأكد تمامًا أنك تريد حذف هذه المعاملة النقدية؟",
+    "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
+      "لا يمكن التراجع عن هذا الإجراء. سيؤدي ذلك إلى طلب السحب نهائيًا وإزالته من خوادمنا.",
+
     "created successfully.": "created successfully.",
     "updated successfully.": "updated successfully.",
     "deleted successfully.": "deleted successfully.",
@@ -257,6 +262,64 @@ const en = {
     delete: "Delete",
     edit: "Edit",
     logout: "Logout",
+
+    "pick a date": "Pick a date",
+    "message sent successfully": "message sent successfully",
+    "update data": "تحديث البيانات",
+    "update preferences": "تحديث التفضيلات",
+    all: "الكل",
+    "check code": "التحقق من الكود",
+    "next step": "الخطوة التالية",
+    "pre step": "الخطوة السابقة",
+    back: "العودة",
+    discard: "تجاهل",
+  },
+  // ui/data-table
+  "data-table-column-header": {
+    asc: "تصاعدي",
+    desc: "تنازلي",
+    hide: "إخفاء",
+  },
+  "data-table-pagination": {
+    of: "من",
+    "row(s) selected.": "صف(وف) مختار(ة).",
+    "rows per page": "الصفوف لكل صفحة",
+    "go to first page": "انتقل إلى الصفحة الأولى",
+    "go to previous page": "انتقل إلى الصفحة السابقة",
+    "go to next page": "انتقل إلى الصفحة التالية",
+    "go to last page": "انتقل إلى الصفحة الأخيرة",
+    page: "الصفحة",
+  },
+  "data-table-row-actions": {
+    actions: "التحرير",
+    "open menu": "إفتح القائمة",
+  },
+  "data-table": {
+    "no results.": "لا توجد نتائج.",
+  },
+
+  "date-picker-with-range": {
+    "pick a date": "إختر تاريخ",
+    today: "اليوم",
+    yesterday: "أمس",
+    "last hour": "آخر ساعة",
+    "last 7 days": "آخر 7 أيام",
+    "last 14 days": "آخر 14 يوم",
+    "last 30 days": "آخر 30 يوم",
+    "custom range": "تحديد مدة معينة",
+    start: "بداية من",
+    end: "نهاية في",
+  },
+  "settings-appearance-form": {
+    theme: "الثيم",
+    "automatically switch between day and night themes.":
+      "التبديل التلقائي بين الثيمات النهارية والليلية.",
+    light: "فاتح",
+    dark: "داكن",
+    system: "نظام",
+    language: "اللغة",
+    "automatically switch between languages.": "التبديل التلقائي بين اللغات.",
+    "update preferences": "تحديث التفضيلات",
   },
 
   actions: {
