@@ -35,7 +35,7 @@ export default async function StoreLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/50">
-      <header className="flex flex-col gap-4 bg-background pt-4 text-foreground">
+      <header className="z-20 flex flex-col gap-4 bg-background pt-4 text-foreground">
         <div className="container flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Link
@@ -92,7 +92,7 @@ export default async function StoreLayout({
         </div>
       </header>
 
-      <header className="scrollbar-none sticky top-0 flex flex-col gap-4 overflow-y-auto border-b bg-background pt-2">
+      <header className="scrollbar-none sticky top-0 z-20 flex flex-col gap-4 overflow-y-auto border-b bg-background pt-2">
         <div className="container">
           <nav>
             <ul className="flex items-center gap-1">

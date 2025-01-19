@@ -58,12 +58,13 @@ export const updateProduct = createServerAction(
     await db
       .update(schema?.products)
       .set({ ...data, images, stock: Number(data?.stock) })
-      .where(orm?.eq(schema?.products?.id, id));
-
-    const deletedImages = oldValues?.images?.filter(
-      (e) => !images?.includes(e)
-    );
-    if (deletedImages?.length) await aws.deleteMany(deletedImages);
+      .where(orm?.eq(schema?.products?.id, id))
+      .then(async () => {
+        const deletedImages = oldValues?.images?.filter(
+          (e) => !images?.includes(e)
+        );
+        if (deletedImages?.length) await aws.deleteMany(deletedImages);
+      });
 
     revalidateTag("products");
     return {
@@ -84,7 +85,10 @@ export const deleteProduct = createServerAction(
 
     await db
       .delete(schema?.products)
-      .where(orm?.eq(schema?.products?.id, data?.id));
+      .where(orm?.eq(schema?.products?.id, data?.id))
+      .then(async () => {
+        if (data?.images?.length) await aws.deleteMany(data?.images);
+      });
 
     revalidateTag("products");
     return {

@@ -437,10 +437,10 @@ const en = {
         status: "status",
         "select status...": "select status...",
         enums: {
-          DRAFT: { label: "Draft" },
-          ACTIVE: { label: "Active" },
-          ARCHIVED: { label: "Archived" },
-        } satisfies Record<ProductStatus, { label: string }>,
+          DRAFT: { label: "Draft", color: "hsl(var(--chart-2))" },
+          ACTIVE: { label: "Active", color: "hsl(var(--chart-3))" },
+          ARCHIVED: { label: "Archived", color: "hsl(var(--chart-5))" },
+        } satisfies Record<ProductStatus, { label: string; color: string }>,
       },
       images: { images: "images" },
       price: { price: "price" },
@@ -468,6 +468,8 @@ const en = {
   tables: {
     // products
     "product details": "product details",
+    price: "price",
+    status: "status",
     "created at": "created at",
   },
 

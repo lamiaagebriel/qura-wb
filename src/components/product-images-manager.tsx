@@ -37,7 +37,7 @@ export function ProductImageManager() {
   const renderImage = ({ index }: any) => (
     <div className="relative">
       <Image
-        alt="Product main image"
+        alt="Product image"
         className="aspect-square w-full rounded-md object-cover object-center"
         src={form.watch("images")?.[index]}
       />

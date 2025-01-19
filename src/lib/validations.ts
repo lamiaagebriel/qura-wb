@@ -279,5 +279,9 @@ export const validations = {
         oldValues: productSchema.pick({ images: true }),
       })
     ),
-  "delete-product": productSchema.pick({ id: true, storeId: true }),
+  "delete-product": productSchema.pick({
+    id: true,
+    storeId: true,
+    images: true,
+  }),
 };

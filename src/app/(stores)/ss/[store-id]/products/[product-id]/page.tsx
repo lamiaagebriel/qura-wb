@@ -114,7 +114,16 @@ export default async function Product({ params }: ProductProps) {
                 {c?.["product details"]}
               </h1>
               <Badge variant="outline">
-                {pp?.["status"]?.["enums"]?.[selectedProduct?.status]?.label}
+                <div className="flex items-center gap-2">
+                  <Icons.dot
+                    style={{
+                      backgroundColor:
+                        pp?.["status"]?.["enums"]?.[selectedProduct?.status]
+                          ?.color,
+                    }}
+                  />
+                  {pp?.["status"]?.["enums"]?.[selectedProduct?.status]?.label}
+                </div>
               </Badge>
             </div>
 
@@ -211,7 +220,17 @@ export default async function Product({ params }: ProductProps) {
                         ) as ProductStatus[]
                       )?.map((key) => ({
                         value: key,
-                        children: pp?.["status"]?.["enums"]?.[key]?.label ?? "",
+                        children: (
+                          <div className="flex items-center gap-2">
+                            <Icons.dot
+                              style={{
+                                backgroundColor:
+                                  pp?.["status"]?.["enums"]?.[key]?.color,
+                              }}
+                            />
+                            {pp?.["status"]?.["enums"]?.[key]?.label}
+                          </div>
+                        ),
                       }))}
                     />
                   </div>

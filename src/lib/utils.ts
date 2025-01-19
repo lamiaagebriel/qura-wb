@@ -151,17 +151,28 @@ export function formatDate(
   });
 }
 
+export function formatPrice(
+  amount: number | string,
+  props: Intl.NumberFormatOptions = {
+    currency: "SAR",
+  }
+) {
+  return formatNumber(amount, {
+    style: "currency",
+    currencyDisplay: "name",
+    ...props,
+  });
+}
+
 export function formatNumber(
   number: number | string,
   props: Intl.NumberFormatOptions
 ) {
   if (Number.isNaN(number)) return null;
 
-  return Number(
-    new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-      ...props,
-    }).format(Number(number))
-  );
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+    ...props,
+  }).format(Number(number));
 }

@@ -7,7 +7,20 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+import { useLocale } from "@/components/locale-provider";
+
+const DropdownMenu: React.FC<DropdownMenuPrimitive.DropdownMenuProps> = ({
+  dir,
+  ...props
+}) => {
+  const { locale } = useLocale();
+  return (
+    <DropdownMenuPrimitive.Root
+      dir={dir ?? (locale === "ar" ? "rtl" : "ltr")}
+      {...props}
+    />
+  );
+};
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 

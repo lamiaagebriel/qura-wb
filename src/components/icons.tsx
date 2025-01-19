@@ -80,6 +80,16 @@ export const Icons = {
   chevronsUpDown: ({ className, ...props }: IconProps) => (
     <ChevronsUpDown className={cn(IconsVariants({}), className)} {...props} />
   ),
+  dot: ({ className, ...props }: IconProps) => (
+    <svg
+      className={cn(
+        IconsVariants({}),
+        "size-2.5 rounded-sm bg-primary",
+        className
+      )}
+      {...props}
+    />
+  ),
   dotsHorizontal: ({ className, ...props }: IconProps) => (
     <MoreHorizontal className={cn(IconsVariants({}), className)} {...props} />
   ),

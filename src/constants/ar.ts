@@ -435,10 +435,10 @@ const ar = {
         status: "status",
         "select status...": "select status...",
         enums: {
-          DRAFT: { label: "مسودة" },
-          ACTIVE: { label: "نشط" },
-          ARCHIVED: { label: "مؤرشف" },
-        } satisfies Record<ProductStatus, { label: string }>,
+          DRAFT: { label: "مسودة", color: "hsl(var(--chart-2))" },
+          ACTIVE: { label: "نشط", color: "hsl(var(--chart-3))" },
+          ARCHIVED: { label: "مؤرشف", color: "hsl(var(--chart-5))" },
+        } satisfies Record<ProductStatus, { label: string; color: string }>,
       },
       images: { images: "images" },
       price: { price: "price" },
@@ -466,6 +466,8 @@ const ar = {
   tables: {
     // products
     "product details": "بيانات المُنتج",
+    price: "السعر",
+    status: "حالة المُنتج",
     "created at": "تاريخ الإنشاء",
   },
   emails: {
