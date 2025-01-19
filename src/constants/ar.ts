@@ -525,6 +525,7 @@ const ar = {
     delete: "حذف",
     edit: "تعديل",
     logout: "تسجيل الخروج",
+    preview: "عرض",
   },
 };
 

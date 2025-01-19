@@ -79,16 +79,27 @@ export default async function StoreLayout({
               ]}
             />
           </div>
-          <UserAccountNav
-            items={c?.["user-nav"]
-              ?.filter((e) =>
-                user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
-              )
-              .map((e) => ({
-                ...e,
-                value: `/ss/${storeId}${e?.value}`,
-              }))}
-          />
+
+          <div className="flex items-center gap-2">
+            <Link
+              target="_blank"
+              href={`${Paths.Store}/${storeId}`}
+              className={cn(buttonVariants({ size: "sm" }))}
+            >
+              <Icons.eye />
+              {cmn?.["preview"]}
+            </Link>
+            <UserAccountNav
+              items={c?.["user-nav"]
+                ?.filter((e) =>
+                  user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+                )
+                .map((e) => ({
+                  ...e,
+                  value: `/ss/${storeId}${e?.value}`,
+                }))}
+            />
+          </div>
         </div>
       </header>
 

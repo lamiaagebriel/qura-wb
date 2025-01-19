@@ -8,15 +8,21 @@ import {
   EyeOff,
   FileQuestion,
   Files,
+  Heart,
   Inbox,
   LayoutDashboard,
   Loader2,
   LogOut,
+  Minus,
   MoreHorizontal,
   PackagePlus,
   Percent,
+  Plus,
   Settings,
   Shirt,
+  ShoppingBag,
+  ShoppingBasket,
+  Star,
   Stars,
   Store,
   Upload,
@@ -96,8 +102,27 @@ export const Icons = {
   x: ({ className, ...props }: IconProps) => (
     <X className={cn(IconsVariants({}), className)} {...props} />
   ),
+  add: ({ className, ...props }: IconProps) => (
+    <Plus className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  minus: ({ className, ...props }: IconProps) => (
+    <Minus className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  heart: ({ className, ...props }: IconProps) => (
+    <Heart className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  star: ({ className, ...props }: IconProps) => (
+    <Star className={cn(IconsVariants({}), className)} {...props} />
+  ),
   upload: ({ className, ...props }: IconProps) => (
     <Upload className={cn(IconsVariants({}), className)} {...props} />
+  ),
+
+  shoppingBag: ({ className, ...props }: IconProps) => (
+    <ShoppingBag className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  shoppingBasket: ({ className, ...props }: IconProps) => (
+    <ShoppingBasket className={cn(IconsVariants({}), className)} {...props} />
   ),
   user: ({ className, ...props }: IconProps) => (
     <User className={cn(IconsVariants({}), className)} {...props} />

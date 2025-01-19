@@ -146,7 +146,7 @@ export function formatDate(
     });
 
   return format(date, formatStr!, {
-    locale: DateFnsLocale?.enUS,
+    locale: DateFnsLocale?.enGB,
     ...opts,
   });
 }

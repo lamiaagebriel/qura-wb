@@ -14,10 +14,10 @@ export const queries = {
       { tags: ["stores"] }
     ),
     getMany: unstable_cache(
-      async ({ userId }: { userId: string }) => {
+      async ({ userId }: { userId?: string }) => {
         const stores = await db.query.stores.findMany({
-          where: (s, o) => o.eq(s?.["userId"], userId),
-          orderBy: (s, o) => o.desc(s?.["createdAt"]),
+          where: (s, o) => (userId ? o.eq(s?.userId, userId) : undefined),
+          orderBy: (s, o) => o.desc(s?.createdAt),
         });
 
         return { data: stores };

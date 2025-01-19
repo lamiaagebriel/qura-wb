@@ -17,4 +17,11 @@ export enum Paths {
   Dashboard = "/dashboard",
   DashboardStores = "/dashboard/stores",
   DashboardSettings = "/dashboard/settings",
+
+  Store = "/s",
+  StoreProduct = "/p",
+  StoreCart = "/cart",
+
+  StoreDashboard = "/ss",
+  StoreDashboardProducts = "/products",
 }

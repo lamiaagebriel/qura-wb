@@ -528,6 +528,7 @@ const en = {
     "pre step": "pre step",
     back: "back",
     discard: "discard",
+    preview: "preview",
   },
 };
 

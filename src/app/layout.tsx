@@ -4,10 +4,15 @@ import type { Metadata } from "next";
 import { Cairo, Inter } from "next/font/google";
 
 import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { LocaleProvider } from "@/components/locale-provider";
+import { SessionProvider } from "@/components/session-provider";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin", "latin-ext"] });
 const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
@@ -25,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type RootLayoutProps = Readonly<React.PropsWithChildren<{}>>;
 export default async function RootLayout({ children }: RootLayoutProps) {
   const { locale, ...dic } = await getDictionary();
-
+  const session = await getAuth();
   return (
     <html
       lang={locale}
@@ -34,8 +39,15 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     >
       <body>
         <LocaleProvider value={{ ...dic, locale }}>
-          {children}
-          <Toaster />
+          <SessionProvider value={session}>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <TooltipProvider delayDuration={0} disableHoverableContent={true}>
+                {children}
+                <TailwindIndicator />
+                <Toaster />
+              </TooltipProvider>
+            </ThemeProvider>
+          </SessionProvider>
         </LocaleProvider>
       </body>
     </html>
