@@ -10,6 +10,7 @@ import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ProductStatus } from "@/lib/validations";
 
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -28,7 +29,9 @@ import {
   EmptyPlaceholderTitle,
 } from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
+import { Image } from "@/components/image";
 import { Link } from "@/components/link";
+import { ProductImageManager } from "@/components/product-images-manager";
 
 type ProductProps = Readonly<{
   params: Promise<{ "store-id": string; "product-id": string }>;
@@ -40,14 +43,20 @@ export default async function Product({ params }: ProductProps) {
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
-  const dic = await getDictionary();
-  const c = dic?.["stores"]?.["store"]?.["products"];
-  const pp = dic?.["db"]?.["products"];
-  const cmn = dic?.["cmn"];
+  const {
+    stores: {
+      store: {
+        products: { product: c },
+      },
+    },
+    db: { products: pp },
+    cmn,
+  } = await getDictionary();
 
   const { data: selectedProduct } = await queries.products.get({
     id: productId,
   });
+
   if (!selectedProduct)
     return (
       <main className="flex-1">
@@ -75,119 +84,41 @@ export default async function Product({ params }: ProductProps) {
 
   return (
     <main className="flex-1">
-      <div className="container flex flex-1 flex-col py-6">
-        <div>
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-0.5">
-              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-                <Icons.shirt className="size-5" />
-                {c?.["products"]}
-              </h2>
-              <p className="max-w-prose text-sm text-muted-foreground">
-                {c?.["browse all products, edit, and filter."]}
-              </p>
-            </div>
-          </div>
-
-          <Separator className="my-4" />
-        </div>
-      </div>
-
       <div className="container py-4">
         <Form
           validation="update-product"
           onSubmit={updateProduct}
           useForm={{
-            defaultValues: { ...selectedProduct },
+            defaultValues: {
+              ...selectedProduct,
+              stock: String(selectedProduct?.stock),
+              oldValues: { ...selectedProduct },
+            },
           }}
+          className="flex flex-col gap-4"
         >
-          <main className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Link
-                  href={`/ss/${storeId}/products`}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "size-7"
-                  )}
-                >
-                  <Icons.chevronLeft />
-                  <span className="sr-only">{cmn?.["back"]}</span>
-                </Link>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/ss/${storeId}/products`}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "size-7"
+                )}
+              >
+                <Icons.chevronLeft />
+                <span className="sr-only">{cmn?.["back"]}</span>
+              </Link>
 
-                <h1 className="flex-1 text-xl font-semibold tracking-tight">
-                  بيانات المُنتج
-                </h1>
-                {/* <Badge variant="outline">
-                {enums?.["user-status"]?.[user?.status]?.label}
-              </Badge> */}
-              </div>
-
-              <div className="hidden items-center gap-2 md:flex">
-                <div className="flex items-center gap-2">
-                  <FormResetButton variant="outline" size="sm">
-                    {cmn?.["discard"]}
-                  </FormResetButton>
-                  <FormButton type="submit" size="sm">
-                    {cmn?.["save changes"]}
-                  </FormButton>
-                </div>
-              </div>
+              <h1 className="flex-1 text-xl font-semibold tracking-tight">
+                {c?.["product details"]}
+              </h1>
+              <Badge variant="outline">
+                {pp?.["status"]?.["enums"]?.[selectedProduct?.status]?.label}
+              </Badge>
             </div>
 
-            <div className="grid gap-2 md:grid-cols-[1fr,250px] lg:grid-cols-3 lg:gap-4">
-              <div className="grid auto-rows-max items-start gap-2 lg:col-span-2 lg:gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-                      بيانات المُنتج
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-6">
-                      <FormInputField
-                        field={{ name: "title" }}
-                        label={pp?.["title"]?.["title"]}
-                        // placeholder={cmn?.["title"]?.["joe doe"]}
-                      />
-                      <FormTextareaField
-                        field={{ name: "description" }}
-                        label={pp?.["description"]?.["description"]}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="grid auto-rows-max items-start gap-2 lg:gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
-                      حالة الحساب
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-2">
-                      <FormSelectField
-                        field={{ name: "status" }}
-                        label={pp?.["status"]?.["status"]}
-                        placeholder={pp?.["status"]?.["select status..."]}
-                        items={(
-                          Object.keys(
-                            pp?.["status"]?.["enums"]
-                          ) as ProductStatus[]
-                        )?.map((key) => ({
-                          value: key,
-                          children:
-                            pp?.["status"]?.["enums"]?.[key]?.label ?? "",
-                        }))}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-2 md:hidden">
+            <div className="hidden items-center gap-2 md:flex">
               <div className="flex items-center gap-2">
                 <FormResetButton variant="outline" size="sm">
                   {cmn?.["discard"]}
@@ -197,7 +128,141 @@ export default async function Product({ params }: ProductProps) {
                 </FormButton>
               </div>
             </div>
-          </main>
+          </div>
+
+          <div className="grid gap-2 md:grid-cols-[1fr,250px] lg:grid-cols-3 lg:gap-4">
+            <div className="grid auto-rows-max items-start gap-2 lg:col-span-2 lg:gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c?.["product details"]}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2">
+                    <FormInputField
+                      field={{ name: "title" }}
+                      label={pp?.["title"]?.["title"]}
+                      // placeholder={cmn?.["title"]?.["joe doe"]}
+                    />
+                    <FormInputField
+                      field={{ name: "slug" }}
+                      label={pp?.["slug"]?.["slug"]}
+                    />
+
+                    <FormTextareaField
+                      field={{ name: "description" }}
+                      label={pp?.["description"]?.["description"]}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c?.["product cost"]}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2">
+                    <FormInputField
+                      type="number"
+                      field={{ name: "cost" }}
+                      label={pp?.["cost"]?.["cost"]}
+                      // placeholder={cmn?.["cost"]?.["joe doe"]}
+                    />
+                    <FormInputField
+                      type="number"
+                      field={{ name: "price" }}
+                      label={pp?.["price"]?.["price"]}
+                      // placeholder={cmn?.["price"]?.["joe doe"]}
+                    />
+                    <FormInputField
+                      type="number"
+                      field={{ name: "discount" }}
+                      label={pp?.["discount"]?.["discount"]}
+                      // placeholder={cmn?.["discount"]?.["joe doe"]}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid auto-rows-max items-start gap-2 lg:gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c?.["product status"]}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2">
+                    <FormSelectField
+                      field={{ name: "status" }}
+                      label={{
+                        className: "sr-only",
+                        children: pp?.["status"]?.["status"],
+                      }}
+                      placeholder={pp?.["status"]?.["select status..."]}
+                      items={(
+                        Object.keys(
+                          pp?.["status"]?.["enums"]
+                        ) as ProductStatus[]
+                      )?.map((key) => ({
+                        value: key,
+                        children: pp?.["status"]?.["enums"]?.[key]?.label ?? "",
+                      }))}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c?.["product images"]}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2">
+                    <ProductImageManager />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c?.["stock"]}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2">
+                    <FormInputField
+                      type="number"
+                      field={{ name: "stock" }}
+                      label={{
+                        className: "sr-only",
+                        children: pp?.["stock"]?.["stock"],
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 md:hidden">
+            <div className="flex items-center gap-2">
+              <FormResetButton variant="outline" size="sm">
+                {cmn?.["discard"]}
+              </FormResetButton>
+              <FormButton type="submit" size="sm">
+                {cmn?.["save changes"]}
+              </FormButton>
+            </div>
+          </div>
         </Form>
       </div>
     </main>

@@ -185,7 +185,7 @@ const storeSchema = z.object({
     .stringRequired("language")
     .max(2, "max language length supported is 2 chars."),
 
-  logo: z.string("logo"),
+  logo: z.string("logo").nullable(),
   bio: z.string("bio"),
   location: addressSchema,
 });
@@ -194,6 +194,18 @@ const productSchema = z.object({
   id: z.stringRequired("id"),
   storeId: z.stringRequired("storeId"),
   title: z.stringRequired("title"),
+  slug: z.stringRequired("slug"),
+  description: z.string("description").nullable(),
+  cost: z.string("cost").nullable(),
+  // .positive("cost can't be less than 0."),
+  price: z.string("price").nullable(),
+  // .positive("price can't be less than 0."),
+  discount: z.string("discount").nullable(),
+  // .positive("discount can't be less than 0."),
+  status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]),
+  images: z.array(z.string("images")).default([]).nullable(),
+  stock: z.string("stock").nullable(),
+  // .positive("stock can't be less than 0."),
 });
 
 export type ValidationName = keyof typeof validations;
@@ -244,13 +256,28 @@ export const validations = {
     logo: true,
     // location: true,
   }),
+  "delete-store": storeSchema.pick({ id: true, logo: true }),
 
   // products
   "create-product": productSchema.pick({ storeId: true }),
-  "update-product": productSchema.pick({
-    id: true,
-    storeId: true,
-    title: true,
-  }),
+  "update-product": productSchema
+    .pick({
+      id: true,
+      storeId: true,
+      title: true,
+      slug: true,
+      description: true,
+      cost: true,
+      price: true,
+      discount: true,
+      status: true,
+      images: true,
+      stock: true,
+    })
+    .and(
+      z.object({
+        oldValues: productSchema.pick({ images: true }),
+      })
+    ),
   "delete-product": productSchema.pick({ id: true, storeId: true }),
 };

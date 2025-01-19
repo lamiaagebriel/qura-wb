@@ -245,9 +245,12 @@ const FormItem = React.forwardRef<
 });
 FormItem.displayName = "FormItem";
 
+export type FormLabelProps = React.ComponentPropsWithoutRef<
+  typeof LabelPrimitive.Root
+>;
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
+  FormLabelProps
 >(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
@@ -455,7 +458,7 @@ type FormInputFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
+  label: string | FormLabelProps;
   description?: string;
 } & InputProps;
 
@@ -474,7 +477,11 @@ const FormInputField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            {typeof label === "string" ? (
+              <FormLabel>{label}</FormLabel>
+            ) : (
+              <FormLabel {...label} />
+            )}
             <FormControl>
               <Input {...field} {...props} />
             </FormControl>
@@ -495,7 +502,7 @@ type FormInputOTPFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
+  label: string | FormLabelProps;
   maxLength: number;
 };
 // & InputOTPProps;
@@ -515,7 +522,11 @@ const FormInputOTPField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            {typeof label === "string" ? (
+              <FormLabel>{label}</FormLabel>
+            ) : (
+              <FormLabel {...label} />
+            )}
             <FormControl>
               <InputOTP maxLength={maxLength} {...field} {...props}>
                 <InputOTPGroup>
@@ -545,7 +556,7 @@ type FormTextareaFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
+  label: string | FormLabelProps;
   description?: string;
 } & TextareaProps;
 
@@ -564,7 +575,11 @@ const FormTextareaField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            {typeof label === "string" ? (
+              <FormLabel>{label}</FormLabel>
+            ) : (
+              <FormLabel {...label} />
+            )}
             <FormControl>
               <Textarea {...field} {...props} />
             </FormControl>
@@ -585,7 +600,8 @@ type FormSelectFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
+
+  label: string | FormLabelProps;
   placeholder: string;
   items: SelectItemType[];
   description?: string;
@@ -608,7 +624,11 @@ const FormSelectField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel className="sr-only">{label}</FormLabel>
+            {typeof label === "string" ? (
+              <FormLabel>{label}</FormLabel>
+            ) : (
+              <FormLabel {...label} />
+            )}
 
             <Select
               onValueChange={field.onChange}
@@ -642,7 +662,8 @@ type FormSwitchFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
+
+  label: string | FormLabelProps;
   items: (SelectItemType & { description?: string })[];
   description?: string;
 } & SelectProps;
@@ -664,7 +685,11 @@ const FormSwitchField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            {typeof label === "string" ? (
+              <FormLabel>{label}</FormLabel>
+            ) : (
+              <FormLabel {...label} />
+            )}
 
             <div className="flex flex-col gap-4">
               {items?.map((e, i) => (
@@ -714,7 +739,8 @@ type FormDateFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   field: Omit<ControllerProps<TFieldValues, TName>, "render">;
-  label: string;
+
+  label: string | FormLabelProps;
   description?: string;
 } & CalendarProps;
 
@@ -736,8 +762,11 @@ const FormDateField = <
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
-
+            {typeof label === "string" ? (
+              <FormLabel>{label}</FormLabel>
+            ) : (
+              <FormLabel {...label} />
+            )}
             <Popover>
               <PopoverTrigger asChild>
                 <FormControl>

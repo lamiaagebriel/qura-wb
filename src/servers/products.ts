@@ -8,6 +8,7 @@ import { db, orm, schema } from "@/servers/db";
 import { getDictionary } from "@/servers/locale";
 import { createServerAction } from "@/servers/utils";
 import { getAuth } from "@/lib/auth";
+import { aws } from "@/lib/aws";
 import { Validation, validations } from "@/lib/validations";
 
 export const createProduct = createServerAction(
@@ -37,21 +38,32 @@ export const createProduct = createServerAction(
 );
 
 export const updateProduct = createServerAction(
-  async (
-    // formData
-    data: any
-    //  Validation["update-product"]
-  ) => {
-    // const data = validations?.["update-product"]?.parse(formData);
+  async (formData: Validation["update-product"]) => {
+    const {
+      id,
+      images: _images,
+      oldValues,
+      ...data
+    } = validations?.["update-product"]?.parse(formData);
     const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
-    if (!user) throw new Error(c?.["this action needs you to be logged in."]);
+    if (!user || !id)
+      throw new Error(c?.["this action needs you to be logged in."]);
+
+    const images = _images?.length
+      ? await aws.uploadMany(_images, { Key: `products/images-` })
+      : [];
 
     await db
       .update(schema?.products)
-      .set({ ...data })
-      .where(orm?.eq(schema?.products?.id, data?.id));
+      .set({ ...data, images, stock: Number(data?.stock) })
+      .where(orm?.eq(schema?.products?.id, id));
+
+    const deletedImages = oldValues?.images?.filter(
+      (e) => !images?.includes(e)
+    );
+    if (deletedImages?.length) await aws.deleteMany(deletedImages);
 
     revalidateTag("products");
     return {

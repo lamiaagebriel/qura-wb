@@ -19,7 +19,10 @@ import {
   Shirt,
   Stars,
   Store,
+  Upload,
   User,
+  Verified,
+  X,
   type LucideProps,
 } from "lucide-react";
 
@@ -80,6 +83,12 @@ export const Icons = {
   dotsHorizontal: ({ className, ...props }: IconProps) => (
     <MoreHorizontal className={cn(IconsVariants({}), className)} {...props} />
   ),
+  x: ({ className, ...props }: IconProps) => (
+    <X className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  upload: ({ className, ...props }: IconProps) => (
+    <Upload className={cn(IconsVariants({}), className)} {...props} />
+  ),
   user: ({ className, ...props }: IconProps) => (
     <User className={cn(IconsVariants({}), className)} {...props} />
   ),
@@ -106,6 +115,9 @@ export const Icons = {
   ),
   packagePlus: ({ className, ...props }: IconProps) => (
     <PackagePlus className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  verified: ({ className, ...props }: IconProps) => (
+    <Verified className={cn(IconsVariants({}), className)} {...props} />
   ),
   stars: ({ className, ...props }: IconProps) => (
     <Stars className={cn(IconsVariants({}), className)} {...props} />

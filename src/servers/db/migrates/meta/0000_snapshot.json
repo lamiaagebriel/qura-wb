@@ -1,5 +1,5 @@
 {
-  "id": "b5b2f07c-d8b7-40e0-b4de-8e1899916547",
+  "id": "714f0b4e-8d46-4125-8722-ca842479e8bd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -13,6 +13,20 @@
           "type": "varchar(255)",
           "primaryKey": true,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
         "store_id": {
           "name": "store_id",
@@ -44,10 +58,10 @@
         },
         "items": {
           "name": "items",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'::jsonb"
+          "default": "'[]'::json"
         },
         "subtotal": {
           "name": "subtotal",
@@ -77,13 +91,13 @@
         },
         "shipping_address": {
           "name": "shipping_address",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": true
         },
         "billing_address": {
           "name": "billing_address",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false
         },
@@ -108,7 +122,7 @@
         },
         "estimated_delivery": {
           "name": "estimated_delivery",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -126,23 +140,10 @@
         },
         "metadata": {
           "name": "metadata",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{}'::jsonb"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
+          "default": "'{}'::json"
         }
       },
       "indexes": {
@@ -266,6 +267,20 @@
           "primaryKey": true,
           "notNull": true
         },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
         "store_id": {
           "name": "store_id",
           "type": "varchar(255)",
@@ -299,20 +314,7 @@
         },
         "published_at": {
           "name": "published_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -405,16 +407,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         },
         "store_id": {
           "name": "store_id",
@@ -450,7 +453,13 @@
         },
         "images": {
           "name": "images",
-          "type": "varchar(255)[]",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stock": {
+          "name": "stock",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -469,103 +478,6 @@
         "cost": {
           "name": "cost",
           "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tax": {
-          "name": "tax",
-          "type": "numeric(4, 2)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'0'"
-        },
-        "stock": {
-          "name": "stock",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_always_available": {
-          "name": "is_always_available",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": true
-        },
-        "limited_amount_per_order": {
-          "name": "limited_amount_per_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sku": {
-          "name": "sku",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "barcode": {
-          "name": "barcode",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "weight": {
-          "name": "weight",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "dimensions": {
-          "name": "dimensions",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{}'::jsonb"
-        },
-        "attributes": {
-          "name": "attributes",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'[]'::jsonb"
-        },
-        "combinations": {
-          "name": "combinations",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'[]'::jsonb"
-        },
-        "properties": {
-          "name": "properties",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'[]'::jsonb"
-        },
-        "meta_title": {
-          "name": "meta_title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "meta_description": {
-          "name": "meta_description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_published": {
-          "name": "is_published",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "published_at": {
-          "name": "published_at",
-          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         }
@@ -631,51 +543,6 @@
           "method": "btree",
           "with": {}
         },
-        "product_sku_idx": {
-          "name": "product_sku_idx",
-          "columns": [
-            {
-              "expression": "sku",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "product_barcode_idx": {
-          "name": "product_barcode_idx",
-          "columns": [
-            {
-              "expression": "barcode",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "product_published_idx": {
-          "name": "product_published_idx",
-          "columns": [
-            {
-              "expression": "is_published",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "product_created_at_idx": {
           "name": "product_created_at_idx",
           "columns": [
@@ -715,13 +582,6 @@
           "columns": [
             "slug"
           ]
-        },
-        "products_sku_unique": {
-          "name": "products_sku_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "sku"
-          ]
         }
       },
       "policies": {},
@@ -738,6 +598,26 @@
           "primaryKey": true,
           "notNull": true
         },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "product_id": {
           "name": "product_id",
           "type": "varchar(255)",
@@ -747,12 +627,6 @@
         "user_id": {
           "name": "user_id",
           "type": "varchar(21)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order_id": {
-          "name": "order_id",
-          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -776,7 +650,7 @@
         },
         "images": {
           "name": "images",
-          "type": "varchar(255)[]",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -802,20 +676,7 @@
         },
         "replied_at": {
           "name": "replied_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -898,6 +759,19 @@
         }
       },
       "foreignKeys": {
+        "reviews_order_id_orders_id_fk": {
+          "name": "reviews_order_id_orders_id_fk",
+          "tableFrom": "reviews",
+          "tableTo": "orders",
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
         "reviews_product_id_products_id_fk": {
           "name": "reviews_product_id_products_id_fk",
           "tableFrom": "reviews",
@@ -922,19 +796,6 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "reviews_order_id_orders_id_fk": {
-          "name": "reviews_order_id_orders_id_fk",
-          "tableFrom": "reviews",
-          "tableTo": "orders",
-          "columnsFrom": [
-            "order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -1032,22 +893,23 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         },
         "user_id": {
           "name": "user_id",
           "type": "varchar(21)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "username": {
           "name": "username",
@@ -1203,16 +1065,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         },
         "google_id": {
           "name": "google_id",
@@ -1241,13 +1104,13 @@
         },
         "email_verification_details": {
           "name": "email_verification_details",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false
         },
         "reset_details": {
           "name": "reset_details",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false
         },
@@ -1279,16 +1142,16 @@
         },
         "address": {
           "name": "address",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false
         },
         "preferences": {
           "name": "preferences",
-          "type": "jsonb",
+          "type": "json",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{}'::jsonb"
+          "default": "'{}'::json"
         }
       },
       "indexes": {
@@ -1361,7 +1224,49 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.order_status": {
+      "name": "order_status",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "CONFIRMED",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+        "REFUNDED"
+      ]
+    },
+    "public.payment_status": {
+      "name": "payment_status",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "COMPLETED",
+        "FAILED",
+        "REFUNDED"
+      ]
+    },
+    "public.product_status": {
+      "name": "product_status",
+      "schema": "public",
+      "values": [
+        "DRAFT",
+        "ACTIVE",
+        "ARCHIVED"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "ADMIN",
+        "USER",
+        "MERCHANT"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

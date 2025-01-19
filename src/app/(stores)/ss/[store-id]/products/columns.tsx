@@ -7,13 +7,17 @@ import { Product } from "@/servers/db/schema";
 import { deleteProduct } from "@/servers/products";
 import { formatDate } from "@/lib/utils";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DataTableColumnCell,
   DataTableColumnHeader,
   DataTableRowActions,
 } from "@/components/ui/data-table";
 import { FormButton } from "@/components/ui/form";
+import { Icons } from "@/components/icons";
+import { Image } from "@/components/image";
 import { Link } from "@/components/link";
+import { useLocale } from "@/components/locale-provider";
 
 type Data = Product;
 export const columns: ColumnDef<Data>[] = [
@@ -21,45 +25,47 @@ export const columns: ColumnDef<Data>[] = [
     accessorKey: "id",
     enableHiding: false,
     enableSorting: false,
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="الرقم التعريفي"
-        className="justify-start"
-      />
-    ),
-    cell: ({ row: { original: r } }) => {
+    header: function Component({ column }) {
+      const { tables: t } = useLocale();
       return (
-        <DataTableColumnCell>
-          <Link href={`/ss/${r?.storeId}/products/${r?.id}`}>{r?.id}</Link>
-        </DataTableColumnCell>
+        <DataTableColumnHeader
+          column={column}
+          title={t?.["product details"]}
+          className="justify-start"
+        />
       );
     },
-  },
-  {
-    accessorKey: "title",
-    enableHiding: false,
-    enableSorting: false,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="العنوان" />
-    ),
     cell: ({ row: { original: r } }) => {
       return (
-        <DataTableColumnCell>
-          <Link href={`/ss/${r?.storeId}/products/${r?.id}`}>{r?.title}</Link>
-        </DataTableColumnCell>
+        <Link href={`/ss/${r?.storeId}/products/${r?.id}`}>
+          <DataTableColumnCell className="justify-start">
+            <div className="flex items-start gap-2">
+              <Image
+                src={r?.images?.[0] ?? ""}
+                alt="product main image"
+                className="size-20"
+              />
+              <div>
+                <h1 className="font-semibold">{r?.title}</h1>
+              </div>
+            </div>
+          </DataTableColumnCell>
+        </Link>
       );
     },
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="تاريخ الإنشاء"
-        className="justify-end"
-      />
-    ),
+    header: function Component({ column }) {
+      const { tables: t } = useLocale();
+      return (
+        <DataTableColumnHeader
+          column={column}
+          title={t?.["created at"]}
+          className="justify-end"
+        />
+      );
+    },
     cell: ({ row: { original: r } }) => {
       const value = r?.createdAt;
       if (!value)

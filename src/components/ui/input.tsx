@@ -21,7 +21,7 @@ export type InputProps = React.ComponentProps<"input"> &
 const InputWithoutFormAwareness = React.forwardRef<
   HTMLInputElement,
   InputProps
->(({ type = "text", className, onChange, value, ...props }, ref) => {
+>(({ type = "text", className, onChange, value, multiple, ...props }, ref) => {
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
   if (type === "password") {
@@ -31,6 +31,7 @@ const InputWithoutFormAwareness = React.forwardRef<
           ref={ref}
           onChange={onChange}
           value={value ?? ""}
+          multiple={multiple}
           type={isPasswordVisible ? "text" : "password"}
           className={cn(
             inputVariants({ className }),
@@ -67,6 +68,7 @@ const InputWithoutFormAwareness = React.forwardRef<
         type={type}
         onChange={onChange}
         value={value ?? ""}
+        multiple={multiple}
         className={cn(inputVariants({ className }))}
         dir="ltr"
         placeholder="name@example.com"
@@ -84,13 +86,14 @@ const InputWithoutFormAwareness = React.forwardRef<
         type={type}
         className={cn(inputVariants({ className }))}
         value={undefined}
+        multiple={multiple}
         onChange={async (e) => {
           const files = e?.target?.files;
-          if (!files || files.length === 0) return null;
+          if (!files || !files.length) return null;
 
           const fileBase64 = await Promise.all(
             Array.from(files).map((file) =>
-              fileToBase64(file)?.then((r) => r?.toString())
+              fileToBase64(file)?.then((r) => r?.toString() as string)
             )
           );
 
@@ -99,8 +102,9 @@ const InputWithoutFormAwareness = React.forwardRef<
             target: {
               ...e?.target,
               // TODO: handle multiple files
-              value:
-                fileBase64?.length === 1 && fileBase64?.[0]
+              value: multiple
+                ? (fileBase64 as any)
+                : fileBase64?.length === 1 && fileBase64?.[0]
                   ? fileBase64?.[0]
                   : "",
             },
@@ -115,6 +119,7 @@ const InputWithoutFormAwareness = React.forwardRef<
       ref={ref}
       type={type}
       onChange={onChange}
+      multiple={multiple}
       value={value ?? ""}
       className={cn(inputVariants({ className }))}
       {...props}

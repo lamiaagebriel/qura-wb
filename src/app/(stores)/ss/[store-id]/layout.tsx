@@ -28,6 +28,7 @@ export default async function StoreLayout({
 
   const dic = await getDictionary();
   const c = dic?.["stores"]?.["store"];
+  const cmn = dic?.["cmn"];
 
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
@@ -36,45 +37,57 @@ export default async function StoreLayout({
     <div className="flex min-h-screen flex-col bg-muted/50">
       <header className="flex flex-col gap-4 bg-background pt-4 text-foreground">
         <div className="container flex items-center justify-between gap-4">
-          <Breadcrumbs
-            items={[
-              {
-                value: Paths.Dashboard,
-                children: (
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-6">
-                      <AvatarFallback>
-                        <Icons.logo className="size-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <h1 className="hidden font-semibold sm:block">
-                      {dic?.site?.name}
-                    </h1>
-                  </div>
-                ),
-              },
-              {
-                value: `/ss/${storeId}`,
-                children: (
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-6">
-                      <AvatarImage src={selectedStore?.logo ?? ""} />
-                      <AvatarFallback>
-                        <Icons.store />
-                      </AvatarFallback>
-                    </Avatar>
-                    <h1 className="font-semibold">{selectedStore?.name}</h1>
-                  </div>
-                ),
-              },
-            ]}
-          />
-
+          <div className="flex items-center gap-2">
+            <Link
+              href={Paths.DashboardStores}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              <Icons.chevronLeft />
+              {cmn?.["back"]}
+            </Link>
+            <Breadcrumbs
+              items={[
+                {
+                  value: Paths.Dashboard,
+                  children: (
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-6">
+                        <AvatarFallback>
+                          <Icons.logo className="size-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <h1 className="hidden font-semibold sm:block">
+                        {dic?.site?.name}
+                      </h1>
+                    </div>
+                  ),
+                },
+                {
+                  value: `/ss/${storeId}`,
+                  children: (
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-6">
+                        <AvatarImage src={selectedStore?.logo ?? ""} />
+                        <AvatarFallback>
+                          <Icons.store />
+                        </AvatarFallback>
+                      </Avatar>
+                      <h1 className="font-semibold">{selectedStore?.name}</h1>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
           <UserAccountNav
-            items={c?.["user-nav"]?.map((e) => ({
-              ...e,
-              value: `/ss/${storeId}${e?.value}`,
-            }))}
+            items={c?.["user-nav"]
+              ?.filter((e) =>
+                user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+              )
+              .map((e) => ({
+                ...e,
+                value: `/ss/${storeId}${e?.value}`,
+              }))}
           />
         </div>
       </header>

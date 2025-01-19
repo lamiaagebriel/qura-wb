@@ -5,7 +5,7 @@ import { revalidateTag } from "next/cache";
 import { ID } from "@/constants/utils";
 import { z } from "zod";
 
-import { db, schema } from "@/servers/db";
+import { db, orm, schema } from "@/servers/db";
 import { getDictionary } from "@/servers/locale";
 import { createServerAction } from "@/servers/utils";
 import { getAuth } from "@/lib/auth";
@@ -19,12 +19,12 @@ export const createStore = createServerAction(
     const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
-    if (!user || !user?.["id"])
+    if (!user || !user?.id)
       throw new Error(c?.["this action needs you to be logged in."]);
 
     const isUsernameExists = await db.query.stores.findFirst({
       columns: { username: true },
-      where: (s, o) => o.eq(s?.["username"], data?.["username"]),
+      where: (s, o) => o.eq(s?.username, data?.username),
     });
 
     if (isUsernameExists)
@@ -37,16 +37,15 @@ export const createStore = createServerAction(
       ]);
 
     const logo = logoProp
-      ? ((await aws.uploadImages([logoProp], { Key: `stores/logo-` }))?.pop() ??
-        null)
+      ? await aws.upload(logoProp, { Key: `stores/logo-` })
       : null;
 
     const id = ID.generate();
-    await db.insert(schema?.["stores"]).values({
+    await db.insert(schema?.stores).values({
       id,
       ...data,
       logo,
-      userId: user?.["id"],
+      userId: user?.id,
     });
 
     revalidateTag("stores");
@@ -57,4 +56,34 @@ export const createStore = createServerAction(
     };
   },
   { defaultMessage: "your store was not created. please try again." }
+);
+
+export const deleteStore = createServerAction(
+  async (formData: Validation["delete-store"]) => {
+    const data = validations?.["delete-store"]?.parse(formData);
+    const { actions: c, cmn } = await getDictionary();
+
+    const { user } = await getAuth();
+    if (!user || !user?.id)
+      throw new Error(c?.["this action needs you to be logged in."]);
+
+    await db
+      .delete(schema.stores)
+      .where(
+        orm.and(
+          orm.eq(schema.stores.id, data?.id),
+          orm.eq(schema.stores.userId, user?.id)
+        )
+      )
+      .then(async () => {
+        if (data?.logo) await aws.delete(data?.logo);
+      });
+
+    revalidateTag("stores");
+    return {
+      ok: true,
+      toast: { type: "success", message: cmn?.["deleted successfully."] },
+    };
+  },
+  { defaultMessage: "your store was not deleted. please try again." }
 );

@@ -5,6 +5,7 @@ import { Paths } from "@/constants/utils";
 
 import { queries } from "@/servers/db/queries";
 import { getDictionary } from "@/servers/locale";
+import { deleteStore } from "@/servers/stores";
 import { getAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FormButton } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import {
   EmptyPlaceholder,
@@ -61,37 +63,42 @@ export default async function Stores({}: StoresProps) {
 
       <div className="container">
         {stores?.length ? (
-          <div className="container grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {stores.map((e, i) => (
               <Card key={i}>
-                <Link href={`/ss/${e?.id}`}>
-                  <CardHeader className="flex flex-row items-start gap-2">
+                <CardHeader className="flex flex-row items-start gap-2">
+                  <Link href={`/ss/${e?.id}`}>
                     <Avatar>
                       <AvatarImage src={e?.logo ?? ""} />
                       <AvatarFallback>
                         <Icons.store />
                       </AvatarFallback>
                     </Avatar>
+                  </Link>
 
-                    <div className="w-full">
-                      <div className="flex items-start justify-between gap-4">
-                        <CardTitle className="line-clamp-1">
-                          {e?.name}
-                        </CardTitle>
+                  <div className="w-full">
+                    <div className="flex items-start justify-between gap-4">
+                      <CardTitle className="line-clamp-1">{e?.name}</CardTitle>
 
-                        <CardDescription className="whitespace-nowrap text-xs">
-                          {formatDate(e?.createdAt, { type: "distance" })}
-                        </CardDescription>
-                      </div>
-                      <CardDescription className="line-clamp-1 max-w-prose text-xs">
-                        {e?.username}
-                      </CardDescription>
-                      <CardDescription className="line-clamp-1 max-w-prose">
-                        {e?.bio}
+                      <CardDescription className="whitespace-nowrap text-xs">
+                        {formatDate(e?.createdAt, { type: "distance" })}
                       </CardDescription>
                     </div>
-                  </CardHeader>
-                </Link>
+                    <CardDescription className="line-clamp-1 max-w-prose text-xs">
+                      {e?.username}
+                    </CardDescription>
+                    <CardDescription className="line-clamp-1 max-w-prose">
+                      {e?.bio}
+                    </CardDescription>
+                    <FormButton
+                      variant="destructive"
+                      onAction={deleteStore}
+                      useForm={{ defaultValues: { id: e?.id, logo: e?.logo } }}
+                    >
+                      delete
+                    </FormButton>
+                  </div>
+                </CardHeader>
               </Card>
             ))}
           </div>

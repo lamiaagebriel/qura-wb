@@ -63,9 +63,7 @@ export default async function Products({ params }: ProductsProps) {
             </div>
 
             <div>
-              {!!products?.length && (
-                <ProductCreateButton store={selectedStore} />
-              )}
+              <ProductCreateButton store={selectedStore} />
             </div>
           </div>
 
@@ -74,30 +72,17 @@ export default async function Products({ params }: ProductsProps) {
       </div>
 
       <div className="container">
-        {products?.length ? (
-          <DataTableProvider data={products} columns={columns}>
-            <Card className="p-0">
-              <DataTable />
-            </Card>
-            {/* <DataTablePagination
+        <DataTableProvider data={products} columns={columns}>
+          <Card className="p-0">
+            <DataTable />
+          </Card>
+          {/* <DataTablePagination
                     totalItems={
                       tabs?.find((e) => e?.value === "ALL")?.total ??
                       links?.length
                     }
                   /> */}
-          </DataTableProvider>
-        ) : (
-          <EmptyPlaceholder>
-            <EmptyPlaceholderIcon name="inbox" />
-            <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
-            <EmptyPlaceholderDescription>
-              Get started by creating your first item. <br />
-              You can add as many as you need.
-            </EmptyPlaceholderDescription>
-
-            <ProductCreateButton store={selectedStore} />
-          </EmptyPlaceholder>
-        )}
+        </DataTableProvider>
       </div>
     </main>
   );

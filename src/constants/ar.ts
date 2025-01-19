@@ -83,6 +83,12 @@ const ar = {
     ] as NavItem[],
     "user-nav": [
       {
+        segments: [],
+        value: Paths.VerifyEmail,
+        children: "توثيق الحساب",
+        icon: "verified",
+      },
+      {
         segments: ["settings"],
         value: Paths.DashboardSettings,
         children: "الإعدادات",
@@ -149,6 +155,12 @@ const ar = {
       ] as NavItem[],
       "user-nav": [
         {
+          segments: [],
+          value: Paths.VerifyEmail,
+          children: "توثيق الحساب",
+          icon: "verified",
+        },
+        {
           segments: ["settings"],
           value: "/settings",
           children: "الإعدادات",
@@ -164,6 +176,13 @@ const ar = {
         products: "Products",
         "browse all products, edit, and filter.":
           "Browse all products, edit, and filter.",
+        product: {
+          "product details": "تفاصيل المُنتج",
+          "product cost": "تكلفة المُنتج",
+          "product status": "حالة المُنتج",
+          "product images": "صور المُنتج",
+          stock: "الكميات المتوفرة",
+        },
       },
       orders: {
         orders: "Orders",
@@ -416,9 +435,9 @@ const ar = {
         status: "status",
         "select status...": "select status...",
         enums: {
-          DRAFT: { label: "Draft" },
-          ACTIVE: { label: "Active" },
-          ARCHIVED: { label: "Archived" },
+          DRAFT: { label: "مسودة" },
+          ACTIVE: { label: "نشط" },
+          ARCHIVED: { label: "مؤرشف" },
         } satisfies Record<ProductStatus, { label: string }>,
       },
       images: { images: "images" },
@@ -444,7 +463,11 @@ const ar = {
       publishedAt: { publishedAt: "published_at" },
     },
   },
-
+  tables: {
+    // products
+    "product details": "بيانات المُنتج",
+    "created at": "تاريخ الإنشاء",
+  },
   emails: {
     "verify-email": {
       subject: "تأكيد البريد الإلكتروني - خدمات كُن رقمي",

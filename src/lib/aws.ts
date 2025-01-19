@@ -1,4 +1,6 @@
 import {
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
   PutObjectCommand,
   PutObjectCommandInput,
   S3Client,
@@ -14,6 +16,8 @@ const s3Config = new S3Client({
   },
 });
 
+const AWS_SPACE_BASE_URL = `https://${process.env.AWS_SPACE_BUCKET!}.s3.${process.env.AWS_SPACE_REGION}.amazonaws.com/`;
+
 export type AwsUploadProps = {} & Omit<PutObjectCommandInput, "Bucket">;
 async function upload({ Key, ...props }: AwsUploadProps) {
   // Set up S3 upload parameters
@@ -26,11 +30,11 @@ async function upload({ Key, ...props }: AwsUploadProps) {
 
   console.log(params);
   await s3Config.send(new PutObjectCommand(params));
-  return `https://${params?.Bucket}.s3.${process.env.AWS_SPACE_REGION}.amazonaws.com/${params?.Key}`;
+  return `${AWS_SPACE_BASE_URL}${params?.Key}`;
 }
 
-async function uploadImages(images: string[], props: AwsUploadProps) {
-  const imagesWithType = images?.map((img, index) => ({
+async function uploadMany(objs: string[], props: AwsUploadProps) {
+  const imagesWithType = objs?.map((img, index) => ({
     image: img,
     type: img.includes("base64,") ? "base64" : "url",
     index, // store the original position
@@ -40,7 +44,7 @@ async function uploadImages(images: string[], props: AwsUploadProps) {
   const processedImages = await Promise.all(
     imagesWithType.map(async ({ image, type, index }) => {
       if (type === "base64") {
-        const uploadedImage = await aws.upload({
+        const uploadedImage = await upload({
           Body: base64ToBuffer(image),
           ContentType: getMimeType(image),
           ...props,
@@ -58,10 +62,59 @@ async function uploadImages(images: string[], props: AwsUploadProps) {
     .map(({ image }) => image); // get only the image URLs
 }
 
+async function uploadOne(obj: string, props: AwsUploadProps) {
+  return (await uploadMany([obj], props))?.pop() ?? null;
+}
+
+// New function to delete a single object
+async function deleteOne(url: string) {
+  const Key = url?.split(AWS_SPACE_BASE_URL)?.pop();
+  if (!Key) return false;
+
+  const params = {
+    Bucket: process.env.AWS_SPACE_BUCKET!,
+    Key,
+  };
+
+  try {
+    await s3Config.send(new DeleteObjectCommand(params));
+    return true;
+  } catch (error) {
+    console.error("Error deleting object:", error);
+    throw error;
+  }
+}
+
+// New function to delete multiple objects
+async function deleteMany(url: string[]) {
+  const Keys = url
+    ?.map((e) => e?.split(AWS_SPACE_BASE_URL)?.pop())
+    ?.filter((e) => !!e);
+  if (!Keys?.length) return false;
+
+  const params = {
+    Bucket: process.env.AWS_SPACE_BUCKET!,
+    Delete: {
+      Objects: Keys.map((Key) => ({ Key })),
+      Quiet: false,
+    },
+  };
+
+  try {
+    await s3Config.send(new DeleteObjectsCommand(params));
+    return true;
+  } catch (error) {
+    console.error("Error deleting objects:", error);
+    throw error;
+  }
+}
+
 const aws = {
   s3Config,
-  upload,
-  uploadImages,
+  upload: uploadOne,
+  uploadMany,
+  delete: deleteOne,
+  deleteMany,
 };
 
 export { aws };

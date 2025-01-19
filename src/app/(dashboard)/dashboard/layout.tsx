@@ -38,6 +38,7 @@ export default async function DashboardLayout({
                         <Icons.logo className="size-4" />
                       </AvatarFallback>
                     </Avatar>
+
                     <h1 className="font-semibold">{dic?.["site"]?.["name"]}</h1>
                   </div>
                 ),
@@ -45,7 +46,11 @@ export default async function DashboardLayout({
             ]}
           />
 
-          <UserAccountNav items={c?.["user-nav"]} />
+          <UserAccountNav
+            items={c?.["user-nav"]?.filter((e) =>
+              user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+            )}
+          />
         </div>
       </header>
 

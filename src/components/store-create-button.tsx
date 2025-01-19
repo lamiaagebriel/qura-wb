@@ -95,7 +95,10 @@ export async function StoreCreateButton({
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <FormSelectField
           field={{ name: "currency" }}
-          label={ss?.["currency"]?.["currency"]}
+          label={{
+            className: "sr-only",
+            children: ss?.["currency"]?.["currency"],
+          }}
           placeholder={ss?.["currency"]?.["select currency..."]}
           items={(
             Object.keys(ss?.["currency"]?.["enums"]) as (
@@ -110,7 +113,10 @@ export async function StoreCreateButton({
         />
         <FormSelectField
           field={{ name: "language" }}
-          label={ss?.["language"]?.["language"]}
+          label={{
+            className: "sr-only",
+            children: ss?.["language"]?.["language"],
+          }}
           placeholder={ss?.["language"]?.["select language..."]}
           items={(
             Object.keys(ss?.["language"]?.["enums"]) as ("EN" | "AR")[]

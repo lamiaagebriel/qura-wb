@@ -1,21 +1,22 @@
 import { relations } from "drizzle-orm";
 import {
+  decimal as _decimal,
+  timestamp as _timestamp,
+  varchar as _varchar,
   boolean,
   index,
-  integer,
+  integer as int,
   json,
-  jsonb,
-  numeric,
+  PgColumn,
   pgEnum,
   pgTableCreator,
-  serial,
+  ReferenceConfig,
   text,
-  timestamp,
-  varchar,
 } from "drizzle-orm/pg-core";
 
 import { Validation } from "@/lib/validations";
 
+// === Enums ===
 export const userRole = pgEnum("user_role", ["ADMIN", "USER", "MERCHANT"]);
 export const productStatus = pgEnum("product_status", [
   "DRAFT",
@@ -40,36 +41,59 @@ export const paymentStatus = pgEnum("payment_status", [
 
 export const pgTable = pgTableCreator((name) => name);
 
+// === Utils ===
+const varchar = (k: string, p: { length: number } = { length: 255 }) =>
+  _varchar(k, p);
+const timestamp = (k: string) =>
+  _timestamp(k, { withTimezone: true, mode: "date" });
+const decimal = (
+  k: string,
+  p: { precision: number; scale: number } = { precision: 10, scale: 2 }
+) => _decimal(k, p);
+
+const id = (k: string, p: { length: number } = { length: 255 }) =>
+  varchar(k, p).primaryKey().notNull();
+
+const references = (
+  k: string,
+  p: { length: number } = { length: 255 },
+  ref: PgColumn,
+  actions?: ReferenceConfig["actions"]
+) => varchar(k, p).references(() => ref, actions);
+
 // === Tables ===
 export const users = pgTable(
   "users",
   {
-    id: varchar("id", { length: 21 }).primaryKey(),
+    id: id("id", { length: 21 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
 
     // Authentication fields
-    googleId: varchar("google_id", { length: 255 }).unique(),
-    email: varchar("email", { length: 255 }).unique().notNull(),
-    password: varchar("password", { length: 255 }),
+    googleId: varchar("google_id").unique(),
+    email: varchar("email").unique().notNull(),
+    password: varchar("password"),
 
     // Email verification
     emailVerified: boolean("email_verified").default(false).notNull(),
-    emailVerificationDetails: jsonb("email_verification_details").$type<
+    emailVerificationDetails: json("email_verification_details").$type<
       Validation["email-verification-schema"]
     >(),
 
     // Password reset
     resetPasswordDetails:
-      jsonb("reset_details").$type<Validation["password-reset-schema"]>(),
+      json("reset_details").$type<Validation["password-reset-schema"]>(),
 
     // Profile fields
     role: userRole("role").default("USER").notNull(),
-    name: varchar("name", { length: 255 }),
-    image: varchar("image", { length: 255 }),
+    name: varchar("name"),
+    image: varchar("image"),
     phone: varchar("phone", { length: 20 }),
-    address: jsonb("address").$type<Validation["address-schema"]>(),
-    preferences: jsonb("preferences").default({}),
+    address: json("address").$type<Validation["address-schema"]>(),
+    preferences: json("preferences").default({}),
   },
   (t) => ({
     emailIdx: index("user_email_idx").on(t.email),
@@ -81,14 +105,12 @@ export const users = pgTable(
 export const sessions = pgTable(
   "sessions",
   {
-    id: varchar("id", { length: 255 }).primaryKey(),
-    userId: varchar("user_id", { length: 21 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    expiresAt: timestamp("expires_at", {
-      withTimezone: true,
-      mode: "date",
+    id: varchar("id").primaryKey(),
+    userId: references("user_id", { length: 21 }, users?.id, {
+      onDelete: "cascade",
     }).notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+
     // userAgent: text("user_agent"),
     // ipAddress: varchar("ip_address", { length: 45 }),
   },
@@ -101,28 +123,32 @@ export const sessions = pgTable(
 export const stores = pgTable(
   "stores",
   {
-    id: varchar("id", { length: 255 }).primaryKey(),
+    id: id("id", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-    userId: varchar("user_id", { length: 21 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
 
-    username: varchar("username", { length: 255 }).notNull().unique(),
-    name: varchar("name", { length: 255 }).notNull(),
-    category: varchar("category", { length: 255 }).notNull(),
+    userId: references("user_id", { length: 21 }, users.id, {
+      onDelete: "cascade",
+    }),
+
+    username: varchar("username").notNull().unique(),
+    name: varchar("name").notNull(),
+    category: varchar("category").notNull(),
     currency: varchar("currency", { length: 3 }).default("USD"),
     language: varchar("language", { length: 2 }).default("en"),
-    logo: varchar("logo", { length: 255 }),
-    banner: varchar("banner", { length: 255 }),
+    logo: varchar("logo"),
+    banner: varchar("banner"),
     bio: text("bio"),
 
-    // email: varchar("email", { length: 255 }),
+    // email: varchar("email",  ),
     // phone: varchar("phone", { length: 20 }),
     // website: varchar("website", { length: 255 }),
-    // location: jsonb("location").$type<Validation["address-schema"]>().notNull(),
-    // socialLinks: jsonb("social_links").default({}),
-    // settings: jsonb("settings").default({}),
+    // location: json("location").$type<Validation["address-schema"]>().notNull(),
+    // socialLinks: json("social_links").default({}),
+    // settings: json("settings").default({}),
     // isVerified: boolean("is_verified").default(false),
   },
   (t) => ({
@@ -136,51 +162,56 @@ export const stores = pgTable(
 export const products = pgTable(
   "products",
   {
-    id: varchar("id", { length: 255 }).primaryKey(),
+    id: id("id", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-    storeId: varchar("store_id", { length: 255 })
-      .notNull()
-      .references(() => stores.id, { onDelete: "cascade" }),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
 
-    slug: varchar("slug", { length: 255 }).notNull().unique(),
-    title: varchar("title", { length: 255 }).notNull(),
+    storeId: references("store_id", { length: 255 }, stores.id, {
+      onDelete: "cascade",
+    }).notNull(),
+
+    slug: varchar("slug").notNull().unique(),
+    title: varchar("title").notNull(),
     description: text("description"),
     status: productStatus("status").default("DRAFT").notNull(),
-    images: varchar("images", { length: 255 }).array(),
-    price: numeric("price", { precision: 10, scale: 2 }),
-    discount: numeric("discount", { precision: 10, scale: 2 }),
-    cost: numeric("cost", { precision: 10, scale: 2 }),
-    tax: numeric("tax", { precision: 4, scale: 2 }).default("0"),
-    stock: integer("stock"),
-    isAlwaysAvailable: boolean("is_always_available").default(true),
-    limitedAmountPerOrder: integer("limited_amount_per_order"),
-    sku: varchar("sku", { length: 100 }).unique(),
-    barcode: varchar("barcode", { length: 100 }),
-    weight: numeric("weight", { precision: 10, scale: 2 }),
-    dimensions: jsonb("dimensions").default({}),
-    attributes: jsonb("attributes")
-      .$type<Validation["product-attribute-schema"][]>()
-      .default([]),
-    combinations: jsonb("combinations")
-      .$type<Validation["product-combination-schema"][]>()
-      .default([]),
-    properties: jsonb("properties")
-      .$type<Validation["product-property-schema"][]>()
-      .default([]),
-    metaTitle: varchar("meta_title", { length: 255 }),
-    metaDescription: text("meta_description"),
-    isPublished: boolean("is_published").default(false),
-    publishedAt: timestamp("published_at"),
+    images: json("images").$type<string[]>(),
+    stock: int("stock"),
+    price: decimal("price"),
+    discount: decimal("discount"),
+    cost: decimal("cost"),
+    // tax: decimal("tax", { precision: 4, scale: 2 }).default("0"),
+
+    // isAlwaysAvailable: boolean("is_always_available").default(true),
+    // limitedAmountPerOrder: int("limited_amount_per_order"),
+    // sku: varchar("sku", { length: 100 }).unique(),
+    // barcode: varchar("barcode", { length: 100 }),
+    // weight: decimal("weight"),
+    // dimensions: json("dimensions").default({}),
+    // attributes: json("attributes")
+    //   .$type<Validation["product-attribute-schema"][]>()
+    //   .default([]),
+    // combinations: json("combinations")
+    //   .$type<Validation["product-combination-schema"][]>()
+    //   .default([]),
+    // properties: json("properties")
+    //   .$type<Validation["product-property-schema"][]>()
+    //   .default([]),
+    // metaTitle: varchar("meta_title", { length: 255 }),
+    // metaDescription: text("meta_description"),
+    // isPublished: boolean("is_published").default(false),
+    // publishedAt: timestamp("published_at"),
   },
   (t) => ({
     slugIdx: index("product_slug_idx").on(t.slug),
     storeIdx: index("product_store_idx").on(t.storeId),
     statusIdx: index("product_status_idx").on(t.status),
     priceIdx: index("product_price_idx").on(t.price),
-    skuIdx: index("product_sku_idx").on(t.sku),
-    barcodeIdx: index("product_barcode_idx").on(t.barcode),
-    publishedIdx: index("product_published_idx").on(t.isPublished),
+    // skuIdx: index("product_sku_idx").on(t.sku),
+    // barcodeIdx: index("product_barcode_idx").on(t.barcode),
+    // publishedIdx: index("product_published_idx").on(t.isPublished),
     createdAtIdx: index("product_created_at_idx").on(t.createdAt),
   })
 );
@@ -188,17 +219,21 @@ export const products = pgTable(
 export const pages = pgTable(
   "pages",
   {
-    id: varchar("id", { length: 255 }).primaryKey(),
-    storeId: varchar("store_id", { length: 255 })
-      .notNull()
-      .references(() => stores.id, { onDelete: "cascade" }),
-    url: varchar("url", { length: 255 }).notNull().unique(),
-    title: varchar("title", { length: 255 }).notNull(),
+    id: id("id", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
+    storeId: references("store_id", { length: 255 }, stores.id, {
+      onDelete: "cascade",
+    }).notNull(),
+
+    url: varchar("url").notNull().unique(),
+    title: varchar("title").notNull(),
     body: text("body"),
     isPublished: boolean("is_published").default(false),
     publishedAt: timestamp("published_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
   (t) => ({
     urlIdx: index("page_url_idx").on(t.url),
@@ -210,36 +245,38 @@ export const pages = pgTable(
 export const orders = pgTable(
   "orders",
   {
-    id: varchar("id", { length: 255 }).primaryKey(),
-    storeId: varchar("store_id", { length: 255 })
-      .notNull()
-      .references(() => stores.id, { onDelete: "restrict" }),
-    userId: varchar("user_id", { length: 21 })
-      .notNull()
-      .references(() => users.id, { onDelete: "restrict" }),
+    id: id("id", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
+    storeId: references("store_id", { length: 255 }, stores.id, {
+      onDelete: "restrict",
+    }).notNull(),
+    userId: references("user_id", { length: 21 }, users.id, {
+      onDelete: "restrict",
+    }).notNull(),
+
     status: orderStatus("status").default("PENDING").notNull(),
     paymentStatus: paymentStatus("payment_status").default("PENDING").notNull(),
-    items: jsonb("items")
-      .$type<Validation["order-item-schema"][]>()
-      .default([]),
-    subtotal: numeric("subtotal", { precision: 10, scale: 2 }).notNull(),
-    tax: numeric("tax", { precision: 10, scale: 2 }).default("0"),
-    shipping: numeric("shipping", { precision: 10, scale: 2 }).default("0"),
-    total: numeric("total", { precision: 10, scale: 2 }).notNull(),
-    shippingAddress: jsonb("shipping_address")
+    items: json("items").$type<Validation["order-item-schema"][]>().default([]),
+    subtotal: decimal("subtotal").notNull(),
+    tax: decimal("tax").default("0"),
+    shipping: decimal("shipping").default("0"),
+    total: decimal("total").notNull(),
+    shippingAddress: json("shipping_address")
       .$type<Validation["address-schema"]>()
       .notNull(),
     billingAddress:
-      jsonb("billing_address").$type<Validation["address-schema"]>(),
+      json("billing_address").$type<Validation["address-schema"]>(),
     notes: text("notes"),
     currency: varchar("currency", { length: 3 }).default("USD"),
     trackingNumber: varchar("tracking_number", { length: 100 }),
     estimatedDelivery: timestamp("estimated_delivery"),
     cancelReason: text("cancel_reason"),
     refundReason: text("refund_reason"),
-    metadata: jsonb("metadata").default({}),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+    metadata: json("metadata").default({}),
   },
   (t) => ({
     userIdx: index("order_user_idx").on(t.userId),
@@ -253,26 +290,30 @@ export const orders = pgTable(
 export const reviews = pgTable(
   "reviews",
   {
-    id: varchar("id", { length: 255 }).primaryKey(),
-    productId: varchar("product_id", { length: 255 })
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
-    userId: varchar("user_id", { length: 21 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    orderId: varchar("order_id", { length: 255 })
-      .notNull()
-      .references(() => orders.id, { onDelete: "restrict" }),
-    title: varchar("title", { length: 255 }),
+    id: id("id", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
+    orderId: references("order_id", { length: 255 }, orders.id, {
+      onDelete: "restrict",
+    }).notNull(),
+    productId: references("product_id", { length: 255 }, products.id, {
+      onDelete: "cascade",
+    }).notNull(),
+    userId: references("user_id", { length: 21 }, users.id, {
+      onDelete: "cascade",
+    }).notNull(),
+
+    title: varchar("title"),
     content: text("content"),
-    rating: numeric("rating", { precision: 2, scale: 1 }).notNull(),
-    images: varchar("images", { length: 255 }).array(),
+    rating: decimal("rating", { precision: 2, scale: 1 }).notNull(),
+    images: varchar("images").$type<string[]>(),
     isVerified: boolean("is_verified").default(false),
-    helpful: integer("helpful").default(0),
+    helpful: int("helpful").default(0),
     reply: text("reply"),
     repliedAt: timestamp("replied_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
   (t) => ({
     userIdx: index("review_user_idx").on(t.userId),

@@ -84,6 +84,12 @@ const en = {
     ] as NavItem[],
     "user-nav": [
       {
+        segments: [],
+        value: Paths.VerifyEmail,
+        children: "Verify Email",
+        icon: "verified",
+      },
+      {
         segments: ["settings"],
         value: Paths.DashboardSettings,
         children: "Settings",
@@ -150,6 +156,12 @@ const en = {
       ] as NavItem[],
       "user-nav": [
         {
+          segments: [],
+          value: Paths.VerifyEmail,
+          children: "Verify Email",
+          icon: "verified",
+        },
+        {
           segments: ["settings"],
           value: "/settings",
           children: "Settings",
@@ -165,6 +177,13 @@ const en = {
         products: "Products",
         "browse all products, edit, and filter.":
           "Browse all products, edit, and filter.",
+        product: {
+          "product details": "product details",
+          "product cost": "product cost",
+          "product status": "product status",
+          "product images": "product images",
+          stock: "stock",
+        },
       },
       orders: {
         orders: "Orders",
@@ -222,7 +241,7 @@ const en = {
     "open menu": "إفتح القائمة",
   },
   "data-table": {
-    "no results.": "لا توجد نتائج.",
+    "no results.": "No Results.",
   },
 
   "date-picker-with-range": {
@@ -446,6 +465,11 @@ const en = {
       publishedAt: { publishedAt: "published_at" },
     },
   },
+  tables: {
+    // products
+    "product details": "product details",
+    "created at": "created at",
+  },
 
   emails: {
     "verify-email": {
@@ -494,14 +518,14 @@ const en = {
 
     "pick a date": "Pick a date",
     "message sent successfully": "message sent successfully",
-    "update data": "تحديث البيانات",
-    "update preferences": "تحديث التفضيلات",
-    all: "الكل",
-    "check code": "التحقق من الكود",
-    "next step": "الخطوة التالية",
-    "pre step": "الخطوة السابقة",
-    back: "العودة",
-    discard: "تجاهل",
+    "update data": "update data",
+    "update preferences": "update preferences",
+    all: "All",
+    "check code": "check code",
+    "next step": "next step",
+    "pre step": "pre step",
+    back: "back",
+    discard: "discard",
   },
 };
 

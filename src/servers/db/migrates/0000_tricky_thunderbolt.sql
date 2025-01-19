@@ -1,87 +1,76 @@
+CREATE TYPE "public"."order_status" AS ENUM('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED');--> statement-breakpoint
+CREATE TYPE "public"."payment_status" AS ENUM('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED');--> statement-breakpoint
+CREATE TYPE "public"."product_status" AS ENUM('DRAFT', 'ACTIVE', 'ARCHIVED');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('ADMIN', 'USER', 'MERCHANT');--> statement-breakpoint
 CREATE TABLE "orders" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"store_id" varchar(255) NOT NULL,
 	"user_id" varchar(21) NOT NULL,
 	"status" "order_status" DEFAULT 'PENDING' NOT NULL,
 	"payment_status" "payment_status" DEFAULT 'PENDING' NOT NULL,
-	"items" jsonb DEFAULT '[]'::jsonb,
+	"items" json DEFAULT '[]'::json,
 	"subtotal" numeric(10, 2) NOT NULL,
 	"tax" numeric(10, 2) DEFAULT '0',
 	"shipping" numeric(10, 2) DEFAULT '0',
 	"total" numeric(10, 2) NOT NULL,
-	"shipping_address" jsonb NOT NULL,
-	"billing_address" jsonb,
+	"shipping_address" json NOT NULL,
+	"billing_address" json,
 	"notes" text,
 	"currency" varchar(3) DEFAULT 'USD',
 	"tracking_number" varchar(100),
-	"estimated_delivery" timestamp,
+	"estimated_delivery" timestamp with time zone,
 	"cancel_reason" text,
 	"refund_reason" text,
-	"metadata" jsonb DEFAULT '{}'::jsonb,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
+	"metadata" json DEFAULT '{}'::json
 );
 --> statement-breakpoint
 CREATE TABLE "pages" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"store_id" varchar(255) NOT NULL,
 	"url" varchar(255) NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"body" text,
 	"is_published" boolean DEFAULT false,
-	"published_at" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"published_at" timestamp with time zone,
 	CONSTRAINT "pages_url_unique" UNIQUE("url")
 );
 --> statement-breakpoint
 CREATE TABLE "products" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"store_id" varchar(255) NOT NULL,
 	"slug" varchar(255) NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"description" text,
 	"status" "product_status" DEFAULT 'DRAFT' NOT NULL,
-	"images" varchar(255)[],
+	"images" json,
+	"stock" integer,
 	"price" numeric(10, 2),
 	"discount" numeric(10, 2),
 	"cost" numeric(10, 2),
-	"tax" numeric(4, 2) DEFAULT '0',
-	"stock" integer,
-	"is_always_available" boolean DEFAULT true,
-	"limited_amount_per_order" integer,
-	"sku" varchar(100),
-	"barcode" varchar(100),
-	"weight" numeric(10, 2),
-	"dimensions" jsonb DEFAULT '{}'::jsonb,
-	"attributes" jsonb DEFAULT '[]'::jsonb,
-	"combinations" jsonb DEFAULT '[]'::jsonb,
-	"properties" jsonb DEFAULT '[]'::jsonb,
-	"meta_title" varchar(255),
-	"meta_description" text,
-	"is_published" boolean DEFAULT false,
-	"published_at" timestamp,
-	CONSTRAINT "products_slug_unique" UNIQUE("slug"),
-	CONSTRAINT "products_sku_unique" UNIQUE("sku")
+	CONSTRAINT "products_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
 CREATE TABLE "reviews" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"order_id" varchar(255) NOT NULL,
 	"product_id" varchar(255) NOT NULL,
 	"user_id" varchar(21) NOT NULL,
-	"order_id" varchar(255) NOT NULL,
 	"title" varchar(255),
 	"content" text,
 	"rating" numeric(2, 1) NOT NULL,
-	"images" varchar(255)[],
+	"images" varchar(255),
 	"is_verified" boolean DEFAULT false,
 	"helpful" integer DEFAULT 0,
 	"reply" text,
-	"replied_at" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
+	"replied_at" timestamp with time zone
 );
 --> statement-breakpoint
 CREATE TABLE "sessions" (
@@ -92,9 +81,9 @@ CREATE TABLE "sessions" (
 --> statement-breakpoint
 CREATE TABLE "stores" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
-	"user_id" varchar(21) NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"user_id" varchar(21),
 	"username" varchar(255) NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"category" varchar(255) NOT NULL,
@@ -108,20 +97,20 @@ CREATE TABLE "stores" (
 --> statement-breakpoint
 CREATE TABLE "users" (
 	"id" varchar(21) PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"google_id" varchar(255),
 	"email" varchar(255) NOT NULL,
 	"password" varchar(255),
 	"email_verified" boolean DEFAULT false NOT NULL,
-	"email_verification_details" jsonb,
-	"reset_details" jsonb,
+	"email_verification_details" json,
+	"reset_details" json,
 	"role" "user_role" DEFAULT 'USER' NOT NULL,
 	"name" varchar(255),
 	"image" varchar(255),
 	"phone" varchar(20),
-	"address" jsonb,
-	"preferences" jsonb DEFAULT '{}'::jsonb,
+	"address" json,
+	"preferences" json DEFAULT '{}'::json,
 	CONSTRAINT "users_google_id_unique" UNIQUE("google_id"),
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
@@ -130,9 +119,9 @@ ALTER TABLE "orders" ADD CONSTRAINT "orders_store_id_stores_id_fk" FOREIGN KEY (
 ALTER TABLE "orders" ADD CONSTRAINT "orders_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pages" ADD CONSTRAINT "pages_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reviews" ADD CONSTRAINT "reviews_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reviews" ADD CONSTRAINT "reviews_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "reviews" ADD CONSTRAINT "reviews_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "stores" ADD CONSTRAINT "stores_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "order_user_idx" ON "orders" USING btree ("user_id");--> statement-breakpoint
@@ -147,9 +136,6 @@ CREATE INDEX "product_slug_idx" ON "products" USING btree ("slug");--> statement
 CREATE INDEX "product_store_idx" ON "products" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "product_status_idx" ON "products" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "product_price_idx" ON "products" USING btree ("price");--> statement-breakpoint
-CREATE INDEX "product_sku_idx" ON "products" USING btree ("sku");--> statement-breakpoint
-CREATE INDEX "product_barcode_idx" ON "products" USING btree ("barcode");--> statement-breakpoint
-CREATE INDEX "product_published_idx" ON "products" USING btree ("is_published");--> statement-breakpoint
 CREATE INDEX "product_created_at_idx" ON "products" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "review_user_idx" ON "reviews" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "review_product_idx" ON "reviews" USING btree ("product_id");--> statement-breakpoint
