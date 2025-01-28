@@ -17,7 +17,7 @@ import { Validation, validations } from "@/lib/validations";
 
 export const loginWithPassword = createServerAction(
   async (formData: Validation["login-with-password"]) => {
-    const data = validations?.["login-with-password"]?.parse(formData);
+    const data = validations["login-with-password"]?.parse(formData);
     const { actions: c } = await getDictionary();
     const cookies = await nextCookies();
 
@@ -30,14 +30,11 @@ export const loginWithPassword = createServerAction(
         {
           code: "custom",
           path: ["email"],
-          message: c?.["incorrect email address."],
+          message: c["incorrect email address."],
         },
       ]);
 
-    if (!existingUser?.password)
-      throw new Error(
-        c?.["no password setted to that account, login using google."]
-      );
+    if (!existingUser?.password) throw new Error(c["no password setted to that account, login using google."]);
 
     const validPassword = await verify(existingUser?.password, data?.password);
 
@@ -46,17 +43,13 @@ export const loginWithPassword = createServerAction(
         {
           code: "custom",
           path: ["password"],
-          message: c?.["incorrect password"],
+          message: c["incorrect password"],
         },
       ]);
 
     const session = await lucia.createSession(existingUser?.id, {});
     const sessionCookie = lucia.createSessionCookie(session?.id);
-    cookies.set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes
-    );
+    cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
     return { ok: true, redirect: Paths.Dashboard };
   },
@@ -68,10 +61,7 @@ export const loginWithGoogle = createServerAction(async () => {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
 
-  const url = google.createAuthorizationURL(state, codeVerifier, [
-    "profile",
-    "email",
-  ]);
+  const url = google.createAuthorizationURL(state, codeVerifier, ["profile", "email"]);
 
   cookies.set("google_oauth_state", state, {
     path: "/",
@@ -95,22 +85,18 @@ export const logout = createServerAction(async () => {
   const { actions: c } = await getDictionary();
   const cookies = await nextCookies();
   const { session } = await getAuth();
-  if (!session) throw new Error(c?.["you are not logged in."]);
+  if (!session) throw new Error(c["you are not logged in."]);
 
   await lucia.invalidateSession(session?.id);
   const sessionCookie = lucia.createBlankSessionCookie();
-  cookies.set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
+  cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
   return { ok: true, redirect: Paths.Login };
 });
 
 export const registerWithPassword = createServerAction(
   async (formData: Validation["register-with-password"]) => {
-    const data = validations?.["register-with-password"]?.parse(formData);
+    const data = validations["register-with-password"]?.parse(formData);
     const { locale, actions: c, emails } = await getDictionary();
     const cookies = await nextCookies();
 
@@ -124,7 +110,7 @@ export const registerWithPassword = createServerAction(
         {
           code: "custom",
           path: ["email"],
-          message: c?.["this email has been already used."],
+          message: c["this email has been already used."],
         },
       ]);
 
@@ -147,11 +133,7 @@ export const registerWithPassword = createServerAction(
 
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session?.id);
-    cookies.set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes
-    );
+    cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
     return { ok: true, redirect: Paths.VerifyEmail };
   },
@@ -182,10 +164,7 @@ export const resendVerificationEmail = createServerAction(async () => {
     email: user.email,
   });
 
-  await db
-    .update(schema?.users)
-    .set({ emailVerificationDetails })
-    .where(orm.eq(schema?.users.id, user.id));
+  await db.update(schema?.users).set({ emailVerificationDetails }).where(orm.eq(schema?.users.id, user.id));
 
   await mailer.send(user.email, "verify-email", {
     ...emailVerificationDetails,
@@ -200,61 +179,54 @@ export const resendVerificationEmail = createServerAction(async () => {
   };
 });
 
-export const verifyEmail = createServerAction(
-  async (formData: Validation["verify-email"]) => {
-    const data = validations?.["verify-email"]?.parse(formData);
-    const cookies = await nextCookies();
-    const { actions: c } = await getDictionary();
+export const verifyEmail = createServerAction(async (formData: Validation["verify-email"]) => {
+  const data = validations["verify-email"]?.parse(formData);
+  const cookies = await nextCookies();
+  const { actions: c } = await getDictionary();
 
-    const { user } = await getAuth();
-    if (!user) return { ok: true, redirect: Paths.Login };
+  const { user } = await getAuth();
+  if (!user) return { ok: true, redirect: Paths.Login };
 
-    const existingUser = await db.query.users.findFirst({
-      where: (s, { eq }) => eq(s.id, user?.id),
-    });
+  const existingUser = await db.query.users.findFirst({
+    where: (s, { eq }) => eq(s.id, user?.id),
+  });
 
-    if (!existingUser?.emailVerificationDetails) {
-      throw new Error("No verification details found");
-    }
-
-    const { code, expiresAt } = existingUser?.emailVerificationDetails;
-
-    if (code !== data?.code) throw new Error("Invalid verification code");
-
-    if (!isWithinExpirationDate(new Date(expiresAt)))
-      throw new Error("Verification code expired");
-
-    await lucia.invalidateUserSessions(user.id);
-    await db
-      .update(schema?.users)
-      .set({
-        emailVerified: true,
-        emailVerificationDetails: null,
-      })
-      .where(orm.eq(schema?.users.id, user?.id));
-
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies.set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes
-    );
-
-    return {
-      ok: true,
-      redirect: Paths.Dashboard,
-      toast: {
-        type: "success",
-        message: "email has been verified successfully.",
-      },
-    };
+  if (!existingUser?.emailVerificationDetails) {
+    throw new Error("No verification details found");
   }
-);
+
+  const { code, expiresAt } = existingUser?.emailVerificationDetails;
+
+  if (code !== data?.code) throw new Error("Invalid verification code");
+
+  if (!isWithinExpirationDate(new Date(expiresAt))) throw new Error("Verification code expired");
+
+  await lucia.invalidateUserSessions(user.id);
+  await db
+    .update(schema?.users)
+    .set({
+      emailVerified: true,
+      emailVerificationDetails: null,
+    })
+    .where(orm.eq(schema?.users.id, user?.id));
+
+  const session = await lucia.createSession(user.id, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+
+  return {
+    ok: true,
+    redirect: Paths.Dashboard,
+    toast: {
+      type: "success",
+      message: "email has been verified successfully.",
+    },
+  };
+});
 
 export const sendPasswordResetLink = createServerAction(
   async (formData: Validation["send-password-reset-link"]) => {
-    const data = validations?.["send-password-reset-link"]?.parse(formData);
+    const data = validations["send-password-reset-link"]?.parse(formData);
     const { actions: c } = await getDictionary();
 
     const user = await db.query.users.findFirst({
@@ -266,21 +238,13 @@ export const sendPasswordResetLink = createServerAction(
       throw new Error("Provided email is invalid.");
     }
 
-    if (
-      user.resetPasswordDetails &&
-      isWithinExpirationDate(new Date(user.resetPasswordDetails.expiresAt))
-    ) {
-      const timeLeft = timeFromNow(
-        new Date(user.resetPasswordDetails.expiresAt)
-      );
+    if (user.resetPasswordDetails && isWithinExpirationDate(new Date(user.resetPasswordDetails.expiresAt))) {
+      const timeLeft = timeFromNow(new Date(user.resetPasswordDetails.expiresAt));
       throw new Error(`Please wait ${timeLeft} before resending.`);
     }
 
     const resetPasswordDetails = userHelpers.generateResetPasswordToken();
-    await db
-      .update(schema?.users)
-      .set({ resetPasswordDetails })
-      .where(orm.eq(schema?.users.id, user.id));
+    await db.update(schema?.users).set({ resetPasswordDetails }).where(orm.eq(schema?.users.id, user.id));
 
     const resetLink = `${getURL()}/reset-password/${resetPasswordDetails?.token}`;
 
@@ -300,72 +264,55 @@ export const sendPasswordResetLink = createServerAction(
   // { defaultMessage: "Failed to send verification email." }
 );
 
-export const resetPassword = createServerAction(
-  async (formData: Validation["reset-password"]) => {
-    const data = validations?.["reset-password"]?.parse(formData);
-    const cookies = await nextCookies();
-    const { actions: c } = await getDictionary();
+export const resetPassword = createServerAction(async (formData: Validation["reset-password"]) => {
+  const data = validations["reset-password"]?.parse(formData);
+  const cookies = await nextCookies();
+  const { actions: c } = await getDictionary();
 
-    if (data?.password !== data?.confirmPassword)
-      throw new z.ZodError([
-        {
-          code: "custom",
-          path: ["confirmPassword"],
-          message: "the passwords doesn't match.",
-        },
-      ]);
+  if (data?.password !== data?.confirmPassword)
+    throw new z.ZodError([
+      {
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "the passwords doesn't match.",
+      },
+    ]);
 
-    // TODO: handle it from users/schema
-    const user = await db
-      .execute(
-        orm.sql`SELECT id, reset_details FROM users WHERE "reset_details" ->> 'token' = ${data?.token} LIMIT 1`
-      )
-      ?.then(
-        (r) =>
-          ({
-            ...r?.rows?.[0],
-            resetPasswordDetails: r?.rows?.[0]?.["reset_details"],
-          }) as {
-            id: string;
-            resetPasswordDetails: Validation["password-reset-schema"];
-          }
-      );
+  // TODO: handle it from users/schema
+  const user = await db.execute(orm.sql`SELECT id, reset_details FROM users WHERE "reset_details" ->> 'token' = ${data?.token} LIMIT 1`)?.then(
+    (r) =>
+      ({
+        ...r?.rows[0],
+        resetPasswordDetails: r?.rows[0]?.reset_details,
+      }) as {
+        id: string;
+        resetPasswordDetails: Validation["password-reset-schema"];
+      }
+  );
 
-    if (
-      !user ||
-      !user.resetPasswordDetails ||
-      user.resetPasswordDetails?.token !== data?.token
-    )
-      throw new Error("Invalid password reset link.");
+  if (!user || !user.resetPasswordDetails || user.resetPasswordDetails?.token !== data?.token) throw new Error("Invalid password reset link.");
 
-    if (user.resetPasswordDetails?.used)
-      throw new Error("This password reset link has been used before.");
+  if (user.resetPasswordDetails?.used) throw new Error("This password reset link has been used before.");
 
-    if (!isWithinExpirationDate(new Date(user.resetPasswordDetails?.expiresAt)))
-      throw new Error("Password reset link expired.");
+  if (!isWithinExpirationDate(new Date(user.resetPasswordDetails?.expiresAt))) throw new Error("Password reset link expired.");
 
-    await lucia.invalidateUserSessions(user.id);
-    const password = await hash(data?.password);
+  await lucia.invalidateUserSessions(user.id);
+  const password = await hash(data?.password);
 
-    await db
-      .update(schema?.users)
-      .set({
-        password,
-        resetPasswordDetails: null,
-      })
-      .where(orm.eq(schema?.users.id, user.id));
+  await db
+    .update(schema?.users)
+    .set({
+      password,
+      resetPasswordDetails: null,
+    })
+    .where(orm.eq(schema?.users.id, user.id));
 
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies.set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes
-    );
+  const session = await lucia.createSession(user.id, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
-    return { ok: true, redirect: Paths.Dashboard };
-  }
-);
+  return { ok: true, redirect: Paths.Dashboard };
+});
 
 const timeFromNow = (time: Date) => {
   const now = new Date();

@@ -18,9 +18,9 @@ export default async function Stores({}: StoresProps) {
       <div className="grid grid-cols-4 gap-2">
         {stores?.map((e, i) => (
           <Card key={i}>
-            <Link href={`${Paths.Store}/${e["id"]}`}>
+            <Link href={`${Paths.Store}/${e?.id}`}>
               <CardHeader>
-                <CardTitle>{e["name"]}</CardTitle>
+                <CardTitle>{e?.name}</CardTitle>
               </CardHeader>
             </Link>
           </Card>

@@ -1,22 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
-
 import { Product } from "@/servers/db/schema";
 
 import { Button, ButtonProps } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Icons } from "@/components/icons";
 
 export type ProductDetailsCartFormProps = {
@@ -24,9 +12,7 @@ export type ProductDetailsCartFormProps = {
   //  & { attributes: ProductAttribute[] };
 };
 
-export function ProductDetailsCartForm({
-  product: e,
-}: ProductDetailsCartFormProps) {
+export function ProductDetailsCartForm({ product: e }: ProductDetailsCartFormProps) {
   // const cart = useCart();
 
   // const form = useForm<z.infer<typeof cartProductSchema>>({
@@ -34,9 +20,9 @@ export function ProductDetailsCartForm({
   //   defaultValues: {
   //     product,
   //     attributes: e?.attributes?.map((e) => ({
-  //       name: e?.["name"],
+  //       name: e?.name,
   //       value:
-  //         // e?.["values"]?.["0"]?.["name"] ??
+  //         // e?.values?.0?.name ??
   //         undefined,
   //     })),
   //     quantity: 1,
@@ -50,7 +36,7 @@ export function ProductDetailsCartForm({
   // }
 
   return (
-    // @ts-ignore
+    // @ts-expect-error form needs more properties
     <Form className="space-y-2">
       <div className="flex flex-col items-center sm:flex-row sm:justify-between">
         <h1 className="text-4xl font-semibold">{e?.title}</h1>
@@ -61,29 +47,29 @@ export function ProductDetailsCartForm({
           {e?.attributes?.map((e, i) => (
             <FormField
               key={i}
-              control={form?.["control"]}
+              control={form["control"]}
               name={`attributes.${i}.value`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs text-muted-foreground">
-                    Select {e?.["name"]}
+                    Select {e?.name}
                   </FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field?.["value"]}
+                      defaultValue={field?.value}
                       className="flex items-center gap-1"
                     >
-                      {e?.["values"]?.map((v, j) => (
+                      {e?.values?.map((v, j) => (
                         <FormItem key={`${i}-${j}`}>
                           <FormControl>
                             <RadioGroupItem
-                              value={v?.["name"]}
+                              value={v?.name}
                               className="peer sr-only"
                             />
                           </FormControl>
                           <FormLabel className="flex cursor-pointer items-center rounded-full border border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground [&:has([data-state=checked])]:border-primary">
-                            {v?.["name"]}
+                            {v?.name}
                           </FormLabel>
                         </FormItem>
                       ))}
@@ -98,7 +84,7 @@ export function ProductDetailsCartForm({
 
       <div>
         <FormField
-          // control={form?.["control"]}
+          // control={form["control"]}
           name="quantity"
           render={({ field }) => (
             <FormItem>
@@ -126,8 +112,8 @@ export function ProductDetailsCartForm({
                         field.onChange({
                           ...e,
                           target: {
-                            ...e?.["target"],
-                            value: Number(e?.["target"]?.["value"]),
+                            ...e?.target,
+                            value: Number(e?.target?.value),
                           },
                         })
                       }
@@ -149,18 +135,11 @@ export function ProductDetailsCartForm({
                     </Button>
                   </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full flex-1 rounded-full py-4"
-                  >
+                  <Button type="submit" className="w-full flex-1 rounded-full py-4">
                     Add To Cart
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full"
-                  >
+                  <Button variant="outline" size="icon" className="rounded-full">
                     <Icons.heart />
                   </Button>
                 </div>

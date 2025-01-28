@@ -118,20 +118,20 @@ const templates = {
         content: `
       <div class="container">
         <div class="header">
-          <h1>${c?.title}</h1>
+          <h1>${c["title"]}</h1>
         </div>
         <div class="content">
-          <p>${c?.greeting},</p>
-          <p>${c?.message}</p>
+          <p>${c["greeting"]},</p>
+          <p>${c["message"]}</p>
           
           <div class="verification-code">
             ${data.code?.slice(0, 4)}-${data.code?.slice(4)}
           </div>
           
-          <p class="info-text">${c?.validityMessage}</p>
-          ${`<p class="info-text">${c?.helpText}</p>`}
+          <p class="info-text">${c["validityMessage"]}</p>
+          ${`<p class="info-text">${c["helpText"]}</p>`}
           
-          <p>${c?.contactMessage} <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a></p>
+          <p>${c["contactMessage"]} <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a></p>
         </div>
         <div class="footer">
           <p>© ${new Date().getFullYear()} ConCom Services</p>
@@ -142,9 +142,7 @@ const templates = {
       }),
     };
   },
-  "send-password-reset-link": async ({
-    ...data
-  }: Validation["password-reset-schema"]) => {
+  "send-password-reset-link": async ({ ...data }: Validation["password-reset-schema"]) => {
     const {
       locale,
       emails: { "password-reset-link": c },
@@ -157,16 +155,16 @@ const templates = {
         content: `
       <div class="container">
         <div class="header">
-          <h1>${c?.title}</h1>
+          <h1>${c["title"]}</h1>
         </div>
         <div class="content">
-          <p>${c?.greeting},</p>
-          <p>${c?.message} <a href="${data.token}?locale=${locale}">reset password now</a></p>
+          <p>${c["greeting"]},</p>
+          <p>${c["message"]} <a href="${data.token}?locale=${locale}">reset password now</a></p>
            
-          <p class="info-text">${c?.validityMessage}</p> 
-          ${`<p class="info-text">${c?.warningMessage}</p>`}
+          <p class="info-text">${c["validityMessage"]}</p> 
+          ${`<p class="info-text">${c["warningMessage"]}</p>`}
           
-          <p>${c?.contactMessage} <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a></p>
+          <p>${c["contactMessage"]} <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a></p>
         </div>
         <div class="footer">
           <p>© ${new Date().getFullYear()} ConCom Services</p>
@@ -189,7 +187,7 @@ export const mailer = {
       sender: process.env.SMTP_USER,
     }
   ) => {
-    const html = await templates?.[template]?.(options as any);
+    const html = await templates[template]?.(options as any);
     return transporter.sendMail({ to, ...html, ...props });
   },
 };

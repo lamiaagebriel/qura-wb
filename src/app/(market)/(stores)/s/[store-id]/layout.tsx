@@ -15,20 +15,15 @@ import { Icons } from "@/components/icons";
 import { Link, NavLink } from "@/components/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
-type StoreLayoutProps = React.PropsWithChildren<
-  Readonly<{ params: Promise<{ "store-id": string }> }>
->;
+type StoreLayoutProps = React.PropsWithChildren<Readonly<{ params: Promise<{ "store-id": string }> }>>;
 
-export default async function StoreLayout({
-  children,
-  params,
-}: StoreLayoutProps) {
+export default async function StoreLayout({ children, params }: StoreLayoutProps) {
   const { "store-id": storeId } = await params;
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
   const dic = await getDictionary();
-  const c = dic?.["stores"]?.["store"];
+  const c = dic["stores"]["store"];
 
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
@@ -48,9 +43,7 @@ export default async function StoreLayout({
                         <Icons.logo className="size-4" />
                       </AvatarFallback>
                     </Avatar>
-                    <h1 className="hidden font-semibold sm:block">
-                      {dic?.site?.name}
-                    </h1>
+                    <h1 className="hidden font-semibold sm:block">{dic["site"]["name"]}</h1>
                   </div>
                 ),
               },
@@ -74,10 +67,8 @@ export default async function StoreLayout({
           <div className="flex items-center gap-3 lg:gap-4">
             <CartLink href={`${Paths.Store}/${storeId}${Paths.StoreCart}`} />
             <UserAccountNav
-              items={c?.["user-nav"]
-                ?.filter((e) =>
-                  user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
-                )
+              items={c["user-nav"]
+                ?.filter((e) => (user?.emailVerified ? e?.value !== Paths.VerifyEmail : e))
                 .map((e) => ({
                   ...e,
                   value: `/ss/${storeId}${e?.value}`,

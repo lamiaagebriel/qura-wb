@@ -18,11 +18,7 @@ export function ProductCard({ product: e }: ProductCardProps) {
     <Card className="gap-0 overflow-hidden border-none p-0 outline-none">
       <CardHeader className="relative border-none p-0 outline-none">
         <Link href={`/s/${e?.storeId}/p/${e?.id}`}>
-          <Image
-            src={e?.images?.[0]!}
-            alt={`${e?.title}`}
-            className="aspect-[9/12] border-none"
-          />
+          <Image src={e?.images?.[0]!} alt={`${e?.title}`} className="aspect-[9/12] border-none" />
         </Link>
 
         <div className="absolute bottom-0 right-0 z-10 rounded-tl-xl bg-background pl-[6px] pt-[6px]">

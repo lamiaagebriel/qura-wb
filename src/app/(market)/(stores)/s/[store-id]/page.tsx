@@ -7,15 +7,8 @@ import { queries } from "@/servers/db/queries";
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip } from "@/components/ui/tooltip";
-import { Icons } from "@/components/icons";
-import { Image } from "@/components/image";
-import { Link } from "@/components/link";
 import { ProductCard } from "@/components/product-card";
-import { ProductCreateButton } from "@/components/product-create-button";
 
 type ProductsProps = Readonly<{ params: Promise<{ "store-id": string }> }>;
 export const metadata: Metadata = { title: "Products" };
@@ -26,9 +19,9 @@ export default async function Products({ params }: ProductsProps) {
   if (!user) redirect(Paths.Login);
 
   const dic = await getDictionary();
-  const c = dic?.["stores"]?.["store"]?.["products"];
-  const pp = dic?.["db"]?.["products"];
-  const cmn = dic?.["cmn"];
+  const c = dic["stores"]["store"]["products"];
+  const pp = dic["db"]["products"];
+  const cmn = dic["cmn"];
 
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
@@ -42,12 +35,8 @@ export default async function Products({ params }: ProductsProps) {
         <div>
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-0.5">
-              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-                {c?.["products"]}
-              </h2>
-              <p className="max-w-prose text-sm text-muted-foreground">
-                {c?.["browse all products, edit, and filter."]}
-              </p>
+              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">{c["products"]}</h2>
+              <p className="max-w-prose text-sm text-muted-foreground">{c["browse all products, edit, and filter."]}</p>
             </div>
           </div>
 
@@ -55,9 +44,7 @@ export default async function Products({ params }: ProductsProps) {
         </div>
       </div>
 
-      <div className="container grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {products?.map((e, i) => <ProductCard key={i} product={e} />)}
-      </div>
+      <div className="container grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">{products?.map((e, i) => <ProductCard key={i} product={e} />)}</div>
     </main>
   );
 }

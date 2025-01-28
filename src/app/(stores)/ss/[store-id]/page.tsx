@@ -6,7 +6,7 @@ type DashboardProps = Readonly<{}>;
 export const metadata: Metadata = { title: "Dashboard" };
 export default async function Dashboard({}: DashboardProps) {
   const dic = await getDictionary();
-  const c = dic?.["dashboard"];
+  const c = dic["dashboard"];
 
   return (
     <main className="flex-1">

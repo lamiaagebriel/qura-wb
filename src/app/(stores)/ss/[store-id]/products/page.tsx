@@ -9,20 +9,10 @@ import { getAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
 import { Avatar } from "@/components/ui/avatar";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
-import {
-  EmptyPlaceholder,
-  EmptyPlaceholderDescription,
-  EmptyPlaceholderIcon,
-  EmptyPlaceholderTitle,
-} from "@/components/empty-placeholder";
+import { EmptyPlaceholder, EmptyPlaceholderDescription, EmptyPlaceholderIcon, EmptyPlaceholderTitle } from "@/components/empty-placeholder";
 import { Link } from "@/components/link";
 import { ProductCreateButton } from "@/components/product-create-button";
 import { StoreCreateButton } from "@/components/store-create-button";
@@ -38,9 +28,8 @@ export default async function Products({ params }: ProductsProps) {
   if (!user) redirect(Paths.Login);
 
   const dic = await getDictionary();
-  const c = dic?.["stores"]?.["store"]?.["products"];
-  const pp = dic?.["db"]?.["products"];
-  const cmn = dic?.["cmn"];
+  const c = dic["stores"]["store"]["products"];
+  const cmn = dic["cmn"];
 
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
@@ -54,12 +43,8 @@ export default async function Products({ params }: ProductsProps) {
         <div>
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-0.5">
-              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-                {c?.["products"]}
-              </h2>
-              <p className="max-w-prose text-sm text-muted-foreground">
-                {c?.["browse all products, edit, and filter."]}
-              </p>
+              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">{c["products"]}</h2>
+              <p className="max-w-prose text-sm text-muted-foreground">{c["browse all products, edit, and filter."]}</p>
             </div>
 
             <div>

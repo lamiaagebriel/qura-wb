@@ -8,11 +8,7 @@ import { deleteProduct } from "@/servers/products";
 import { formatDate, formatNumber, formatPrice } from "@/lib/utils";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DataTableColumnCell,
-  DataTableColumnHeader,
-  DataTableRowActions,
-} from "@/components/ui/data-table";
+import { DataTableColumnCell, DataTableColumnHeader, DataTableRowActions } from "@/components/ui/data-table";
 import { FormButton } from "@/components/ui/form";
 import { Icons } from "@/components/icons";
 import { Image } from "@/components/image";
@@ -27,28 +23,15 @@ export const columns: ColumnDef<Data>[] = [
     enableSorting: false,
     header: function Component({ column }) {
       const { tables: t } = useLocale();
-      return (
-        <DataTableColumnHeader
-          column={column}
-          title={t?.["product details"]}
-          className="justify-start"
-        />
-      );
+      return <DataTableColumnHeader column={column} title={t["product details"]} className="justify-start" />;
     },
     cell: ({ row: { original: r } }) => {
       return (
         <DataTableColumnCell className="justify-start">
           <div className="flex items-start gap-2">
-            <Image
-              src={r?.images?.[0]!}
-              alt="product main image"
-              className="size-20"
-            />
+            <Image src={r?.images?.[0]!} alt="product main image" className="size-20" />
             <div>
-              <Link
-                href={`/ss/${r?.storeId}/products/${r?.id}`}
-                className="underline"
-              >
+              <Link href={`/ss/${r?.storeId}/products/${r?.id}`} className="underline">
                 <h1 className="font-semibold">{r?.title}</h1>
               </Link>
               <p className="text-xs text-muted-foreground">{r?.slug}</p>
@@ -70,7 +53,7 @@ export const columns: ColumnDef<Data>[] = [
       const {
         db: { products: pp },
       } = useLocale();
-      const value = pp?.status?.enums?.[r?.status];
+      const value = pp?.status?.enums[r?.status];
 
       if (!value)
         return (
@@ -114,13 +97,7 @@ export const columns: ColumnDef<Data>[] = [
     accessorKey: "createdAt",
     header: function Component({ column }) {
       const { tables: t } = useLocale();
-      return (
-        <DataTableColumnHeader
-          column={column}
-          title={t?.["created at"]}
-          className="justify-end"
-        />
-      );
+      return <DataTableColumnHeader column={column} title={t["created at"]} className="justify-end" />;
     },
     cell: ({ row: { original: r } }) => {
       const value = r?.createdAt;
@@ -131,11 +108,7 @@ export const columns: ColumnDef<Data>[] = [
           </DataTableColumnCell>
         );
 
-      return (
-        <DataTableColumnCell className="justify-end">
-          {formatDate(value)}
-        </DataTableColumnCell>
-      );
+      return <DataTableColumnCell className="justify-end">{formatDate(value)}</DataTableColumnCell>;
     },
   },
   {
@@ -151,9 +124,8 @@ export const columns: ColumnDef<Data>[] = [
               onAction={deleteProduct}
               useForm={{
                 defaultValues: { ...r },
-              }}
-            >
-              {cmn?.["delete"]}
+              }}>
+              {cmn["delete"]}
             </FormButton>
           </DataTableRowActions>
         </div>

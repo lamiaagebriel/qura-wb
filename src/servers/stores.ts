@@ -14,13 +14,11 @@ import { Validation, validations } from "@/lib/validations";
 
 export const createStore = createServerAction(
   async (formData: Validation["create-store"]) => {
-    const { logo: logoProp, ...data } =
-      validations?.["create-store"]?.parse(formData);
+    const { logo: logoProp, ...data } = validations["create-store"]?.parse(formData);
     const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
-    if (!user || !user?.id)
-      throw new Error(c?.["this action needs you to be logged in."]);
+    if (!user || !user?.id) throw new Error(c["this action needs you to be logged in."]);
 
     const isUsernameExists = await db.query.stores.findFirst({
       columns: { username: true },
@@ -36,9 +34,7 @@ export const createStore = createServerAction(
         },
       ]);
 
-    const logo = logoProp
-      ? await aws.upload(logoProp, { Key: `stores/logo-` })
-      : null;
+    const logo = logoProp ? await aws.upload(logoProp, { Key: `stores/logo-` }) : null;
 
     const id = ID.generate();
     await db.insert(schema?.stores).values({
@@ -52,7 +48,7 @@ export const createStore = createServerAction(
     return {
       ok: true,
       redirect: `/ss/${id}`,
-      toast: { type: "success", message: cmn?.["created successfully."] },
+      toast: { type: "success", message: cmn["created successfully."] },
     };
   },
   { defaultMessage: "your store was not created. please try again." }
@@ -60,21 +56,15 @@ export const createStore = createServerAction(
 
 export const deleteStore = createServerAction(
   async (formData: Validation["delete-store"]) => {
-    const data = validations?.["delete-store"]?.parse(formData);
+    const data = validations["delete-store"]?.parse(formData);
     const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
-    if (!user || !user?.id)
-      throw new Error(c?.["this action needs you to be logged in."]);
+    if (!user || !user?.id) throw new Error(c["this action needs you to be logged in."]);
 
     await db
       .delete(schema.stores)
-      .where(
-        orm.and(
-          orm.eq(schema.stores.id, data?.id),
-          orm.eq(schema.stores.userId, user?.id)
-        )
-      )
+      .where(orm.and(orm.eq(schema.stores.id, data?.id), orm.eq(schema.stores.userId, user?.id)))
       .then(async () => {
         if (data?.logo) await aws.delete(data?.logo);
       });
@@ -82,7 +72,7 @@ export const deleteStore = createServerAction(
     revalidateTag("stores");
     return {
       ok: true,
-      toast: { type: "success", message: cmn?.["deleted successfully."] },
+      toast: { type: "success", message: cmn["deleted successfully."] },
     };
   },
   { defaultMessage: "your store was not deleted. please try again." }

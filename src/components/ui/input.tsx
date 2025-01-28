@@ -10,18 +10,11 @@ import { Icons } from "@/components/icons";
 
 import { withFormAwareness } from "./form";
 
-export const inputVariants = cva(
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-);
+export const inputVariants = cva("flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm");
 
-export type InputProps = React.ComponentProps<"input"> &
-  React.InputHTMLAttributes<HTMLInputElement> &
-  VariantProps<typeof inputVariants> & {};
+export type InputProps = React.ComponentProps<"input"> & React.InputHTMLAttributes<HTMLInputElement> & VariantProps<typeof inputVariants> & {};
 
-const InputWithoutFormAwareness = React.forwardRef<
-  HTMLInputElement,
-  InputProps
->(({ type = "text", className, onChange, value, multiple, ...props }, ref) => {
+const InputWithoutFormAwareness = React.forwardRef<HTMLInputElement, InputProps>(({ type = "text", className, onChange, value, multiple, ...props }, ref) => {
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
   if (type === "password") {
@@ -45,39 +38,14 @@ const InputWithoutFormAwareness = React.forwardRef<
           {...props}
         />
 
-        <button
-          type="button"
-          onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-          aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-        >
-          {isPasswordVisible ? (
-            <Icons.eyeOff className="size-3" />
-          ) : (
-            <Icons.eye className="size-3" />
-          )}
+        <button type="button" onClick={() => setIsPasswordVisible(!isPasswordVisible)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none" aria-label={isPasswordVisible ? "Hide password" : "Show password"}>
+          {isPasswordVisible ? <Icons.eyeOff className="size-3" /> : <Icons.eye className="size-3" />}
         </button>
       </div>
     );
   }
 
-  if (type === "email")
-    return (
-      <input
-        ref={ref}
-        type={type}
-        onChange={onChange}
-        value={value ?? ""}
-        multiple={multiple}
-        className={cn(inputVariants({ className }))}
-        dir="ltr"
-        placeholder="name@example.com"
-        autoCapitalize="none"
-        autoComplete="email"
-        autoCorrect="off"
-        {...props}
-      />
-    );
+  if (type === "email") return <input ref={ref} type={type} onChange={onChange} value={value ?? ""} multiple={multiple} className={cn(inputVariants({ className }))} dir="ltr" placeholder="name@example.com" autoCapitalize="none" autoComplete="email" autoCorrect="off" {...props} />;
 
   if (type === "file")
     return (
@@ -91,22 +59,14 @@ const InputWithoutFormAwareness = React.forwardRef<
           const files = e?.target?.files;
           if (!files || !files.length) return null;
 
-          const fileBase64 = await Promise.all(
-            Array.from(files).map((file) =>
-              fileToBase64(file)?.then((r) => r?.toString() as string)
-            )
-          );
+          const fileBase64 = await Promise.all(Array.from(files).map((file) => fileToBase64(file)?.then((r) => r?.toString() as string)));
 
           onChange?.({
             ...e,
             target: {
               ...e?.target,
               // TODO: handle multiple files
-              value: multiple
-                ? (fileBase64 as any)
-                : fileBase64?.length === 1 && fileBase64?.[0]
-                  ? fileBase64?.[0]
-                  : "",
+              value: multiple ? (fileBase64 as any) : fileBase64?.length === 1 && fileBase64[0] ? fileBase64[0] : "",
             },
           });
         }}
@@ -114,17 +74,7 @@ const InputWithoutFormAwareness = React.forwardRef<
       />
     );
 
-  return (
-    <input
-      ref={ref}
-      type={type}
-      onChange={onChange}
-      multiple={multiple}
-      value={value ?? ""}
-      className={cn(inputVariants({ className }))}
-      {...props}
-    />
-  );
+  return <input ref={ref} type={type} onChange={onChange} multiple={multiple} value={value ?? ""} className={cn(inputVariants({ className }))} {...props} />;
 });
 InputWithoutFormAwareness.displayName = "Input";
 const Input = withFormAwareness(InputWithoutFormAwareness);

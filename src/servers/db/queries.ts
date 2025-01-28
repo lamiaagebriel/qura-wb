@@ -6,7 +6,7 @@ export const queries = {
     get: unstable_cache(
       async ({ id }: { id: string }) => {
         const store = await db.query.stores.findFirst({
-          where: (s, o) => o.eq(s?.["id"], id),
+          where: (s, o) => o.eq(s?.id, id),
         });
         return { data: store };
       },
@@ -31,7 +31,7 @@ export const queries = {
     get: unstable_cache(
       async ({ id }: { id: string }) => {
         const product = await db.query.products.findFirst({
-          where: (s, o) => o.eq(s?.["id"], id),
+          where: (s, o) => o.eq(s?.id, id),
         });
         return { data: product };
       },
@@ -41,8 +41,8 @@ export const queries = {
     getMany: unstable_cache(
       async ({ storeId }: { storeId: string }) => {
         const products = await db.query.products.findMany({
-          where: (s, o) => o.eq(s?.["storeId"], storeId),
-          orderBy: (s, o) => o.desc(s?.["createdAt"]),
+          where: (s, o) => o.eq(s?.storeId, storeId),
+          orderBy: (s, o) => o.desc(s?.createdAt),
         });
 
         return { data: products };
@@ -56,7 +56,7 @@ export const queries = {
     get: unstable_cache(
       async ({ id }: { id: string }) => {
         const order = await db.query.orders.findFirst({
-          where: (s, o) => o.eq(s?.["id"], id),
+          where: (s, o) => o.eq(s?.id, id),
         });
         return { data: order };
       },
@@ -66,8 +66,8 @@ export const queries = {
     getMany: unstable_cache(
       async ({ storeId }: { storeId: string }) => {
         const orders = await db.query.orders.findMany({
-          where: (s, o) => o.eq(s?.["storeId"], storeId),
-          orderBy: (s, o) => o.desc(s?.["createdAt"]),
+          where: (s, o) => o.eq(s?.storeId, storeId),
+          orderBy: (s, o) => o.desc(s?.createdAt),
         });
 
         return { data: orders };

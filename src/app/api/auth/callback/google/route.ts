@@ -14,9 +14,7 @@ export async function GET(req: NextRequest) {
   const state = req.nextUrl.searchParams.get("state");
 
   const storedState = cookies.get("google_oauth_state")?.value;
-  const storedCodeVerifier = cookies.get("google_oauth_code_verifier")?.[
-    "value"
-  ];
+  const storedCodeVerifier = cookies.get("google_oauth_code_verifier")?.value;
 
   if (!code || !state || !storedState || !storedCodeVerifier) {
     return new Response("Invalid request", {
@@ -35,24 +33,15 @@ export async function GET(req: NextRequest) {
 
   try {
     // Validate authorization code
-    const tokens = await google.validateAuthorizationCode(
-      code,
-      storedCodeVerifier
-    );
+    const tokens = await google.validateAuthorizationCode(code, storedCodeVerifier);
 
     // Fetch user information
-    const googleUserResponse = await fetch(
-      "https://www.googleapis.com/oauth2/v1/userinfo",
-      { headers: { Authorization: `Bearer ${tokens.accessToken()}` } }
-    );
+    const googleUserResponse = await fetch("https://www.googleapis.com/oauth2/v1/userinfo", { headers: { Authorization: `Bearer ${tokens.accessToken()}` } });
     if (!googleUserResponse.ok) throw new Error("Failed to fetch user info");
     const googleUser = (await googleUserResponse.json()) as GoogleUser;
 
     if (!googleUser.email || !googleUser?.verified_email) {
-      return new Response(
-        "Your Google account must have a verified email address.",
-        { status: 400, headers: { Location: Paths.Login } }
-      );
+      return new Response("Your Google account must have a verified email address.", { status: 400, headers: { Location: Paths.Login } });
     }
 
     // Find existing user
@@ -64,28 +53,16 @@ export async function GET(req: NextRequest) {
     // Update existing user if needed
     if (existingUser) {
       await db.transaction(async (tx) => {
-        if (
-          !existingUser?.googleId ||
-          existingUser?.googleId !== googleUser?.id
-        ) {
-          await tx
-            .update(schema?.users)
-            .set({ googleId: googleUser?.id })
-            .where(eq(schema?.users?.id, existingUser?.id));
+        if (!existingUser?.googleId || existingUser?.googleId !== googleUser?.id) {
+          await tx.update(schema?.users).set({ googleId: googleUser?.id }).where(eq(schema?.users?.id, existingUser?.id));
         }
 
         if (!existingUser.image) {
-          await tx
-            .update(schema?.users)
-            .set({ image: googleUser.picture })
-            .where(eq(schema?.users?.id, existingUser?.id));
+          await tx.update(schema?.users).set({ image: googleUser.picture }).where(eq(schema?.users?.id, existingUser?.id));
         }
 
         if (!existingUser.emailVerified) {
-          await tx
-            .update(schema?.users)
-            .set({ emailVerified: googleUser.verified_email })
-            .where(eq(schema?.users?.id, existingUser?.id));
+          await tx.update(schema?.users).set({ emailVerified: googleUser.verified_email }).where(eq(schema?.users?.id, existingUser?.id));
         }
       });
 

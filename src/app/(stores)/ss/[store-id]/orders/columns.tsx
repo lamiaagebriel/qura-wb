@@ -6,11 +6,7 @@ import { Minus } from "lucide-react";
 import { Order } from "@/servers/db/schema";
 import { formatDate } from "@/lib/utils";
 
-import {
-  DataTableColumnCell,
-  DataTableColumnHeader,
-  DataTableRowActions,
-} from "@/components/ui/data-table";
+import { DataTableColumnCell, DataTableColumnHeader, DataTableRowActions } from "@/components/ui/data-table";
 import { FormButton } from "@/components/ui/form";
 import { useLocale } from "@/components/locale-provider";
 
@@ -22,26 +18,14 @@ export const columns: ColumnDef<Data>[] = [
     enableSorting: false,
     header: function Component({ column }) {
       const { tables: t } = useLocale();
-      return (
-        <DataTableColumnHeader
-          column={column}
-          title={"order details"}
-          className="justify-start"
-        />
-      );
+      return <DataTableColumnHeader column={column} title={"order details"} className="justify-start" />;
     },
   },
   {
     accessorKey: "createdAt",
     header: function Component({ column }) {
       const { tables: t } = useLocale();
-      return (
-        <DataTableColumnHeader
-          column={column}
-          title={t?.["created at"]}
-          className="justify-end"
-        />
-      );
+      return <DataTableColumnHeader column={column} title={t["created at"]} className="justify-end" />;
     },
     cell: ({ row: { original: r } }) => {
       const value = r?.createdAt;
@@ -52,11 +36,7 @@ export const columns: ColumnDef<Data>[] = [
           </DataTableColumnCell>
         );
 
-      return (
-        <DataTableColumnCell className="justify-end">
-          {formatDate(value)}
-        </DataTableColumnCell>
-      );
+      return <DataTableColumnCell className="justify-end">{formatDate(value)}</DataTableColumnCell>;
     },
   },
   {
@@ -72,9 +52,8 @@ export const columns: ColumnDef<Data>[] = [
               // onAction={deleteOrder}
               useForm={{
                 defaultValues: { ...r },
-              }}
-            >
-              {cmn?.["delete"]}
+              }}>
+              {cmn["delete"]}
             </FormButton>
           </DataTableRowActions>
         </div>

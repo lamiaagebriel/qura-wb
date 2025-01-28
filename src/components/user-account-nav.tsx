@@ -6,15 +6,7 @@ import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 
@@ -64,14 +56,8 @@ export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <FormButton
-            infiniteLoading
-            onAction={logout}
-            Icon={<Icons.logout />}
-            variant="ghost"
-            className="focus-visible:ring-none w-full justify-start text-start focus:outline-none focus-visible:ring-0"
-          >
-            {cmn?.["logout"]}
+          <FormButton infiniteLoading onAction={logout} Icon={<Icons.logout />} variant="ghost" className="focus-visible:ring-none w-full justify-start text-start focus:outline-none focus-visible:ring-0">
+            {cmn["logout"]}
           </FormButton>
         </DropdownMenuItem>
       </DropdownMenuContent>

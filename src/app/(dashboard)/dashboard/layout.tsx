@@ -14,14 +14,12 @@ import { NavLink } from "@/components/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type DashboardLayoutProps = React.PropsWithChildren<Readonly<{}>>;
-export default async function DashboardLayout({
-  children,
-}: DashboardLayoutProps) {
+export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
   const dic = await getDictionary();
-  const c = dic?.["dashboard"];
+  const c = dic["dashboard"];
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/50">
@@ -39,18 +37,14 @@ export default async function DashboardLayout({
                       </AvatarFallback>
                     </Avatar>
 
-                    <h1 className="font-semibold">{dic?.["site"]?.["name"]}</h1>
+                    <h1 className="font-semibold">{dic["site"]["name"]}</h1>
                   </div>
                 ),
               },
             ]}
           />
 
-          <UserAccountNav
-            items={c?.["user-nav"]?.filter((e) =>
-              user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
-            )}
-          />
+          <UserAccountNav items={c["user-nav"]?.filter((e) => (user?.emailVerified ? e?.value !== Paths.VerifyEmail : e))} />
         </div>
       </header>
 
@@ -58,23 +52,14 @@ export default async function DashboardLayout({
         <div className="container">
           <nav>
             <ul className="flex items-center gap-1">
-              {c?.["main-nav"]?.map((e, i) => {
-                const Icon = e?.["icon"] ? Icons?.[e?.["icon"]] : null;
+              {c["main-nav"]?.map((e, i) => {
+                const Icon = e?.icon ? Icons[e?.icon] : null;
 
                 return (
                   <li key={i}>
-                    <NavLink
-                      disabled={e?.["disabled"]}
-                      segments={e?.["segments"]}
-                      href={e?.["value"]}
-                      className={cn(buttonVariants({ variant: "ghost" }))}
-                      activeClassNames={cn(
-                        buttonVariants({ variant: "secondary" }),
-                        "rounded-b-none border-b border-primary hover:text-secondary-foreground"
-                      )}
-                    >
+                    <NavLink disabled={e?.disabled} segments={e?.segments} href={e?.value} className={cn(buttonVariants({ variant: "ghost" }))} activeClassNames={cn(buttonVariants({ variant: "secondary" }), "rounded-b-none border-b border-primary hover:text-secondary-foreground")}>
                       {Icon && <Icon />}
-                      {e?.["children"]}
+                      {e?.children}
                     </NavLink>
                   </li>
                 );
