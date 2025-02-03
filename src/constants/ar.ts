@@ -105,6 +105,34 @@ const ar = {
       "browse all stores, edit, and filter.":
         "يمكنك تصفح وتعديل وتصفية جميع المتاجر.",
     },
+    settings: {
+      "main-nav": [
+        {
+          segments: [null],
+          value: Paths.DashboardSettings,
+          children: "الملف الشخصي",
+        },
+        {
+          segments: [Paths.DashboardSettingsAppearance?.split("/")?.pop()],
+          value: Paths.DashboardSettingsAppearance,
+          children: "المظهر",
+        },
+      ] as NavItem[],
+      settings: "الإعدادات",
+      "manage your account details, privacy settings, and how others perceive you on the platform.":
+        "إدارة تفاصيل حسابك، إعدادات الخصوصية، وكيفية رؤية الآخرين لك على المنصة.",
+
+      profile: {
+        profile: "الملف الشخصي",
+        "this is how others will see you on the site.":
+          "هذه هي الطريقة التي سيراك بها الآخرون على الموقع.",
+      },
+      appearance: {
+        appearance: "المظهر",
+        "customize your appearance settings and preferences.":
+          "تخصيص إعدادات المظهر وتفضيلاتك.",
+      },
+    },
   },
 
   stores: {
@@ -265,8 +293,6 @@ const ar = {
     dark: "داكن",
     system: "نظام",
     language: "اللغة",
-    "automatically switch between languages.": "التبديل التلقائي بين اللغات.",
-    "update preferences": "تحديث التفضيلات",
   },
 
   actions: {

@@ -107,6 +107,35 @@ const en = {
       "browse all stores, edit, and filter.":
         "Browse all stores, edit, and filter.",
     },
+
+    settings: {
+      "main-nav": [
+        {
+          segments: [null],
+          value: Paths.DashboardSettings,
+          children: "profile",
+        },
+        {
+          segments: [Paths.DashboardSettingsAppearance?.split("/")?.pop()],
+          value: Paths.DashboardSettingsAppearance,
+          children: "appearance",
+        },
+      ] as NavItem[],
+      settings: "settings",
+      "manage your account details, privacy settings, and how others perceive you on the platform.":
+        "manage your account details, privacy settings, and how others perceive you on the platform.",
+
+      profile: {
+        profile: "profile",
+        "this is how others will see you on the site.":
+          "this is how others will see you on the site.",
+      },
+      appearance: {
+        appearance: "appearance",
+        "customize your appearance settings and preferences.":
+          "customize your appearance settings and preferences.",
+      },
+    },
   },
   stores: {
     store: {
@@ -258,15 +287,13 @@ const en = {
     end: "نهاية في",
   },
   "settings-appearance-form": {
-    theme: "الثيم",
+    theme: "Theme",
     "automatically switch between day and night themes.":
-      "التبديل التلقائي بين الثيمات النهارية والليلية.",
-    light: "فاتح",
-    dark: "داكن",
-    system: "نظام",
-    language: "اللغة",
-    "automatically switch between languages.": "التبديل التلقائي بين اللغات.",
-    "update preferences": "تحديث التفضيلات",
+      "Automatically switch between day and night themes.",
+    light: "Light",
+    dark: "Dark",
+    system: "System",
+    language: "Language",
   },
 
   actions: {
