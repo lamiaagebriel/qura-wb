@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormButton, FormResetButton } from "@/components/ui/form";
-import { ProductForm } from "@/components/_products-form";
 import {
   EmptyPlaceholder,
   EmptyPlaceholderDescription,
@@ -22,6 +21,7 @@ import {
 } from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
+import { ProductForm } from "@/components/product-form";
 
 type ProductProps = Readonly<{
   params: Promise<{ "store-id": string; "product-id": string }>;
