@@ -3,16 +3,27 @@
 import { Product } from "@/servers/db/schema";
 
 import { Button, ButtonProps } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
+
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 export type ProductDetailsCartFormProps = {
   product: Product;
   //  & { attributes: ProductAttribute[] };
 };
 
-export function ProductDetailsCartForm({ product: e }: ProductDetailsCartFormProps) {
+export function ProductDetailsCartForm({
+  product: e,
+}: ProductDetailsCartFormProps) {
   // const cart = useCart();
 
   // const form = useForm<z.infer<typeof cartProductSchema>>({
@@ -35,6 +46,8 @@ export function ProductDetailsCartForm({ product: e }: ProductDetailsCartFormPro
   //   });
   // }
 
+  console.log(e?.attributes);
+
   return (
     // @ts-expect-error form needs more properties
     <Form className="space-y-2">
@@ -43,44 +56,41 @@ export function ProductDetailsCartForm({ product: e }: ProductDetailsCartFormPro
         <p className="text-xl font-bold">${e?.price}</p>
       </div>
 
-      {/* <div className="space-y-4">
-          {e?.attributes?.map((e, i) => (
-            <FormField
-              key={i}
-              control={form["control"]}
-              name={`attributes.${i}.value`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs text-muted-foreground">
-                    Select {e?.name}
-                  </FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field?.value}
-                      className="flex items-center gap-1"
-                    >
-                      {e?.values?.map((v, j) => (
-                        <FormItem key={`${i}-${j}`}>
-                          <FormControl>
-                            <RadioGroupItem
-                              value={v?.name}
-                              className="peer sr-only"
-                            />
-                          </FormControl>
-                          <FormLabel className="flex cursor-pointer items-center rounded-full border border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground [&:has([data-state=checked])]:border-primary">
-                            {v?.name}
-                          </FormLabel>
-                        </FormItem>
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </div> */}
+      <div className="space-y-4">
+        {e?.attributes?.map((e, i) => (
+          <FormField
+            key={i}
+            // control={form["control"]}
+            name={`attributes.${i}.value`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs text-muted-foreground">
+                  {e?.name}
+                </FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field?.value}
+                    className="flex items-center gap-1"
+                  >
+                    {e?.values?.map((v, j) => (
+                      <FormItem key={`${i}-${j}`}>
+                        <FormControl>
+                          <RadioGroupItem value={v} className="peer sr-only" />
+                        </FormControl>
+                        <FormLabel className="flex cursor-pointer items-center rounded-full border border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground [&:has([data-state=checked])]:border-primary">
+                          {v}
+                        </FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+      </div>
 
       <div>
         <FormField
@@ -135,11 +145,18 @@ export function ProductDetailsCartForm({ product: e }: ProductDetailsCartFormPro
                     </Button>
                   </div>
 
-                  <Button type="submit" className="w-full flex-1 rounded-full py-4">
+                  <Button
+                    type="submit"
+                    className="w-full flex-1 rounded-full py-4"
+                  >
                     Add To Cart
                   </Button>
 
-                  <Button variant="outline" size="icon" className="rounded-full">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                  >
                     <Icons.heart />
                   </Button>
                 </div>

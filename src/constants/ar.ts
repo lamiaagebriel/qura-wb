@@ -182,6 +182,7 @@ const ar = {
           "product status": "حالة المُنتج",
           "product images": "صور المُنتج",
           stock: "الكميات المتوفرة",
+          attributes: "المتغيرات",
         },
       },
       orders: {

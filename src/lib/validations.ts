@@ -93,10 +93,10 @@ const productAttributeSchema = z
       .string("name")
       .min(1, "Attribute name cannot be empty")
       .max(50, "Attribute name too long"),
-    description: z
-      .string("description")
-      .max(500, "Description too long")
-      .optional(),
+    // description: z
+    //   .string("description")
+    //   .max(500, "Description too long")
+    //   .optional(),
     values: z
       .array(z.string("value"))
       .min(1, "Must have at least one value")
@@ -206,6 +206,8 @@ const productSchema = z.object({
   images: z.array(z.string("images")).default([]).nullable(),
   stock: z.string("stock").nullable(),
   // .positive("stock can't be less than 0."),
+
+  attributes: z.array(productAttributeSchema),
 });
 
 export type ValidationName = keyof typeof validations;
@@ -273,6 +275,7 @@ export const validations = {
       status: true,
       images: true,
       stock: true,
+      attributes: true,
     })
     .and(
       z.object({

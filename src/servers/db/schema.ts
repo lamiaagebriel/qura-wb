@@ -73,8 +73,8 @@ export const users = pgTable(
       .notNull(),
 
     // Authentication fields
-    googleId: varchar("google_id").unique(),
     email: varchar("email").unique().notNull(),
+    googleId: varchar("google_id").unique(),
     password: varchar("password"),
 
     // Email verification
@@ -190,9 +190,9 @@ export const products = pgTable(
     // barcode: varchar("barcode", { length: 100 }),
     // weight: decimal("weight"),
     // dimensions: json("dimensions").default({}),
-    // attributes: json("attributes")
-    //   .$type<Validation["product-attribute-schema"][]>()
-    //   .default([]),
+    attributes: json("attributes")
+      .$type<Validation["product-attribute-schema"][]>()
+      .default([]),
     // combinations: json("combinations")
     //   .$type<Validation["product-combination-schema"][]>()
     //   .default([]),
@@ -256,27 +256,27 @@ export const orders = pgTable(
     }).notNull(),
     userId: references("user_id", { length: 21 }, users.id, {
       onDelete: "restrict",
-    }).notNull(),
+    }), // null is allowed, to create orders for non-existing users.
 
     status: orderStatus("status").default("PENDING").notNull(),
     paymentStatus: paymentStatus("payment_status").default("PENDING").notNull(),
     items: json("items").$type<Validation["order-item-schema"][]>().default([]),
-    subtotal: decimal("subtotal").notNull(),
-    tax: decimal("tax").default("0"),
-    shipping: decimal("shipping").default("0"),
     total: decimal("total").notNull(),
     shippingAddress: json("shipping_address")
       .$type<Validation["address-schema"]>()
       .notNull(),
-    billingAddress:
-      json("billing_address").$type<Validation["address-schema"]>(),
-    notes: text("notes"),
-    currency: varchar("currency", { length: 3 }).default("USD"),
-    trackingNumber: varchar("tracking_number", { length: 100 }),
-    estimatedDelivery: timestamp("estimated_delivery"),
-    cancelReason: text("cancel_reason"),
-    refundReason: text("refund_reason"),
-    metadata: json("metadata").default({}),
+
+    // subtotal: decimal("subtotal").notNull(),
+    // tax: decimal("tax").default("0"),
+    // shipping: decimal("shipping").default("0"),
+    // billingAddress: json("billing_address").$type<Validation["address-schema"]>(),
+    // notes: text("notes"),
+    // currency: varchar("currency", { length: 3 }).default("USD"),
+    // trackingNumber: varchar("tracking_number", { length: 100 }),
+    // estimatedDelivery: timestamp("estimated_delivery"),
+    // cancelReason: text("cancel_reason"),
+    // refundReason: text("refund_reason"),
+    // metadata: json("metadata").default({}),
   },
   (t) => ({
     userIdx: index("order_user_idx").on(t.userId),

@@ -183,6 +183,7 @@ const en = {
           "product status": "product status",
           "product images": "product images",
           stock: "stock",
+          attributes: "attributes",
         },
       },
       orders: {

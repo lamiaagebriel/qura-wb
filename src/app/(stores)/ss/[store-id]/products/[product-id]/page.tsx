@@ -8,18 +8,20 @@ import { getDictionary } from "@/servers/locale";
 import { updateProduct } from "@/servers/products";
 import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { ProductStatus } from "@/lib/validations";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormButton, FormInputField, FormResetButton, FormSelectField, FormTextareaField } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import { EmptyPlaceholder, EmptyPlaceholderDescription, EmptyPlaceholderIcon, EmptyPlaceholderTitle } from "@/components/empty-placeholder";
+import { Form, FormButton, FormResetButton } from "@/components/ui/form";
+import { ProductForm } from "@/components/_products-form";
+import {
+  EmptyPlaceholder,
+  EmptyPlaceholderDescription,
+  EmptyPlaceholderIcon,
+  EmptyPlaceholderTitle,
+} from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
-import { Image } from "@/components/image";
 import { Link } from "@/components/link";
-import { ProductImageManager } from "@/components/product-images-manager";
 
 type ProductProps = Readonly<{
   params: Promise<{ "store-id": string; "product-id": string }>;
@@ -53,9 +55,14 @@ export default async function Product({ params }: ProductProps) {
             <EmptyPlaceholder className="border-none">
               <EmptyPlaceholderIcon name="inbox" />
               <EmptyPlaceholderTitle>لا يوجد بيانات.</EmptyPlaceholderTitle>
-              <EmptyPlaceholderDescription>تحاول الآن الوصول إلي بيانات غير موجودة في خوادمنا.</EmptyPlaceholderDescription>
+              <EmptyPlaceholderDescription>
+                تحاول الآن الوصول إلي بيانات غير موجودة في خوادمنا.
+              </EmptyPlaceholderDescription>
 
-              <Link href={`/ss/${storeId}/products`} className={cn(buttonVariants({ size: "lg" }))}>
+              <Link
+                href={`/ss/${storeId}/products`}
+                className={cn(buttonVariants({ size: "lg" }))}
+              >
                 <Icons.shirt />
                 <span>جميع المنتجات</span>
               </Link>
@@ -74,24 +81,35 @@ export default async function Product({ params }: ProductProps) {
           useForm={{
             defaultValues: {
               ...selectedProduct,
+              attributes: selectedProduct?.attributes ?? [],
               stock: String(selectedProduct?.stock),
               oldValues: { ...selectedProduct },
             },
           }}
-          className="flex flex-col gap-4">
+          className="flex flex-col gap-4"
+        >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Link href={`/ss/${storeId}/products`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "size-7")}>
+              <Link
+                href={`/ss/${storeId}/products`}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "size-7"
+                )}
+              >
                 <Icons.chevronLeft />
                 <span className="sr-only">{cmn["back"]}</span>
               </Link>
 
-              <h1 className="flex-1 text-xl font-semibold tracking-tight">{c["product details"]}</h1>
+              <h1 className="flex-1 text-xl font-semibold tracking-tight">
+                {c["product details"]}
+              </h1>
               <Badge variant="outline">
                 <div className="flex items-center gap-2">
                   <Icons.dot
                     style={{
-                      backgroundColor: pp["status"]["enums"][selectedProduct?.status]?.color,
+                      backgroundColor:
+                        pp["status"]["enums"][selectedProduct?.status]?.color,
                     }}
                   />
                   {pp["status"]["enums"][selectedProduct?.status]?.label}
@@ -115,46 +133,45 @@ export default async function Product({ params }: ProductProps) {
             <div className="grid auto-rows-max items-start gap-2 lg:col-span-2 lg:gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">{c["product details"]}</CardTitle>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c["product details"]}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
-                    <FormInputField
-                      field={{ name: "title" }}
-                      label={pp["title"]["title"]}
-                      // placeholder={cmn["title"]["joe doe"]}
-                    />
-                    <FormInputField field={{ name: "slug" }} label={pp["slug"]["slug"]} />
-
-                    <FormTextareaField field={{ name: "description" }} label={pp["description"]["description"]} />
+                    <ProductForm.title />
+                    <ProductForm.slug />
+                    <ProductForm.description />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">{c["product cost"]}</CardTitle>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c["product cost"]}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
-                    <FormInputField
-                      type="number"
-                      field={{ name: "cost" }}
-                      label={pp["cost"]["cost"]}
-                      // placeholder={cmn["cost"]["joe doe"]}
-                    />
-                    <FormInputField
-                      type="number"
-                      field={{ name: "price" }}
-                      label={pp["price"]["price"]}
-                      // placeholder={cmn["price"]["joe doe"]}
-                    />
-                    <FormInputField
-                      type="number"
-                      field={{ name: "discount" }}
-                      label={pp["discount"]["discount"]}
-                      // placeholder={cmn["discount"]["joe doe"]}
-                    />
+                    <ProductForm.cost />
+                    <ProductForm.price />
+                    <ProductForm.discount />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c["attributes"]}
+                  </CardTitle>
+
+                  <ProductForm.attributesPlusButton />
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2">
+                    <ProductForm.attributes />
                   </div>
                 </CardContent>
               </Card>
@@ -163,60 +180,39 @@ export default async function Product({ params }: ProductProps) {
             <div className="grid auto-rows-max items-start gap-2 lg:gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">{c["product status"]}</CardTitle>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c["product status"]}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
-                    <FormSelectField
-                      field={{ name: "status" }}
-                      label={{
-                        className: "sr-only",
-                        children: pp["status"]["status"],
-                      }}
-                      placeholder={pp["status"]["select status..."]}
-                      items={(Object.keys(pp["status"]["enums"]) as ProductStatus[])?.map((key) => ({
-                        value: key,
-                        children: (
-                          <div className="flex items-center gap-2">
-                            <Icons.dot
-                              style={{
-                                backgroundColor: pp["status"]["enums"][key]?.color,
-                              }}
-                            />
-                            {pp["status"]["enums"][key]?.label}
-                          </div>
-                        ),
-                      }))}
-                    />
+                    <ProductForm.status />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">{c["product images"]}</CardTitle>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c["product images"]}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
-                    <ProductImageManager />
+                    <ProductForm.images />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">{c["stock"]}</CardTitle>
+                  <CardTitle className="text-sm font-medium uppercase text-muted-foreground">
+                    {c["stock"]}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
-                    <FormInputField
-                      type="number"
-                      field={{ name: "stock" }}
-                      label={{
-                        className: "sr-only",
-                        children: pp["stock"]["stock"],
-                      }}
-                    />
+                    <ProductForm.stock />
                   </div>
                 </CardContent>
               </Card>
