@@ -5,11 +5,14 @@ import { Product } from "@/servers/db/schema";
 import { Button, ButtonProps } from "@/components/ui/button";
 import {
   Form,
+  FormButton,
   FormControl,
   FormField,
+  FormInputField,
   FormItem,
   FormLabel,
   FormMessage,
+  useForm,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
@@ -18,7 +21,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 export type ProductDetailsCartFormProps = {
   product: Product;
-  //  & { attributes: ProductAttribute[] };
+  // & { attributes: ProductAttribute[] };
 };
 
 export function ProductDetailsCartForm({
@@ -26,42 +29,32 @@ export function ProductDetailsCartForm({
 }: ProductDetailsCartFormProps) {
   // const cart = useCart();
 
-  // const form = useForm<z.infer<typeof cartProductSchema>>({
-  //   resolver: zodResolver(cartProductSchema),
-  //   defaultValues: {
-  //     product,
-  //     attributes: e?.attributes?.map((e) => ({
-  //       name: e?.name,
-  //       value:
-  //         // e?.values?.0?.name ??
-  //         undefined,
-  //     })),
-  //     quantity: 1,
-  //   },
-  // });
-
-  // async function onSubmit(data: z.infer<typeof cartProductSchema>) {
-  //   cart.addToCart({
-  //     ...data,
-  //   });
-  // }
-
-  console.log(e?.attributes);
-
   return (
-    // @ts-expect-error form needs more properties
-    <Form className="space-y-2">
-      <div className="flex flex-col items-center sm:flex-row sm:justify-between">
-        <h1 className="text-4xl font-semibold">{e?.title}</h1>
-        <p className="text-xl font-bold">${e?.price}</p>
-      </div>
-
+    <Form
+      validation="add-to-cart"
+      onSubmit={async (data) => {
+        // cart.addToCart({
+        //   ...data,
+        // });
+        return { ok: true };
+      }}
+      useForm={{
+        defaultValues: {
+          // product: e,
+          quantity: 1,
+          attributes: e?.attributes?.reduce(
+            (acc, crr) => ({ ...acc, [crr?.name]: crr?.values?.[0] }),
+            {}
+          ),
+        },
+      }}
+      className="grid grid-cols-1 gap-6"
+    >
       <div className="space-y-4">
         {e?.attributes?.map((e, i) => (
           <FormField
             key={i}
-            // control={form["control"]}
-            name={`attributes.${i}.value`}
+            name={`attributes.${e?.name}`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-xs text-muted-foreground">
@@ -92,80 +85,59 @@ export function ProductDetailsCartForm({
         ))}
       </div>
 
-      <div>
-        <FormField
-          // control={form["control"]}
-          name="quantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Qantity</FormLabel>
-              <FormControl>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 rounded-full border border-primary">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full"
-                      // onClick={() => {
-                      //   form.setValue(
-                      //     "quantity",
-                      //     form.getValues("quantity") + 1
-                      //   );
-                      // }}
-                    >
-                      <Icons.add />
-                    </Button>
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange({
-                          ...e,
-                          target: {
-                            ...e?.target,
-                            value: Number(e?.target?.value),
-                          },
-                        })
-                      }
-                      className="w-fit max-w-24 border-none shadow-none focus-visible:ring-0"
-                    />
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full"
-                      // onClick={() => {
-                      //   form.setValue(
-                      //     "quantity",
-                      //     form.getValues("quantity") - 1
-                      //   );
-                      // }}
-                    >
-                      <Icons.minus />
-                    </Button>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full flex-1 rounded-full py-4"
-                  >
-                    Add To Cart
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full"
-                  >
-                    <Icons.heart />
-                  </Button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <div className="flex items-center gap-1">
+        <QuantityFeild />
+        <FormButton
+          type="submit"
+          size="lg"
+          className="w-full flex-1 rounded-full py-4"
+        >
+          Add To Cart
+        </FormButton>
+        <Button variant="outline" size="icon" className="size-10 rounded-full">
+          <Icons.heart />
+        </Button>
       </div>
     </Form>
   );
 }
+
+const QuantityFeild = () => {
+  const form = useForm?.();
+
+  return (
+    <div className="flex items-center justify-center gap-1 rounded-full border border-primary p-1">
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-8 rounded-full"
+        onClick={() => {
+          form.setValue("quantity", form.getValues("quantity") + 1);
+        }}
+      >
+        <Icons.add />
+      </Button>
+      <div className="max-w-16">
+        <FormInputField
+          type="number"
+          label={{
+            className: "sr-only",
+            children: "Quantity",
+          }}
+          field={{ name: "quantity", control: form["control"] }}
+          className="h-full border-none shadow-none focus-visible:ring-0"
+        />
+      </div>
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-8 rounded-full"
+        onClick={() => {
+          form.setValue("quantity", form.getValues("quantity") - 1);
+        }}
+      >
+        <Icons.minus />
+      </Button>
+    </div>
+  );
+};

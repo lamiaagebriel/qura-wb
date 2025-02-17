@@ -287,4 +287,12 @@ export const validations = {
     storeId: true,
     images: true,
   }),
+
+  // cart
+  "add-to-cart": z.object({
+    attributes: z.any(),
+    quantity: z
+      .number("quantity")
+      .min(1, { message: "Quantity cannot be less than 1." }),
+  }),
 };
