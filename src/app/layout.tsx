@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LocaleProvider } from "@/components/locale-provider";
+import { ReduxProvider } from "@/components/redux-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -42,9 +43,15 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           <SessionProvider value={session}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <TooltipProvider delayDuration={0} disableHoverableContent={true}>
-                {children}
-                <TailwindIndicator />
-                <Toaster />
+                <ReduxProvider>
+                  {/* eslint-disable-next-line react/no-unknown-property */}
+                  {/* <div vaul-drawer-wrapper="" className="flex min-h-screen flex-col bg-background"> */}
+                  {children}
+                  {/* </div> */}
+
+                  <Toaster />
+                  <TailwindIndicator />
+                </ReduxProvider>
               </TooltipProvider>
             </ThemeProvider>
           </SessionProvider>

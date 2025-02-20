@@ -1,6 +1,7 @@
 "use client";
 
 import { Product } from "@/servers/db/schema";
+import { useCart } from "@/lib/redux";
 
 import { Button, ButtonProps } from "@/components/ui/button";
 import {
@@ -27,25 +28,25 @@ export type ProductDetailsCartFormProps = {
 export function ProductDetailsCartForm({
   product: e,
 }: ProductDetailsCartFormProps) {
-  // const cart = useCart();
+  const cart = useCart();
 
   return (
     <Form
-      validation="add-to-cart"
+      validation="cart-product-schema"
       onSubmit={async (data) => {
-        // cart.addToCart({
-        //   ...data,
-        // });
+        cart.addToCart({ ...data });
+        console.log(data);
+
         return { ok: true };
       }}
       useForm={{
         defaultValues: {
-          // product: e,
+          product: { ...e, stock: String(e?.stock) },
+          attributes: e?.["attributes"]?.map((e) => ({
+            name: e?.name,
+            value: e?.values?.[0] ?? undefined,
+          })),
           quantity: 1,
-          attributes: e?.attributes?.reduce(
-            (acc, crr) => ({ ...acc, [crr?.name]: crr?.values?.[0] }),
-            {}
-          ),
         },
       }}
       className="grid grid-cols-1 gap-6"
@@ -54,7 +55,7 @@ export function ProductDetailsCartForm({
         {e?.attributes?.map((e, i) => (
           <FormField
             key={i}
-            name={`attributes.${e?.name}`}
+            name={`attributes.${i}.value`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-xs text-muted-foreground">

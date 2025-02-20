@@ -136,6 +136,7 @@ const Form = <T extends ValidationName, R>({
     ...useFormProps,
   });
 
+  console.log("error: ", form?.formState?.errors);
   return (
     <FormProvider
       {...{

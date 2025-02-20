@@ -499,6 +499,9 @@ const en = {
     price: "price",
     status: "status",
     "created at": "created at",
+
+    // cart
+    quantity: "Quantity",
   },
 
   emails: {

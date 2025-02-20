@@ -496,6 +496,9 @@ const ar = {
     price: "السعر",
     status: "حالة المُنتج",
     "created at": "تاريخ الإنشاء",
+
+    // cart
+    quantity: "الكمية",
   },
   emails: {
     "verify-email": {

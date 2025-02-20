@@ -289,10 +289,44 @@ export const validations = {
   }),
 
   // cart
-  "add-to-cart": z.object({
-    attributes: z.any(),
-    quantity: z
-      .number("quantity")
-      .min(1, { message: "Quantity cannot be less than 1." }),
+  "cart-product-schema": z.object({
+    product: productSchema.pick({
+      id: true,
+      storeId: true,
+      price: true,
+      stock: true,
+
+      title: true,
+      images: true,
+    }),
+    quantity: z.number("quantity").min(1, `quantity can't be less than 0.`),
+    attributes: z
+      .array(
+        z.object({ name: z.string("name"), value: z.string("value") })
+
+        // productAttributeSchema
+        //   .pick({ name: true })
+        //   .and(z.object({ name: z.string("name"),  value: z.string("value"),   }))
+      )
+      .default([]),
+  }),
+  "cart-address-schema": z.object({
+    name: z.stringRequired("name"),
+    phone: z
+      .stringRequired("phone number")
+      .regex(
+        /^01[0,1,2,5][0-9]{8}$/,
+        "only an egyptian phone number is valid."
+      ),
+    address_line: z.string("address_line").optional(),
+    zip: z
+      .stringRequired("zip")
+      .regex(/^\d{5}$/, "Only egyptian zip is valid."),
+    state: z.stringRequired("state"),
+    city: z.stringRequired("city"),
+    country: z.stringRequired("country"),
+  }),
+  "cart-payment-schema": z.object({
+    "payment-method": z.enum(["cash", "paypal"]),
   }),
 };

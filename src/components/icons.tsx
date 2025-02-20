@@ -3,6 +3,7 @@ import {
   AlertCircle,
   Calendar,
   ChevronLeft,
+  ChevronRight,
   ChevronsUpDown,
   Eye,
   EyeOff,
@@ -79,6 +80,12 @@ export const Icons = {
   ),
   chevronLeft: ({ className, ...props }: IconProps) => (
     <ChevronLeft
+      className={cn(IconsVariants({}), "rtl:rotate-180", className)}
+      {...props}
+    />
+  ),
+  chevronRight: ({ className, ...props }: IconProps) => (
+    <ChevronRight
       className={cn(IconsVariants({}), "rtl:rotate-180", className)}
       {...props}
     />

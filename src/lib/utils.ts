@@ -2,7 +2,11 @@ import { unstable_cache as next_unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import { HandleServerActionOnSubmit, HandleServerActionOptions, ServerActionSuccess } from "@/types";
+import {
+  HandleServerActionOnSubmit,
+  HandleServerActionOptions,
+  ServerActionSuccess,
+} from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { DateArg, format, formatDistanceToNow, FormatOptions } from "date-fns";
 import * as DateFnsLocale from "date-fns/locale";
@@ -22,10 +26,12 @@ export function delay(ms: number) {
 export function getURL(path: string = "") {
   // Check if NEXT_PUBLIC_SITE_URL is set and non-empty. Set this to your site URL in production env.
   let url =
-    process?.env?.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.trim() !== ""
+    process?.env?.NEXT_PUBLIC_SITE_URL &&
+    process.env.NEXT_PUBLIC_SITE_URL.trim() !== ""
       ? process.env.NEXT_PUBLIC_SITE_URL
       : // If not set, check for NEXT_PUBLIC_VERCEL_URL, which is automatically set by Vercel.
-        process?.env?.NEXT_PUBLIC_VERCEL_URL && process.env.NEXT_PUBLIC_VERCEL_URL.trim() !== ""
+        process?.env?.NEXT_PUBLIC_VERCEL_URL &&
+          process.env.NEXT_PUBLIC_VERCEL_URL.trim() !== ""
         ? process.env.NEXT_PUBLIC_VERCEL_URL
         : // If neither is set, default to localhost for local development.
           "http://localhost:3000/";
@@ -65,15 +71,20 @@ export function getMimeType(base64: string) {
   return match[1] ?? null;
 }
 
-export async function handleServerAction<R>(actionFn: HandleServerActionOnSubmit<R>, options?: HandleServerActionOptions<R>) {
-  const result = typeof actionFn === "function" ? await actionFn() : await actionFn;
+export async function handleServerAction<R>(
+  actionFn: HandleServerActionOnSubmit<R>,
+  options?: HandleServerActionOptions<R>
+) {
+  const result =
+    typeof actionFn === "function" ? await actionFn() : await actionFn;
 
   if (!result) return;
 
   if (!result.ok) {
     if ("zodIssues" in result && Array.isArray(result?.zodIssues)) {
       if (!options?.form) {
-        if (process.env.NODE_ENV !== "production") throw new Error("form is missing in handleServerAction.");
+        if (process.env.NODE_ENV !== "production")
+          throw new Error("form is missing in handleServerAction.");
 
         return;
       }
@@ -121,7 +132,10 @@ type FormatDateOptions = {
   type?: "default" | "distance";
 } & Omit<FormatOptions, "locale">;
 
-export function formatDate(date: DateArg<Date>, { type, formatStr, ...opts }: FormatDateOptions = { formatStr: "PPP" }) {
+export function formatDate(
+  date: DateArg<Date>,
+  { type, formatStr, ...opts }: FormatDateOptions = { formatStr: "PPP" }
+) {
   if (type === "distance")
     return formatDistanceToNow(date, {
       locale: DateFnsLocale?.enUS,
@@ -150,7 +164,10 @@ export function formatPrice(
   });
 }
 
-export function formatNumber(number: number | string, props: Intl.NumberFormatOptions) {
+export function formatNumber(
+  number: number | string,
+  props?: Intl.NumberFormatOptions
+) {
   if (Number.isNaN(number)) return null;
 
   return new Intl.NumberFormat("en-US", {
