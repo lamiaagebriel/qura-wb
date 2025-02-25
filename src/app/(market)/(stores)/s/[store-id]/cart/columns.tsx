@@ -77,7 +77,7 @@ export const columns: ColumnDef<Data>[] = [
       const { tables: t } = useLocale();
       return <DataTableColumnHeader column={column} title={t["quantity"]} />;
     },
-    cell: ({ row: { original: r } }) => {
+    cell: function Component({ row: { original: r } }) {
       const cart = useCart();
       const value = formatNumber(r?.quantity ?? "0");
 

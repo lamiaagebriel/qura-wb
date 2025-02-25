@@ -219,6 +219,11 @@ const en = {
         orders: "Orders",
         "browse all orders, edit, and filter.":
           "Browse all orders, edit, and filter.",
+
+        order: {
+          "order details": "order details",
+          "order status": "order status",
+        },
       },
       customers: {
         customers: "Customers",
@@ -362,25 +367,6 @@ const en = {
   },
 
   db: {
-    enums: {
-      "order-statuses": [
-        { value: "PENDING", children: "Pending" },
-        { value: "CONFIRMED", children: "Confirmed" },
-        { value: "PROCESSING", children: "Processing" },
-        { value: "SHIPPED", children: "Shipped" },
-        { value: "DELIVERED", children: "Delivered" },
-        { value: "CANCELLED", children: "Cancelled" },
-        { value: "REFUNDED", children: "Refunded" },
-      ] satisfies (SelectItem & { value: OrderStatus })[],
-
-      "payment-statuses": [
-        { value: "PENDING", children: "Pending" },
-        { value: "COMPLETED", children: "Completed" },
-        { value: "FAILED", children: "Failed" },
-        { value: "REFUNDED", children: "Refunded" },
-      ] satisfies (SelectItem & { value: PaymentStatus })[],
-    },
-
     users: {
       id: { id: "الرمز التعريفي" },
       createdAt: { createdAt: "CreatedAt" },
@@ -491,6 +477,39 @@ const en = {
       metaDescription: { metaDescription: "meta_description" },
       isPublished: { isPublished: "is_published" },
       publishedAt: { publishedAt: "published_at" },
+    },
+
+    orders: {
+      id: { id: "ID" },
+      createdAt: { createdAt: "CreatedAt" },
+      updatedAt: { updatedAt: "UpdatedAt" },
+      storeId: { storeId: "StoreID" },
+      userId: { userId: "User ID" },
+
+      status: {
+        status: "status",
+        "select status...": "select status...",
+        enums: {
+          PENDING: { label: "Pending", color: "hsl(var(--chart-2))" },
+          CONFIRMED: { label: "Confirmed", color: "hsl(var(--chart-3))" },
+          PROCESSING: { label: "Processing", color: "hsl(var(--chart-2))" },
+          SHIPPED: { label: "Shipped", color: "hsl(var(--chart-2))" },
+          DELIVERED: { label: "Delivered", color: "hsl(var(--chart-2))" },
+          CANCELLED: { label: "Cancelled", color: "hsl(var(--chart-1))" },
+          REFUNDED: { label: "Refunded", color: "hsl(var(--chart-5))" },
+        } satisfies Record<OrderStatus, { label: string; color: string }>,
+      },
+      paymentStatus: {
+        status: "status",
+        "select status...": "select status...",
+        enums: {
+          PENDING: { label: "Pending", color: "hsl(var(--chart-2))" },
+          COMPLETED: { label: "Completed", color: "hsl(var(--chart-3))" },
+          FAILED: { label: "Failed", color: "hsl(var(--chart-1))" },
+          REFUNDED: { label: "Refunded", color: "hsl(var(--chart-5))" },
+        } satisfies Record<PaymentStatus, { label: string; color: string }>,
+      },
+      total: { total: "total" },
     },
   },
   tables: {

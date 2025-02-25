@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <TooltipProvider delayDuration={0} disableHoverableContent={true}>
                 <ReduxProvider>
-                  {/* eslint-disable-next-line react/no-unknown-property */}
+                  {/* xsx eslint-disable-next-line react/no-unknown-property */}
                   {/* <div vaul-drawer-wrapper="" className="flex min-h-screen flex-col bg-background"> */}
                   {children}
                   {/* </div> */}

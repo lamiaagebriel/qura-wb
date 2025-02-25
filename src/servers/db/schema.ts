@@ -266,6 +266,8 @@ export const orders = pgTable(
       .$type<Validation["address-schema"]>()
       .notNull(),
 
+    actions: json("actions").$type<Validation["order-action"][]>().default([]),
+
     // subtotal: decimal("subtotal").notNull(),
     // tax: decimal("tax").default("0"),
     // shipping: decimal("shipping").default("0"),

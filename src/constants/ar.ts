@@ -217,6 +217,11 @@ const ar = {
         orders: "Orders",
         "browse all orders, edit, and filter.":
           "Browse all orders, edit, and filter.",
+
+        order: {
+          "order details": "تفاصيل الطلب",
+          "order status": "حالة الطلب",
+        },
       },
       customers: {
         customers: "Customers",
@@ -358,25 +363,6 @@ const ar = {
   },
 
   db: {
-    enums: {
-      "order-statuses": [
-        { value: "PENDING", children: "قيد الانتظار" },
-        { value: "CONFIRMED", children: "مؤكد" },
-        { value: "PROCESSING", children: "قيد المعالجة" },
-        { value: "SHIPPED", children: "تم الشحن" },
-        { value: "DELIVERED", children: "تم التوصيل" },
-        { value: "CANCELLED", children: "ملغي" },
-        { value: "REFUNDED", children: "مسترد" },
-      ] satisfies (SelectItem & { value: OrderStatus })[],
-
-      "payment-statuses": [
-        { value: "PENDING", children: "قيد الانتظار" },
-        { value: "COMPLETED", children: "مكتمل" },
-        { value: "FAILED", children: "فشل" },
-        { value: "REFUNDED", children: "مسترد" },
-      ] satisfies (SelectItem & { value: PaymentStatus })[],
-    },
-
     users: {
       id: { id: "الرمز التعريفي" },
       createdAt: { createdAt: "CreatedAt" },
@@ -488,6 +474,39 @@ const ar = {
       metaDescription: { metaDescription: "meta_description" },
       isPublished: { isPublished: "is_published" },
       publishedAt: { publishedAt: "published_at" },
+    },
+
+    orders: {
+      id: { id: "الرقم التعريفي" },
+      createdAt: { createdAt: "تاريخ الإنشاء" },
+      updatedAt: { updatedAt: "أخر تعديل" },
+      storeId: { storeId: "الرقم التعريفي للمتجر" },
+      userId: { userId: "الرقم التعريفي للمستخدم" },
+
+      status: {
+        status: "الحالة",
+        "select status...": "أختر حالة...",
+        enums: {
+          PENDING: { label: "قيد الانتظار", color: "hsl(var(--chart-2))" },
+          CONFIRMED: { label: "مؤكد", color: "hsl(var(--chart-3))" },
+          PROCESSING: { label: "قيد المعالجة", color: "hsl(var(--chart-2))" },
+          SHIPPED: { label: "تم الشحن", color: "hsl(var(--chart-2))" },
+          DELIVERED: { label: "تم التوصيل", color: "hsl(var(--chart-2))" },
+          CANCELLED: { label: "ملغي", color: "hsl(var(--chart-1))" },
+          REFUNDED: { label: "مسترد", color: "hsl(var(--chart-5))" },
+        } satisfies Record<OrderStatus, { label: string; color: string }>,
+      },
+      paymentStatus: {
+        status: "الحالة",
+        "select status...": "أختر حالة...",
+        enums: {
+          PENDING: { label: "قيد الانتظار", color: "hsl(var(--chart-2))" },
+          COMPLETED: { label: "مكتمل", color: "hsl(var(--chart-3))" },
+          FAILED: { label: "فشل", color: "hsl(var(--chart-1))" },
+          REFUNDED: { label: "مسترد", color: "hsl(var(--chart-5))" },
+        } satisfies Record<PaymentStatus, { label: string; color: string }>,
+      },
+      total: { total: "total" },
     },
   },
   tables: {

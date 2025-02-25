@@ -64,9 +64,19 @@ export const queries = {
       { tags: ["orders"] }
     ),
     getMany: unstable_cache(
-      async ({ storeId }: { storeId: string }) => {
+      async ({
+        storeId,
+        userId = null,
+      }: {
+        storeId: string;
+        userId?: string | null;
+      }) => {
         const orders = await db.query.orders.findMany({
-          where: (s, o) => o.eq(s?.storeId, storeId),
+          where: (s, o) =>
+            o.and(
+              o.eq(s?.storeId, storeId),
+              userId ? o.eq(s?.userId, userId) : undefined
+            ),
           orderBy: (s, o) => o.desc(s?.createdAt),
         });
 

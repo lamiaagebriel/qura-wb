@@ -142,10 +142,9 @@ const productPropertySchema = z
 const orderItemSchema = z
   .object({
     productId: z.string("productId").min(1, "Product ID cannot be empty"),
-    variantId: z
-      .string("variantId")
-      .min(1, "Variant ID cannot be empty")
-      .optional(),
+    attributes: z
+      .array(z.object({ name: z.string("name"), value: z.string("value") }))
+      .default([]),
     quantity: z
       .number("quantity")
       .int("Quantity must be an integer")
@@ -208,6 +207,25 @@ const productSchema = z.object({
   // .positive("stock can't be less than 0."),
 
   attributes: z.array(productAttributeSchema),
+});
+
+const orderSchema = z.object({
+  id: z.stringRequired("id"),
+  storeId: z.stringRequired("storeId"),
+  userId: z.string("userId"),
+  status: z.enum([
+    "PENDING",
+    "CONFIRMED",
+    "PROCESSING",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLED",
+    "REFUNDED",
+  ]),
+  paymentStatus: z.enum(["PENDING", "COMPLETED", "FAILED", "REFUNDED"]),
+  total: z.stringRequired("total"),
+  items: z.array(orderItemSchema),
+  shippingAddress: addressSchema,
 });
 
 export type ValidationName = keyof typeof validations;
@@ -287,6 +305,36 @@ export const validations = {
     storeId: true,
     images: true,
   }),
+
+  // orders
+  "create-order": orderSchema.omit({ id: true }),
+  "update-order": orderSchema.pick({
+    id: true,
+    storeId: true,
+    status: true,
+  }),
+  "order-action": z.object({
+    action: z.enum([
+      "PENDING",
+      "CONFIRMED",
+      "PAID", // value
+      "PROCESSING_STARTED",
+      "PROCESSING_ENDED",
+      "SHIPPING_STARTED",
+      "SHIPPING_ENDED",
+      "CANCELLED",
+      "REFUNDED",
+
+      // updates
+      "TOTAL",
+      "ITEMS",
+      "SHIPPING_ADDRESS",
+    ]),
+    actorId: z.stringRequired("actorId"),
+    note: z.string("note"),
+    createdAt: z.date("createdAt"),
+  }),
+  "delete-order": orderSchema.pick({ id: true, storeId: true }),
 
   // cart
   "cart-product-schema": z.object({

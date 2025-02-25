@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { Store } from "@/servers/db/schema";
+import { createOrder } from "@/servers/orders";
 import { useCart } from "@/lib/redux";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import {
   Form,
   FormAlertDialogButton,
+  FormButton,
   FormControl,
   FormField,
   FormInputField,
@@ -51,12 +53,14 @@ import {
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 import { useLocale } from "@/components/locale-provider";
+import { useSession } from "@/components/session-provider";
 
 import { columns } from "./columns";
 
 type CartPageProps = { store: Pick<Store, "id"> };
 export default function CartPage({ store }: CartPageProps) {
   const cart = useCart();
+  const user = useSession()?.user!;
   const {} = useLocale();
 
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -75,53 +79,53 @@ export default function CartPage({ store }: CartPageProps) {
     },
   ];
 
-  async function onCheckout() {
-    console.log({
-      storeId: cart?.products?.[0]?.product?.storeId,
-      status: "PENDING",
-      details: {
-        products: cart?.products?.map((e) => ({
-          productId: e?.product?.id,
-          price: e?.product?.price,
-          quantity: e?.quantity,
-          attributes: e?.attributes,
-        })),
-        address: cart?.address!,
-        paymentMethod: cart?.["payment-method"] ?? "cash",
-      },
-    });
+  // async function onCheckout() {
+  //   console.log({
+  //     storeId: cart?.products?.[0]?.product?.storeId,
+  //     status: "PENDING",
+  //     details: {
+  //       products: cart?.products?.map((e) => ({
+  //         productId: e?.product?.id,
+  //         price: e?.product?.price,
+  //         quantity: e?.quantity,
+  //         attributes: e?.attributes,
+  //       })),
+  //       address: cart?.address!,
+  //       paymentMethod: cart?.["payment-method"] ?? "cash",
+  //     },
+  //   });
 
-    // try {
-    // 	setLoading(true);
-    // const data = {
-    // 	storeId: cart?.products?.[0]?.product?.storeId,
-    // 	status: "PENDING",
-    // 	details: {
-    // 		products: cart?.products?.map((e) => ({
-    // 			productId: e?.product?.id,
-    // 			price: e?.product?.price,
-    // 			quantity: e?.quantity,
-    // 			attributes: e?.attributes,
-    // 		})),
-    // 		address: cart?.address!,
-    // 		paymentMethod: cart?.["payment-method"] ?? "cash",
-    // 	},
-    // } satisfies z.infer<typeof orderCreateSchema>;
-    // 	await orderCreateSchema.parse(data);
-    // 	const result = await createOrder(data);
-    // 	if (result && typeof result === "object" && "error" in result) {
-    // 		toast.error(result?.error);
-    // 		return;
-    // 	}
-    // 	toast.success("created successfully.");
-    // 	cart.clear();
-    // 	// router.push(`/dashboard/o/${}`);
-    // } catch (err: any) {
-    // 	toast.error(err?.message);
-    // } finally {
-    // 	setLoading(false);
-    // }
-  }
+  //   try {
+  //     setLoading(true);
+  //     const data = {
+  //       storeId: cart?.products?.[0]?.product?.storeId,
+  //       status: "PENDING",
+  //       details: {
+  //         products: cart?.products?.map((e) => ({
+  //           productId: e?.product?.id,
+  //           price: e?.product?.price,
+  //           quantity: e?.quantity,
+  //           attributes: e?.attributes,
+  //         })),
+  //         address: cart?.address!,
+  //         paymentMethod: cart?.["payment-method"] ?? "cash",
+  //       },
+  //     } satisfies z.infer<typeof orderCreateSchema>;
+  //     await orderCreateSchema.parse(data);
+  //     const result = await createOrder(data);
+  //     if (result && typeof result === "object" && "error" in result) {
+  //       toast.error(result?.error);
+  //       return;
+  //     }
+  //     toast.success("created successfully.");
+  //     cart.clear();
+  //     // router.push(`/dashboard/o/${}`);
+  //   } catch (err: any) {
+  //     toast.error(err?.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   const isLast = crrStage === stages?.length - 1;
 
@@ -204,15 +208,47 @@ export default function CartPage({ store }: CartPageProps) {
                 {e?.content}
 
                 {isLast && (
-                  <Button
+                  <FormButton
+                    infiniteLoading
                     size="lg"
                     className="mt-4 w-full gap-4 rounded-full"
-                    onClick={onCheckout}
+                    onAction={createOrder}
+                    useForm={{
+                      defaultValues: {
+                        userId: user?.id!,
+                        storeId: cart?.products?.[0]?.product?.storeId,
+                        status: "PENDING",
+                        paymentStatus: "COMPLETED",
+                        items: cart?.products?.map((e) => ({
+                          productId: e?.product?.id,
+                          price: Number(e?.product?.price ?? "0"),
+                          quantity: e?.quantity,
+                          attributes: e?.attributes,
+                          total: Number(e?.product?.price ?? "0") * e?.quantity,
+                        })),
+                        total: cart?.products
+                          ?.reduce(
+                            (acc, crr) =>
+                              acc +
+                              Number(crr?.product?.price ?? "0") *
+                                crr?.quantity,
+                            0
+                          )
+                          ?.toString(),
+                        shippingAddress: {
+                          street: cart?.address?.address_line!,
+                          city: cart?.address?.city!,
+                          state: cart?.address?.state!,
+                          country: cart?.address?.country!,
+                          postalCode: cart?.address?.zip!,
+                        },
+                      },
+                    }}
+                    // onClick={onCheckout}
                     disabled={!cart?.["payment-method"] || loading}
                   >
-                    {loading && <Icons.spinner />}
                     Checkout
-                  </Button>
+                  </FormButton>
                 )}
               </TabsContent>
             ))}
