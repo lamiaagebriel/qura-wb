@@ -156,30 +156,30 @@ const ar = {
           children: "الطلبات",
           icon: "packagePlus",
         },
-        {
-          segments: ["customers"],
-          value: "/customers",
-          children: "العملاء",
-          icon: "users",
-        },
-        {
-          segments: ["reviews"],
-          value: "/reviews",
-          children: "التقييمات",
-          icon: "stars",
-        },
-        {
-          segments: ["promotions"],
-          value: "/promotions",
-          children: "العروض",
-          icon: "percent",
-        },
-        {
-          segments: ["pages"],
-          value: "/pages",
-          children: "الصفحات التعريفية",
-          icon: "files",
-        },
+        // {
+        //   segments: ["customers"],
+        //   value: "/customers",
+        //   children: "العملاء",
+        //   icon: "users",
+        // },
+        // {
+        //   segments: ["reviews"],
+        //   value: "/reviews",
+        //   children: "التقييمات",
+        //   icon: "stars",
+        // },
+        // {
+        //   segments: ["promotions"],
+        //   value: "/promotions",
+        //   children: "العروض",
+        //   icon: "percent",
+        // },
+        // {
+        //   segments: ["pages"],
+        //   value: "/pages",
+        //   children: "الصفحات التعريفية",
+        //   icon: "files",
+        // },
       ] as NavItem[],
       "user-nav": [
         {

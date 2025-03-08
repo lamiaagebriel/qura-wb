@@ -158,30 +158,30 @@ const en = {
           children: "Orders",
           icon: "packagePlus",
         },
-        {
-          segments: ["customers"],
-          value: "/customers",
-          children: "Customers",
-          icon: "users",
-        },
-        {
-          segments: ["reviews"],
-          value: "/reviews",
-          children: "Reviews",
-          icon: "stars",
-        },
-        {
-          segments: ["promotions"],
-          value: "/promotions",
-          children: "Promotions",
-          icon: "percent",
-        },
-        {
-          segments: ["pages"],
-          value: "/pages",
-          children: "Pages",
-          icon: "files",
-        },
+        // {
+        //   segments: ["customers"],
+        //   value: "/customers",
+        //   children: "Customers",
+        //   icon: "users",
+        // },
+        // {
+        //   segments: ["reviews"],
+        //   value: "/reviews",
+        //   children: "Reviews",
+        //   icon: "stars",
+        // },
+        // {
+        //   segments: ["promotions"],
+        //   value: "/promotions",
+        //   children: "Promotions",
+        //   icon: "percent",
+        // },
+        // {
+        //   segments: ["pages"],
+        //   value: "/pages",
+        //   children: "Pages",
+        //   icon: "files",
+        // },
       ] as NavItem[],
       "user-nav": [
         {

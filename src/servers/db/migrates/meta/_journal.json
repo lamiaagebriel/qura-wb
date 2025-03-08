@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1737234299384,
-      "tag": "0000_tricky_thunderbolt",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1738535196220,
-      "tag": "0001_colorful_beast",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1738535277766,
-      "tag": "0002_curly_mother_askani",
+      "when": 1741442089684,
+      "tag": "0000_good_screwball",
       "breakpoints": true
     }
   ]
