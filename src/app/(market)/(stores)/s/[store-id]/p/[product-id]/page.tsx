@@ -55,7 +55,7 @@ export const metadata: Metadata = { title: "Product" };
 export default async function Product({ params }: ProductProps) {
   const { "store-id": storeId, "product-id": productId } = await params;
 
-  const { cmn } = await getDictionary();
+  const { locale, cmn } = await getDictionary();
 
   const { data: selectedProduct } = await queries.products.get({
     id: productId,
@@ -416,7 +416,7 @@ export default async function Product({ params }: ProductProps) {
 
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(new Date())}
+                      {formatDate(new Date(), { locale })}
                     </p>
                   </div>
                 </CardHeader>
@@ -439,16 +439,14 @@ export default async function Product({ params }: ProductProps) {
 
           <Carousel opts={{ align: "start" }} className="w-full">
             <CarouselContent>
-              {[...products, ...products, ...products, ...products]?.map(
-                (e, i) => (
-                  <CarouselItem
-                    key={i}
-                    className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
-                  >
-                    <ProductCard product={e} />
-                  </CarouselItem>
-                )
-              )}
+              {products?.map((e, i) => (
+                <CarouselItem
+                  key={i}
+                  className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
+                >
+                  <ProductCard product={e} />
+                </CarouselItem>
+              ))}
             </CarouselContent>
 
             <CarouselPrevious />

@@ -26,7 +26,12 @@ import { ProductForm } from "@/components/product-form";
 type ProductProps = Readonly<{
   params: Promise<{ "store-id": string; "product-id": string }>;
 }>;
-export const metadata: Metadata = { title: "Product" };
+export const metadata = async (): Promise<Metadata> => {
+  const dic = await getDictionary();
+  const c = dic["stores"]["store"]["products"]["product"];
+
+  return { title: c["product details"] };
+};
 export default async function Product({ params }: ProductProps) {
   const { "store-id": storeId, "product-id": productId } = await params;
 
@@ -82,8 +87,15 @@ export default async function Product({ params }: ProductProps) {
             defaultValues: {
               ...selectedProduct,
               attributes: selectedProduct?.attributes ?? [],
-              stock: String(selectedProduct?.stock),
-              oldValues: { ...selectedProduct },
+              stock: Number(selectedProduct?.stock),
+              price: Number(selectedProduct?.price),
+              cost: Number(selectedProduct?.cost),
+              compareToPrice: Number(selectedProduct?.compareToPrice),
+              images: selectedProduct?.images ?? [],
+              oldValues: {
+                ...selectedProduct,
+                images: selectedProduct?.images ?? [],
+              },
             },
           }}
           className="flex flex-col gap-4"
@@ -122,6 +134,13 @@ export default async function Product({ params }: ProductProps) {
                 <FormResetButton variant="outline" size="sm">
                   {cmn["discard"]}
                 </FormResetButton>
+                <ProductForm.delete
+                  product={{
+                    ...selectedProduct,
+                    images: selectedProduct?.images ?? [],
+                  }}
+                  trigger={{ size: "sm" }}
+                />
                 <FormButton type="submit" size="sm">
                   {cmn["save changes"]}
                 </FormButton>
@@ -155,8 +174,10 @@ export default async function Product({ params }: ProductProps) {
                 <CardContent>
                   <div className="grid gap-2">
                     <ProductForm.cost />
-                    <ProductForm.price />
-                    <ProductForm.discount />
+                    <div className="grid grid-cols-2 gap-2">
+                      <ProductForm.price />
+                      <ProductForm.compareToPrice />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -224,6 +245,13 @@ export default async function Product({ params }: ProductProps) {
               <FormResetButton variant="outline" size="sm">
                 {cmn["discard"]}
               </FormResetButton>
+              <ProductForm.delete
+                product={{
+                  ...selectedProduct,
+                  images: selectedProduct?.images ?? [],
+                }}
+                trigger={{ size: "sm" }}
+              />
               <FormButton type="submit" size="sm">
                 {cmn["save changes"]}
               </FormButton>

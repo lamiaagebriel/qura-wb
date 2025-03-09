@@ -134,32 +134,43 @@ type FormatDateOptions = {
 
 export function formatDate(
   date: DateArg<Date>,
-  { type, formatStr, ...opts }: FormatDateOptions = { formatStr: "PPP" }
+  {
+    type,
+    locale: _locale = "en",
+    formatStr: _formatStr,
+    ...opts
+  }: FormatDateOptions & { locale: Locale }
 ) {
+  const locale = _locale === "ar" ? DateFnsLocale.arSA : DateFnsLocale?.enUS;
+  const formatStr = _locale === "ar" ? "dd MMMM yyyy" : "PPP";
+
+  if (!date) return null;
+
   if (type === "distance")
     return formatDistanceToNow(date, {
-      locale: DateFnsLocale?.enUS,
+      locale,
       // roundingMethod: "floor", // Ensure intervals are rounded down
       // unit: "auto", // Automatically switch between s, m, h, d, etc.
       includeSeconds: true,
       addSuffix: true,
     });
 
-  return format(date, formatStr!, {
-    locale: DateFnsLocale?.enGB,
+  return format(date, formatStr, {
+    locale,
     ...opts,
   });
 }
 
 export function formatPrice(
-  amount: number | string,
+  amount: number | string | null,
   props: Intl.NumberFormatOptions = {
-    currency: "SAR",
+    currency: "EGP",
   }
 ) {
+  if (!amount) return null;
   return formatNumber(amount, {
     style: "currency",
-    currencyDisplay: "name",
+    // currencyDisplay: "name",
     ...props,
   });
 }

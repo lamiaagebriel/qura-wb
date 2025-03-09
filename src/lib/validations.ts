@@ -164,8 +164,9 @@ const orderItemSchema = z
 
 const userSchema = z.object({
   id: z.stringRequired("id"),
-  name: z.stringRequired("name"),
-  image: z.stringRequired("image"),
+  name: z.string("name").nullable(),
+  image: z.string("image").nullable(),
+  phone: z.string("phone").nullable(),
   email: z.stringRequired("email").email("invalid email."),
   password: z.password("password"),
 });
@@ -195,16 +196,14 @@ const productSchema = z.object({
   title: z.stringRequired("title"),
   slug: z.stringRequired("slug"),
   description: z.string("description").nullable(),
-  cost: z.string("cost").nullable(),
-  // .positive("cost can't be less than 0."),
-  price: z.string("price").nullable(),
-  // .positive("price can't be less than 0."),
-  discount: z.string("discount").nullable(),
-  // .positive("discount can't be less than 0."),
+  cost: z.number("cost").positive("cost can't be less than 0."),
+  price: z.number("price").positive("price can't be less than 0."),
+  compareToPrice: z
+    .number("compareToPrice")
+    .positive("compare to price can't be less than 0."),
   status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]),
-  images: z.array(z.string("images")).default([]).nullable(),
-  stock: z.string("stock").nullable(),
-  // .positive("stock can't be less than 0."),
+  images: z.array(z.string("images")).default([]),
+  stock: z.number("stock").positive("stock can't be less than 0."),
 
   attributes: z.array(productAttributeSchema),
 });
@@ -265,6 +264,14 @@ export const validations = {
     })
   ),
 
+  // users
+  "update-user": userSchema.pick({
+    id: true,
+    name: true,
+    image: true,
+    phone: true,
+  }),
+
   // stores
   "create-store": storeSchema.pick({
     name: true,
@@ -289,7 +296,7 @@ export const validations = {
       description: true,
       cost: true,
       price: true,
-      discount: true,
+      compareToPrice: true,
       status: true,
       images: true,
       stock: true,

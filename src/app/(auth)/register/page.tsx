@@ -14,7 +14,13 @@ import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 
 type RegisterProps = Readonly<{}>;
-export const metadata: Metadata = { title: "Register" };
+export const metadata = async (): Promise<Metadata> => {
+  const dic = await getDictionary();
+  const c = dic["auth"]["register"];
+
+  return { title: c["register"] };
+};
+
 export default async function Register({}: RegisterProps) {
   const { user } = await getAuth();
   if (user) redirect(Paths.Dashboard);
@@ -24,7 +30,13 @@ export default async function Register({}: RegisterProps) {
 
   return (
     <div className="grid min-h-screen items-center justify-center overflow-auto lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <Link href={Paths.Login} className={cn(buttonVariants({ variant: "ghost" }), "absolute right-4 top-4")}>
+      <Link
+        href={Paths.Login}
+        className={cn(
+          buttonVariants({ variant: "ghost" }),
+          "absolute right-4 top-4"
+        )}
+      >
         {c["login"]}
       </Link>
 
@@ -33,15 +45,36 @@ export default async function Register({}: RegisterProps) {
         <div className="flex flex-col gap-2 text-center">
           <Icons.logo className="mx-auto size-16" />
 
-          <h1 className="text-2xl font-semibold tracking-tight">{c["create an account!"]} 🎉</h1>
-          <p className="text-sm text-muted-foreground">{c["join our community and unlock amazing features to streamline your work and boost your productivity."]}</p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {c["create an account!"]} 🎉
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {
+              c[
+                "join our community and unlock amazing features to streamline your work and boost your productivity."
+              ]
+            }
+          </p>
         </div>
         <div className="grid gap-4">
-          <Form infiniteLoading validation="register-with-password" onSubmit={registerWithPassword} className="grid grid-cols-1 gap-6">
+          <Form
+            infiniteLoading
+            validation="register-with-password"
+            onSubmit={registerWithPassword}
+            className="grid grid-cols-1 gap-6"
+          >
             <div className="space-y-2">
-              <FormInputField type="email" label={db["users"]["email"]["email"]} field={{ name: "email" }} />
+              <FormInputField
+                type="email"
+                label={db["users"]["email"]["email"]}
+                field={{ name: "email" }}
+              />
 
-              <FormInputField type="password" label={db["users"]["password"]["password"]} field={{ name: "password" }} />
+              <FormInputField
+                type="password"
+                label={db["users"]["password"]["password"]}
+                field={{ name: "password" }}
+              />
 
               <FormButton type="submit" className="w-full">
                 {c["sign up with email"]}
@@ -52,22 +85,36 @@ export default async function Register({}: RegisterProps) {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">{c["or continue with"]}</span>
+                <span className="bg-background px-2 text-muted-foreground">
+                  {c["or continue with"]}
+                </span>
               </div>
             </div>
             <div className="space-y-2">
-              <FormButton infiniteLoading onAction={loginWithGoogle} variant="outline" className="w-full" Icon={<Icons.google className="size-5" />}>
+              <FormButton
+                infiniteLoading
+                onAction={loginWithGoogle}
+                variant="outline"
+                className="w-full"
+                Icon={<Icons.google className="size-5" />}
+              >
                 {c["sign up with google"]}
               </FormButton>
             </div>
           </Form>
           <p className="px-8 text-center text-sm text-muted-foreground">
             {c["by clicking continue, you agree to our"]}{" "}
-            <Link href={Paths.TermsOfService} className="hover:text-brand underline underline-offset-4">
+            <Link
+              href={Paths.TermsOfService}
+              className="hover:text-brand underline underline-offset-4"
+            >
               {c["terms of service"]}
             </Link>{" "}
             {c["and"]}{" "}
-            <Link href={Paths.PrivacyPolicy} className="hover:text-brand underline underline-offset-4">
+            <Link
+              href={Paths.PrivacyPolicy}
+              className="hover:text-brand underline underline-offset-4"
+            >
               {c["privacy policy"]}
             </Link>
             .

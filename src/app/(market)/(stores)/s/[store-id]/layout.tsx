@@ -15,9 +15,14 @@ import { Icons } from "@/components/icons";
 import { Link, NavLink } from "@/components/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
-type StoreLayoutProps = React.PropsWithChildren<Readonly<{ params: Promise<{ "store-id": string }> }>>;
+type StoreLayoutProps = React.PropsWithChildren<
+  Readonly<{ params: Promise<{ "store-id": string }> }>
+>;
 
-export default async function StoreLayout({ children, params }: StoreLayoutProps) {
+export default async function StoreLayout({
+  children,
+  params,
+}: StoreLayoutProps) {
   const { "store-id": storeId } = await params;
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
@@ -34,19 +39,19 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
         <div className="container flex items-center justify-between gap-4">
           <Breadcrumbs
             items={[
-              {
-                value: Paths.Home,
-                children: (
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-6">
-                      <AvatarFallback>
-                        <Icons.logo className="size-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <h1 className="hidden font-semibold sm:block">{dic["site"]["name"]}</h1>
-                  </div>
-                ),
-              },
+              // {
+              //   value: Paths.Home,
+              //   children: (
+              //     <div className="flex items-center gap-2">
+              //       <Avatar className="size-6">
+              //         <AvatarFallback>
+              //           <Icons.logo className="size-4" />
+              //         </AvatarFallback>
+              //       </Avatar>
+              //       <h1 className="hidden font-semibold sm:block">{dic["site"]["name"]}</h1>
+              //     </div>
+              //   ),
+              // },
               {
                 value: `${Paths.Store}/${storeId}`,
                 children: (
@@ -68,7 +73,9 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
             <CartLink href={`${Paths.Store}/${storeId}${Paths.StoreCart}`} />
             <UserAccountNav
               items={c["user-nav"]
-                ?.filter((e) => (user?.emailVerified ? e?.value !== Paths.VerifyEmail : e))
+                ?.filter((e) =>
+                  user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+                )
                 .map((e) => ({
                   ...e,
                   value: `/ss/${storeId}${e?.value}`,

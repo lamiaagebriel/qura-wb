@@ -1,5 +1,6 @@
 import { db } from "@/servers/db";
 import { unstable_cache } from "@/lib/utils";
+import { ProductStatus } from "@/lib/validations";
 
 export const queries = {
   stores: {
@@ -39,9 +40,19 @@ export const queries = {
       { tags: ["products"] }
     ),
     getMany: unstable_cache(
-      async ({ storeId }: { storeId: string }) => {
+      async ({
+        storeId,
+        status,
+      }: {
+        storeId: string;
+        status?: ProductStatus;
+      }) => {
         const products = await db.query.products.findMany({
-          where: (s, o) => o.eq(s?.storeId, storeId),
+          where: (s, o) =>
+            o.and(
+              o.eq(s?.storeId, storeId),
+              status ? o.eq(s?.status, status) : undefined
+            ),
           orderBy: (s, o) => o.desc(s?.createdAt),
         });
 

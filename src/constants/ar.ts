@@ -18,6 +18,7 @@ const ar = {
 
   auth: {
     login: {
+      login: "تسجيل الدخول",
       "back home": "العودة إلى الصفحة الرئيسية",
       "welcome back!": "مرحبًا بعودتك!",
       "join our community and unlock amazing features to streamline your work and boost your productivity.":
@@ -29,6 +30,7 @@ const ar = {
       "forgot password": "نسيت كلمة المرور؟",
     },
     register: {
+      register: "إنشاء حساب",
       login: "تسجيل الدخول",
       "create an account!": "إنشاء حساب!",
       "join our community and unlock amazing features to streamline your work and boost your productivity.":
@@ -67,20 +69,6 @@ const ar = {
   },
 
   dashboard: {
-    "main-nav": [
-      {
-        segments: [null],
-        value: Paths.Dashboard,
-        children: "نظرة عامة",
-        icon: "dashboard",
-      },
-      {
-        segments: ["stores"],
-        value: Paths.DashboardStores,
-        children: "المتاجر",
-        icon: "store",
-      },
-    ] as NavItem[],
     "user-nav": [
       {
         segments: [],
@@ -96,14 +84,9 @@ const ar = {
       },
     ] as NavItem[],
     overview: {
-      overview: "نظرة عامة",
-      "browse all overview, edit, and filter.":
-        "يمكنك تصفح وتعديل وتصفية جميع نظرة عامة.",
-    },
-    stores: {
       stores: "المتاجر",
-      "browse all stores, edit, and filter.":
-        "يمكنك تصفح وتعديل وتصفية جميع المتاجر.",
+      "create, browse, edit, and filter all stores easily.":
+        "قم بإضافة وتصفح جميع المتاجر والتعديل والتصفية بكل سهولة.",
     },
     settings: {
       "main-nav": [
@@ -181,29 +164,15 @@ const ar = {
         //   icon: "files",
         // },
       ] as NavItem[],
-      "user-nav": [
-        {
-          segments: [],
-          value: Paths.VerifyEmail,
-          children: "توثيق الحساب",
-          icon: "verified",
-        },
-        {
-          segments: ["settings"],
-          value: "/settings",
-          children: "الإعدادات",
-          icon: "settings",
-        },
-      ] as NavItem[],
-
       overview: "Overview",
       "browse all overview, edit, and filter.":
         "Browse all overview, edit, and filter.",
 
       products: {
-        products: "Products",
-        "browse all products, edit, and filter.":
-          "Browse all products, edit, and filter.",
+        products: "المنتجات",
+        "create, browse, edit, and filter all products easily.":
+          "قم بإضافة وتصفح جميع المنتجات، والتعديل والتصفية بكل سهولة.",
+
         product: {
           "product details": "تفاصيل المُنتج",
           "product cost": "تكلفة المُنتج",
@@ -214,36 +183,14 @@ const ar = {
         },
       },
       orders: {
-        orders: "Orders",
-        "browse all orders, edit, and filter.":
-          "Browse all orders, edit, and filter.",
+        orders: "الطلبات",
+        "create, browse, edit, and filter all orders easily.":
+          "قم بإضافة وتصفح جميع الطلبات والتعديل والتصفية بكل سهولة.",
 
         order: {
           "order details": "تفاصيل الطلب",
           "order status": "حالة الطلب",
         },
-      },
-      customers: {
-        customers: "Customers",
-        "browse all customers, preview, and filter.":
-          "Browse all customers, preview, and filter.",
-      },
-      reviews: {
-        reviews: "Reviews",
-        "browse all reviews, edit, and filter.":
-          "Browse all reviews, edit, and filter.",
-      },
-
-      promotions: {
-        promotions: "Promotions",
-        "browse all promotions, preview, and filter.":
-          "Browse all promotions, preview, and filter.",
-      },
-
-      pages: {
-        pages: "Pages",
-        "browse all pages, preview, and filter.":
-          "Browse all pages, preview, and filter.",
       },
     },
   },
@@ -370,7 +317,13 @@ const ar = {
 
       // Authentication fields
       googleId: { google_id: "google_id" },
-      email: { email: "Email" },
+      email: {
+        email: "البريد الإلكتروني",
+        "this email addresses is verified & immutable.":
+          "هذا البريد الإلكتروني موثق وغير قابل للتغيير",
+        "this email addresses is needs to be verified or changed.":
+          "هذا البريد الإلكتروني يحتاج للتوثيق او تغييره.",
+      },
       password: {
         password: "Password",
         "confirm password": "confirm password",
@@ -394,11 +347,11 @@ const ar = {
           MERCHANT: { label: "Merchant" },
         } satisfies Record<UserRole, { label: string }>,
       },
-      name: { name: "Name" },
-      image: { image: "image" },
-      phone: { phone: "phone" },
-      address: { address: "address" },
-      preferences: { preferences: "preferences" },
+      name: { name: "الإسم" },
+      image: { image: "صورة البروفايل" },
+      phone: { phone: "رقم الهاتف" },
+      address: { address: "العنوان" },
+      preferences: { preferences: "التفضيلات" },
     },
     stores: {
       id: { id: "id" },
@@ -455,7 +408,7 @@ const ar = {
       },
       images: { images: "الصور" },
       price: { price: "السعر" },
-      discount: { discount: "السعر بعد الخصم" },
+      compareToPrice: { "compare to price": "السعر قبل الخصم" },
       cost: { cost: "تكلفة المنتج" },
       tax: { tax: "tax" },
       stock: { stock: "الكمية بالمخزن" },
@@ -513,6 +466,8 @@ const ar = {
     // products
     "product details": "بيانات المُنتج",
     price: "السعر",
+    profit: "المكسب",
+    stock: "الكمية بالمخزن",
     status: "حالة المُنتج",
     "created at": "تاريخ الإنشاء",
 
@@ -575,6 +530,9 @@ const ar = {
     edit: "تعديل",
     logout: "تسجيل الخروج",
     preview: "عرض",
+
+    "create product": "إضافة منتج جديد",
+    "create store": "إضافة متجر جديد",
   },
 };
 

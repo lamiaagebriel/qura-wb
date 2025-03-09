@@ -60,8 +60,10 @@ export const columns: ColumnDef<Data>[] = [
         />
       );
     },
-    cell: ({ row: { original: r } }) => {
+    cell: function Component({ row: { original: r } }) {
+      const { locale } = useLocale();
       const value = r?.createdAt;
+
       if (!value)
         return (
           <DataTableColumnCell>
@@ -71,7 +73,7 @@ export const columns: ColumnDef<Data>[] = [
 
       return (
         <DataTableColumnCell className="justify-end">
-          {formatDate(value)}
+          {formatDate(value, { locale })}
         </DataTableColumnCell>
       );
     },

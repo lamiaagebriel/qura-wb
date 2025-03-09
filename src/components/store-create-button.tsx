@@ -3,10 +3,18 @@ import { createStore } from "@/servers/stores";
 import { getAuth } from "@/lib/auth";
 
 import { ButtonProps } from "@/components/ui/button";
-import { FormAlertDialogButton, FormInputField, FormSelectField, FormTextareaField } from "@/components/ui/form";
+import {
+  FormAlertDialogButton,
+  FormInputField,
+  FormSelectField,
+  FormTextareaField,
+} from "@/components/ui/form";
 
 type StoreCreateButtonProps = {} & ButtonProps;
-export async function StoreCreateButton({ children, ...props }: StoreCreateButtonProps) {
+export async function StoreCreateButton({
+  children,
+  ...props
+}: StoreCreateButtonProps) {
   const {
     cmn,
     db: { stores: ss },
@@ -18,10 +26,18 @@ export async function StoreCreateButton({ children, ...props }: StoreCreateButto
     <FormAlertDialogButton
       trigger={{
         variant: "outline",
-        children: "create store",
+        children: cmn["create store"],
       }}
-      title={cmn["are you absolutely sure that you want to delete this transactions?"]}
-      description={cmn["this action cannot be undone. this will permanently delete your account and remove your data from our servers."]}
+      title={
+        cmn[
+          "are you absolutely sure that you want to delete this transactions?"
+        ]
+      }
+      description={
+        cmn[
+          "this action cannot be undone. this will permanently delete your account and remove your data from our servers."
+        ]
+      }
       form={{
         infiniteLoading: true,
         validation: "create-store",
@@ -46,12 +62,35 @@ export async function StoreCreateButton({ children, ...props }: StoreCreateButto
             },
           },
         },
-      }}>
-      <FormInputField type="file" accept="image/*" multiple={false} field={{ name: "logo" }} label={ss["logo"]["logo"]} />
-      <FormInputField field={{ name: "name" }} label={ss["name"]["name"]} placeholder={ss["name"]["ovve games"]} />
-      <FormInputField field={{ name: "username" }} label={ss["username"]["username"]} placeholder={ss["username"]["ovvegames"]} />
-      <FormInputField field={{ name: "category" }} label={ss["category"]["category"]} placeholder={ss["category"]["fashion and apparel"]} />
-      <FormTextareaField field={{ name: "bio" }} label={ss["bio"]["bio"]} placeholder={ss["bio"]["type about your store..."]} />
+      }}
+    >
+      <FormInputField
+        type="file"
+        accept="image/*"
+        multiple={false}
+        field={{ name: "logo" }}
+        label={ss["logo"]["logo"]}
+      />
+      <FormInputField
+        field={{ name: "name" }}
+        label={ss["name"]["name"]}
+        placeholder={ss["name"]["ovve games"]}
+      />
+      <FormInputField
+        field={{ name: "username" }}
+        label={ss["username"]["username"]}
+        placeholder={ss["username"]["ovvegames"]}
+      />
+      <FormInputField
+        field={{ name: "category" }}
+        label={ss["category"]["category"]}
+        placeholder={ss["category"]["fashion and apparel"]}
+      />
+      <FormTextareaField
+        field={{ name: "bio" }}
+        label={ss["bio"]["bio"]}
+        placeholder={ss["bio"]["type about your store..."]}
+      />
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <FormSelectField
@@ -61,7 +100,9 @@ export async function StoreCreateButton({ children, ...props }: StoreCreateButto
             children: ss["currency"]["currency"],
           }}
           placeholder={ss["currency"]["select currency..."]}
-          items={(Object.keys(ss["currency"]["enums"]) as ("USD" | "EGY" | "SRY")[])?.map((key) => ({
+          items={(
+            Object.keys(ss["currency"]["enums"]) as ("USD" | "EGY" | "SRY")[]
+          )?.map((key) => ({
             value: key,
             children: ss["currency"]["enums"][key]?.label ?? "",
           }))}
@@ -73,10 +114,12 @@ export async function StoreCreateButton({ children, ...props }: StoreCreateButto
             children: ss["language"]["language"],
           }}
           placeholder={ss["language"]["select language..."]}
-          items={(Object.keys(ss["language"]["enums"]) as ("EN" | "AR")[])?.map((key) => ({
-            value: key,
-            children: ss["language"]["enums"][key]?.label ?? "",
-          }))}
+          items={(Object.keys(ss["language"]["enums"]) as ("EN" | "AR")[])?.map(
+            (key) => ({
+              value: key,
+              children: ss["language"]["enums"][key]?.label ?? "",
+            })
+          )}
         />
       </div>
     </FormAlertDialogButton>

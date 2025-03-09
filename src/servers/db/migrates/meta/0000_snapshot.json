@@ -1,5 +1,5 @@
 {
-  "id": "779d2fa0-1474-4ef6-b87d-ddd61427476c",
+  "id": "4f183ea2-d98f-4b36-a298-4add7513701e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -496,8 +496,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "discount": {
-          "name": "discount",
+        "compare_to_price": {
+          "name": "compare_to_price",
           "type": "numeric(10, 2)",
           "primaryKey": false,
           "notNull": false

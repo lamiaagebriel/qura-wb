@@ -28,7 +28,6 @@ async function upload({ Key, ...props }: AwsUploadProps) {
     ...props,
   };
 
-  console.log(params);
   await s3Config.send(new PutObjectCommand(params));
   return `${AWS_SPACE_BASE_URL}${params?.Key}`;
 }

@@ -14,15 +14,21 @@ import { Icons } from "@/components/icons";
 import { Link, NavLink } from "@/components/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
-type StoreLayoutProps = React.PropsWithChildren<Readonly<{ params: Promise<{ "store-id": string }> }>>;
+type StoreLayoutProps = React.PropsWithChildren<
+  Readonly<{ params: Promise<{ "store-id": string }> }>
+>;
 
-export default async function StoreLayout({ children, params }: StoreLayoutProps) {
+export default async function StoreLayout({
+  children,
+  params,
+}: StoreLayoutProps) {
   const { "store-id": storeId } = await params;
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
   const dic = await getDictionary();
   const c = dic["stores"]["store"];
+  const dashboard = dic["dashboard"];
   const cmn = dic["cmn"];
 
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
@@ -30,10 +36,13 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/50">
-      <header className="z-20 flex flex-col gap-4 bg-background pt-4 text-foreground">
+      <header className="z-20 flex flex-col gap-4 bg-background py-4 text-foreground">
         <div className="container flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Link href={Paths.DashboardStores} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+            <Link
+              href={Paths.Dashboard}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
               <Icons.chevronLeft />
               {cmn["back"]}
             </Link>
@@ -48,7 +57,9 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
                           <Icons.logo className="size-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <h1 className="hidden font-semibold sm:block">{dic["site"]["name"]}</h1>
+                      <h1 className="hidden font-semibold sm:block">
+                        {dic["site"]["name"]}
+                      </h1>
                     </div>
                   ),
                 },
@@ -71,23 +82,24 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
           </div>
 
           <div className="flex items-center gap-2">
-            <Link target="_blank" href={`${Paths.Store}/${storeId}`} className={cn(buttonVariants({ size: "sm" }))}>
+            <Link
+              target="_blank"
+              href={`${Paths.Store}/${storeId}`}
+              className={cn(buttonVariants({ size: "sm" }))}
+            >
               <Icons.eye />
               {cmn["preview"]}
             </Link>
             <UserAccountNav
-              items={c["user-nav"]
-                ?.filter((e) => (user?.emailVerified ? e?.value !== Paths.VerifyEmail : e))
-                .map((e) => ({
-                  ...e,
-                  value: `/ss/${storeId}${e?.value}`,
-                }))}
+              items={dashboard["user-nav"]?.filter((e) =>
+                user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+              )}
             />
           </div>
         </div>
       </header>
 
-      <header className="scrollbar-none sticky top-0 z-20 flex flex-col gap-4 overflow-y-auto border-b bg-background pt-2">
+      <header className="scrollbar-none sticky top-0 z-20 flex flex-col gap-4 overflow-y-auto border-b bg-background">
         <div className="container">
           <nav>
             <ul className="flex items-center gap-1">
@@ -96,7 +108,16 @@ export default async function StoreLayout({ children, params }: StoreLayoutProps
 
                 return (
                   <li key={i}>
-                    <NavLink disabled={e?.disabled} segments={e?.segments} href={`/ss/${storeId}${e?.value}`} className={cn(buttonVariants({ variant: "ghost" }))} activeClassNames={cn(buttonVariants({ variant: "secondary" }), "rounded-b-none border-b border-primary hover:text-secondary-foreground")}>
+                    <NavLink
+                      disabled={e?.disabled}
+                      segments={e?.segments}
+                      href={`/ss/${storeId}${e?.value}`}
+                      className={cn(buttonVariants({ variant: "ghost" }))}
+                      activeClassNames={cn(
+                        buttonVariants({ variant: "secondary" }),
+                        "rounded-b-none border-b border-primary hover:text-secondary-foreground"
+                      )}
+                    >
                       {Icon && <Icon />}
                       {e?.children}
                     </NavLink>

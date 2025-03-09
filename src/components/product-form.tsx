@@ -1,7 +1,11 @@
+import { Product } from "@/servers/db/schema";
 import { getDictionary } from "@/servers/locale";
-import { ProductStatus } from "@/lib/validations";
+import { deleteProduct } from "@/servers/products";
+import { ProductStatus, Validation } from "@/lib/validations";
 
 import {
+  FormAlertDialogButton,
+  FormAlertDialogButtonProps,
   FormInputField,
   FormSelectField,
   FormTextareaField,
@@ -70,7 +74,7 @@ export const ProductForm = {
       />
     );
   },
-  discount: async function Component() {
+  compareToPrice: async function Component() {
     const {
       db: { products: pp },
     } = await getDictionary();
@@ -78,8 +82,8 @@ export const ProductForm = {
     return (
       <FormInputField
         type="number"
-        field={{ name: "discount" }}
-        label={pp["discount"]["discount"]}
+        field={{ name: "compareToPrice" }}
+        label={pp["compareToPrice"]["compare to price"]}
       />
     );
   },
@@ -136,6 +140,33 @@ export const ProductForm = {
         label={{
           className: "sr-only",
           children: pp["stock"]["stock"],
+        }}
+      />
+    );
+  },
+
+  delete: async function Component({
+    product,
+    trigger,
+  }: {
+    product: Validation["delete-product"];
+    trigger?: Pick<FormAlertDialogButtonProps, "trigger">["trigger"];
+  }) {
+    const { cmn } = await getDictionary();
+
+    return (
+      <FormAlertDialogButton
+        trigger={{
+          variant: "destructive",
+          children: cmn["delete"],
+          ...trigger,
+        }}
+        title="Are you absolutely sure?"
+        description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+        form={{
+          validation: "delete-product",
+          onSubmit: deleteProduct,
+          useForm: { defaultValues: { ...product } },
         }}
       />
     );

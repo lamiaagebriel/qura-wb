@@ -17,6 +17,7 @@ const en = {
   },
   auth: {
     login: {
+      login: "Login",
       "back home": "Back Home",
       "welcome back!": "Welcome back!",
       "join our community and unlock amazing features to streamline your work and boost your productivity.":
@@ -29,6 +30,7 @@ const en = {
       "forgot password": "Forgot Password?",
     },
     register: {
+      register: "Register",
       login: "Login",
       "create an account!": "Create an account!",
       "join our community and unlock amazing features to streamline your work and boost your productivity.":
@@ -68,20 +70,6 @@ const en = {
   },
 
   dashboard: {
-    "main-nav": [
-      {
-        segments: [null],
-        value: Paths.Dashboard,
-        children: "Overview",
-        icon: "dashboard",
-      },
-      {
-        segments: ["stores"],
-        value: Paths.DashboardStores,
-        children: "Stores",
-        icon: "store",
-      },
-    ] as NavItem[],
     "user-nav": [
       {
         segments: [],
@@ -98,16 +86,10 @@ const en = {
     ] as NavItem[],
 
     overview: {
-      overview: "Overview",
-      "browse all overview, edit, and filter.":
-        "Browse all overview, edit, and filter.",
-    },
-    stores: {
       stores: "Stores",
-      "browse all stores, edit, and filter.":
-        "Browse all stores, edit, and filter.",
+      "create, browse, edit, and filter all stores easily.":
+        "create, browse, edit, and filter all stores easily.",
     },
-
     settings: {
       "main-nav": [
         {
@@ -183,29 +165,15 @@ const en = {
         //   icon: "files",
         // },
       ] as NavItem[],
-      "user-nav": [
-        {
-          segments: [],
-          value: Paths.VerifyEmail,
-          children: "Verify Email",
-          icon: "verified",
-        },
-        {
-          segments: ["settings"],
-          value: "/settings",
-          children: "Settings",
-          icon: "settings",
-        },
-      ] as NavItem[],
-
       overview: "Overview",
       "browse all overview, edit, and filter.":
         "Browse all overview, edit, and filter.",
 
       products: {
         products: "Products",
-        "browse all products, edit, and filter.":
-          "Browse all products, edit, and filter.",
+        "create, browse, edit, and filter all products easily.":
+          "create, browse, edit, and filter all products easily.",
+
         product: {
           "product details": "product details",
           "product cost": "product cost",
@@ -217,35 +185,13 @@ const en = {
       },
       orders: {
         orders: "Orders",
-        "browse all orders, edit, and filter.":
-          "Browse all orders, edit, and filter.",
+        "create, browse, edit, and filter all orders easily.":
+          "create, browse, edit, and filter all orders easily.",
 
         order: {
           "order details": "order details",
           "order status": "order status",
         },
-      },
-      customers: {
-        customers: "Customers",
-        "browse all customers, preview, and filter.":
-          "Browse all customers, preview, and filter.",
-      },
-      reviews: {
-        reviews: "Reviews",
-        "browse all reviews, edit, and filter.":
-          "Browse all reviews, edit, and filter.",
-      },
-
-      promotions: {
-        promotions: "Promotions",
-        "browse all promotions, preview, and filter.":
-          "Browse all promotions, preview, and filter.",
-      },
-
-      pages: {
-        pages: "Pages",
-        "browse all pages, preview, and filter.":
-          "Browse all pages, preview, and filter.",
       },
     },
   },
@@ -374,7 +320,13 @@ const en = {
 
       // Authentication fields
       googleId: { google_id: "google_id" },
-      email: { email: "Email" },
+      email: {
+        email: "Email",
+        "this email addresses is verified & immutable.":
+          "this email addresses is verified & immutable.",
+        "this email addresses is needs to be verified or changed.":
+          "this email addresses is needs to be verified or changed.",
+      },
       password: {
         password: "Password",
         "confirm password": "confirm password",
@@ -458,7 +410,7 @@ const en = {
       },
       images: { images: "images" },
       price: { price: "price" },
-      discount: { discount: "discount" },
+      compareToPrice: { "compare to price": "compare to price" },
       cost: { cost: "cost" },
       tax: { tax: "tax" },
       stock: { stock: "stock" },
@@ -516,6 +468,8 @@ const en = {
     // products
     "product details": "product details",
     price: "price",
+    stock: "stock",
+    profit: "profit",
     status: "status",
     "created at": "created at",
 
@@ -579,6 +533,9 @@ const en = {
     back: "back",
     discard: "discard",
     preview: "preview",
+
+    "create product": "create product",
+    "create store": "create store",
   },
 };
 

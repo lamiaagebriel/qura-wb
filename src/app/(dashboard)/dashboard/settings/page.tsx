@@ -4,13 +4,21 @@ import { notFound, redirect } from "next/navigation";
 import { Paths } from "@/constants/utils";
 
 import { getDictionary } from "@/servers/locale";
+import { updateUser } from "@/servers/users";
 import { getAuth } from "@/lib/auth";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { Icons } from "@/components/icons";
 
 type ProfileProps = Readonly<{}>;
-export const metadata: Metadata = { title: "Profile" };
+export const metadata = async (): Promise<Metadata> => {
+  const dic = await getDictionary();
+  const c = dic["dashboard"]["settings"]["profile"];
+
+  return { title: c["profile"] };
+};
 export default async function Profile({}: ProfileProps) {
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
@@ -18,6 +26,8 @@ export default async function Profile({}: ProfileProps) {
   const dic = await getDictionary();
   const c = dic["dashboard"]["settings"]["profile"];
   const cmn = dic["cmn"];
+  const db = dic["db"];
+
   return (
     <main className="flex-1">
       <div>
@@ -36,66 +46,54 @@ export default async function Profile({}: ProfileProps) {
       </div>
 
       <div>
-        {/* @ts-expect-error no onSubmit */}
         <Form
-          validation="user-schema"
-          // onSubmit={updateUser}
+          validation="update-user"
+          onSubmit={updateUser}
+          useForm={{ defaultValues: { ...user } }}
           className="flex flex-col gap-4"
         >
-          {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex items-center gap-4">
+                <Avatar className="size-16">
+                  <AvatarImage src={user?.image!} alt={user?.name!} />
+                  <AvatarFallback>
+                    <Icons.user />
+                  </AvatarFallback>
+                </Avatar>
+
+                <FormInputField
+                  label={db["users"]["name"]["name"]}
+                  field={{ name: "name" }}
+                />
+              </div>
+
               <FormInputField
-                field={{ name: "name" }}
-                label={ff?.["name"]?.["name"]}
-                placeholder={ff?.["name"]?.["joe doe"]}
-                className="bg-background text-foreground"
-              />
-              <FormInputField
-                field={{ name: "fullName" }}
-                label={ff?.["name"]?.["full name"]}
-                placeholder={ff?.["name"]?.["joe doe full"]}
-                className="bg-background text-foreground"
+                type="tel"
+                countryCode={user?.phone?.split(" ")[0]}
+                label={db["users"]["phone"]["phone"]}
+                field={{ name: "phone" }}
               />
             </div>
+
             <div className="col-span-2">
               <FormInputField
                 type="email"
+                label={db["users"]["email"]["email"]}
                 field={{ name: "email" }}
-                disabled={true}
-                label={ff?.["email"]?.["email"]}
+                disabled={user?.emailVerified}
                 description={
-                  ff?.["email"]?.[
-                    "this email addresses is verified & immutable."
-                  ]
+                  user?.emailVerified
+                    ? db["users"]["email"][
+                        "this email addresses is verified & immutable."
+                      ]
+                    : db["users"]["email"][
+                        "this email addresses is needs to be verified or changed."
+                      ]
                 }
-                className="bg-background text-foreground"
               />
             </div>
-
-            <div className="col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <FormInputField
-                type="number"
-                field={{ name: "age" }}
-                label={ff?.["age"]?.["age"]}
-                placeholder={`20`}
-                className="bg-background text-foreground"
-              />
-              <FormInputField
-                field={{ name: "phone" }}
-                dir="ltr"
-                label={ff?.["phone"]?.["phone"]}
-                placeholder={ff?.["phone"]?.["+966 575 550 336"]}
-                className="bg-background text-foreground"
-              />
-
-              <FormInputField
-                field={{ name: "nationality" }}
-                label={ff?.["nationality"]?.["nationality"]}
-                placeholder={ff?.["nationality"]?.["saudi"]}
-                className="bg-background text-foreground"
-              />
-            </div>
-          </div> */}
+          </div>
           <FormButton type="submit">{cmn["update data"]}</FormButton>
         </Form>
       </div>

@@ -37,7 +37,7 @@ export default async function Orders({ params }: OrdersProps) {
                 {c["orders"]}
               </h2>
               <p className="max-w-prose text-sm text-muted-foreground">
-                {c["browse all orders, edit, and filter."]}
+                {c["create, browse, edit, and filter all orders easily."]}
               </p>
             </div>
           </div>

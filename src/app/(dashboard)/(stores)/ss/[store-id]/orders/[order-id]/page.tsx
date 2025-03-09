@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 
 import { queries } from "@/servers/db/queries";
-import { Order as OrderType } from "@/servers/db/schema";
 import { getDictionary } from "@/servers/locale";
 import { updateOrder } from "@/servers/orders";
 import { getAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { Locale } from "@/lib/locale";
+import { cn, formatDate } from "@/lib/utils";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -56,12 +56,17 @@ import {
 } from "@/components/empty-placeholder";
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
-import { OrderForm } from "@/components/order-form";
 
 type OrderProps = Readonly<{
   params: Promise<{ "store-id": string; "order-id": string }>;
 }>;
-export const metadata: Metadata = { title: "Order" };
+export const metadata = async (): Promise<Metadata> => {
+  const dic = await getDictionary();
+  const c = dic["stores"]["store"]["orders"]["order"];
+
+  return { title: c["order details"] };
+};
+
 export default async function Order({ params }: OrderProps) {
   const { "store-id": storeId, "order-id": orderId } = await params;
 
@@ -69,6 +74,7 @@ export default async function Order({ params }: OrderProps) {
   if (!user) redirect(Paths.Login);
 
   const {
+    locale,
     stores: {
       store: {
         orders: { order: c },
@@ -120,8 +126,6 @@ export default async function Order({ params }: OrderProps) {
       value: <>{(Number.parseFloat(subtotal) + 10.0 - 1.5).toFixed(2)} USD</>,
     },
   ];
-
-  console.log(selectedOrder);
 
   return (
     <main className="flex-1">
@@ -177,7 +181,7 @@ export default async function Order({ params }: OrderProps) {
 
           <div className="grid gap-2 md:grid-cols-[1fr,250px] lg:grid-cols-3 lg:gap-4">
             <div className="grid auto-rows-max items-start gap-2 lg:col-span-2 lg:gap-4">
-              <OrderActionsTimeline />
+              <OrderActionsTimeline locale={locale} />
             </div>
 
             <div className="grid auto-rows-max items-start gap-2 lg:gap-4">
@@ -299,7 +303,7 @@ export default async function Order({ params }: OrderProps) {
   );
 }
 
-const OrderActionsTimeline = () => {
+const OrderActionsTimeline = ({ locale }: { locale: Locale }) => {
   // Sample data - in a real app, this would be passed as props
   const actions = [
     {
@@ -424,16 +428,16 @@ const OrderActionsTimeline = () => {
     return colorMap?.[action] || "bg-gray-100 text-gray-800";
   };
 
-  // Function to format dates
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  };
+  // // Function to format dates
+  // const formatDate = (date: Date) => {
+  //   return new Intl.DateTimeFormat("en-US", {
+  //     year: "numeric",
+  //     month: "short",
+  //     day: "numeric",
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //   }).format(date);
+  // };
 
   // Function to get actor initials
   const getActorInitials = (actorId: string) => {
@@ -468,7 +472,7 @@ const OrderActionsTimeline = () => {
                       {action.action.replace(/_/g, " ")}
                     </h2>
                     <time className="text-xs text-muted-foreground">
-                      {formatDate(action.createdAt)}
+                      {formatDate(action.createdAt, { locale })}
                     </time>
                   </div>
 

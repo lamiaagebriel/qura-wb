@@ -86,6 +86,12 @@ importers:
       cookies-next:
         specifier: ^5.1.0
         version: 5.1.0(next@15.1.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+      countries-list:
+        specifier: ^3.1.1
+        version: 3.1.1
+      country-flag-icons:
+        specifier: ^1.5.18
+        version: 1.5.18
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -2372,6 +2378,12 @@ packages:
     peerDependencies:
       next: '>=15.0.0'
       react: '>= 16.8.0'
+
+  countries-list@3.1.1:
+    resolution: {integrity: sha512-nPklKJ5qtmY5MdBKw1NiBAoyx5Sa7p2yPpljZyQ7gyCN1m+eMFs9I6CT37Mxt8zvR5L3VzD3DJBE4WQzX3WF4A==}
+
+  country-flag-icons@1.5.18:
+    resolution: {integrity: sha512-z+Uzesi8u8IdkViqqbzzbkf3+a7WJpcET5B7sPwTg7GXqPYpVEgNlZ/FC3l8KO4mEf+mNkmzKLppKTN4PlCJEQ==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -6534,6 +6546,10 @@ snapshots:
       cookie: 1.0.2
       next: 15.1.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
+
+  countries-list@3.1.1: {}
+
+  country-flag-icons@1.5.18: {}
 
   cross-spawn@7.0.6:
     dependencies:

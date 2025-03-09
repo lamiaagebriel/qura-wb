@@ -6,7 +6,15 @@ import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Icons } from "@/components/icons";
 import { Link } from "@/components/link";
 
@@ -24,15 +32,24 @@ export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="size-8">
-          <AvatarImage src={user?.image!} alt={user?.name ?? ""} />
-          <AvatarFallback>
-            <Icons.user />
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex flex-row-reverse items-center gap-2">
+          <Avatar className="size-8">
+            <AvatarImage src={user?.image!} alt={user?.name ?? ""} />
+            <AvatarFallback>
+              <Icons.user />
+            </AvatarFallback>
+          </Avatar>
+
+          <p className="hidden text-sm text-muted-foreground md:block">
+            {user?.email}
+          </p>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="end" sideOffset={4}>
-        <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          <h2>{user?.name}</h2>
+          <p className="text-xs text-muted-foreground">{user?.email}</p>
+        </DropdownMenuLabel>
         {items?.length ? (
           <>
             <DropdownMenuSeparator />
@@ -56,7 +73,13 @@ export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <FormButton infiniteLoading onAction={logout} Icon={<Icons.logout />} variant="ghost" className="focus-visible:ring-none w-full justify-start text-start focus:outline-none focus-visible:ring-0">
+          <FormButton
+            infiniteLoading
+            onAction={logout}
+            Icon={<Icons.logout />}
+            variant="ghost"
+            className="focus-visible:ring-none w-full justify-start text-start focus:outline-none focus-visible:ring-0"
+          >
             {cmn["logout"]}
           </FormButton>
         </DropdownMenuItem>

@@ -39,20 +39,36 @@ export const createProduct = createServerAction(
 
 export const updateProduct = createServerAction(
   async (formData: Validation["update-product"]) => {
-    const { id, images: _images, oldValues, ...data } = validations["update-product"]?.parse(formData);
+    const {
+      id,
+      images: _images,
+      oldValues,
+      ...data
+    } = validations["update-product"]?.parse(formData);
     const { actions: c, cmn } = await getDictionary();
 
     const { user } = await getAuth();
-    if (!user || !id) throw new Error(c["this action needs you to be logged in."]);
+    if (!user || !id)
+      throw new Error(c["this action needs you to be logged in."]);
 
-    const images = _images?.length ? await aws.uploadMany(_images, { Key: `products/images-` }) : [];
+    const images = _images?.length
+      ? await aws.uploadMany(_images, { Key: `products/images-` })
+      : [];
 
     await db
       .update(schema?.products)
-      .set({ ...data, images, stock: Number(data?.stock) })
+      .set({
+        ...data,
+        images,
+        price: String(data?.price),
+        cost: String(data?.cost),
+        compareToPrice: String(data?.compareToPrice),
+      })
       .where(orm?.eq(schema?.products?.id, id))
       .then(async () => {
-        const deletedImages = oldValues?.images?.filter((e) => !images?.includes(e));
+        const deletedImages = oldValues?.images?.filter(
+          (e) => !images?.includes(e)
+        );
         if (deletedImages?.length) await aws.deleteMany(deletedImages);
       });
 

@@ -1,4 +1,5 @@
 import { Store } from "@/servers/db/schema";
+import { getDictionary } from "@/servers/locale";
 import { createProduct } from "@/servers/products";
 import { getAuth } from "@/lib/auth";
 
@@ -11,6 +12,7 @@ export async function ProductCreateButton({
   children,
   ...props
 }: ProductCreateButtonProps) {
+  const { cmn } = await getDictionary();
   const { user } = await getAuth();
   if (!user) return;
 
@@ -24,7 +26,7 @@ export async function ProductCreateButton({
       }}
       {...props}
     >
-      {children ?? "create product"}
+      {children ?? cmn["create product"]}
     </FormButton>
   );
 }

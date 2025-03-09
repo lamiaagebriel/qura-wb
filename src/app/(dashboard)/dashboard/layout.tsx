@@ -4,17 +4,16 @@ import { Paths } from "@/constants/utils";
 
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
-import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
-import { NavLink } from "@/components/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type DashboardLayoutProps = React.PropsWithChildren<Readonly<{}>>;
-export default async function DashboardLayout({ children }: DashboardLayoutProps) {
+export default async function DashboardLayout({
+  children,
+}: DashboardLayoutProps) {
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
@@ -23,7 +22,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/50">
-      <header className="z-20 flex flex-col gap-4 bg-background pt-4 text-foreground">
+      <header className="z-20 flex flex-col gap-4 border-b bg-background py-4 text-foreground">
         <div className="container flex items-center justify-between gap-4">
           <Breadcrumbs
             items={[
@@ -44,28 +43,11 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
             ]}
           />
 
-          <UserAccountNav items={c["user-nav"]?.filter((e) => (user?.emailVerified ? e?.value !== Paths.VerifyEmail : e))} />
-        </div>
-      </header>
-
-      <header className="scrollbar-none sticky top-0 z-20 flex flex-col gap-4 overflow-y-auto border-b bg-background pt-2">
-        <div className="container">
-          <nav>
-            <ul className="flex items-center gap-1">
-              {c["main-nav"]?.map((e, i) => {
-                const Icon = e?.icon ? Icons[e?.icon] : null;
-
-                return (
-                  <li key={i}>
-                    <NavLink disabled={e?.disabled} segments={e?.segments} href={e?.value} className={cn(buttonVariants({ variant: "ghost" }))} activeClassNames={cn(buttonVariants({ variant: "secondary" }), "rounded-b-none border-b border-primary hover:text-secondary-foreground")}>
-                      {Icon && <Icon />}
-                      {e?.children}
-                    </NavLink>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+          <UserAccountNav
+            items={c["user-nav"]?.filter((e) =>
+              user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+            )}
+          />
         </div>
       </header>
 

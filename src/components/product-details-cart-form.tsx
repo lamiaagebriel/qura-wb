@@ -35,13 +35,16 @@ export function ProductDetailsCartForm({
       validation="cart-product-schema"
       onSubmit={async (data) => {
         cart.addToCart({ ...data });
-        console.log(data);
-
         return { ok: true };
       }}
       useForm={{
         defaultValues: {
-          product: { ...e, stock: String(e?.stock) },
+          product: {
+            ...e,
+            stock: Number(e?.stock),
+            price: Number(e?.price),
+            images: e?.images ?? [],
+          },
           attributes: e?.["attributes"]?.map((e) => ({
             name: e?.name,
             value: e?.values?.[0] ?? undefined,

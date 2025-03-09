@@ -41,7 +41,7 @@ export const products = pgTable(
     images: json("images").$type<string[]>(),
     stock: int("stock"),
     price: decimal("price"),
-    discount: decimal("discount"),
+    compareToPrice: decimal("compare_to_price"),
     cost: decimal("cost"),
     // tax: decimal("tax", { precision: 4, scale: 2 }).default("0"),
 

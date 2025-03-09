@@ -56,7 +56,7 @@ CREATE TABLE "products" (
 	"images" json,
 	"stock" integer,
 	"price" numeric(10, 2),
-	"discount" numeric(10, 2),
+	"compare_to_price" numeric(10, 2),
 	"cost" numeric(10, 2),
 	"attributes" json DEFAULT '[]'::json,
 	CONSTRAINT "products_slug_unique" UNIQUE("slug")

@@ -10,7 +10,12 @@ import { Separator } from "@/components/ui/separator";
 import { SettingsAppearanceForm } from "@/components/settings-appearance-form";
 
 type AppearanceProps = Readonly<{}>;
-export const metadata: Metadata = { title: "Appearance" };
+export const metadata = async (): Promise<Metadata> => {
+  const dic = await getDictionary();
+  const c = dic["dashboard"]["settings"]["appearance"];
+
+  return { title: c["appearance"] };
+};
 export default async function Appearance({}: AppearanceProps) {
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);

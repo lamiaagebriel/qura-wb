@@ -861,7 +861,7 @@ const FormDateField = <
 };
 FormDateField.displayName = "FormDateField";
 
-type FormAlertDialogButtonProps = React.PropsWithChildren<{
+export type FormAlertDialogButtonProps = React.PropsWithChildren<{
   title?: string;
   description?: string;
   trigger: ButtonProps;

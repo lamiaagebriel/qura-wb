@@ -39,6 +39,8 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "cookies-next": "^5.1.0",
+    "countries-list": "^3.1.1",
+    "country-flag-icons": "^1.5.18",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.38.2",
     "drizzle-zod": "^0.6.1",

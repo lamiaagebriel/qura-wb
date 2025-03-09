@@ -403,8 +403,6 @@ function CartAddressButton() {
           form={{
             validation: "cart-address-schema",
             onSubmit: async (data) => {
-              console.log(data);
-
               cart.addCartAddress({ address: data });
               return { ok: true };
             },
