@@ -8,7 +8,7 @@ export const userRole = pgEnum("user_role", ["ADMIN", "USER", "MERCHANT"]);
 
 // === Tables ===
 export const users = pgTable(
-  "users",
+  "qurawb__users",
   {
     id: id("id", { length: 21 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -48,7 +48,7 @@ export const users = pgTable(
 );
 
 export const sessions = pgTable(
-  "sessions",
+  "qurawb__sessions",
   {
     id: varchar("id").primaryKey(),
     userId: references("user_id", { length: 21 }, users?.id, {

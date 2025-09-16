@@ -1,11 +1,11 @@
 {
-  "id": "96009f3b-b341-471b-8b32-2a18fa55c5ab",
+  "id": "98723f2e-6c2f-409d-af21-de8956f8896e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.sessions": {
-      "name": "sessions",
+    "public.qurawb__sessions": {
+      "name": "qurawb__sessions",
       "schema": "",
       "columns": {
         "id": {
@@ -60,10 +60,10 @@
         }
       },
       "foreignKeys": {
-        "sessions_user_id_users_id_fk": {
-          "name": "sessions_user_id_users_id_fk",
-          "tableFrom": "sessions",
-          "tableTo": "users",
+        "qurawb__sessions_user_id_qurawb__users_id_fk": {
+          "name": "qurawb__sessions_user_id_qurawb__users_id_fk",
+          "tableFrom": "qurawb__sessions",
+          "tableTo": "qurawb__users",
           "columnsFrom": [
             "user_id"
           ],
@@ -80,8 +80,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
-      "name": "users",
+    "public.qurawb__users": {
+      "name": "qurawb__users",
       "schema": "",
       "columns": {
         "id": {
@@ -231,15 +231,15 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "qurawb__users_email_unique": {
+          "name": "qurawb__users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
           ]
         },
-        "users_google_id_unique": {
-          "name": "users_google_id_unique",
+        "qurawb__users_google_id_unique": {
+          "name": "qurawb__users_google_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "google_id"
