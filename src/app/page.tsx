@@ -1,9 +1,19 @@
-import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
 
-export default function Home() {
+import { getDictionary } from "@/servers/locale";
+
+import { LocaleSwitcher } from "@/components/locale-provider";
+
+type HomeProps = Readonly<{}>;
+export const metadata: Metadata = { title: "Home" };
+export default async function Home({}: HomeProps) {
+  const dic = await getDictionary();
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Button>Click Me</Button>
+    <div>
+      {dic?.["site"]?.["name"]}
+
+      <br />
+      <LocaleSwitcher />
     </div>
   );
 }
