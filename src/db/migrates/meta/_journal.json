@@ -8,6 +8,13 @@
       "when": 1758036697767,
       "tag": "0000_calm_beast",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758042917054,
+      "tag": "0001_old_namora",
+      "breakpoints": true
     }
   ]
 }

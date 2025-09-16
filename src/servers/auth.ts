@@ -252,6 +252,7 @@ export const verifyEmail = createServerAction(
   }
 );
 
+// TODO: handle when the link is expired then send another one/remove the existing
 export const sendPasswordResetLink = createServerAction(
   async (formData: Validation["send-password-reset-link"]) => {
     const data = validations["send-password-reset-link"]?.parse(formData);
@@ -315,30 +316,34 @@ export const resetPassword = createServerAction(
         },
       ]);
 
-    // TODO: handle it from users/schema
     const user = await db
       .execute(
-        orm.sql`SELECT id, reset_details FROM users WHERE "reset_details" ->> 'token' = ${data?.token} LIMIT 1`
+        orm.sql`
+          SELECT ${schema?.users?.id}, ${schema?.users?.resetPasswordDetails}
+          FROM  ${schema?.users}
+          WHERE ${schema?.users?.resetPasswordDetails} ->> 'token' = ${data?.token}
+          LIMIT 1`
       )
       ?.then(
         (r) =>
           ({
             ...r?.rows[0],
-            resetPasswordDetails: r?.rows[0]?.reset_details,
+            resetPasswordDetails:
+              r?.rows[0]?.[schema?.users?.resetPasswordDetails?.name],
           }) as {
             id: string;
-            resetPasswordDetails: Validation["password-reset-schema"];
+            resetPasswordDetails: Validation["password-reset-schema"] | null;
           }
       );
 
     if (
       !user ||
-      !user.resetPasswordDetails ||
-      user.resetPasswordDetails?.token !== data?.token
+      !user?.resetPasswordDetails ||
+      user?.resetPasswordDetails?.token !== data?.token
     )
       throw new Error("Invalid password reset link.");
 
-    if (user.resetPasswordDetails?.used)
+    if (user?.resetPasswordDetails?.used)
       throw new Error("This password reset link has been used before.");
 
     if (!isWithinExpirationDate(new Date(user.resetPasswordDetails?.expiresAt)))

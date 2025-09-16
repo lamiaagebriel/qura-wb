@@ -156,7 +156,9 @@ const en = {
         code: { "verification code": "Verification Code" },
       },
       // Password reset
-      resetPasswordDetails: { reset_details: "reset_details" },
+      resetPasswordDetails: {
+        reset_password_details: "reset_password_details",
+      },
 
       // Profile fields
       role: {

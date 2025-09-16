@@ -29,8 +29,9 @@ export const users = pgTable(
     >(),
 
     // Password reset
-    resetPasswordDetails:
-      json("reset_details").$type<Validation["password-reset-schema"]>(),
+    resetPasswordDetails: json("reset_password_details").$type<
+      Validation["password-reset-schema"]
+    >(),
 
     // Profile fields
     role: userRole("role").default("USER").notNull(),
