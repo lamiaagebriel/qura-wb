@@ -6,10 +6,15 @@ import { HandleServerActionOnSubmit, HandleServerActionOptions } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { DateArg, format, formatDistanceToNow, FormatOptions } from "date-fns";
 import * as DateFnsLocale from "date-fns/locale";
+import { generateId } from "lucia";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
 import { Locale } from "./locale";
+
+export const ID = {
+  generate: (props?: { len?: number }) => generateId(props?.len ?? 21),
+};
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

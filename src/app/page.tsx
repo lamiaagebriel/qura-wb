@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Home" };
 export default async function Home({}: HomeProps) {
   const dic = await getDictionary();
   return (
-    <div>
+    <div className="container">
       {dic?.["site"]?.["name"]}
 
       <br />

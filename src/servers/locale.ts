@@ -3,7 +3,7 @@
 import { cookies as nextCookies } from "next/headers";
 
 import { createServerAction } from "@/servers/utils";
-import { Locale } from "@/lib/locale";
+import { ensureValidLocale } from "@/lib/locale";
 import { Validation, validations } from "@/lib/validations";
 
 const site = {
@@ -12,9 +12,10 @@ const site = {
 };
 
 export const getDictionary = async () => {
-  // Note: here I assume that middleware always makes sure that locale is in cookies.
   const cookies = await nextCookies();
-  const locale = cookies.get("locale")?.value as Locale;
+  const cookieLocale = cookies.get("locale")?.value;
+  // Ensure we always have a valid locale with fallback to default
+  const locale = ensureValidLocale(cookieLocale);
 
   const dic = await site[locale]();
   return { locale, ...dic };

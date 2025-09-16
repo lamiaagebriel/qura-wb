@@ -120,3 +120,8 @@
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  .container {
+    @apply mx-auto w-full px-4;
+  }
+}

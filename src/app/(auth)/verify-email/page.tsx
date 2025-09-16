@@ -1,0 +1,84 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+
+import { Paths } from "@/constants";
+
+import { logout, resendVerificationEmail, verifyEmail } from "@/servers/auth";
+import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
+
+import { Form, FormButton, FormInputOTPField } from "@/components/ui/form";
+import { Icons } from "@/components/ui/icons";
+import { Separator } from "@/components/ui/separator";
+
+type VerifyEmailProps = Readonly<{}>;
+export const metadata = async (): Promise<Metadata> => {
+  const dic = await getDictionary();
+  const c = dic["auth"]["verify-email"];
+
+  return { title: c["verify email"] };
+};
+export default async function VerifyEmail({}: VerifyEmailProps) {
+  const { user } = await getAuth();
+
+  if (!user) redirect(Paths.Login);
+  if (user.emailVerified) redirect(Paths.Dashboard);
+
+  const { db, cmn, ...dic } = await getDictionary();
+  const c = dic["auth"]["verify-email"];
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center overflow-auto">
+      <section className="container flex w-full max-w-[min-content] flex-col justify-center gap-5">
+        <div className="flex flex-col gap-2 text-center">
+          <Icons.logo className="mx-auto size-16" />
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {c["verify email"]}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {c["verification code was sent to"]}{" "}
+            <span className="font-bold">{user["email"]}</span>.{" "}
+            {c["check your spam folder if you can't find the email."]}
+          </p>
+        </div>
+
+        <div>
+          <Form
+            infiniteLoading
+            validation="verify-email"
+            onSubmit={verifyEmail}
+          >
+            <div className="space-y-2">
+              <FormInputOTPField
+                maxLength={8}
+                field={{ name: "code" }}
+                label={
+                  db["users"]["emailVerificationDetails"]["code"][
+                    "verification code"
+                  ]
+                }
+              />
+
+              <FormButton type="submit" className="w-full">
+                {cmn["verify"]}
+              </FormButton>
+
+              <FormButton className="w-full" onAction={resendVerificationEmail}>
+                {cmn["resend code"]}
+              </FormButton>
+            </div>
+            <Separator className="mt-4 mb-2" />
+
+            <FormButton
+              variant="link"
+              className="text-muted-foreground text-center text-sm"
+              onAction={logout}
+            >
+              {c["want to use another email? logout now."]}
+            </FormButton>
+          </Form>
+        </div>
+      </section>
+    </div>
+  );
+}

@@ -1,7 +1,83 @@
+import { userRole } from "@/db/schema";
+import { createSelectSchema } from "drizzle-zod";
 import { z as zod } from "zod";
 
 import { i18n } from "@/lib/locale";
 import { z } from "@/lib/zod";
+
+const coordinatesSchema = z.object({
+  latitude: z
+    .number("latitude")
+    .min(-90)
+    .max(90)
+    .describe("Latitude must be between -90 and 90 degrees"),
+  longitude: z
+    .number("longitude")
+    .min(-180)
+    .max(180)
+    .describe("Longitude must be between -180 and 180 degrees"),
+});
+
+const addressSchema = z
+  .object({
+    street: z
+      .string("street")
+      .min(1, "Street cannot be empty")
+      .max(100, "Street name too long"),
+    city: z
+      .string("city")
+      .min(1, "City cannot be empty")
+      .max(50, "City name too long"),
+    state: z
+      .string("state")
+      .min(1, "State cannot be empty")
+      .max(50, "State name too long"),
+    country: z
+      .string("country")
+      .min(2, "Country code must be at least 2 characters")
+      .max(50, "Country name too long"),
+    postalCode: z
+      .string("postalCode")
+      .min(3, "Postal code must be at least 3 characters")
+      .max(10, "Postal code too long")
+      .regex(/^[A-Z0-9\s-]*$/i, "Invalid postal code format"),
+    coordinates: coordinatesSchema.optional(),
+  })
+  .strict();
+const emailVerificationSchema = z
+  .object({
+    code: z
+      .string("code")
+      .min(8, "Verification code must be 8 characters")
+      .max(8, "Verification code must be 8 characters"),
+    email: z.string("email").email("Invalid email address"),
+    expiresAt: z.date("expiresAt"),
+    attempts: z
+      .number("attempts")
+      .int("Attempts must be an integer")
+      .min(0, "Attempts cannot be negative"),
+  })
+  .strict();
+
+const passwordResetSchema = z
+  .object({
+    token: z
+      .string("token")
+      .min(32, "Token must be at least 32 characters")
+      .max(256, "Token too long"),
+    expiresAt: z.date("expiresAt"),
+    used: z.boolean("used"),
+  })
+  .strict();
+
+const userSchema = z.object({
+  id: z.stringRequired("id"),
+  name: z.string("name").nullable(),
+  image: z.string("image").nullable(),
+  phone: z.string("phone").nullable(),
+  email: z.stringRequired("email").email("invalid email."),
+  password: z.password("password"),
+});
 
 export type ValidationName = keyof typeof validations;
 export type Validation = {
@@ -10,4 +86,35 @@ export type Validation = {
 
 export const validations = {
   "locale-switcher": z.object({ locale: z.enum(i18n?.locales) }),
+  "login-with-password": userSchema.pick({
+    email: true,
+    password: true,
+  }),
+  "register-with-password": userSchema.pick({
+    email: true,
+    password: true,
+  }),
+  "verify-email": emailVerificationSchema.pick({ code: true }),
+  "send-password-reset-link": userSchema.pick({ email: true }),
+  "reset-password": userSchema.pick({ password: true }).and(
+    z.object({
+      confirmPassword: z.stringRequired("confirm password"),
+      token: z.stringRequired("token"),
+    })
+  ),
+
+  // STRICT: db depends on this, we can add more but remove some needs to be handled.
+  "address-schema": addressSchema,
+  "email-verification-schema": emailVerificationSchema,
+  "password-reset-schema": passwordResetSchema,
+  //  "product-attribute-schema": productAttributeSchema,
+  //  "product-combination-schema": productCombinationSchema,
+  //  "product-property-schema": productPropertySchema,
+  //  "order-item-schema": orderItemSchema,
+  // END STRICT
 };
+
+// STRICT: to db
+export const userRoleSchema = createSelectSchema(userRole);
+export type UserRole = zod.infer<typeof userRoleSchema>;
+// END STRICT
