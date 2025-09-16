@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 
 import { Paths } from "@/constants";
 import { db, schema } from "@/db";
+import { User } from "@/db/schema";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
 
@@ -69,7 +70,7 @@ export async function GET(req: NextRequest) {
     // Update existing user if needed
     if (existingUser) {
       // Check which fields need to be updated, then update all at once if needed
-      const updates: Record<string, any> = {};
+      const updates: Partial<User> = {};
 
       if (
         !existingUser?.googleId ||

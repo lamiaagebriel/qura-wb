@@ -37,7 +37,7 @@ import { InputTags } from "./input-tags";
 
 type ExtendedUseForm<
   TFieldValues extends FieldValues = FieldValues,
-  TContext = any,
+  TContext = unknown,
   TTransformedValues extends FieldValues | undefined = undefined,
 > = UseFormReturn<TFieldValues, TContext, TTransformedValues> & {
   loading: boolean;
@@ -48,7 +48,7 @@ type ExtendedUseForm<
 
 export function useForm<
   TFieldValues extends FieldValues = FieldValues,
-  TContext = any,
+  TContext = unknown,
   TTransformedValues extends FieldValues | undefined = undefined,
 >(): ExtendedUseForm<TFieldValues, TContext, TTransformedValues> {
   const form = useFormContext<TFieldValues, TContext, TTransformedValues>();
@@ -97,7 +97,10 @@ const Form = <T extends ValidationName, R>({
 
   const form = useFormReactHook<Validation[T]>({
     mode: "onBlur",
-    ...(!!schema && ({ resolver: zodResolver(schema) } as any)),
+    ...(!!schema &&
+      ({ resolver: zodResolver(schema) } as unknown as UseFormProps<
+        Validation[T]
+      >)),
     ...useFormProps,
   });
 
@@ -146,8 +149,8 @@ type FormFieldContextValue<
   name: TName;
 };
 
-const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue
+const FormFieldContext = React.createContext<FormFieldContextValue | null>(
+  null
 );
 
 const FormField = <
@@ -167,12 +170,14 @@ const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
   const { getFieldState } = useFormContext();
-  const formState = useFormState({ name: fieldContext.name });
-  const fieldState = getFieldState(fieldContext.name, formState);
-
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>");
   }
+  if (!itemContext) {
+    throw new Error("useFormField should be used within <FormItem>");
+  }
+  const formState = useFormState({ name: fieldContext.name });
+  const fieldState = getFieldState(fieldContext.name, formState);
 
   const { id } = itemContext;
 
@@ -190,9 +195,7 @@ type FormItemContextValue = {
   id: string;
 };
 
-const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue
-);
+const FormItemContext = React.createContext<FormItemContextValue | null>(null);
 
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId();
@@ -280,38 +283,37 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
 // ------------------------- custom fields
 
 export function withFormAwareness<
-  T extends {
+  TProps extends {
     disabled?: boolean;
     loading?: "true" | "false";
   },
->(
-  WrappedComponent:
-    | React.ComponentType<T>
-    | React.ForwardRefRenderFunction<any, T>
-) {
-  const result = React.forwardRef<any, T>((props, ref) => {
+>(WrappedComponent: React.ComponentType<TProps>) {
+  const Result = React.forwardRef<unknown, TProps>((props, ref) => {
     const form = useForm?.() ?? undefined;
     const loading = form?.loading;
     const disabled = form?.loading || form?.disabled || props?.disabled;
 
-    return React.createElement(WrappedComponent as any, {
-      ...props,
-      ref,
-      disabled,
-      loading: JSON.stringify(loading),
-    });
+    return React.createElement(
+      WrappedComponent as React.ComponentType<TProps>,
+      {
+        ...(props as TProps),
+        ref: ref as never,
+        disabled,
+        loading: JSON.stringify(loading),
+      }
+    );
   });
 
-  result["displayName"] = WrappedComponent?.displayName;
-  return result;
+  Result.displayName = WrappedComponent.displayName;
+  return Result;
 }
 
 type FormButtonProps = {
-  onAction?: FormProps<any, any>["onSubmit"];
+  onAction?: FormProps<ValidationName, unknown>["onSubmit"];
   Icon?: React.ReactNode;
 
-  infiniteLoading?: FormProps<any, any>["infiniteLoading"];
-  useForm?: FormProps<any, any>["useForm"];
+  infiniteLoading?: FormProps<ValidationName, unknown>["infiniteLoading"];
+  useForm?: FormProps<ValidationName, unknown>["useForm"];
 } & ButtonProps;
 
 type CustomFormsProps<
@@ -346,7 +348,7 @@ function FormButton({
           setLoading(true);
           form?.setDisabled?.(true);
           await handleServerAction(
-            onAction(useFormProps?.defaultValues ?? {}),
+            onAction(useFormProps?.defaultValues ?? ({} as any)),
             {
               onSuccess() {
                 setLoading(infiniteLoading);
@@ -426,7 +428,7 @@ function FormInputOTPField({
   description,
   maxLength = 8,
   ...props
-}: CustomFormsProps & Omit<InputOTPProps, "children">) {
+}: CustomFormsProps & Omit<InputOTPProps, "children" | "render">) {
   const labelProps: LabelProps =
     typeof label === "string" ? { children: label } : label;
   const descriptionProps: React.ComponentProps<"p"> =
@@ -445,7 +447,7 @@ function FormInputOTPField({
             <FormControl>
               <InputOTP
                 maxLength={maxLength}
-                {...(field as any)}
+                {...field}
                 {...props}
                 containerClassName="flex items-center justify-center"
               >

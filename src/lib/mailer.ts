@@ -23,7 +23,7 @@ export type MailerTemplateProps = {
 };
 
 const templates = {
-  base: ({ locale, content }: { locale: Locale; content: any }) => `
+  base: ({ locale, content }: { locale: Locale; content: string }) => `
   <!DOCTYPE html>
   <html lang="${locale}" dir="${locale === "ar" ? "rtl" : "ltr"}">
     <head>
@@ -187,7 +187,7 @@ export const mailer = {
       sender: process.env.SMTP_USER,
     }
   ) => {
-    const html = await templates[template]?.(options as any);
+    const html = await templates[template]?.(options as never);
     return transporter.sendMail({ to, ...html, ...props });
   },
 };

@@ -15,11 +15,7 @@ import { getURL } from "@/lib/utils";
 // globalThis.crypto = webcrypto as Crypto;
 
 // TODO: as I am using node-postgres not postgres.js
-const adapter = new DrizzlePostgreSQLAdapter(
-  db as any,
-  sessions as any,
-  users as any
-);
+const adapter = new DrizzlePostgreSQLAdapter(db, sessions, users);
 
 export const lucia = new Lucia(adapter, {
   sessionExpiresIn: new TimeSpan(30, "d"),

@@ -31,16 +31,21 @@ export function InputTags({
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string>("");
 
-  const handleNewValue = ({ value }: { value: string }) => {
-    const val = value.trim();
-    if (selected?.find((e) => e === val)) {
-      toast.error("this value already exists.");
-      return;
-    }
+  // Memoize handleNewValue to avoid missing dependency warning
+  const handleNewValue = React.useCallback(
+    ({ value }: { value: string }) => {
+      const val = value.trim();
+      if (selected?.find((e) => e === val)) {
+        toast.error("this value already exists.");
+        return;
+      }
 
-    onSelectedChange([...selected, val]); // Add new tag
-    setValue(""); // Clear input
-  };
+      onSelectedChange([...selected, val]); // Add new tag
+      setValue(""); // Clear input
+    },
+    [onSelectedChange, selected]
+  );
+
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const input = inputRef.current;
@@ -61,7 +66,7 @@ export function InputTags({
         return;
       }
     },
-    [selected, onSelectedChange, value, handleNewValue]
+    [selected, value, onSelectedChange, handleNewValue]
   );
 
   const selectables = suggestions.filter((val) => !selected.includes(val));

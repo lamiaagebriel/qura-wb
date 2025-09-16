@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import * as React from "react";
 
 import { cva, VariantProps } from "class-variance-authority";
@@ -41,6 +42,16 @@ function InputWithoutFormAwareness({
   const [selectedCountryCode, setSelectedCountryCode] =
     React.useState(countryCode);
   const phoneInputRef = React.useRef<HTMLInputElement>(null);
+  // Sort country codes for the dropdown
+  const countryEntries = React.useMemo(() => Object.entries(countries), []);
+  const sortedCountryCodes = React.useMemo(() => {
+    const codes = countryEntries.map(([code, country]) => ({
+      code,
+      name: country.name,
+      phone: country.phone,
+    }));
+    return codes.sort((a, b) => a.name.localeCompare(b.name));
+  }, [countryEntries]);
 
   if (type === "password") {
     return (
@@ -132,21 +143,6 @@ function InputWithoutFormAwareness({
       }
     };
 
-    // Extract country codes from countries-list
-    const getCountryCodes = () => {
-      return Object.entries(countries).map(([code, country]) => ({
-        code,
-        name: country.name,
-        phone: country.phone,
-      }));
-    };
-
-    // Sort country codes for the dropdown
-    const sortedCountryCodes = React.useMemo(() => {
-      const codes = getCountryCodes();
-      return codes.sort((a, b) => a.name.localeCompare(b.name));
-    }, []);
-
     return (
       <div className="flex rtl:flex-row-reverse">
         <Combobox
@@ -161,7 +157,7 @@ function InputWithoutFormAwareness({
             label: (
               <>
                 <div className="flex items-center gap-1">
-                  <img
+                  <Image
                     alt={e?.name}
                     src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${e.code}.svg`}
                     className="inline-flex size-4 object-cover object-center"
