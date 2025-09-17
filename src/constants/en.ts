@@ -70,13 +70,67 @@ const en = {
         children: "Verify Email",
         icon: "verified",
       },
+      {
+        segments: ["dashboard"],
+        value: Paths.Dashboard,
+        children: "Dashboard",
+        icon: "dashboard",
+      },
+      {
+        segments: ["settings"],
+        value: Paths.DashboardSettings,
+        children: "Settings",
+        icon: "settings",
+      },
     ] as NavItem[],
 
     overview: {
+      dashboard: "Dashboard",
+      "create, browse, edit, and filter all orders easily.":
+        "create, browse, edit, and filter all orders easily.",
+    },
+    stores: {
       stores: "Stores",
       "create, browse, edit, and filter all stores easily.":
         "create, browse, edit, and filter all stores easily.",
     },
+    settings: {
+      "main-nav": [
+        {
+          segments: [null],
+          value: Paths.DashboardSettings,
+          children: "Profile",
+        },
+        {
+          segments: [Paths.DashboardSettingsAppearance?.split("/")?.pop()],
+          value: Paths.DashboardSettingsAppearance,
+          children: "Appearance",
+        },
+      ] as NavItem[],
+
+      settings: "Settings",
+      "manage your account details, privacy settings, and how others perceive you on the platform.":
+        "manage your account details, privacy settings, and how others perceive you on the platform.",
+
+      profile: {
+        profile: "Profile",
+        "this is how others will see you on the site.":
+          "this is how others will see you on the site.",
+      },
+      appearance: {
+        appearance: "Appearance",
+        "customize your appearance settings and preferences.":
+          "customize your appearance settings and preferences.",
+      },
+    },
+  },
+  "mode-switcher": {
+    theme: "Theme",
+    "automatically switch between day and night themes.":
+      "Automatically switch between day and night themes.",
+    light: "Light",
+    dark: "Dark",
+    system: "System",
   },
   actions: {
     "an unexpected error occured, please try again later.":
@@ -132,12 +186,12 @@ const en = {
 
   db: {
     users: {
-      id: { id: "الرمز التعريفي" },
+      id: { id: "Identifier" },
       createdAt: { createdAt: "CreatedAt" },
       updatedAt: { updatedAt: "UpdatedAt" },
 
       // Authentication fields
-      googleId: { google_id: "google_id" },
+      googleId: { google_id: "Google Id" },
       email: {
         email: "Email",
         "this email addresses is verified & immutable.":
@@ -147,22 +201,22 @@ const en = {
       },
       password: {
         password: "Password",
-        "confirm password": "confirm password",
+        "confirm password": "Confirm Password",
       },
 
       // Email verification
-      emailVerified: { email_verified: "email_verified" },
+      emailVerified: { email_verified: "Email Verified" },
       emailVerificationDetails: {
         code: { "verification code": "Verification Code" },
       },
       // Password reset
       resetPasswordDetails: {
-        reset_password_details: "reset_password_details",
+        reset_password_details: "Reset Password Details",
       },
 
       // Profile fields
       role: {
-        role: "role",
+        role: "Role",
         enums: {
           ADMIN: { label: "Admin" },
           USER: { label: "User" },
@@ -170,23 +224,24 @@ const en = {
         } satisfies Record<UserRole, { label: string }>,
       },
       name: { name: "Name" },
-      image: { image: "image" },
-      phone: { phone: "phone" },
-      address: { address: "address" },
-      preferences: { preferences: "preferences" },
+      image: { image: "Image" },
+      phone: { phone: "Phone" },
+      address: { address: "Address" },
+      preferences: { preferences: "Preferences" },
     },
   },
 
   // Commom phrases
   cmn: {
     "are you absolutely sure that you want to delete this transactions?":
-      "هل أنت متأكد تمامًا أنك تريد حذف هذه المعاملة النقدية؟",
+      "Are you absolutely sure that you want to delete this transactions?",
     "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
-      "لا يمكن التراجع عن هذا الإجراء. سيؤدي ذلك إلى طلب السحب نهائيًا وإزالته من خوادمنا.",
+      "This action cannot be undone. this will permanently delete your account and remove your data from our servers.",
 
     "created successfully.": "created successfully.",
     "updated successfully.": "updated successfully.",
     "deleted successfully.": "deleted successfully.",
+    "work with us": "work with us",
     "resend code": "Resend Code",
     "save changes": "Save Changes",
     verify: "Verify",
@@ -195,6 +250,7 @@ const en = {
     delete: "Delete",
     edit: "Edit",
     logout: "Logout",
+    signup: "Sign Up",
 
     "pick a date": "Pick a date",
     "message sent successfully": "message sent successfully",

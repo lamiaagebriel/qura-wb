@@ -29,7 +29,7 @@ export default async function VerifyEmail({}: VerifyEmailProps) {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center overflow-auto">
-      <section className="container flex w-full max-w-[min-content] flex-col justify-center gap-5">
+      <section className="container flex w-full !max-w-[min-content] flex-col justify-center gap-5">
         <div className="flex flex-col gap-2 text-center">
           <Icons.logo className="mx-auto size-16" />
           <h1 className="text-2xl font-semibold tracking-tight">

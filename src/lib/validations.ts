@@ -103,6 +103,14 @@ export const validations = {
     })
   ),
 
+  // users
+  "update-user": userSchema.pick({
+    id: true,
+    name: true,
+    image: true,
+    phone: true,
+  }),
+
   // STRICT: db depends on this, we can add more but remove some needs to be handled.
   "address-schema": addressSchema,
   "email-verification-schema": emailVerificationSchema,

@@ -7,7 +7,9 @@ import { getAuth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
+import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
+import { Link } from "@/components/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type DashboardLayoutProps = React.PropsWithChildren<Readonly<{}>>;
@@ -17,7 +19,7 @@ export default async function DashboardLayout({
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
-  const dic = await getDictionary();
+  const { cmn, ...dic } = await getDictionary();
   const c = dic["dashboard"];
 
   return (
@@ -27,7 +29,7 @@ export default async function DashboardLayout({
           <Breadcrumbs
             items={[
               {
-                value: Paths.Dashboard,
+                value: Paths.Home,
                 children: (
                   <div className="flex items-center gap-2">
                     <Avatar className="size-6">
@@ -43,11 +45,16 @@ export default async function DashboardLayout({
             ]}
           />
 
-          <UserAccountNav
-            items={c["user-nav"]?.filter((e) =>
-              user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
-            )}
-          />
+          <div className="flex items-center gap-2">
+            <Link
+              href={Paths.DashboardStores}
+              className={buttonVariants({ size: "sm" })}
+            >
+              {cmn["work with us"]}
+            </Link>
+
+            <UserAccountNav items={c["user-nav"]} />
+          </div>
         </div>
       </header>
 

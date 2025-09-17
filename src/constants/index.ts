@@ -10,4 +10,7 @@ export enum Paths {
   VerifyEmail = "/verify-email",
 
   Dashboard = "/dashboard",
+  DashboardStores = "/dashboard/stores",
+  DashboardSettings = "/dashboard/settings",
+  DashboardSettingsAppearance = "/dashboard/settings/appearance",
 }

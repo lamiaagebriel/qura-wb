@@ -8,22 +8,22 @@ import { getAuth } from "@/lib/auth";
 
 import { Separator } from "@/components/ui/separator";
 
-type DashboardProps = Readonly<{}>;
+type StoresDashboardProps = Readonly<{}>;
 export const metadata = async (): Promise<Metadata> => {
   const dic = await getDictionary();
-  const c = dic["dashboard"]["overview"];
+  const c = dic["dashboard"]["stores"];
 
-  return { title: c["dashboard"] };
+  return { title: c["stores"] };
 };
 
-export default async function Dashboard({}: DashboardProps) {
+export default async function StoresDashboard({}: StoresDashboardProps) {
   const dic = await getDictionary();
   const { user } = await getAuth();
-  const c = dic["dashboard"]["overview"];
+  const c = dic["dashboard"]["stores"];
   const locale = dic["locale"];
 
   if (!user) redirect(Paths.Login);
-  const orders = [];
+  const stores = [];
 
   return (
     <main className="flex-1">
@@ -32,14 +32,14 @@ export default async function Dashboard({}: DashboardProps) {
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-0.5">
               <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-                {c["dashboard"]}
+                {c["stores"]}
               </h2>
               <p className="text-muted-foreground max-w-prose text-sm">
-                {c["create, browse, edit, and filter all orders easily."]}
+                {c["create, browse, edit, and filter all stores easily."]}
               </p>
             </div>
 
-            {/* <div>{!!orders?.length && <OrderCreateButton />}</div> */}
+            {/* <div>{!!stores?.length && <StoreCreateButton />}</div> */}
           </div>
 
           <Separator className="my-4" />
@@ -55,7 +55,7 @@ export default async function Dashboard({}: DashboardProps) {
             You can add as many as you need.
           </EmptyPlaceholderDescription>
 
-          <OrderCreateButton />
+           <StoreCreateButton /> 
         </EmptyPlaceholder> */}
       </div>
     </main>

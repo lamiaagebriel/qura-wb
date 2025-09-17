@@ -66,4 +66,4 @@ const NavLink = React.forwardRef<React.ElementRef<typeof Link>, NavLinkProps>(
 
 NavLink.displayName = "NavLink";
 
-export { Link, NavLink, type NavLinkProps, type LinkProps };
+export { Link, NavLink, type LinkProps, type NavLinkProps };

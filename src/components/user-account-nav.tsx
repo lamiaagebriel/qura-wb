@@ -1,3 +1,4 @@
+import { Paths } from "@/constants";
 import { SelectItem } from "@/types";
 
 import { logout } from "@/servers/auth";
@@ -5,6 +6,7 @@ import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,20 +16,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FormButton } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
 import { Link } from "@/components/link";
-
-import { FormButton } from "./ui/form";
 
 type UserAccountNavProps = {
   items?: SelectItem[];
 };
 
-export async function UserAccountNav({ items = [] }: UserAccountNavProps) {
+export async function UserAccountNav({
+  items: _items = [],
+}: UserAccountNavProps) {
   const { user } = await getAuth();
   const { cmn } = await getDictionary();
-  if (!user) return;
+  if (!user)
+    return (
+      <Link href={Paths.Login} className={buttonVariants({ size: "sm" })}>
+        {cmn["signup"]}
+      </Link>
+    );
 
+  const items = _items?.filter((e) =>
+    user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+  );
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

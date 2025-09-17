@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     <html
       lang={locale}
       dir={locale === "ar" ? "rtl" : "ltr"}
-      className={cn("", locale === "ar" ? cairo?.className : inter?.className)}
+      className={cn("", cairo?.className)}
       suppressHydrationWarning
     >
       <body>

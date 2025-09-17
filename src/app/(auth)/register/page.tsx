@@ -41,7 +41,7 @@ export default async function Register({}: RegisterProps) {
       </Link>
 
       <div className="bg-muted hidden h-full lg:block" />
-      <section className="container flex w-full max-w-sm flex-col justify-center gap-5">
+      <section className="container flex w-full !max-w-sm flex-col justify-center gap-5">
         <div className="flex flex-col gap-2 text-center">
           <Icons.logo className="mx-auto size-16" />
 

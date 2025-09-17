@@ -4,8 +4,10 @@ import {
   Eye,
   EyeOff,
   Inbox,
+  LayoutDashboard,
   Loader2,
   LogOut,
+  Settings2,
   User,
   Verified,
   X,
@@ -77,6 +79,12 @@ export const Icons = {
   ),
   logout: ({ className, ...props }: IconProps) => (
     <LogOut className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  settings: ({ className, ...props }: IconProps) => (
+    <Settings2 className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  dashboard: ({ className, ...props }: IconProps) => (
+    <LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />
   ),
   eye: ({ className, ...props }: IconProps) => (
     <Eye className={cn(IconsVariants({}), className)} {...props} />

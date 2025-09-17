@@ -43,7 +43,6 @@ export function LocaleSwitcher({}) {
       disabled={loading}
     >
       {loading && <Icons.spinner />}
-
       {locale}
     </Button>
   );

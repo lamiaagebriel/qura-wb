@@ -158,9 +158,12 @@ function InputWithoutFormAwareness({
               <>
                 <div className="flex items-center gap-1">
                   <Image
+                    fetchPriority="high"
                     alt={e?.name}
                     src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${e.code}.svg`}
                     className="inline-flex size-4 object-cover object-center"
+                    width={9999999}
+                    height={9999999}
                   />
                   <span>(+{e.phone})</span>
                 </div>

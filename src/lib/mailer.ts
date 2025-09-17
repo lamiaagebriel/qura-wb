@@ -105,6 +105,7 @@ const templates = {
   `,
   "verify-email": async ({ ...data }: Validation["verify-email"]) => {
     const {
+      site,
       locale,
       emails: { "verify-email": c },
     } = await getDictionary();
@@ -132,7 +133,7 @@ const templates = {
           <p>${c["contactMessage"]} <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a></p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Qura Services</p>
+          <p>© ${new Date().getFullYear()} ${site["name"]} Services</p>
           <p>${process.env.SMTP_USER || ""}</p>
         </div>
       </div>
@@ -144,6 +145,7 @@ const templates = {
     ...data
   }: Validation["password-reset-schema"]) => {
     const {
+      site,
       locale,
       emails: { "password-reset-link": c },
     } = await getDictionary();
@@ -167,7 +169,7 @@ const templates = {
           <p>${c["contactMessage"]} <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a></p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Qura Services</p>
+          <p>© ${new Date().getFullYear()} ${site["name"]} Services</p>
           <p>${process.env.SMTP_USER || ""}</p>
         </div>
       </div>
