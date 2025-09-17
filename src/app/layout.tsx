@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/components/locale-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin", "latin-ext"] });
 const cairo = Cairo({ subsets: ["arabic", "latin", "latin-ext"] });
@@ -31,11 +32,19 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       lang={locale}
       dir={locale === "ar" ? "rtl" : "ltr"}
       className={cn("", locale === "ar" ? cairo?.className : inter?.className)}
+      suppressHydrationWarning
     >
       <body>
         <LocaleProvider value={{ ...dic, locale }}>
-          {children}
-          <Toaster />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </LocaleProvider>
       </body>
     </html>

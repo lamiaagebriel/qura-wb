@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getDictionary } from "@/servers/locale";
 
 import { LocaleSwitcher } from "@/components/locale-provider";
+import { ModeSwitcher } from "@/components/theme-provider";
 
 type HomeProps = Readonly<{}>;
 export const metadata: Metadata = { title: "Home" };
@@ -14,6 +15,7 @@ export default async function Home({}: HomeProps) {
 
       <br />
       <LocaleSwitcher />
+      <ModeSwitcher />
     </div>
   );
 }
