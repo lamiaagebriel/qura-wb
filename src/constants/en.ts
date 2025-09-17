@@ -71,10 +71,16 @@ const en = {
         icon: "verified",
       },
       {
-        segments: ["dashboard"],
+        segments: [null, "dashboard"],
         value: Paths.Dashboard,
-        children: "Dashboard",
-        icon: "dashboard",
+        children: "Orders",
+        icon: "packagePlus",
+      },
+      {
+        segments: ["stores"],
+        value: Paths.DashboardStores,
+        children: "Stores",
+        icon: "store",
       },
       {
         segments: ["settings"],
@@ -124,14 +130,6 @@ const en = {
       },
     },
   },
-  "mode-switcher": {
-    theme: "Theme",
-    "automatically switch between day and night themes.":
-      "Automatically switch between day and night themes.",
-    light: "Light",
-    dark: "Dark",
-    system: "System",
-  },
   actions: {
     "an unexpected error occured, please try again later.":
       "An unexpected error occured, please try again later.",
@@ -156,8 +154,15 @@ const en = {
       "your user account was not updated. Please try again.",
     "your user account was not deleted. please try again.":
       "your user account was not deleted. Please try again.",
-  },
 
+    // stores: {
+    "your store was not created. please try again.":
+      "your store was not created. Please try again.",
+    "your store was not updated. please try again.":
+      "your store was not updated. Please try again.",
+    "your store was not deleted. please try again.":
+      "your store was not deleted. Please try again.",
+  },
   emails: {
     "verify-email": {
       subject: "Verify Your Email - Qura Services",
@@ -183,7 +188,6 @@ const en = {
       contactMessage: "For assistance, please contact us at:",
     },
   },
-
   db: {
     users: {
       id: { id: "Identifier" },
@@ -218,9 +222,9 @@ const en = {
       role: {
         role: "Role",
         enums: {
-          ADMIN: { label: "Admin" },
-          USER: { label: "User" },
-          MERCHANT: { label: "Merchant" },
+          admin: { label: "Admin" },
+          user: { label: "User" },
+          merchant: { label: "Merchant" },
         } satisfies Record<UserRole, { label: string }>,
       },
       name: { name: "Name" },
@@ -229,14 +233,27 @@ const en = {
       address: { address: "Address" },
       preferences: { preferences: "Preferences" },
     },
-  },
 
+    stores: {
+      id: { id: "Identifier" },
+      createdAt: { created_at: "Created At" },
+      updatedAt: { updated_at: "Updated At" },
+      ownerId: { owner_id: "Ownder Identifier" },
+
+      username: { username: "Username", ovvegames: "ovvegames" },
+      name: { name: "Name", "ovve games": "Ovve Games" },
+      logo: { logo: "Logo" },
+      bio: {
+        bio: "Bio",
+        "type about your store...": "Type about your store...",
+      },
+    },
+  },
   // Commom phrases
   cmn: {
-    "are you absolutely sure that you want to delete this transactions?":
-      "Are you absolutely sure that you want to delete this transactions?",
+    "are you absolutely sure?": "Are you absolutely sure?",
     "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
-      "This action cannot be undone. this will permanently delete your account and remove your data from our servers.",
+      "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
 
     "created successfully.": "created successfully.",
     "updated successfully.": "updated successfully.",
@@ -266,6 +283,19 @@ const en = {
 
     "create product": "create product",
     "create store": "create store",
+  },
+
+  "mode-switcher": {
+    theme: "Theme",
+    "automatically switch between day and night themes.":
+      "Automatically switch between day and night themes.",
+    light: "Light",
+    dark: "Dark",
+    system: "System",
+  },
+  "data-table-row-actions": {
+    actions: "Actions",
+    "open menu": "Open Menu",
   },
 };
 

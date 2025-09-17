@@ -7,7 +7,9 @@ import {
   LayoutDashboard,
   Loader2,
   LogOut,
+  PackagePlus,
   Settings2,
+  Store,
   User,
   Verified,
   X,
@@ -73,6 +75,12 @@ export const Icons = {
   ),
   inbox: ({ className, ...props }: IconProps) => (
     <Inbox className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  store: ({ className, ...props }: IconProps) => (
+    <Store className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  packagePlus: ({ className, ...props }: IconProps) => (
+    <PackagePlus className={cn(IconsVariants({}), className)} {...props} />
   ),
   user: ({ className, ...props }: IconProps) => (
     <User className={cn(IconsVariants({}), className)} {...props} />

@@ -6,7 +6,10 @@ import { Paths } from "@/constants";
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
+import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
+
+import { columns, data, DataTableButtons } from "./columns";
 
 type DashboardProps = Readonly<{}>;
 export const metadata = async (): Promise<Metadata> => {
@@ -47,16 +50,12 @@ export default async function Dashboard({}: DashboardProps) {
       </div>
 
       <div className="container">
-        {/* <EmptyPlaceholder>
-          <EmptyPlaceholderIcon name="inbox" />
-          <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
-          <EmptyPlaceholderDescription>
-            Get started by creating your first item. <br />
-            You can add as many as you need.
-          </EmptyPlaceholderDescription>
-
-          <OrderCreateButton />
-        </EmptyPlaceholder> */}
+        <DataTableProvider columns={columns} data={data}>
+          <div className="flex flex-col gap-4">
+            <DataTableButtons />
+            <DataTable />
+          </div>
+        </DataTableProvider>
       </div>
     </main>
   );

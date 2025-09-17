@@ -1,1 +1,0 @@
-ALTER TABLE "qurawb__users" RENAME COLUMN "reset_details" TO "reset_password_details";

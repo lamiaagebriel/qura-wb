@@ -62,6 +62,7 @@ export default async function Register({}: RegisterProps) {
             validation="register-with-password"
             onSubmit={registerWithPassword}
             className="grid grid-cols-1 gap-6"
+            useForm={{ defaultValues: { email: "", password: "" } }}
           >
             <div className="space-y-2">
               <FormInputField

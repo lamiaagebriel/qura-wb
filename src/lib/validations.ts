@@ -1,9 +1,16 @@
-import { userRole } from "@/db/schema";
+import { storeStatus, userRole } from "@/db/schema";
 import { createSelectSchema } from "drizzle-zod";
 import { z as zod } from "zod";
 
 import { i18n } from "@/lib/locale";
 import { z } from "@/lib/zod";
+
+// STRICT: to db
+export const userRoleSchema = createSelectSchema(userRole);
+export type UserRole = zod.infer<typeof userRoleSchema>;
+
+export const storeStatusSchema = createSelectSchema(storeStatus);
+export type StoreStatus = zod.infer<typeof storeStatusSchema>;
 
 const coordinatesSchema = z.object({
   latitude: z
@@ -69,6 +76,7 @@ const passwordResetSchema = z
     used: z.boolean("used"),
   })
   .strict();
+// END STRICT
 
 const userSchema = z.object({
   id: z.stringRequired("id"),
@@ -79,12 +87,28 @@ const userSchema = z.object({
   password: z.password("password"),
 });
 
+const storeSchema = z.object({
+  id: z.stringRequired("id"),
+  createdAt: z.date("created at"),
+  updatedAt: z.date("updated at"),
+  ownerId: z.stringRequired("ownerId"),
+
+  username: z.stringRequired("username"),
+  name: z.stringRequired("name"),
+  logo: z.string("logo").nullable(),
+  bio: z.string("bio").nullable(),
+  status: z.enum(storeStatus.enumValues ?? []),
+});
+
 export type ValidationName = keyof typeof validations;
 export type Validation = {
   [K in ValidationName]: zod.infer<(typeof validations)[K]>;
 };
 
 export const validations = {
+  "user-schema": userSchema,
+  "store-schema": storeSchema,
+
   "locale-switcher": z.object({ locale: z.enum(i18n?.locales) }),
   "login-with-password": userSchema.pick({
     email: true,
@@ -111,6 +135,15 @@ export const validations = {
     phone: true,
   }),
 
+  // stores
+  "create-store": storeSchema.pick({
+    name: true,
+    username: true,
+    bio: true,
+    logo: true,
+  }),
+  "delete-store": storeSchema.pick({ id: true, logo: true }),
+
   // STRICT: db depends on this, we can add more but remove some needs to be handled.
   "address-schema": addressSchema,
   "email-verification-schema": emailVerificationSchema,
@@ -121,8 +154,3 @@ export const validations = {
   //  "order-item-schema": orderItemSchema,
   // END STRICT
 };
-
-// STRICT: to db
-export const userRoleSchema = createSelectSchema(userRole);
-export type UserRole = zod.infer<typeof userRoleSchema>;
-// END STRICT

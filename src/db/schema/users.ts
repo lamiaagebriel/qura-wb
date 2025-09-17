@@ -1,10 +1,9 @@
 import { id, pgTable, references, timestamp, varchar } from "@/db/utils";
-import { relations } from "drizzle-orm";
 import { boolean, index, json, pgEnum } from "drizzle-orm/pg-core";
 
 import { Validation } from "@/lib/validations";
 
-export const userRole = pgEnum("user_role", ["ADMIN", "USER", "MERCHANT"]);
+export const userRole = pgEnum("user_role", ["admin", "user", "merchant"]);
 
 // === Tables ===
 export const users = pgTable(
@@ -34,7 +33,7 @@ export const users = pgTable(
     >(),
 
     // Profile fields
-    role: userRole("role").default("USER").notNull(),
+    role: userRole("role").default("user").notNull(),
     name: varchar("name"),
     image: varchar("image"),
     phone: varchar("phone", { length: 20 }),
@@ -44,7 +43,6 @@ export const users = pgTable(
   (t) => ({
     emailIdx: index("user_email_idx").on(t.email),
     googleIdx: index("user_google_idx").on(t.googleId),
-    roleIdx: index("user_role_idx").on(t.role),
   })
 );
 
@@ -65,21 +63,3 @@ export const sessions = pgTable(
     expiresIdx: index("session_expires_idx").on(t.expiresAt),
   })
 );
-
-// === Relations ===
-export const userRelations = relations(users, ({ many }) => ({
-  sessions: many(sessions),
-}));
-
-export const sessionRelations = relations(sessions, ({ one }) => ({
-  user: one(users, {
-    fields: [sessions.userId],
-    references: [users.id],
-  }),
-}));
-
-export type User = typeof users.$inferSelect;
-export type Session = typeof sessions.$inferSelect;
-
-export type UserRelations = typeof userRelations;
-export type SessionRelations = typeof sessionRelations;

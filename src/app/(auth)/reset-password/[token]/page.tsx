@@ -55,7 +55,9 @@ export default async function ResetPassword({ params }: ResetPasswordProps) {
             infiniteLoading
             validation="reset-password"
             onSubmit={resetPassword}
-            useForm={{ defaultValues: { token } }}
+            useForm={{
+              defaultValues: { token, password: "", confirmPassword: "" },
+            }}
           >
             <div className="space-y-2">
               <FormInputField

@@ -62,6 +62,7 @@ export default async function Login({}: LoginProps) {
             validation="login-with-password"
             onSubmit={loginWithPassword}
             className="grid grid-cols-1 gap-6"
+            useForm={{ defaultValues: { email: "", password: "" } }}
           >
             <div className="space-y-2">
               <FormInputField

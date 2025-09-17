@@ -59,7 +59,7 @@ function InputWithoutFormAwareness({
         <input
           data-slot="input"
           onChange={onChange}
-          value={value ?? ""}
+          value={value}
           multiple={multiple}
           type={isPasswordVisible ? "text" : "password"}
           className={cn(
@@ -197,7 +197,7 @@ function InputWithoutFormAwareness({
         type={type}
         data-slot="input"
         onChange={onChange}
-        value={value ?? ""}
+        value={value}
         multiple={multiple}
         className={cn(inputVariants({}), className)}
         dir="ltr"
@@ -258,7 +258,7 @@ function InputWithoutFormAwareness({
           });
         }}
         multiple={multiple}
-        value={value ?? ""}
+        value={value}
         className={cn(inputVariants({}), className)}
         {...props}
       />
@@ -270,7 +270,7 @@ function InputWithoutFormAwareness({
       type={type}
       onChange={onChange}
       multiple={multiple}
-      value={value ?? ""}
+      value={value}
       className={cn(inputVariants({}), className)}
       {...props}
     />

@@ -23,17 +23,28 @@ import { cn, handleServerAction } from "@/lib/utils";
 import { Validation, ValidationName, validations } from "@/lib/validations";
 
 import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button, ButtonProps } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
+import { Input, InputProps } from "@/components/ui/input";
+import {
   InputOTP,
   InputOTPGroup,
   InputOTPProps,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { InputTags } from "@/components/ui/input-tags";
 import { Label, LabelProps } from "@/components/ui/label";
-
-import { Button, ButtonProps } from "./button";
-import { Icons } from "./icons";
-import { Input, InputProps } from "./input";
-import { InputTags } from "./input-tags";
+import { Textarea, TextareaProps } from "@/components/ui/textarea";
+import { useLocale } from "@/components/locale-provider";
 
 type ExtendedUseForm<
   TFieldValues extends FieldValues = FieldValues,
@@ -308,14 +319,6 @@ export function withFormAwareness<
   return Result;
 }
 
-type FormButtonProps = {
-  onAction?: FormProps<ValidationName, unknown>["onSubmit"];
-  Icon?: React.ReactNode;
-
-  infiniteLoading?: FormProps<ValidationName, unknown>["infiniteLoading"];
-  useForm?: FormProps<ValidationName, unknown>["useForm"];
-} & ButtonProps;
-
 type CustomFormsProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -324,9 +327,20 @@ type CustomFormsProps<
   label: string | LabelProps;
   description?: string | React.ComponentProps<"p">;
 };
-function FormButton({
+
+type FormButtonProps<T extends ValidationName, R> = {
+  infiniteLoading?: FormProps<T, R>["infiniteLoading"];
+  useForm?: FormProps<T, R>["useForm"];
+  onAction?: FormProps<T, R>["onSubmit"];
+  validation?: FormProps<T, R>["validation"];
+
+  Icon?: React.ReactNode;
+} & ButtonProps;
+
+const FormButton = <T extends ValidationName, R>({
   onClick,
   children,
+  validation,
   onAction,
   disabled,
 
@@ -336,7 +350,7 @@ function FormButton({
   Icon = null,
   type,
   ...props
-}: FormButtonProps) {
+}: FormButtonProps<T, R>) => {
   const form = useForm?.();
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -376,9 +390,12 @@ function FormButton({
       {children}
     </Button>
   );
-}
+};
 
-function FormResetButton({ onClick, ...props }: {} & FormButtonProps) {
+const FormResetButton = <T extends ValidationName, R>({
+  onClick,
+  ...props
+}: FormButtonProps<T, R>) => {
   const form = useForm?.();
 
   return (
@@ -390,7 +407,7 @@ function FormResetButton({ onClick, ...props }: {} & FormButtonProps) {
       {...props}
     />
   );
-}
+};
 
 function FormInputField({
   field,
@@ -414,7 +431,9 @@ function FormInputField({
           <FormControl>
             <Input {...field} {...props} />
           </FormControl>
-          <FormDescription {...descriptionProps} />
+          {!!descriptionProps?.children && (
+            <FormDescription {...descriptionProps} />
+          )}
           <FormMessage />
         </FormItem>
       )}
@@ -491,7 +510,9 @@ function FormTagsField({
               onSelectedChange={(values) => field?.onChange(values)}
             />
           </FormControl>
-          <FormDescription {...descriptionProps} />
+          {!!descriptionProps?.children && (
+            <FormDescription {...descriptionProps} />
+          )}
           <FormMessage />
         </FormItem>
       )}
@@ -499,8 +520,97 @@ function FormTagsField({
   );
 }
 
+function FormTextareaField({
+  field,
+  label,
+  description,
+  ...props
+}: CustomFormsProps & TextareaProps) {
+  const labelProps: LabelProps =
+    typeof label === "string" ? { children: label } : label;
+  const descriptionProps: React.ComponentProps<"p"> =
+    typeof description === "string"
+      ? { children: description }
+      : { ...description };
+
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel {...labelProps} />
+          <FormControl>
+            <Textarea {...field} {...props} />
+          </FormControl>
+          {!!descriptionProps?.children && (
+            <FormDescription {...descriptionProps} />
+          )}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+type FormAlertDialogButtonProps = React.PropsWithChildren<{
+  title?: string;
+  description?: string;
+  trigger: ButtonProps;
+  form: FormProps<any, any>;
+  isFooter?: boolean;
+}>;
+
+function FormAlertDialogButton({
+  title,
+  description,
+  form: { className: formClassName, children: formChildren, ...formProps },
+  trigger: triggerProps,
+  isFooter = true,
+  children,
+}: FormAlertDialogButtonProps) {
+  const { cmn } = useLocale();
+  const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+
+  return (
+    <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+      <AlertDialogTrigger asChild>
+        <Button {...triggerProps} />
+      </AlertDialogTrigger>
+
+      <AlertDialogContent className="max-h-[calc(100svh-4rem)] overflow-auto">
+        <Form
+          className={cn("flex flex-col gap-4", formClassName)}
+          setOpenDialog={setOpenDialog}
+          {...formProps}
+        >
+          {title || description ? (
+            <AlertDialogHeader>
+              {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
+              {description && (
+                <AlertDialogDescription>{description}</AlertDialogDescription>
+              )}
+            </AlertDialogHeader>
+          ) : null}
+
+          {children}
+
+          {isFooter ? (
+            <AlertDialogFooter>
+              <AlertDialogCancel asChild>
+                <FormButton variant="outline">{cmn["cancel"]}</FormButton>
+              </AlertDialogCancel>
+              <FormButton type="submit">{cmn["confirm"]}</FormButton>
+            </AlertDialogFooter>
+          ) : null}
+        </Form>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export {
   Form,
+  FormAlertDialogButton,
   FormButton,
   FormControl,
   FormDescription,
@@ -512,5 +622,6 @@ export {
   FormMessage,
   FormResetButton,
   FormTagsField,
+  FormTextareaField,
   useFormField,
 };

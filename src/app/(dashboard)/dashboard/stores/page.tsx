@@ -2,11 +2,22 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
+import { queries } from "@/db/queries";
 
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
+import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
+import {
+  EmptyPlaceholder,
+  EmptyPlaceholderDescription,
+  EmptyPlaceholderIcon,
+  EmptyPlaceholderTitle,
+} from "@/components/empty-placeholder";
+import { StoreCreateButton } from "@/components/store-create-button";
+
+import { columns } from "./columns";
 
 type StoresDashboardProps = Readonly<{}>;
 export const metadata = async (): Promise<Metadata> => {
@@ -23,7 +34,9 @@ export default async function StoresDashboard({}: StoresDashboardProps) {
   const locale = dic["locale"];
 
   if (!user) redirect(Paths.Login);
-  const stores = [];
+  const { data: stores } = await queries.stores.getMany({
+    ownerId: user?.id,
+  });
 
   return (
     <main className="flex-1">
@@ -39,7 +52,7 @@ export default async function StoresDashboard({}: StoresDashboardProps) {
               </p>
             </div>
 
-            {/* <div>{!!stores?.length && <StoreCreateButton />}</div> */}
+            <div>{!!stores?.length && <StoreCreateButton />}</div>
           </div>
 
           <Separator className="my-4" />
@@ -47,16 +60,22 @@ export default async function StoresDashboard({}: StoresDashboardProps) {
       </div>
 
       <div className="container">
-        {/* <EmptyPlaceholder>
-          <EmptyPlaceholderIcon name="inbox" />
-          <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
-          <EmptyPlaceholderDescription>
-            Get started by creating your first item. <br />
-            You can add as many as you need.
-          </EmptyPlaceholderDescription>
+        {!!stores?.length ? (
+          <DataTableProvider columns={columns} data={stores}>
+            <DataTable />
+          </DataTableProvider>
+        ) : (
+          <EmptyPlaceholder>
+            <EmptyPlaceholderIcon name="inbox" />
+            <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
+            <EmptyPlaceholderDescription>
+              Get started by creating your first item. <br />
+              You can add as many as you need.
+            </EmptyPlaceholderDescription>
 
-           <StoreCreateButton /> 
-        </EmptyPlaceholder> */}
+            <StoreCreateButton />
+          </EmptyPlaceholder>
+        )}
       </div>
     </main>
   );

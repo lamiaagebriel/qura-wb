@@ -56,6 +56,7 @@ export default async function ForgotPassword({}: ForgotPasswordProps) {
           <Form
             validation="send-password-reset-link"
             onSubmit={sendPasswordResetLink}
+            useForm={{ defaultValues: { email: "" } }}
           >
             <div className="space-y-2">
               <FormInputField
