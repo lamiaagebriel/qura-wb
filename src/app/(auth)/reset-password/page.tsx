@@ -3,16 +3,16 @@ import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
 
-import { sendPasswordResetLink } from "@/servers/auth";
-import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { sendPasswordResetLink } from "@/servers/auth";
+import { getDictionary } from "@/servers/locale";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
+import { Link } from "@/components/ui/link";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "@/components/link";
 
 type ForgotPasswordProps = Readonly<{}>;
 export const metadata = async (): Promise<Metadata> => {

@@ -1,6 +1,7 @@
 import { db } from "@/db";
 
 import { unstable_cache } from "@/lib/utils";
+import { ProductStatus } from "@/lib/validations";
 
 export const queries = {
   stores: {
@@ -25,6 +26,41 @@ export const queries = {
       },
       ["stores"],
       { tags: ["stores"] }
+    ),
+  },
+
+  products: {
+    get: unstable_cache(
+      async ({ id }: { id: string }) => {
+        const product = await db.query.products.findFirst({
+          where: (s, o) => o.eq(s?.id, id),
+        });
+        return { data: product };
+      },
+      ["products"],
+      { tags: ["products"] }
+    ),
+    getMany: unstable_cache(
+      async ({
+        storeId,
+        status,
+      }: {
+        storeId: string;
+        status?: ProductStatus;
+      }) => {
+        const products = await db.query.products.findMany({
+          where: (s, o) =>
+            o.and(
+              o.eq(s?.storeId, storeId),
+              status ? o.eq(s?.status, status) : undefined
+            ),
+          orderBy: (s, o) => o.desc(s?.createdAt),
+        });
+
+        return { data: products };
+      },
+      ["products"],
+      { tags: ["products"] }
     ),
   },
 };

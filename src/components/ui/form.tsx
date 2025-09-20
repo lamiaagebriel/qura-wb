@@ -2,7 +2,11 @@
 
 import * as React from "react";
 
-import { HandleServerActionOptions, ServerActionResult } from "@/types";
+import {
+  HandleServerActionOptions,
+  SelectItem as SelectItemType,
+  ServerActionResult,
+} from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
@@ -45,6 +49,15 @@ import { InputTags } from "@/components/ui/input-tags";
 import { Label, LabelProps } from "@/components/ui/label";
 import { Textarea, TextareaProps } from "@/components/ui/textarea";
 import { useLocale } from "@/components/locale-provider";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectProps,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
 
 type ExtendedUseForm<
   TFieldValues extends FieldValues = FieldValues,
@@ -215,7 +228,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-2", className)}
+        className={cn("grid flex-1 gap-2", className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -552,7 +565,57 @@ function FormTextareaField({
   );
 }
 
-type FormAlertDialogButtonProps = React.PropsWithChildren<{
+function FormSelectField({
+  field,
+  label,
+  description,
+  placeholder,
+  items,
+  ...props
+}: CustomFormsProps &
+  SelectProps & { placeholder: string; items: SelectItemType[] }) {
+  const labelProps: LabelProps =
+    typeof label === "string" ? { children: label } : label;
+  const descriptionProps: React.ComponentProps<"p"> =
+    typeof description === "string"
+      ? { children: description }
+      : { ...description };
+
+  return (
+    <FormField
+      {...field}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel {...labelProps} />
+          <FormControl>
+            <Select
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              {...props}
+            >
+              <FormControl>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {items?.map((e, i) => (
+                  <SelectItem key={i} {...e} />
+                ))}
+              </SelectContent>
+            </Select>
+          </FormControl>
+          {!!descriptionProps?.children && (
+            <FormDescription {...descriptionProps} />
+          )}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export type FormAlertDialogButtonProps = React.PropsWithChildren<{
   title?: string;
   description?: string;
   trigger: ButtonProps;
@@ -564,17 +627,21 @@ function FormAlertDialogButton({
   title,
   description,
   form: { className: formClassName, children: formChildren, ...formProps },
-  trigger: triggerProps,
+  trigger: { disabled, ...triggerProps },
   isFooter = true,
   children,
 }: FormAlertDialogButtonProps) {
   const { cmn } = useLocale();
+  const form = useForm?.();
   const [openDialog, setOpenDialog] = React.useState<boolean>(false);
 
   return (
     <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
       <AlertDialogTrigger asChild>
-        <Button {...triggerProps} />
+        <Button
+          disabled={disabled || form?.disabled || form?.loading}
+          {...triggerProps}
+        />
       </AlertDialogTrigger>
 
       <AlertDialogContent className="max-h-[calc(100svh-4rem)] overflow-auto">
@@ -621,6 +688,7 @@ export {
   FormLabel,
   FormMessage,
   FormResetButton,
+  FormSelectField,
   FormTagsField,
   FormTextareaField,
   useFormField,

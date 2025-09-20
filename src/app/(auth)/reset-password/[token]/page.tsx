@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 
 import { Paths } from "@/constants";
 
+import { cn } from "@/lib/utils";
 import { resetPassword } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
-import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
+import { Link } from "@/components/ui/link";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "@/components/link";
 
 type ResetPasswordProps = Readonly<{ params: Promise<{ token: string }> }>;
 export const metadata = async (): Promise<Metadata> => {

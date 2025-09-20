@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import * as React from "react";
 
 import { cva, VariantProps } from "class-variance-authority";
@@ -12,6 +11,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { withFormAwareness } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
 
+import { Image } from "@/components/ui/image";
 export const inputVariants = cva(
   "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" +
     "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]" +
@@ -162,8 +162,6 @@ function InputWithoutFormAwareness({
                     alt={e?.name}
                     src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${e.code}.svg`}
                     className="inline-flex size-4 object-cover object-center"
-                    width={9999999}
-                    height={9999999}
                   />
                   <span>(+{e.phone})</span>
                 </div>

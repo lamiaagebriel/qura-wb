@@ -15,5 +15,11 @@ export enum Paths {
   DashboardSettingsAppearance = "/dashboard/settings/appearance",
 
   // (dashboard/stores)
-  DashboardStore = "/dd/ss",
+  DashboardStore = "/dashboard/ss",
+  DashboardStoreProducts = "/products", // starts w {id}/products
+
+  // (stores)
+  Store = "/ss",
+  StoreProduct = "/p",
+  StoreCart = "/cart",
 }

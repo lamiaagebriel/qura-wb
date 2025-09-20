@@ -8,6 +8,13 @@
       "when": 1758147775648,
       "tag": "0000_hesitant_giant_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758304551722,
+      "tag": "0001_silent_ozymandias",
+      "breakpoints": true
     }
   ]
 }

@@ -3,13 +3,19 @@ import {
   ChevronLeft,
   Eye,
   EyeOff,
+  Heart,
   Inbox,
   LayoutDashboard,
   Loader2,
   LogOut,
+  Minus,
   PackagePlus,
+  Plus,
   Settings2,
+  ShoppingBag,
+  ShoppingBasket,
   Store,
+  Upload,
   User,
   Verified,
   X,
@@ -61,11 +67,33 @@ export const Icons = {
       {...props}
     />
   ),
+  shoppingBag: ({ className, ...props }: IconProps) => (
+    <ShoppingBag className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  shoppingBasket: ({ className, ...props }: IconProps) => (
+    <ShoppingBasket className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  heart: ({ className, ...props }: IconProps) => (
+    <Heart className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  dot: ({ className, ...props }: IconProps) => (
+    <svg
+      className={cn(
+        IconsVariants({}),
+        "size-2.5 rounded-sm bg-primary",
+        className
+      )}
+      {...props}
+    />
+  ),
   chevronLeft: ({ className, ...props }: IconProps) => (
     <ChevronLeft
       className={cn(IconsVariants({}), "rtl:rotate-180", className)}
       {...props}
     />
+  ),
+  upload: ({ className, ...props }: IconProps) => (
+    <Upload className={cn(IconsVariants({}), className)} {...props} />
   ),
   x: ({ className, ...props }: IconProps) => (
     <X className={cn(IconsVariants({}), className)} {...props} />
@@ -90,6 +118,12 @@ export const Icons = {
   ),
   settings: ({ className, ...props }: IconProps) => (
     <Settings2 className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  plus: ({ className, ...props }: IconProps) => (
+    <Plus className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  minus: ({ className, ...props }: IconProps) => (
+    <Minus className={cn(IconsVariants({}), className)} {...props} />
   ),
   dashboard: ({ className, ...props }: IconProps) => (
     <LayoutDashboard className={cn(IconsVariants({}), className)} {...props} />

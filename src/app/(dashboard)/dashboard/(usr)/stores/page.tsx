@@ -9,12 +9,6 @@ import { getAuth } from "@/lib/auth";
 
 import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
-import {
-  EmptyPlaceholder,
-  EmptyPlaceholderDescription,
-  EmptyPlaceholderIcon,
-  EmptyPlaceholderTitle,
-} from "@/components/empty-placeholder";
 import { StoreCreateButton } from "@/components/store-create-button";
 
 import { columns } from "./columns";
@@ -60,22 +54,9 @@ export default async function StoresDashboard({}: StoresDashboardProps) {
       </div>
 
       <div className="container">
-        {!!stores?.length ? (
-          <DataTableProvider columns={columns} data={stores}>
-            <DataTable />
-          </DataTableProvider>
-        ) : (
-          <EmptyPlaceholder>
-            <EmptyPlaceholderIcon name="inbox" />
-            <EmptyPlaceholderTitle>No items yet</EmptyPlaceholderTitle>
-            <EmptyPlaceholderDescription>
-              Get started by creating your first item. <br />
-              You can add as many as you need.
-            </EmptyPlaceholderDescription>
-
-            <StoreCreateButton />
-          </EmptyPlaceholder>
-        )}
+        <DataTableProvider columns={columns} data={stores}>
+          <DataTable />
+        </DataTableProvider>
       </div>
     </main>
   );

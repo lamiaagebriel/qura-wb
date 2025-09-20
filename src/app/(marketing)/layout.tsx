@@ -4,7 +4,7 @@ import { getDictionary } from "@/servers/locale";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Icons } from "@/components/ui/icons";
-import { Link } from "@/components/link";
+import { Link } from "@/components/ui/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type MarketingLayoutProps = React.PropsWithChildren<Readonly<{}>>;

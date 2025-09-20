@@ -1,4 +1,4 @@
-import { storeStatus, userRole } from "@/db/schema";
+import { productStatus, storeStatus, userRole } from "@/db/schema";
 import { createSelectSchema } from "drizzle-zod";
 import { z as zod } from "zod";
 
@@ -11,6 +11,9 @@ export type UserRole = zod.infer<typeof userRoleSchema>;
 
 export const storeStatusSchema = createSelectSchema(storeStatus);
 export type StoreStatus = zod.infer<typeof storeStatusSchema>;
+
+export const productStatusSchema = createSelectSchema(productStatus);
+export type ProductStatus = zod.infer<typeof productStatusSchema>;
 
 const coordinatesSchema = z.object({
   latitude: z
@@ -76,6 +79,24 @@ const passwordResetSchema = z
     used: z.boolean("used"),
   })
   .strict();
+
+const productAttributeSchema = z
+  .object({
+    name: z
+      .string("name")
+      .min(1, "Attribute name cannot be empty")
+      .max(50, "Attribute name too long"),
+    // description: z
+    //   .string("description")
+    //   .max(500, "Description too long")
+    //   .optional(),
+    values: z
+      .array(z.string("value"))
+      .min(1, "Must have at least one value")
+      .max(50, "Too many values"),
+  })
+  .strict();
+
 // END STRICT
 
 const userSchema = z.object({
@@ -100,6 +121,26 @@ const storeSchema = z.object({
   status: z.enum(storeStatus.enumValues ?? []),
 });
 
+const productSchema = z.object({
+  id: z.stringRequired("id"),
+  createdAt: z.date("created at"),
+  updatedAt: z.date("updated at"),
+  storeId: z.stringRequired("storeId"),
+
+  slug: z.stringRequired("slug"),
+  title: z.stringRequired("title"),
+  description: z.string("description").nullable(),
+  status: z.enum(["draft", "active", "archived"]),
+  images: z.array(z.string("images")).default([]).nullable(),
+
+  cost: z.number("cost").positive("cost can't be less than 0."),
+  price: z.number("price").positive("price can't be less than 0."),
+  compareToPrice: z
+    .number("compareToPrice")
+    .positive("compare to price can't be less than 0."),
+
+  attributes: z.array(productAttributeSchema),
+});
 export type ValidationName = keyof typeof validations;
 export type Validation = {
   [K in ValidationName]: zod.infer<(typeof validations)[K]>;
@@ -108,6 +149,7 @@ export type Validation = {
 export const validations = {
   "user-schema": userSchema,
   "store-schema": storeSchema,
+  "product-schema": productSchema,
 
   "locale-switcher": z.object({ locale: z.enum(i18n?.locales) }),
   "login-with-password": userSchema.pick({
@@ -144,11 +186,60 @@ export const validations = {
   }),
   "delete-store": storeSchema.pick({ id: true, logo: true }),
 
+  // products
+  "create-product": productSchema.pick({ storeId: true }),
+  "update-product": productSchema
+    .pick({
+      id: true,
+      storeId: true,
+      title: true,
+      slug: true,
+      description: true,
+      cost: true,
+      price: true,
+      compareToPrice: true,
+      status: true,
+      images: true,
+      attributes: true,
+    })
+    .and(
+      z.object({
+        oldValues: productSchema.pick({ images: true }),
+      })
+    ),
+  "delete-product": productSchema.pick({
+    id: true,
+    storeId: true,
+    images: true,
+  }),
+
+  // cart
+  "cart-product-schema": z.object({
+    product: productSchema.pick({
+      id: true,
+      storeId: true,
+      price: true,
+
+      title: true,
+      images: true,
+    }),
+    quantity: z.number("quantity").min(1, `quantity can't be less than 0.`),
+    attributes: z
+      .array(
+        z.object({ name: z.string("name"), value: z.string("value") })
+
+        // productAttributeSchema
+        //   .pick({ name: true })
+        //   .and(z.object({ name: z.string("name"),  value: z.string("value"),   }))
+      )
+      .default([]),
+  }),
+
   // STRICT: db depends on this, we can add more but remove some needs to be handled.
   "address-schema": addressSchema,
   "email-verification-schema": emailVerificationSchema,
   "password-reset-schema": passwordResetSchema,
-  //  "product-attribute-schema": productAttributeSchema,
+  "product-attribute-schema": productAttributeSchema,
   //  "product-combination-schema": productCombinationSchema,
   //  "product-property-schema": productPropertySchema,
   //  "order-item-schema": orderItemSchema,

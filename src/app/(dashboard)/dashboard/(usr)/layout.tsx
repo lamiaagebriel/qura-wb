@@ -2,15 +2,15 @@ import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
 
-import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { getDictionary } from "@/servers/locale";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
-import { NavLink } from "@/components/link";
+import { NavLink } from "@/components/ui/link";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type DashboardLayoutProps = React.PropsWithChildren<{}>;

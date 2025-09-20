@@ -1,12 +1,10 @@
 "use client";
 
-import { useSortable } from "@dnd-kit/sortable";
 // TODO: use icons
 import {
   IconChevronDown,
   IconCircleCheckFilled,
   IconDotsVertical,
-  IconGripVertical,
   IconLayoutColumns,
   IconLoader,
   IconPlus,
@@ -28,7 +26,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useTable } from "@/components/ui/data-table";
+import { DragHandle, useTable } from "@/components/ui/data-table";
 import {
   Drawer,
   DrawerClose,
@@ -69,25 +67,25 @@ export const schema = z.object({
 });
 
 type Schema = z.infer<typeof schema>;
-// Create a separate component for the drag handle
-function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = useSortable({
-    id,
-  });
+// // Create a separate component for the drag handle
+// function DragHandle({ id }: { id: number }) {
+//   const { attributes, listeners } = useSortable({
+//     id,
+//   });
 
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
-    </Button>
-  );
-}
+//   return (
+//     <Button
+//       {...attributes}
+//       {...listeners}
+//       variant="ghost"
+//       size="icon"
+//       className="text-muted-foreground size-7 hover:bg-transparent"
+//     >
+//       <IconGripVertical className="text-muted-foreground size-3" />
+//       <span className="sr-only">Drag to reorder</span>
+//     </Button>
+//   );
+// }
 
 export const columns: ColumnDef<Schema>[] = [
   {

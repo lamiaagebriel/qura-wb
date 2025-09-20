@@ -1,68 +1,69 @@
 "use client";
 
-import Image from "next/image";
-
-import { useSortable } from "@dnd-kit/sortable";
-import { IconGripVertical } from "@tabler/icons-react";
+import { Paths } from "@/constants";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { deleteStore } from "@/servers/stores";
 import { cn } from "@/lib/utils";
 import { Validation } from "@/lib/validations";
+import { deleteProduct } from "@/servers/products";
 
-import { Button } from "@/components/ui/button";
+import { useLocale } from "@/components/locale-provider";
+import { Badge } from "@/components/ui/badge";
 import { DataTableRowActions } from "@/components/ui/data-table";
 import { FormAlertDialogButton } from "@/components/ui/form";
-import { useLocale } from "@/components/locale-provider";
+import { Icons } from "@/components/ui/icons";
+import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
 
-type Schema = Validation["store-schema"];
-function DragHandle({ id }: Pick<Schema, "id">) {
-  const { attributes, listeners } = useSortable({
-    id,
-  });
-
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
-    </Button>
-  );
-}
-
+type Schema = Validation["product-schema"];
 export const columns: ColumnDef<Schema>[] = [
   {
     accessorKey: "name",
-    header: "Store Details",
-    cell: ({ row }) => (
-      <div className="flex w-full flex-1 items-center gap-3">
-        {row.original.logo && (
+    header: "Product Details",
+    cell: ({ row: { original: e } }) => (
+      <div className="flex w-full flex-1 items-center gap-2">
+        {e?.images?.[0] && (
           <Image
-            width={99999999}
-            height={99999999}
-            src={row.original.logo}
-            alt={row.original.name}
-            className="size-8 rounded border object-cover"
+            src={e?.images?.[0]}
+            alt={e?.title}
+            className="size-12 rounded-full border object-cover"
           />
         )}
         <div className="flex flex-col">
-          <span className="truncate font-medium">{row.original.name}</span>
-          <span className="text-muted-foreground truncate text-xs">
-            {row.original.username}
-          </span>
-          {row.original.bio && (
-            <span className="text-muted-foreground truncate text-xs">
-              {row.original.bio}
-            </span>
+          <Link
+            href={`${Paths.DashboardStore}/${e?.storeId}${Paths.DashboardStoreProducts}/${e?.id}`}
+            className="truncate font-semibold hover:underline"
+          >
+            {e?.title}
+          </Link>
+          {e?.description && (
+            <p className="text-muted-foreground line-clamp-1 max-w-sm truncate text-xs">
+              {e?.description}
+            </p>
           )}
         </div>
       </div>
     ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row: { original: e } }) => {
+      const {
+        db: { products: pp },
+      } = useLocale();
+
+      return (
+        <Badge variant="outline" className="flex items-center gap-2">
+          <Icons.dot
+            style={{
+              backgroundColor: pp["status"]["enums"][e?.status]?.color,
+            }}
+          />
+          {pp["status"]["enums"][e?.status]?.label}
+        </Badge>
+      );
+    },
   },
   // {
   //   accessorKey: "status",
@@ -125,8 +126,8 @@ export const columns: ColumnDef<Schema>[] = [
                 ]
               }
               form={{
-                validation: "delete-store",
-                onSubmit: deleteStore,
+                validation: "delete-product",
+                onSubmit: deleteProduct,
                 useForm: { defaultValues: { ...e } },
               }}
             />

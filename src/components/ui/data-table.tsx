@@ -24,12 +24,15 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 // TODO: use icons
+
+// TODO: use icons
 import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
   IconDotsVertical,
+  IconGripVertical,
 } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -86,7 +89,24 @@ const TableContext = React.createContext<{
   sortableId: string;
   dataIds: UniqueIdentifier[];
 } | null>(null);
+// Create a separate component for the drag handle
+export function DragHandle({ id }: { id: number }) {
+  const { attributes, listeners } = useSortable({ id });
 
+  return (
+    <Button
+      {...attributes}
+      {...listeners}
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="text-muted-foreground size-7 hover:bg-transparent"
+    >
+      <IconGripVertical className="text-muted-foreground size-3" />
+      <span className="sr-only">Drag to reorder</span>
+    </Button>
+  );
+}
 function DraggableRow({ row }: { row: Row<Schema> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
@@ -243,7 +263,9 @@ export function DataTable() {
               ))}
             </TableHeader>
             <TableBody
-            //  className="**:data-[slot=table-cell]:first:w-8"
+              //  className="**:data-[slot=table-cell]:first:w-8"
+              // className="ltr:pr-20 rtl:pl-20"
+              className="bg-background"
             >
               {table.getRowModel().rows?.length ? (
                 <SortableContext
@@ -284,7 +306,11 @@ export function DataTable() {
                 table.setPageSize(Number(value));
               }}
             >
-              <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+              <SelectTrigger
+                size="sm"
+                className="bg-background w-20"
+                id="rows-per-page"
+              >
                 <SelectValue
                   placeholder={table.getState().pagination.pageSize}
                 />
@@ -305,7 +331,7 @@ export function DataTable() {
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden size-8 p-0 lg:flex"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
             >

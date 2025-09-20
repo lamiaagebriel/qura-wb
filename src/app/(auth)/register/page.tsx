@@ -3,15 +3,15 @@ import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
 
-import { loginWithGoogle, registerWithPassword } from "@/servers/auth";
-import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { loginWithGoogle, registerWithPassword } from "@/servers/auth";
+import { getDictionary } from "@/servers/locale";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
-import { Link } from "@/components/link";
+import { Link } from "@/components/ui/link";
 
 type RegisterProps = Readonly<{}>;
 export const metadata = async (): Promise<Metadata> => {

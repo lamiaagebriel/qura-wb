@@ -1,7 +1,7 @@
 import { Paths } from "@/constants";
 import { NavItem } from "@/types";
 
-import { UserRole } from "@/lib/validations";
+import { ProductStatus, UserRole } from "@/lib/validations";
 
 const en = {
   site: {
@@ -129,6 +129,59 @@ const en = {
           "customize your appearance settings and preferences.",
       },
     },
+
+    "store-id": {
+      "main-nav": [
+        {
+          segments: [null],
+          value: "/",
+          children: "Dashboard",
+          icon: "dashboard",
+        },
+        {
+          segments: ["products"],
+          value: "/products",
+          children: "Products",
+          icon: "shirt",
+        },
+        {
+          segments: ["orders"],
+          value: "/orders",
+          children: "Orders",
+          icon: "packagePlus",
+        },
+      ] as NavItem[],
+
+      overview: "Overview",
+      "browse all overview, edit, and filter.":
+        "Browse all overview, edit, and filter.",
+
+      products: {
+        products: "Products",
+        "create, browse, edit, and filter all products easily.":
+          "create, browse, edit, and filter all products easily.",
+        "no products found": "No Products Found",
+        "there are no products in this store.":
+          "There are no products in this store.",
+        product: {
+          "product details": "Product Details",
+          "product cost": "Product Cost",
+          "product status": "Product Status",
+          "product images": "Product Images",
+          attributes: "attributes",
+        },
+      },
+      orders: {
+        orders: "Orders",
+        "create, browse, edit, and filter all orders easily.":
+          "create, browse, edit, and filter all orders easily.",
+
+        order: {
+          "order details": "order details",
+          "order status": "order status",
+        },
+      },
+    },
   },
   actions: {
     "an unexpected error occured, please try again later.":
@@ -148,7 +201,7 @@ const en = {
 
     "your user account was not logged in. please try again.":
       "your user account was not logged in. Please try again.",
-    "your user account was not created. please try again.":
+    "your user account was not C. please try again.":
       "your user account was not created. Please try again.",
     "your user account was not updated. please try again.":
       "your user account was not updated. Please try again.",
@@ -162,6 +215,14 @@ const en = {
       "your store was not updated. Please try again.",
     "your store was not deleted. please try again.":
       "your store was not deleted. Please try again.",
+
+    // products: {
+    "your product was not created. please try again.":
+      "your product was not created. Please try again.",
+    "your product was not updated. please try again.":
+      "your product was not updated. Please try again.",
+    "your product was not deleted. please try again.":
+      "your product was not deleted. Please try again.",
   },
   emails: {
     "verify-email": {
@@ -248,6 +309,36 @@ const en = {
         "type about your store...": "Type about your store...",
       },
     },
+
+    products: {
+      id: { id: "ID" },
+      createdAt: { createdAt: "CreatedAt" },
+      updatedAt: { updatedAt: "UpdatedAt" },
+      storeId: { storeId: "StoreID" },
+
+      slug: { slug: "slug" },
+      title: { title: "title" },
+      description: {
+        description: "description",
+        "description n fit": "Description & Fit",
+      },
+      images: { images: "images" },
+      status: {
+        status: "status",
+        "select status...": "select status...",
+        enums: {
+          draft: { label: "Draft", color: "var(--chart-2)" },
+          active: { label: "Active", color: "var(--chart-3)" },
+          archived: { label: "Archived", color: "var(--chart-5)" },
+        } satisfies Record<ProductStatus, { label: string; color: string }>,
+      },
+
+      price: { price: "price" },
+      compareToPrice: { "compare to price": "compare to price" },
+      cost: { cost: "cost" },
+
+      attributes: { attributes: "attributes", size: "Size" },
+    },
   },
   // Commom phrases
   cmn: {
@@ -255,10 +346,10 @@ const en = {
     "this action cannot be undone. this will permanently delete your account and remove your data from our servers.":
       "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
 
-    "created successfully.": "created successfully.",
-    "updated successfully.": "updated successfully.",
-    "deleted successfully.": "deleted successfully.",
-    "work with us": "work with us",
+    "created successfully.": "Created successfully.",
+    "updated successfully.": "Updated successfully.",
+    "deleted successfully.": "Deleted successfully.",
+    "work with us": "Work with us",
     "resend code": "Resend Code",
     "save changes": "Save Changes",
     verify: "Verify",
@@ -270,19 +361,23 @@ const en = {
     signup: "Sign Up",
 
     "pick a date": "Pick a date",
-    "message sent successfully": "message sent successfully",
-    "update data": "update data",
-    "update preferences": "update preferences",
+    "message sent successfully": "Message sent successfully",
+    "update data": "Update Data",
+    "update preferences": "Update Preferences",
     all: "All",
-    "check code": "check code",
-    "next step": "next step",
-    "pre step": "pre step",
-    back: "back",
-    discard: "discard",
-    preview: "preview",
+    "check code": "Check Code",
+    "next step": "Next step",
+    "pre step": "Pre step",
+    back: "Back",
+    discard: "Discard",
+    preview: "Preview",
 
-    "create product": "create product",
-    "create store": "create store",
+    "create product": "Create product",
+    "create store": "Create store",
+    "you maight also like:": "You maight also like:",
+    choose: "Choose",
+    varients: "Varients",
+    "add to cart": "Add To Cart",
   },
 
   "mode-switcher": {
@@ -296,6 +391,12 @@ const en = {
   "data-table-row-actions": {
     actions: "Actions",
     "open menu": "Open Menu",
+  },
+  "product-attribute-form": {
+    "no variants": "No Variants",
+    "this is field for having multiple variants":
+      "This is field for having multiple variants",
+    "for customers to choose between.": "for customers to choose between.",
   },
 };
 

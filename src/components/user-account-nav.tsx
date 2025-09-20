@@ -1,9 +1,9 @@
 import { Paths } from "@/constants";
 import { SelectItem } from "@/types";
 
+import { getAuth } from "@/lib/auth";
 import { logout } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
-import { getAuth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FormButton } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
-import { Link } from "@/components/link";
+import { Link } from "@/components/ui/link";
 
 type UserAccountNavProps = {
   items?: SelectItem[];
@@ -37,7 +37,7 @@ export async function UserAccountNav({
     );
 
   const items = _items?.filter((e) =>
-    user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
+    user?.emailVerified ? !e?.value.includes(Paths.VerifyEmail) : e
   );
   return (
     <DropdownMenu>
