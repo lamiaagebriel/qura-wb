@@ -4,6 +4,10 @@ import { useFieldArray } from "react-hook-form";
 
 import { Validation } from "@/lib/validations";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { FormInputField, FormTagsField, useForm } from "@/components/ui/form";
+import { Icons } from "@/components/ui/icons";
 import {
   EmptyPlaceholder,
   EmptyPlaceholderDescription,
@@ -11,10 +15,6 @@ import {
   EmptyPlaceholderTitle,
 } from "@/components/empty-placeholder";
 import { useLocale } from "@/components/locale-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { FormInputField, FormTagsField, useForm } from "@/components/ui/form";
-import { Icons } from "@/components/ui/icons";
 
 export type AttributesPlusButtonProps = {};
 export const AttributesPlusButton = ({}: AttributesPlusButtonProps) => {

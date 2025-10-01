@@ -214,26 +214,61 @@ export const validations = {
   }),
 
   // cart
-  "cart-product-schema": z.object({
-    product: productSchema.pick({
+  "cart-product-schema": productSchema
+    .pick({
       id: true,
       storeId: true,
-      price: true,
 
       title: true,
       images: true,
-    }),
-    quantity: z.number("quantity").min(1, `quantity can't be less than 0.`),
-    attributes: z
-      .array(
-        z.object({ name: z.string("name"), value: z.string("value") })
+    })
+    .and(
+      z.object({
+        // NOTE: only used for form handling
+        quantity: z
+          .number("quantity")
+          .min(1, `quantity can't be less than 0.`)
+          .optional(),
 
-        // productAttributeSchema
-        //   .pick({ name: true })
-        //   .and(z.object({ name: z.string("name"),  value: z.string("value"),   }))
-      )
-      .default([]),
-  }),
+        attributes: z
+          .array(
+            z.object({
+              name: z.string("name"),
+              value: z.string("value"),
+
+              quantity: z
+                .number("quantity")
+                .min(1, `quantity can't be less than 0.`),
+              price: z.number("price").positive("price can't be less than 0."),
+            })
+
+            // productAttributeSchema
+            //   .pick({ name: true })
+            //   .and(z.object({ name: z.string("name"),  value: z.string("value"),   }))
+          )
+          .default([]),
+      })
+    ),
+
+  // "cart-address-schema": z.object({
+  //   name: z.stringRequired("name"),
+  //   phone: z
+  //     .stringRequired("phone number")
+  //     .regex(
+  //       /^01[0,1,2,5][0-9]{8}$/,
+  //       "only an egyptian phone number is valid."
+  //     ),
+  //   address_line: z.string("address_line").optional(),
+  //   zip: z
+  //     .stringRequired("zip")
+  //     .regex(/^\d{5}$/, "Only egyptian zip is valid."),
+  //   state: z.stringRequired("state"),
+  //   city: z.stringRequired("city"),
+  //   country: z.stringRequired("country"),
+  // }),
+  // "cart-payment-schema": z.object({
+  //   "payment-method": z.enum(["cash", "paypal"]),
+  // }),
 
   // STRICT: db depends on this, we can add more but remove some needs to be handled.
   "address-schema": addressSchema,

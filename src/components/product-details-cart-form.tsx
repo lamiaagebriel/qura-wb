@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/db/schema";
-// import { useCart } from "@/lib/redux";
+import { useCartStore } from "@/stores/cart-store";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,40 +16,47 @@ import {
   useForm,
 } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { useLocale } from "./locale-provider";
 
 export type ProductDetailsCartFormProps = {
   product: Product;
-  // & { attributes: ProductAttribute[] };
 };
 
 export function ProductDetailsCartForm({
   product: e,
 }: ProductDetailsCartFormProps) {
-  const cart = {};
-  // useCart();
+  const cart = useCartStore();
+
   const { cmn } = useLocale();
   return (
     <Form
       validation="cart-product-schema"
-      onSubmit={async (data) => {
-        // cart.addToCart({ ...data });
+      onSubmit={async ({ quantity, ...data }) => {
+        cart.addProduct({
+          ...data,
+          attributes: data?.attributes?.map((e) => ({
+            ...e,
+            quantity: quantity ?? 1,
+          })),
+        });
         return { ok: true };
       }}
       useForm={{
         defaultValues: {
-          product: {
-            ...e,
-            price: Number(e?.price),
-            images: e?.images ?? [],
-          },
-          attributes: e?.["attributes"]?.map((e) => ({
-            name: e?.name,
-            value: e?.values?.[0] ?? undefined,
-          })),
+          ...e,
+          images: e?.images ?? [],
+
           quantity: 1,
+
+          attributes: e?.["attributes"]?.map((a) => ({
+            name: a?.name,
+            value: a?.values?.[0] ?? undefined,
+            quantity: 1, // fake till its updated before adding to cart
+
+            price: Number(e?.price),
+          })),
         },
       }}
       className="grid grid-cols-1 gap-6"
@@ -61,7 +68,7 @@ export function ProductDetailsCartForm({
             name={`attributes.${i}.value`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs text-muted-foreground">
+                <FormLabel className="text-muted-foreground text-xs">
                   {e?.name}
                 </FormLabel>
                 <FormControl>
@@ -75,7 +82,7 @@ export function ProductDetailsCartForm({
                         <FormControl>
                           <RadioGroupItem value={v} className="peer sr-only" />
                         </FormControl>
-                        <FormLabel className="flex cursor-pointer items-center rounded-full border border-border p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground peer-data-[state=checked]:hover:bg-primary peer-data-[state=checked]:hover:text-primary-foreground [&:has([data-state=checked])]:border-primary">
+                        <FormLabel className="border-border hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground peer-data-[state=checked]:hover:bg-primary peer-data-[state=checked]:hover:text-primary-foreground [&:has([data-state=checked])]:border-primary flex cursor-pointer items-center rounded-full border p-4">
                           {v}
                         </FormLabel>
                       </FormItem>
@@ -110,7 +117,7 @@ const QuantityFeild = () => {
   const form = useForm?.();
 
   return (
-    <div className="flex items-center justify-center gap-1 rounded-full border border-primary p-1">
+    <div className="border-primary flex items-center justify-center gap-1 rounded-full border p-1">
       <Button
         variant="outline"
         size="icon"
