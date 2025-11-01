@@ -1,15 +1,15 @@
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
-
 import { queries } from "@/db/queries";
-import { getAuth } from "@/lib/auth";
-import { getDictionary } from "@/servers/locale";
 
-import { CartLink } from "@/components/cart-icon";
+import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Icons } from "@/components/ui/icons";
+import { CartLink } from "@/components/cart-icon";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type StoreLayoutProps = React.PropsWithChildren<
@@ -31,8 +31,8 @@ export default async function StoreLayout({
   if (!selectedStore) return <div>NO STORE</div>;
 
   return (
-    <div className="flex min-h-screen flex-col bg-muted/50">
-      <header className="scrollbar-none sticky top-0 z-20 flex flex-col gap-4 overflow-y-auto border-b bg-background py-4 text-foreground">
+    <div className="bg-muted/20 flex min-h-screen flex-col">
+      <header className="scrollbar-none bg-background text-foreground sticky top-0 z-20 flex flex-col gap-4 overflow-y-auto border-b py-4">
         <div className="container flex items-center justify-between gap-4">
           <Breadcrumbs
             items={[

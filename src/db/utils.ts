@@ -26,3 +26,12 @@ export const references = (
   ref: PgColumn,
   actions?: ReferenceConfig["actions"]
 ) => varchar(k, p).references(() => ref, actions);
+
+export const defaultFields = {
+  id: id("id", { length: 21 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$defaultFn(() => new Date())
+    .notNull(),
+};

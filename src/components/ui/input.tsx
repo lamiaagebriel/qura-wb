@@ -10,8 +10,8 @@ import { cn, fileToBase64 } from "@/lib/utils";
 import { Combobox } from "@/components/ui/combobox";
 import { withFormAwareness } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
-
 import { Image } from "@/components/ui/image";
+
 export const inputVariants = cva(
   "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" +
     "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]" +
@@ -28,9 +28,9 @@ function InputWithoutFormAwareness({
   type = "text",
   className,
   onChange,
-  value,
+  value = "",
   multiple,
-  countryCode = "+1",
+  countryCode = "+20",
   onCountryCodeChange,
   defaultValue,
   ...props
@@ -175,10 +175,10 @@ function InputWithoutFormAwareness({
           ref={phoneInputRef}
           type={type}
           onChange={handlePhoneChange}
-          value={phoneValue?.trimStart()}
+          value={phoneValue?.trimStart() ?? ""}
           className={cn(inputVariants({}), "w-full rounded-l-none", className)}
           dir="ltr"
-          placeholder="(555) 123-4567"
+          placeholder="(123) 456-7890"
           autoCapitalize="none"
           autoComplete="tel"
           autoCorrect="off"

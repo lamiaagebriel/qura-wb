@@ -1,1124 +1,1275 @@
-"use client";
+// "use client";
 
-// TODO: use icons
-import {
-  IconChevronDown,
-  IconCircleCheckFilled,
-  IconDotsVertical,
-  IconLayoutColumns,
-  IconLoader,
-  IconPlus,
-  IconTrendingUp,
-} from "@tabler/icons-react";
-import { ColumnDef } from "@tanstack/react-table";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { toast } from "sonner";
-import { z } from "zod";
+// // TODO: use icons
+// import {
+//   IconChevronDown,
+//   IconCircleCheckFilled,
+//   IconDotsVertical,
+//   IconLayoutColumns,
+//   IconLoader,
+//   IconPlus,
+//   IconTrendingUp,
+// } from "@tabler/icons-react";
+// import { ColumnDef } from "@tanstack/react-table";
+// import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+// import { toast } from "sonner";
+// import { z } from "zod";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+// import { useIsMobile } from "@/hooks/use-mobile";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DragHandle, useTable } from "@/components/ui/data-table";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+// import { Badge } from "@/components/ui/badge";
+// import { Button } from "@/components/ui/button";
+// import {
+//   ChartConfig,
+//   ChartContainer,
+//   ChartTooltip,
+//   ChartTooltipContent,
+// } from "@/components/ui/chart";
+// import { Checkbox } from "@/components/ui/checkbox";
+// import { DragHandle, useTable } from "@/components/ui/data-table";
+// import {
+//   Drawer,
+//   DrawerClose,
+//   DrawerContent,
+//   DrawerDescription,
+//   DrawerFooter,
+//   DrawerHeader,
+//   DrawerTitle,
+//   DrawerTrigger,
+// } from "@/components/ui/drawer";
+// import {
+//   DropdownMenu,
+//   DropdownMenuCheckboxItem,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { Separator } from "@/components/ui/separator";
 
-export const schema = z.object({
-  id: z.number(),
-  header: z.string(),
-  type: z.string(),
-  status: z.string(),
-  target: z.string(),
-  limit: z.string(),
-  reviewer: z.string(),
-});
+// export const schema = z.object({
+//   id: z.number(),
+//   header: z.string(),
+//   type: z.string(),
+//   status: z.string(),
+//   target: z.string(),
+//   limit: z.string(),
+//   reviewer: z.string(),
+// });
 
-type Schema = z.infer<typeof schema>;
-// // Create a separate component for the drag handle
-// function DragHandle({ id }: { id: number }) {
-//   const { attributes, listeners } = useSortable({
-//     id,
-//   });
+// type Schema = z.infer<typeof schema>;
+// // // Create a separate component for the drag handle
+// // function DragHandle({ id }: { id: number }) {
+// //   const { attributes, listeners } = useSortable({
+// //     id,
+// //   });
+
+// //   return (
+// //     <Button
+// //       {...attributes}
+// //       {...listeners}
+// //       variant="ghost"
+// //       size="icon"
+// //       className="text-muted-foreground size-7 hover:bg-transparent"
+// //     >
+// //       <IconGripVertical className="text-muted-foreground size-3" />
+// //       <span className="sr-only">Drag to reorder</span>
+// //     </Button>
+// //   );
+// // }
+
+// export const columns: ColumnDef<Schema>[] = [
+//   {
+//     id: "drag",
+//     header: () => null,
+//     cell: ({ row }) => <DragHandle id={row.original.id} />,
+//   },
+//   {
+//     id: "select",
+//     header: ({ table }) => (
+//       <div className="flex items-center justify-center">
+//         <Checkbox
+//           checked={
+//             table.getIsAllPageRowsSelected() ||
+//             (table.getIsSomePageRowsSelected() && "indeterminate")
+//           }
+//           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+//           aria-label="Select all"
+//         />
+//       </div>
+//     ),
+//     cell: ({ row }) => (
+//       <div className="flex items-center justify-center">
+//         <Checkbox
+//           checked={row.getIsSelected()}
+//           onCheckedChange={(value) => row.toggleSelected(!!value)}
+//           aria-label="Select row"
+//         />
+//       </div>
+//     ),
+//     enableSorting: false,
+//     enableHiding: false,
+//   },
+//   {
+//     accessorKey: "header",
+//     header: "Header",
+//     cell: ({ row }) => {
+//       return <TableCellViewer item={row.original} />;
+//     },
+//     enableHiding: false,
+//   },
+//   {
+//     accessorKey: "type",
+//     header: "Section Type",
+//     cell: ({ row }) => (
+//       <div className="w-32">
+//         <Badge variant="outline" className="text-muted-foreground px-1.5">
+//           {row.original.type}
+//         </Badge>
+//       </div>
+//     ),
+//   },
+//   {
+//     accessorKey: "status",
+//     header: "Status",
+//     cell: ({ row }) => (
+//       <Badge variant="outline" className="text-muted-foreground px-1.5">
+//         {row.original.status === "Done" ? (
+//           <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+//         ) : (
+//           <IconLoader />
+//         )}
+//         {row.original.status}
+//       </Badge>
+//     ),
+//   },
+//   {
+//     accessorKey: "target",
+//     header: () => <div className="w-full text-right">Target</div>,
+//     cell: ({ row }) => (
+//       <form
+//         onSubmit={(e) => {
+//           e.preventDefault();
+//           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
+//             loading: `Saving ${row.original.header}`,
+//             success: "Done",
+//             error: "Error",
+//           });
+//         }}
+//       >
+//         <Label htmlFor={`${row.original.id}-target`} className="sr-only">
+//           Target
+//         </Label>
+//         <Input
+//           className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
+//           defaultValue={row.original.target}
+//           id={`${row.original.id}-target`}
+//         />
+//       </form>
+//     ),
+//   },
+//   {
+//     accessorKey: "limit",
+//     header: () => <div className="w-full text-right">Limit</div>,
+//     cell: ({ row }) => (
+//       <form
+//         onSubmit={(e) => {
+//           e.preventDefault();
+//           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
+//             loading: `Saving ${row.original.header}`,
+//             success: "Done",
+//             error: "Error",
+//           });
+//         }}
+//       >
+//         <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
+//           Limit
+//         </Label>
+//         <Input
+//           className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
+//           defaultValue={row.original.limit}
+//           id={`${row.original.id}-limit`}
+//         />
+//       </form>
+//     ),
+//   },
+//   {
+//     accessorKey: "reviewer",
+//     header: "Reviewer",
+//     cell: ({ row }) => {
+//       const isAssigned = row.original.reviewer !== "Assign reviewer";
+
+//       if (isAssigned) {
+//         return row.original.reviewer;
+//       }
+
+//       return (
+//         <>
+//           <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
+//             Reviewer
+//           </Label>
+//           <Select>
+//             <SelectTrigger
+//               className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
+//               size="sm"
+//               id={`${row.original.id}-reviewer`}
+//             >
+//               <SelectValue placeholder="Assign reviewer" />
+//             </SelectTrigger>
+//             <SelectContent align="end">
+//               <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
+//               <SelectItem value="Jamik Tashpulatov">
+//                 Jamik Tashpulatov
+//               </SelectItem>
+//             </SelectContent>
+//           </Select>
+//         </>
+//       );
+//     },
+//   },
+//   {
+//     id: "actions",
+//     cell: () => (
+//       <DropdownMenu>
+//         <DropdownMenuTrigger asChild>
+//           <Button
+//             variant="ghost"
+//             className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+//             size="icon"
+//           >
+//             <IconDotsVertical />
+//             <span className="sr-only">Open menu</span>
+//           </Button>
+//         </DropdownMenuTrigger>
+//         <DropdownMenuContent align="end" className="w-32">
+//           <DropdownMenuItem>Edit</DropdownMenuItem>
+//           <DropdownMenuItem>Make a copy</DropdownMenuItem>
+//           <DropdownMenuItem>Favorite</DropdownMenuItem>
+//           <DropdownMenuSeparator />
+//           <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+//         </DropdownMenuContent>
+//       </DropdownMenu>
+//     ),
+//   },
+// ];
+
+// const chartData = [
+//   { month: "January", desktop: 186, mobile: 80 },
+//   { month: "February", desktop: 305, mobile: 200 },
+//   { month: "March", desktop: 237, mobile: 120 },
+//   { month: "April", desktop: 73, mobile: 190 },
+//   { month: "May", desktop: 209, mobile: 130 },
+//   { month: "June", desktop: 214, mobile: 140 },
+// ];
+
+// const chartConfig = {
+//   desktop: {
+//     label: "Desktop",
+//     color: "var(--primary)",
+//   },
+//   mobile: {
+//     label: "Mobile",
+//     color: "var(--primary)",
+//   },
+// } satisfies ChartConfig;
+
+// function TableCellViewer({ item }: { item: Schema }) {
+//   const isMobile = useIsMobile();
 
 //   return (
-//     <Button
-//       {...attributes}
-//       {...listeners}
-//       variant="ghost"
-//       size="icon"
-//       className="text-muted-foreground size-7 hover:bg-transparent"
-//     >
-//       <IconGripVertical className="text-muted-foreground size-3" />
-//       <span className="sr-only">Drag to reorder</span>
-//     </Button>
+//     <Drawer direction={isMobile ? "bottom" : "right"}>
+//       <DrawerTrigger asChild>
+//         <Button variant="link" className="text-foreground w-fit px-0 text-left">
+//           {item.header}
+//         </Button>
+//       </DrawerTrigger>
+//       <DrawerContent>
+//         <DrawerHeader className="gap-1">
+//           <DrawerTitle>{item.header}</DrawerTitle>
+//           <DrawerDescription>
+//             Showing total visitors for the last 6 months
+//           </DrawerDescription>
+//         </DrawerHeader>
+//         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+//           {!isMobile && (
+//             <>
+//               <ChartContainer config={chartConfig}>
+//                 <AreaChart
+//                   accessibilityLayer
+//                   data={chartData}
+//                   margin={{
+//                     left: 0,
+//                     right: 10,
+//                   }}
+//                 >
+//                   <CartesianGrid vertical={false} />
+//                   <XAxis
+//                     dataKey="month"
+//                     tickLine={false}
+//                     axisLine={false}
+//                     tickMargin={8}
+//                     tickFormatter={(value) => value.slice(0, 3)}
+//                     hide
+//                   />
+//                   <ChartTooltip
+//                     cursor={false}
+//                     content={<ChartTooltipContent indicator="dot" />}
+//                   />
+//                   <Area
+//                     dataKey="mobile"
+//                     type="natural"
+//                     fill="var(--color-mobile)"
+//                     fillOpacity={0.6}
+//                     stroke="var(--color-mobile)"
+//                     stackId="a"
+//                   />
+//                   <Area
+//                     dataKey="desktop"
+//                     type="natural"
+//                     fill="var(--color-desktop)"
+//                     fillOpacity={0.4}
+//                     stroke="var(--color-desktop)"
+//                     stackId="a"
+//                   />
+//                 </AreaChart>
+//               </ChartContainer>
+//               <Separator />
+//               <div className="grid gap-2">
+//                 <div className="flex gap-2 leading-none font-medium">
+//                   Trending up by 5.2% this month{" "}
+//                   <IconTrendingUp className="size-4" />
+//                 </div>
+//                 <div className="text-muted-foreground">
+//                   Showing total visitors for the last 6 months. This is just
+//                   some random text to test the layout. It spans multiple lines
+//                   and should wrap around.
+//                 </div>
+//               </div>
+//               <Separator />
+//             </>
+//           )}
+//           <form className="flex flex-col gap-4">
+//             <div className="flex flex-col gap-3">
+//               <Label htmlFor="header">Header</Label>
+//               <Input id="header" defaultValue={item.header} />
+//             </div>
+//             <div className="grid grid-cols-2 gap-4">
+//               <div className="flex flex-col gap-3">
+//                 <Label htmlFor="type">Type</Label>
+//                 <Select defaultValue={item.type}>
+//                   <SelectTrigger id="type" className="w-full">
+//                     <SelectValue placeholder="Select a type" />
+//                   </SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="Table of Contents">
+//                       Table of Contents
+//                     </SelectItem>
+//                     <SelectItem value="Executive Summary">
+//                       Executive Summary
+//                     </SelectItem>
+//                     <SelectItem value="Technical Approach">
+//                       Technical Approach
+//                     </SelectItem>
+//                     <SelectItem value="Design">Design</SelectItem>
+//                     <SelectItem value="Capabilities">Capabilities</SelectItem>
+//                     <SelectItem value="Focus Documents">
+//                       Focus Documents
+//                     </SelectItem>
+//                     <SelectItem value="Narrative">Narrative</SelectItem>
+//                     <SelectItem value="Cover Page">Cover Page</SelectItem>
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+//               <div className="flex flex-col gap-3">
+//                 <Label htmlFor="status">Status</Label>
+//                 <Select defaultValue={item.status}>
+//                   <SelectTrigger id="status" className="w-full">
+//                     <SelectValue placeholder="Select a status" />
+//                   </SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="Done">Done</SelectItem>
+//                     <SelectItem value="In Progress">In Progress</SelectItem>
+//                     <SelectItem value="Not Started">Not Started</SelectItem>
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+//             </div>
+//             <div className="grid grid-cols-2 gap-4">
+//               <div className="flex flex-col gap-3">
+//                 <Label htmlFor="target">Target</Label>
+//                 <Input id="target" defaultValue={item.target} />
+//               </div>
+//               <div className="flex flex-col gap-3">
+//                 <Label htmlFor="limit">Limit</Label>
+//                 <Input id="limit" defaultValue={item.limit} />
+//               </div>
+//             </div>
+//             <div className="flex flex-col gap-3">
+//               <Label htmlFor="reviewer">Reviewer</Label>
+//               <Select defaultValue={item.reviewer}>
+//                 <SelectTrigger id="reviewer" className="w-full">
+//                   <SelectValue placeholder="Select a reviewer" />
+//                 </SelectTrigger>
+//                 <SelectContent>
+//                   <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
+//                   <SelectItem value="Jamik Tashpulatov">
+//                     Jamik Tashpulatov
+//                   </SelectItem>
+//                   <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
+//                 </SelectContent>
+//               </Select>
+//             </div>
+//           </form>
+//         </div>
+//         <DrawerFooter>
+//           <Button>Submit</Button>
+//           <DrawerClose asChild>
+//             <Button variant="outline">Done</Button>
+//           </DrawerClose>
+//         </DrawerFooter>
+//       </DrawerContent>
+//     </Drawer>
 //   );
 // }
 
-export const columns: ColumnDef<Schema>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "header",
-    header: "Header",
-    cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />;
-    },
-    enableHiding: false,
-  },
-  {
-    accessorKey: "type",
-    header: "Section Type",
-    cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.type}
-        </Badge>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status === "Done" ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.status}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: "target",
-    header: () => <div className="w-full text-right">Target</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          });
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Target
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.target}
-          id={`${row.original.id}-target`}
-        />
-      </form>
-    ),
-  },
-  {
-    accessorKey: "limit",
-    header: () => <div className="w-full text-right">Limit</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          });
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.limit}
-          id={`${row.original.id}-limit`}
-        />
-      </form>
-    ),
-  },
-  {
-    accessorKey: "reviewer",
-    header: "Reviewer",
-    cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer";
+// export function DataTableButtons() {
+//   const { table } = useTable();
 
-      if (isAssigned) {
-        return row.original.reviewer;
-      }
+//   return (
+//     <div className="flex items-center justify-between">
+//       <Label htmlFor="view-selector" className="sr-only">
+//         View
+//       </Label>
+//       <Select defaultValue="outline">
+//         <SelectTrigger
+//           className="flex w-fit @4xl/main:hidden"
+//           size="sm"
+//           id="view-selector"
+//         >
+//           <SelectValue placeholder="Select a view" />
+//         </SelectTrigger>
+//         <SelectContent>
+//           <SelectItem value="outline">Outline</SelectItem>
+//           <SelectItem value="past-performance">Past Performance</SelectItem>
+//           <SelectItem value="key-personnel">Key Personnel</SelectItem>
+//           <SelectItem value="focus-documents">Focus Documents</SelectItem>
+//         </SelectContent>
+//       </Select>
+
+//       <div className="flex items-center gap-2">
+//         <DropdownMenu>
+//           <DropdownMenuTrigger asChild>
+//             <Button variant="outline" size="sm">
+//               <IconLayoutColumns />
+//               <span className="hidden lg:inline">Customize Columns</span>
+//               <span className="lg:hidden">Columns</span>
+//               <IconChevronDown />
+//             </Button>
+//           </DropdownMenuTrigger>
+//           <DropdownMenuContent align="end" className="w-56">
+//             {table
+//               .getAllColumns()
+//               .filter(
+//                 (column) =>
+//                   typeof column.accessorFn !== "undefined" &&
+//                   column.getCanHide()
+//               )
+//               .map((column) => {
+//                 return (
+//                   <DropdownMenuCheckboxItem
+//                     key={column.id}
+//                     className="capitalize"
+//                     checked={column.getIsVisible()}
+//                     onCheckedChange={(value) =>
+//                       column.toggleVisibility(!!value)
+//                     }
+//                   >
+//                     {column.id}
+//                   </DropdownMenuCheckboxItem>
+//                 );
+//               })}
+//           </DropdownMenuContent>
+//         </DropdownMenu>
+//         <Button variant="outline" size="sm">
+//           <IconPlus />
+//           <span className="hidden lg:inline">Add Section</span>
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export const data: Schema[] = [
+//   {
+//     id: 1,
+//     header: "Cover page",
+//     type: "Cover page",
+//     status: "In Process",
+//     target: "18",
+//     limit: "5",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 2,
+//     header: "Table of contents",
+//     type: "Table of contents",
+//     status: "Done",
+//     target: "29",
+//     limit: "24",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 3,
+//     header: "Executive summary",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "10",
+//     limit: "13",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 4,
+//     header: "Technical approach",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "27",
+//     limit: "23",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 5,
+//     header: "Design",
+//     type: "Narrative",
+//     status: "In Process",
+//     target: "2",
+//     limit: "16",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 6,
+//     header: "Capabilities",
+//     type: "Narrative",
+//     status: "In Process",
+//     target: "20",
+//     limit: "8",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 7,
+//     header: "Integration with existing systems",
+//     type: "Narrative",
+//     status: "In Process",
+//     target: "19",
+//     limit: "21",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 8,
+//     header: "Innovation and Advantages",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "25",
+//     limit: "26",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 9,
+//     header: "Overview of EMR's Innovative Solutions",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "7",
+//     limit: "23",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 10,
+//     header: "Advanced Algorithms and Machine Learning",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "30",
+//     limit: "28",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 11,
+//     header: "Adaptive Communication Protocols",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "9",
+//     limit: "31",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 12,
+//     header: "Advantages Over Current Technologies",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "12",
+//     limit: "0",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 13,
+//     header: "Past Performance",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "22",
+//     limit: "33",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 14,
+//     header: "Customer Feedback and Satisfaction Levels",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "15",
+//     limit: "34",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 15,
+//     header: "Implementation Challenges and Solutions",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "3",
+//     limit: "35",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 16,
+//     header: "Security Measures and Data Protection Policies",
+//     type: "Narrative",
+//     status: "In Process",
+//     target: "6",
+//     limit: "36",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 17,
+//     header: "Scalability and Future Proofing",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "4",
+//     limit: "37",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 18,
+//     header: "Cost-Benefit Analysis",
+//     type: "Plain language",
+//     status: "Done",
+//     target: "14",
+//     limit: "38",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 19,
+//     header: "User Training and Onboarding Experience",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "17",
+//     limit: "39",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 20,
+//     header: "Future Development Roadmap",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "11",
+//     limit: "40",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 21,
+//     header: "System Architecture Overview",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "24",
+//     limit: "18",
+//     reviewer: "Maya Johnson",
+//   },
+//   {
+//     id: 22,
+//     header: "Risk Management Plan",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "15",
+//     limit: "22",
+//     reviewer: "Carlos Rodriguez",
+//   },
+//   {
+//     id: 23,
+//     header: "Compliance Documentation",
+//     type: "Legal",
+//     status: "In Process",
+//     target: "31",
+//     limit: "27",
+//     reviewer: "Sarah Chen",
+//   },
+//   {
+//     id: 24,
+//     header: "API Documentation",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "8",
+//     limit: "12",
+//     reviewer: "Raj Patel",
+//   },
+//   {
+//     id: 25,
+//     header: "User Interface Mockups",
+//     type: "Visual",
+//     status: "In Process",
+//     target: "19",
+//     limit: "25",
+//     reviewer: "Leila Ahmadi",
+//   },
+//   {
+//     id: 26,
+//     header: "Database Schema",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "22",
+//     limit: "20",
+//     reviewer: "Thomas Wilson",
+//   },
+//   {
+//     id: 27,
+//     header: "Testing Methodology",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "17",
+//     limit: "14",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 28,
+//     header: "Deployment Strategy",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "26",
+//     limit: "30",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 29,
+//     header: "Budget Breakdown",
+//     type: "Financial",
+//     status: "In Process",
+//     target: "13",
+//     limit: "16",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 30,
+//     header: "Market Analysis",
+//     type: "Research",
+//     status: "Done",
+//     target: "29",
+//     limit: "32",
+//     reviewer: "Sophia Martinez",
+//   },
+//   {
+//     id: 31,
+//     header: "Competitor Comparison",
+//     type: "Research",
+//     status: "In Process",
+//     target: "21",
+//     limit: "19",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 32,
+//     header: "Maintenance Plan",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "16",
+//     limit: "23",
+//     reviewer: "Alex Thompson",
+//   },
+//   {
+//     id: 33,
+//     header: "User Personas",
+//     type: "Research",
+//     status: "In Process",
+//     target: "27",
+//     limit: "24",
+//     reviewer: "Nina Patel",
+//   },
+//   {
+//     id: 34,
+//     header: "Accessibility Compliance",
+//     type: "Legal",
+//     status: "Done",
+//     target: "18",
+//     limit: "21",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 35,
+//     header: "Performance Metrics",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "23",
+//     limit: "26",
+//     reviewer: "David Kim",
+//   },
+//   {
+//     id: 36,
+//     header: "Disaster Recovery Plan",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "14",
+//     limit: "17",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 37,
+//     header: "Third-party Integrations",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "25",
+//     limit: "28",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 38,
+//     header: "User Feedback Summary",
+//     type: "Research",
+//     status: "Done",
+//     target: "20",
+//     limit: "15",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 39,
+//     header: "Localization Strategy",
+//     type: "Narrative",
+//     status: "In Process",
+//     target: "12",
+//     limit: "19",
+//     reviewer: "Maria Garcia",
+//   },
+//   {
+//     id: 40,
+//     header: "Mobile Compatibility",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "28",
+//     limit: "31",
+//     reviewer: "James Wilson",
+//   },
+//   {
+//     id: 41,
+//     header: "Data Migration Plan",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "19",
+//     limit: "22",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 42,
+//     header: "Quality Assurance Protocols",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "30",
+//     limit: "33",
+//     reviewer: "Priya Singh",
+//   },
+//   {
+//     id: 43,
+//     header: "Stakeholder Analysis",
+//     type: "Research",
+//     status: "In Process",
+//     target: "11",
+//     limit: "14",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 44,
+//     header: "Environmental Impact Assessment",
+//     type: "Research",
+//     status: "Done",
+//     target: "24",
+//     limit: "27",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 45,
+//     header: "Intellectual Property Rights",
+//     type: "Legal",
+//     status: "In Process",
+//     target: "17",
+//     limit: "20",
+//     reviewer: "Sarah Johnson",
+//   },
+//   {
+//     id: 46,
+//     header: "Customer Support Framework",
+//     type: "Narrative",
+//     status: "Done",
+//     target: "22",
+//     limit: "25",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 47,
+//     header: "Version Control Strategy",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "15",
+//     limit: "18",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 48,
+//     header: "Continuous Integration Pipeline",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "26",
+//     limit: "29",
+//     reviewer: "Michael Chen",
+//   },
+//   {
+//     id: 49,
+//     header: "Regulatory Compliance",
+//     type: "Legal",
+//     status: "In Process",
+//     target: "13",
+//     limit: "16",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 50,
+//     header: "User Authentication System",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "28",
+//     limit: "31",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 51,
+//     header: "Data Analytics Framework",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "21",
+//     limit: "24",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 52,
+//     header: "Cloud Infrastructure",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "16",
+//     limit: "19",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 53,
+//     header: "Network Security Measures",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "29",
+//     limit: "32",
+//     reviewer: "Lisa Wong",
+//   },
+//   {
+//     id: 54,
+//     header: "Project Timeline",
+//     type: "Planning",
+//     status: "Done",
+//     target: "14",
+//     limit: "17",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 55,
+//     header: "Resource Allocation",
+//     type: "Planning",
+//     status: "In Process",
+//     target: "27",
+//     limit: "30",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 56,
+//     header: "Team Structure and Roles",
+//     type: "Planning",
+//     status: "Done",
+//     target: "20",
+//     limit: "23",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 57,
+//     header: "Communication Protocols",
+//     type: "Planning",
+//     status: "In Process",
+//     target: "15",
+//     limit: "18",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 58,
+//     header: "Success Metrics",
+//     type: "Planning",
+//     status: "Done",
+//     target: "30",
+//     limit: "33",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 59,
+//     header: "Internationalization Support",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "23",
+//     limit: "26",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 60,
+//     header: "Backup and Recovery Procedures",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "18",
+//     limit: "21",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 61,
+//     header: "Monitoring and Alerting System",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "25",
+//     limit: "28",
+//     reviewer: "Daniel Park",
+//   },
+//   {
+//     id: 62,
+//     header: "Code Review Guidelines",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "12",
+//     limit: "15",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 63,
+//     header: "Documentation Standards",
+//     type: "Technical content",
+//     status: "In Process",
+//     target: "27",
+//     limit: "30",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 64,
+//     header: "Release Management Process",
+//     type: "Planning",
+//     status: "Done",
+//     target: "22",
+//     limit: "25",
+//     reviewer: "Assign reviewer",
+//   },
+//   {
+//     id: 65,
+//     header: "Feature Prioritization Matrix",
+//     type: "Planning",
+//     status: "In Process",
+//     target: "19",
+//     limit: "22",
+//     reviewer: "Emma Davis",
+//   },
+//   {
+//     id: 66,
+//     header: "Technical Debt Assessment",
+//     type: "Technical content",
+//     status: "Done",
+//     target: "24",
+//     limit: "27",
+//     reviewer: "Eddie Lake",
+//   },
+//   {
+//     id: 67,
+//     header: "Capacity Planning",
+//     type: "Planning",
+//     status: "In Process",
+//     target: "21",
+//     limit: "24",
+//     reviewer: "Jamik Tashpulatov",
+//   },
+//   {
+//     id: 68,
+//     header: "Service Level Agreements",
+//     type: "Legal",
+//     status: "Done",
+//     target: "26",
+//     limit: "29",
+//     reviewer: "Assign reviewer",
+//   },
+// ];
+
+"use client";
+
+import { Paths } from "@/constants";
+import { ColumnDef } from "@tanstack/react-table";
+
+import { deleteOrder } from "@/servers/orders";
+import { cn } from "@/lib/utils";
+import { OrderPaymentMethod, Validation } from "@/lib/validations";
+
+import { Badge } from "@/components/ui/badge";
+import { DataTableRowActions } from "@/components/ui/data-table";
+import { FormAlertDialogButton } from "@/components/ui/form";
+import { Link } from "@/components/ui/link";
+import { useLocale } from "@/components/locale-provider";
+
+type OrderSchema = Validation["order-schema"]; // You'll need to define this order schema in your validation library
+
+export const columns: ColumnDef<OrderSchema>[] = [
+  {
+    accessorKey: "orderNumber",
+    header: "Order ID",
+    cell: ({ row: { original: e } }) => (
+      <Link
+        href={`${Paths.DashboardOrders}/${e?.id}`}
+        className="truncate font-semibold hover:underline"
+      >
+        {e?.id}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "customer",
+    header: "Customer",
+    cell: ({ row: { original: e } }) => (
+      <div className="flex flex-col">
+        <span className="font-medium">{e?.address?.[0]?.name}</span>
+        <span className="text-muted-foreground truncate text-xs">
+          {e?.address?.[0]?.phones?.[0]}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "actions.0.action",
+    header: "Payment Method",
+    cell: ({ row: { original: e } }) => {
+      const {
+        db: { orders: oo },
+      } = useLocale();
+      const pp = e?.actions?.find((e) => e?.action?.startsWith("paying__"));
+      console.log({ pp, a: e?.actions });
+
+      const t =
+        oo["actions"]["action"]["enums"]?.[pp?.action as OrderPaymentMethod];
+
+      return <span>{t?.label}</span>;
+    },
+  },
+  {
+    accessorKey: "total",
+    header: "Total",
+    cell: ({ row: { original: e } }) => {
+      // Calculate total: sum of item prices * quantity + shipping - discount
+      // Calculate the total price based on attributes for each item
+      const itemsTotal = Array.isArray(e.items)
+        ? e.items.reduce((sum, item) => {
+            // If item has attributes (array), sum the price*quantity for each attribute
+            if (Array.isArray(item.attributes) && item.attributes.length > 0) {
+              return (
+                sum +
+                item.attributes.reduce((attrSum, attr) => {
+                  const attrPrice = Number(attr.price) || 0;
+                  const attrQty = Number(attr.quantity) || 0;
+                  return attrSum + attrPrice * attrQty;
+                }, 0)
+              );
+            }
+            // fallback: try item.price/item.quantity if present at item level
+            const price = Number((item as any).price) || 0;
+            const qty = Number((item as any).quantity) || 0;
+            return sum + price * qty;
+          }, 0)
+        : 0;
+      const shipping = Number(e.expenses?.shipping) || 0;
+      const discount = Number(e.expenses?.discount) || 0;
+      const total = itemsTotal + shipping - discount;
 
       return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Reviewer
-          </Label>
-          <Select>
-            <SelectTrigger
-              className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-              size="sm"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign reviewer" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-              <SelectItem value="Jamik Tashpulatov">
-                Jamik Tashpulatov
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </>
+        <span className="font-mono">
+          {total.toLocaleString(undefined, {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+          })}
+        </span>
       );
     },
   },
   {
-    id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row: { original: e } }) => (
+      <Badge variant="outline">{e?.status}</Badge>
     ),
   },
-];
-
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ row: { original: e } }) => (
+      <span>
+        {e?.createdAt ? new Date(e.createdAt).toLocaleDateString() : ""}
+      </span>
+    ),
   },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig;
+  {
+    id: "actions",
+    cell: ({ row: { original: e } }) => {
+      const { cmn } = useLocale();
 
-function TableCellViewer({ item }: { item: Schema }) {
-  const isMobile = useIsMobile();
-
-  return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.header}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
-          <DrawerDescription>
-            Showing total visitors for the last 6 months
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {!isMobile && (
-            <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 0,
-                    right: 10,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                    hide
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.6}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-              <Separator />
-              <div className="grid gap-2">
-                <div className="flex gap-2 leading-none font-medium">
-                  Trending up by 5.2% this month{" "}
-                  <IconTrendingUp className="size-4" />
-                </div>
-                <div className="text-muted-foreground">
-                  Showing total visitors for the last 6 months. This is just
-                  some random text to test the layout. It spans multiple lines
-                  and should wrap around.
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
-          <form className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Header</Label>
-              <Input id="header" defaultValue={item.header} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Type</Label>
-                <Select defaultValue={item.type}>
-                  <SelectTrigger id="type" className="w-full">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Table of Contents">
-                      Table of Contents
-                    </SelectItem>
-                    <SelectItem value="Executive Summary">
-                      Executive Summary
-                    </SelectItem>
-                    <SelectItem value="Technical Approach">
-                      Technical Approach
-                    </SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Capabilities">Capabilities</SelectItem>
-                    <SelectItem value="Focus Documents">
-                      Focus Documents
-                    </SelectItem>
-                    <SelectItem value="Narrative">Narrative</SelectItem>
-                    <SelectItem value="Cover Page">Cover Page</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Done">Done</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Not Started">Not Started</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Target</Label>
-                <Input id="target" defaultValue={item.target} />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="limit">Limit</Label>
-                <Input id="limit" defaultValue={item.limit} />
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Reviewer</Label>
-              <Select defaultValue={item.reviewer}>
-                <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Select a reviewer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                  <SelectItem value="Jamik Tashpulatov">
-                    Jamik Tashpulatov
-                  </SelectItem>
-                  <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </form>
+      return (
+        <div className="flex w-full items-center justify-end">
+          <DataTableRowActions>
+            <FormAlertDialogButton
+              data-variant="destructive"
+              trigger={{
+                variant: "none",
+                children: cmn["delete"],
+                className: cn(
+                  "w-full justify-start px-2 text-start font-normal",
+                  "text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 hover:text-destructive *:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                ),
+              }}
+              title={cmn["are you absolutely sure?"]}
+              description={
+                cmn[
+                  "this action cannot be undone. this will permanently delete your account and remove your data from our servers."
+                ]
+              }
+              form={{
+                validation: "delete-order",
+                onSubmit: deleteOrder,
+                useForm: { defaultValues: { ...e } },
+              }}
+            />
+          </DataTableRowActions>
         </div>
-        <DrawerFooter>
-          <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-}
-
-export function DataTableButtons() {
-  const { table } = useTable();
-
-  return (
-    <div className="flex items-center justify-between">
-      <Label htmlFor="view-selector" className="sr-only">
-        View
-      </Label>
-      <Select defaultValue="outline">
-        <SelectTrigger
-          className="flex w-fit @4xl/main:hidden"
-          size="sm"
-          id="view-selector"
-        >
-          <SelectValue placeholder="Select a view" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="outline">Outline</SelectItem>
-          <SelectItem value="past-performance">Past Performance</SelectItem>
-          <SelectItem value="key-personnel">Key Personnel</SelectItem>
-          <SelectItem value="focus-documents">Focus Documents</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <div className="flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <IconLayoutColumns />
-              <span className="hidden lg:inline">Customize Columns</span>
-              <span className="lg:hidden">Columns</span>
-              <IconChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            {table
-              .getAllColumns()
-              .filter(
-                (column) =>
-                  typeof column.accessorFn !== "undefined" &&
-                  column.getCanHide()
-              )
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="outline" size="sm">
-          <IconPlus />
-          <span className="hidden lg:inline">Add Section</span>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-export const data: Schema[] = [
-  {
-    id: 1,
-    header: "Cover page",
-    type: "Cover page",
-    status: "In Process",
-    target: "18",
-    limit: "5",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 2,
-    header: "Table of contents",
-    type: "Table of contents",
-    status: "Done",
-    target: "29",
-    limit: "24",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 3,
-    header: "Executive summary",
-    type: "Narrative",
-    status: "Done",
-    target: "10",
-    limit: "13",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 4,
-    header: "Technical approach",
-    type: "Narrative",
-    status: "Done",
-    target: "27",
-    limit: "23",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 5,
-    header: "Design",
-    type: "Narrative",
-    status: "In Process",
-    target: "2",
-    limit: "16",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 6,
-    header: "Capabilities",
-    type: "Narrative",
-    status: "In Process",
-    target: "20",
-    limit: "8",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 7,
-    header: "Integration with existing systems",
-    type: "Narrative",
-    status: "In Process",
-    target: "19",
-    limit: "21",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 8,
-    header: "Innovation and Advantages",
-    type: "Narrative",
-    status: "Done",
-    target: "25",
-    limit: "26",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 9,
-    header: "Overview of EMR's Innovative Solutions",
-    type: "Technical content",
-    status: "Done",
-    target: "7",
-    limit: "23",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 10,
-    header: "Advanced Algorithms and Machine Learning",
-    type: "Narrative",
-    status: "Done",
-    target: "30",
-    limit: "28",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 11,
-    header: "Adaptive Communication Protocols",
-    type: "Narrative",
-    status: "Done",
-    target: "9",
-    limit: "31",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 12,
-    header: "Advantages Over Current Technologies",
-    type: "Narrative",
-    status: "Done",
-    target: "12",
-    limit: "0",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 13,
-    header: "Past Performance",
-    type: "Narrative",
-    status: "Done",
-    target: "22",
-    limit: "33",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 14,
-    header: "Customer Feedback and Satisfaction Levels",
-    type: "Narrative",
-    status: "Done",
-    target: "15",
-    limit: "34",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 15,
-    header: "Implementation Challenges and Solutions",
-    type: "Narrative",
-    status: "Done",
-    target: "3",
-    limit: "35",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 16,
-    header: "Security Measures and Data Protection Policies",
-    type: "Narrative",
-    status: "In Process",
-    target: "6",
-    limit: "36",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 17,
-    header: "Scalability and Future Proofing",
-    type: "Narrative",
-    status: "Done",
-    target: "4",
-    limit: "37",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 18,
-    header: "Cost-Benefit Analysis",
-    type: "Plain language",
-    status: "Done",
-    target: "14",
-    limit: "38",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 19,
-    header: "User Training and Onboarding Experience",
-    type: "Narrative",
-    status: "Done",
-    target: "17",
-    limit: "39",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 20,
-    header: "Future Development Roadmap",
-    type: "Narrative",
-    status: "Done",
-    target: "11",
-    limit: "40",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 21,
-    header: "System Architecture Overview",
-    type: "Technical content",
-    status: "In Process",
-    target: "24",
-    limit: "18",
-    reviewer: "Maya Johnson",
-  },
-  {
-    id: 22,
-    header: "Risk Management Plan",
-    type: "Narrative",
-    status: "Done",
-    target: "15",
-    limit: "22",
-    reviewer: "Carlos Rodriguez",
-  },
-  {
-    id: 23,
-    header: "Compliance Documentation",
-    type: "Legal",
-    status: "In Process",
-    target: "31",
-    limit: "27",
-    reviewer: "Sarah Chen",
-  },
-  {
-    id: 24,
-    header: "API Documentation",
-    type: "Technical content",
-    status: "Done",
-    target: "8",
-    limit: "12",
-    reviewer: "Raj Patel",
-  },
-  {
-    id: 25,
-    header: "User Interface Mockups",
-    type: "Visual",
-    status: "In Process",
-    target: "19",
-    limit: "25",
-    reviewer: "Leila Ahmadi",
-  },
-  {
-    id: 26,
-    header: "Database Schema",
-    type: "Technical content",
-    status: "Done",
-    target: "22",
-    limit: "20",
-    reviewer: "Thomas Wilson",
-  },
-  {
-    id: 27,
-    header: "Testing Methodology",
-    type: "Technical content",
-    status: "In Process",
-    target: "17",
-    limit: "14",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 28,
-    header: "Deployment Strategy",
-    type: "Narrative",
-    status: "Done",
-    target: "26",
-    limit: "30",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 29,
-    header: "Budget Breakdown",
-    type: "Financial",
-    status: "In Process",
-    target: "13",
-    limit: "16",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 30,
-    header: "Market Analysis",
-    type: "Research",
-    status: "Done",
-    target: "29",
-    limit: "32",
-    reviewer: "Sophia Martinez",
-  },
-  {
-    id: 31,
-    header: "Competitor Comparison",
-    type: "Research",
-    status: "In Process",
-    target: "21",
-    limit: "19",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 32,
-    header: "Maintenance Plan",
-    type: "Technical content",
-    status: "Done",
-    target: "16",
-    limit: "23",
-    reviewer: "Alex Thompson",
-  },
-  {
-    id: 33,
-    header: "User Personas",
-    type: "Research",
-    status: "In Process",
-    target: "27",
-    limit: "24",
-    reviewer: "Nina Patel",
-  },
-  {
-    id: 34,
-    header: "Accessibility Compliance",
-    type: "Legal",
-    status: "Done",
-    target: "18",
-    limit: "21",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 35,
-    header: "Performance Metrics",
-    type: "Technical content",
-    status: "In Process",
-    target: "23",
-    limit: "26",
-    reviewer: "David Kim",
-  },
-  {
-    id: 36,
-    header: "Disaster Recovery Plan",
-    type: "Technical content",
-    status: "Done",
-    target: "14",
-    limit: "17",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 37,
-    header: "Third-party Integrations",
-    type: "Technical content",
-    status: "In Process",
-    target: "25",
-    limit: "28",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 38,
-    header: "User Feedback Summary",
-    type: "Research",
-    status: "Done",
-    target: "20",
-    limit: "15",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 39,
-    header: "Localization Strategy",
-    type: "Narrative",
-    status: "In Process",
-    target: "12",
-    limit: "19",
-    reviewer: "Maria Garcia",
-  },
-  {
-    id: 40,
-    header: "Mobile Compatibility",
-    type: "Technical content",
-    status: "Done",
-    target: "28",
-    limit: "31",
-    reviewer: "James Wilson",
-  },
-  {
-    id: 41,
-    header: "Data Migration Plan",
-    type: "Technical content",
-    status: "In Process",
-    target: "19",
-    limit: "22",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 42,
-    header: "Quality Assurance Protocols",
-    type: "Technical content",
-    status: "Done",
-    target: "30",
-    limit: "33",
-    reviewer: "Priya Singh",
-  },
-  {
-    id: 43,
-    header: "Stakeholder Analysis",
-    type: "Research",
-    status: "In Process",
-    target: "11",
-    limit: "14",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 44,
-    header: "Environmental Impact Assessment",
-    type: "Research",
-    status: "Done",
-    target: "24",
-    limit: "27",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 45,
-    header: "Intellectual Property Rights",
-    type: "Legal",
-    status: "In Process",
-    target: "17",
-    limit: "20",
-    reviewer: "Sarah Johnson",
-  },
-  {
-    id: 46,
-    header: "Customer Support Framework",
-    type: "Narrative",
-    status: "Done",
-    target: "22",
-    limit: "25",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 47,
-    header: "Version Control Strategy",
-    type: "Technical content",
-    status: "In Process",
-    target: "15",
-    limit: "18",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 48,
-    header: "Continuous Integration Pipeline",
-    type: "Technical content",
-    status: "Done",
-    target: "26",
-    limit: "29",
-    reviewer: "Michael Chen",
-  },
-  {
-    id: 49,
-    header: "Regulatory Compliance",
-    type: "Legal",
-    status: "In Process",
-    target: "13",
-    limit: "16",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 50,
-    header: "User Authentication System",
-    type: "Technical content",
-    status: "Done",
-    target: "28",
-    limit: "31",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 51,
-    header: "Data Analytics Framework",
-    type: "Technical content",
-    status: "In Process",
-    target: "21",
-    limit: "24",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 52,
-    header: "Cloud Infrastructure",
-    type: "Technical content",
-    status: "Done",
-    target: "16",
-    limit: "19",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 53,
-    header: "Network Security Measures",
-    type: "Technical content",
-    status: "In Process",
-    target: "29",
-    limit: "32",
-    reviewer: "Lisa Wong",
-  },
-  {
-    id: 54,
-    header: "Project Timeline",
-    type: "Planning",
-    status: "Done",
-    target: "14",
-    limit: "17",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 55,
-    header: "Resource Allocation",
-    type: "Planning",
-    status: "In Process",
-    target: "27",
-    limit: "30",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 56,
-    header: "Team Structure and Roles",
-    type: "Planning",
-    status: "Done",
-    target: "20",
-    limit: "23",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 57,
-    header: "Communication Protocols",
-    type: "Planning",
-    status: "In Process",
-    target: "15",
-    limit: "18",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 58,
-    header: "Success Metrics",
-    type: "Planning",
-    status: "Done",
-    target: "30",
-    limit: "33",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 59,
-    header: "Internationalization Support",
-    type: "Technical content",
-    status: "In Process",
-    target: "23",
-    limit: "26",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 60,
-    header: "Backup and Recovery Procedures",
-    type: "Technical content",
-    status: "Done",
-    target: "18",
-    limit: "21",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 61,
-    header: "Monitoring and Alerting System",
-    type: "Technical content",
-    status: "In Process",
-    target: "25",
-    limit: "28",
-    reviewer: "Daniel Park",
-  },
-  {
-    id: 62,
-    header: "Code Review Guidelines",
-    type: "Technical content",
-    status: "Done",
-    target: "12",
-    limit: "15",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 63,
-    header: "Documentation Standards",
-    type: "Technical content",
-    status: "In Process",
-    target: "27",
-    limit: "30",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 64,
-    header: "Release Management Process",
-    type: "Planning",
-    status: "Done",
-    target: "22",
-    limit: "25",
-    reviewer: "Assign reviewer",
-  },
-  {
-    id: 65,
-    header: "Feature Prioritization Matrix",
-    type: "Planning",
-    status: "In Process",
-    target: "19",
-    limit: "22",
-    reviewer: "Emma Davis",
-  },
-  {
-    id: 66,
-    header: "Technical Debt Assessment",
-    type: "Technical content",
-    status: "Done",
-    target: "24",
-    limit: "27",
-    reviewer: "Eddie Lake",
-  },
-  {
-    id: 67,
-    header: "Capacity Planning",
-    type: "Planning",
-    status: "In Process",
-    target: "21",
-    limit: "24",
-    reviewer: "Jamik Tashpulatov",
-  },
-  {
-    id: 68,
-    header: "Service Level Agreements",
-    type: "Legal",
-    status: "Done",
-    target: "26",
-    limit: "29",
-    reviewer: "Assign reviewer",
+      );
+    },
   },
 ];

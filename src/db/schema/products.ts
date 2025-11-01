@@ -1,33 +1,23 @@
 import { stores } from "@/db/schema";
 import {
   decimal,
-  id,
+  defaultFields,
   pgTable,
   references,
-  timestamp,
   varchar,
 } from "@/db/utils";
 import { index, json, pgEnum, text } from "drizzle-orm/pg-core";
 
 import { Validation } from "@/lib/validations";
 
-export const productStatus = pgEnum("product_status", [
-  "draft",
-  "active",
-  "archived",
-]);
+export const ProductStatus = ["draft", "active", "archived"] as const;
+export const productStatus = pgEnum("product_status", [...ProductStatus]);
 
 // === Tables ===
 export const products = pgTable(
   "qurawb__products",
   {
-    id: id("id", { length: 255 }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$defaultFn(() => new Date())
-      .notNull(),
-
+    ...defaultFields,
     storeId: references("store_id", { length: 255 }, stores.id, {
       onDelete: "cascade",
     }).notNull(),

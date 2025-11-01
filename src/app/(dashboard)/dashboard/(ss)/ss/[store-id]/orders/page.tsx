@@ -7,7 +7,10 @@ import { queries } from "@/db/queries";
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
+import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
+
+import { columns } from "./columns";
 
 type StoreOrdersDashboardProps = Readonly<{
   params: Promise<{ "store-id": string }>;
@@ -33,10 +36,9 @@ export default async function StoreOrdersDashboard({
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
 
-  const orders = [];
-  // const { data: orders } = await queries.orders.getMany({
-  //   storeId: selectedStore?.id,
-  // });
+  const { data: orders } = await queries.orders.getMany({
+    storeId: selectedStore?.id,
+  });
   return (
     <main className="flex-1">
       <div className="container flex flex-1 flex-col py-6">
@@ -51,14 +53,20 @@ export default async function StoreOrdersDashboard({
               </p>
             </div>
 
-            <div>{/* <ProductCreateButton store={selectedStore} /> */}</div>
+            {/* <div>{!!orders?.length && <OrderCreateButton />}</div> */}
           </div>
 
           <Separator className="my-4" />
         </div>
       </div>
 
-      <div className="container">{storeId}</div>
+      <div className="container">
+        <DataTableProvider columns={columns} data={orders}>
+          <div className="flex flex-col gap-4">
+            <DataTable />
+          </div>
+        </DataTableProvider>
+      </div>
     </main>
   );
 }

@@ -1,13 +1,12 @@
 "use client";
-import { Paths } from "@/constants";
 
+import { Paths } from "@/constants";
 import { Product } from "@/db/schema";
+
 import { formatPrice } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { ProductDetailsCartForm } from "@/components/product-details-cart-form";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +18,8 @@ import { Icons } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { Tooltip } from "@/components/ui/tooltip";
+import { ProductDetailsCartForm } from "@/components/product-details-cart-form";
+
 import { useLocale } from "./locale-provider";
 
 type ProductCardProps = { product: Product };
@@ -37,9 +38,9 @@ export function ProductCard({ product: e }: ProductCardProps) {
           />
         </Link>
 
-        <div className="absolute bottom-0 right-0 z-10 rounded-tl-xl bg-background pl-[6px] pt-[6px]">
-          <div className="absolute right-0 top-0 size-4 -translate-y-[calc(100%-6px+0.5px)] translate-x-[calc(6px-0.5px)] rounded-br-xl border-[6px] border-l-0 border-t-0 border-background" />
-          <div className="absolute bottom-0 left-0 size-4 -translate-x-[calc(100%-6px+0.5px)] translate-y-[calc(6px-0.5px)] rounded-br-xl border-[6px] border-l-0 border-t-0 border-background" />
+        <div className="bg-card absolute right-0 bottom-0 z-10 rounded-tl-xl pt-[6px] pl-[6px]">
+          <div className="border-card absolute top-0 right-0 size-4 translate-x-[calc(6px-0.5px)] -translate-y-[calc(100%-6px+0.5px)] rounded-br-xl border-[6px] border-t-0 border-l-0" />
+          <div className="border-card absolute bottom-0 left-0 size-4 -translate-x-[calc(100%-6px+0.5px)] translate-y-[calc(6px-0.5px)] rounded-br-xl border-[6px] border-t-0 border-l-0" />
           <div>
             <Dialog>
               <Tooltip

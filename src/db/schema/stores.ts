@@ -1,4 +1,4 @@
-import { id, pgTable, references, timestamp, varchar } from "@/db/utils";
+import { defaultFields, pgTable, references, varchar } from "@/db/utils";
 import { index, pgEnum, text } from "drizzle-orm/pg-core";
 
 import { users } from "./users";
@@ -8,12 +8,7 @@ export const storeStatus = pgEnum("store_status", ["draft", "live"]);
 export const stores = pgTable(
   "qurawb__stores",
   {
-    id: id("id", { length: 255 }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$defaultFn(() => new Date())
-      .notNull(),
+    ...defaultFields,
     ownerId: references("owner_id", { length: 21 }, users.id, {
       onDelete: "cascade",
     }),

@@ -15,6 +15,20 @@
       "when": 1758304551722,
       "tag": "0001_silent_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761731668908,
+      "tag": "0002_black_fantastic_four",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761742598842,
+      "tag": "0003_wet_sleeper",
+      "breakpoints": true
     }
   ]
 }

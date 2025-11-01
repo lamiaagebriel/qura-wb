@@ -1,4 +1,10 @@
-import { id, pgTable, references, timestamp, varchar } from "@/db/utils";
+import {
+  defaultFields,
+  pgTable,
+  references,
+  timestamp,
+  varchar,
+} from "@/db/utils";
 import { boolean, index, json, pgEnum } from "drizzle-orm/pg-core";
 
 import { Validation } from "@/lib/validations";
@@ -9,13 +15,7 @@ export const userRole = pgEnum("user_role", ["admin", "user", "merchant"]);
 export const users = pgTable(
   "qurawb__users",
   {
-    id: id("id", { length: 21 }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$defaultFn(() => new Date())
-      .notNull(),
-
+    ...defaultFields,
     // Authentication fields
     email: varchar("email").unique().notNull(),
     googleId: varchar("google_id").unique(),
@@ -37,7 +37,7 @@ export const users = pgTable(
     name: varchar("name"),
     image: varchar("image"),
     phone: varchar("phone", { length: 20 }),
-    address: json("address").$type<Validation["address-schema"]>(),
+    address: json("address").$type<Validation["address-schema"][]>(),
     preferences: json("preferences").default({}),
   },
   (t) => ({

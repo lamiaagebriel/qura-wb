@@ -127,20 +127,17 @@ const Form = <T extends ValidationName, R>({
       >)),
     ...useFormProps,
   });
+  const extendedUseForm = {
+    ...form,
+    loading,
+    setLoading,
+    disabled,
+    setDisabled,
+  } as ExtendedUseForm<Validation[T]>;
 
   // console.log("error: ", form?.formState?.errors);
   return (
-    <FormProvider
-      {...{
-        ...({
-          ...form,
-          loading,
-          setLoading,
-          disabled,
-          setDisabled,
-        } as ExtendedUseForm<Validation[T]>),
-      }}
-    >
+    <FormProvider {...{ ...extendedUseForm }}>
       <form
         onSubmit={form?.handleSubmit(async (data) => {
           setLoading(true);
@@ -183,9 +180,10 @@ const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const form = useForm?.();
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller {...props} />
+      <Controller control={form?.control as any} {...props} />
     </FormFieldContext.Provider>
   );
 };

@@ -1,3 +1,4 @@
+import { IconBrandMastercard, IconBrandVisa } from "@tabler/icons-react";
 import { cva, VariantProps } from "class-variance-authority";
 import {
   ChevronLeft,
@@ -76,11 +77,20 @@ export const Icons = {
   heart: ({ className, ...props }: IconProps) => (
     <Heart className={cn(IconsVariants({}), className)} {...props} />
   ),
+  visa: ({ className, ref, ...props }: IconProps) => (
+    <IconBrandVisa className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  mastercard: ({ className, ref, ...props }: IconProps) => (
+    <IconBrandMastercard
+      className={cn(IconsVariants({}), className)}
+      {...props}
+    />
+  ),
   dot: ({ className, ...props }: IconProps) => (
     <svg
       className={cn(
         IconsVariants({}),
-        "size-2.5 rounded-sm bg-primary",
+        "bg-primary size-2.5 rounded-sm",
         className
       )}
       {...props}

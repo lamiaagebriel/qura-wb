@@ -3,10 +3,12 @@ import { relations } from "drizzle-orm";
 export * from "./users";
 export * from "./stores";
 export * from "./products";
+export * from "./orders";
 
-import { sessions, users } from "./users";
-import { stores } from "./stores";
+import { sessions, users } from "./users";  
+import { stores } from "./stores"; 
 import { products } from "./products";
+import { orders } from "./orders";
 
 export const userRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -30,7 +32,7 @@ export const storeRelations = relations(stores, ({ one, many }) => ({
   }),
 
   products: many(products),
-  // orders: many(orders),
+  orders: many(orders),
   // pages: many(pages),
 }));
 export const productRelations = relations(products, ({ one, many }) => ({
@@ -42,8 +44,18 @@ export const productRelations = relations(products, ({ one, many }) => ({
   // orders: many(orders, { relationName: "product-orders" }),
 }));
 
+export const orderRelations = relations(orders, ({ one, many }) => ({
+  store: one(stores, {
+    fields: [orders.storeId],
+    references: [stores.id],
+  }),
+  // reviews: many(reviews),
+  // products: many(orders, { relationName: "order-products" }),
+}));
+
 export type UserRelations = typeof userRelations;
 export type SessionRelations = typeof sessionRelations;
 
 export type StoreRelations = typeof storeRelations;
 export type ProductRelations = typeof productRelations;
+export type OrderRelations = typeof orderRelations;

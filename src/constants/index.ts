@@ -10,6 +10,7 @@ export enum Paths {
   VerifyEmail = "/verify-email",
   // (dashboard)
   Dashboard = "/dashboard",
+  DashboardOrders = "/dashboard/orders",
   DashboardStores = "/dashboard/stores",
   DashboardSettings = "/dashboard/settings",
   DashboardSettingsAppearance = "/dashboard/settings/appearance",
@@ -17,9 +18,11 @@ export enum Paths {
   // (dashboard/stores)
   DashboardStore = "/dashboard/ss",
   DashboardStoreProducts = "/products", // starts w {id}/products
+  DashboardStoreOrders = "/orders", // starts w {id}/orders
 
   // (stores)
   Store = "/ss",
   StoreProduct = "/p",
   StoreCart = "/cart",
+  StoreCheckout = "/checkout",
 }

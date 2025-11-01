@@ -95,6 +95,49 @@ const en = {
       "create, browse, edit, and filter all orders easily.":
         "create, browse, edit, and filter all orders easily.",
     },
+    orders: {
+      order: {
+        "order details": "Order Details",
+        "order info": "Order Info",
+        "order ID": "Order ID",
+        date: "Date",
+        status: "Status",
+        "payment method": "Payment Method",
+        total: "Total",
+        customer: "Customer",
+        name: "Name",
+        phone: "Phone",
+        address: "Address",
+        street: "Street",
+        city: "City",
+        state: "State",
+        country: "Country",
+        postalCode: "Postal Code",
+        coordinates: "Coordinates",
+        latitude: "Latitude",
+        longitude: "Longitude",
+        "no customer info": "No customer information.",
+        items: "Items",
+        product: "Product",
+        sku: "SKU",
+        quantity: "Quantity",
+        "no items": "No items.",
+        summary: "Summary",
+        "items total": "Items Total",
+        shipping: "Shipping",
+        discount: "Discount",
+        payment: "Payment",
+        method: "Method",
+        amount: "Amount",
+        "no payment info": "No payment info.",
+        reference: "Reference",
+        attributes: "attributes",
+        "product details": "Product Details",
+        "product cost": "Product Cost",
+        "product status": "Product Status",
+        "product images": "Product Images",
+      },
+    },
     stores: {
       stores: "Stores",
       "create, browse, edit, and filter all stores easily.":
@@ -201,7 +244,7 @@ const en = {
 
     "your user account was not logged in. please try again.":
       "your user account was not logged in. Please try again.",
-    "your user account was not C. please try again.":
+    "your user account was not created. please try again.":
       "your user account was not created. Please try again.",
     "your user account was not updated. please try again.":
       "your user account was not updated. Please try again.",
@@ -223,6 +266,14 @@ const en = {
       "your product was not updated. Please try again.",
     "your product was not deleted. please try again.":
       "your product was not deleted. Please try again.",
+
+    // orders: {
+    "your order was not created. please try again.":
+      "your order was not created. Please try again.",
+    "your order was not updated. please try again.":
+      "your order was not updated. Please try again.",
+    "your order was not deleted. please try again.":
+      "your order was not deleted. Please try again.",
   },
   emails: {
     "verify-email": {
@@ -339,6 +390,69 @@ const en = {
 
       attributes: { attributes: "attributes", size: "Size" },
     },
+    orders: {
+      id: { id: "ID" },
+      createdAt: { createdAt: "Created At" },
+      updatedAt: { updatedAt: "Updated At" },
+      storeId: { storeId: "Store ID" },
+      createdBy: { createdBy: "Created By" },
+      userId: { userId: "User ID" },
+      status: {
+        status: "Status",
+        "select status...": "select status...",
+        enums: {
+          pending: { label: "Pending", color: "var(--chart-2)" },
+          paid: { label: "Paid", color: "var(--chart-3)" },
+          fulfilled: { label: "Fulfilled", color: "var(--chart-4)" },
+          cancelled: { label: "Cancelled", color: "var(--chart-5)" },
+          refunded: { label: "Refunded", color: "var(--chart-6)" },
+          failed: { label: "Failed", color: "var(--chart-7)" },
+        } as const,
+      },
+      address: {
+        name: { name: "Name" },
+        phones: { phones: "Phones" },
+        street: { street: "Street" },
+        city: { city: "City" },
+        state: { state: "State" },
+        country: { country: "Country" },
+        postalCode: { postalCode: "Postal Code" },
+        coordinates: {
+          latitude: "Latitude",
+          longitude: "Longitude",
+        },
+      },
+
+      items: { items: "Order Items" },
+      expenses: {
+        shipping: { shipping: "Shipping" },
+        discount: { discount: "Discount" },
+      },
+      actions: {
+        action: {
+          "payment method": "Payment Method",
+          "select payment method...": "select payment method...",
+          enums: {
+            paying__cod: { label: "Cash on Delivery", color: "var(--chart-2)" },
+            paying__instapay: { label: "Instapay", color: "var(--chart-3)" },
+          } as const,
+        },
+        status: {
+          "payment status": "Payment Status",
+          enums: {
+            unpaid: { label: "Unpaid", color: "var(--chart-2)" },
+            paid: { label: "Paid", color: "var(--chart-3)" },
+            pending: { label: "Pending", color: "var(--chart-4)" },
+            failed: { label: "Failed", color: "var(--chart-5)" },
+            refunded: { label: "Refunded", color: "var(--chart-6)" },
+          } as const,
+        },
+        amount: { amount: "Amount" },
+        username: { username: "Username" },
+      },
+
+      notes: { notes: "Notes" },
+    },
   },
   // Commom phrases
   cmn: {
@@ -371,7 +485,7 @@ const en = {
     back: "Back",
     discard: "Discard",
     preview: "Preview",
-
+    "place order": "Place Order",
     "create product": "Create product",
     "create store": "Create store",
     "you maight also like:": "You maight also like:",

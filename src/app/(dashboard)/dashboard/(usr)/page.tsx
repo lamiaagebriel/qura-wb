@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
+import { queries } from "@/db/queries";
 
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
@@ -9,7 +10,7 @@ import { getAuth } from "@/lib/auth";
 import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
 
-import { columns, data, DataTableButtons } from "./columns";
+import { columns } from "./columns";
 
 type DashboardProps = Readonly<{}>;
 export const metadata = async (): Promise<Metadata> => {
@@ -26,8 +27,9 @@ export default async function Dashboard({}: DashboardProps) {
   const locale = dic["locale"];
 
   if (!user) redirect(Paths.Login);
-  const orders = [];
-
+  const { data: orders } = await queries.orders.getMany({
+    userId: user?.id,
+  });
   return (
     <main className="flex-1">
       <div className="container flex flex-1 flex-col py-6">
@@ -50,9 +52,8 @@ export default async function Dashboard({}: DashboardProps) {
       </div>
 
       <div className="container">
-        <DataTableProvider columns={columns} data={data}>
+        <DataTableProvider columns={columns} data={orders}>
           <div className="flex flex-col gap-4">
-            <DataTableButtons />
             <DataTable />
           </div>
         </DataTableProvider>
