@@ -9,6 +9,142 @@ const en = {
     description:
       "Our platform offers advanced sociasl media automation services using cutting-edge AI technology. We assist clients in executing fully integrated marketing campaigns tailored specifically for real estate projects. Through data analysis and market forecasting, we provide innovative solutions that enhance targeting, increase content engagement, and boost the performance of marketing campaigns. Our goal is to empower clients to reach their target audience more efficiently, increase real estate sales strategically, while reducing costs and accelerating the achievement of results.",
   },
+  marketing: {
+    hero: {
+      headline: "Launch and grow your online store",
+      subheadline: "Powerful tools, no code required.",
+      ctas: { getStarted: "Get Started", talkToSales: "Talk to Sales" },
+    },
+    howItWorks: {
+      title: "How our website works",
+      subtitle:
+        "Create your store in minutes. Customize, add products, and start selling.",
+      steps: [
+        {
+          title: "Create your account",
+          description: "Sign up and set your store name, domain, and branding.",
+        },
+        {
+          title: "Add products",
+          description:
+            "Import or create products, set pricing, inventory, and media.",
+        },
+        {
+          title: "Start selling",
+          description:
+            "Accept payments, fulfill orders, and grow with integrated tools.",
+        },
+      ],
+    },
+    benefits: {
+      title: "Benefits of creating your store here",
+      subtitle:
+        "Everything you need to build, run, and scale your online business.",
+      items: [
+        {
+          title: "Fast setup",
+          description: "Get online quickly with presets and guided onboarding.",
+        },
+        {
+          title: "Modern storefront",
+          description: "Responsive design that looks great on any device.",
+        },
+        {
+          title: "Secure payments",
+          description: "Integrated gateways with PCI-compliant checkout.",
+        },
+        {
+          title: "Analytics built-in",
+          description: "Track sales, customers, and products in real time.",
+        },
+        {
+          title: "Scalable infrastructure",
+          description: "Backed by reliable cloud services as your store grows.",
+        },
+        {
+          title: "24/7 support",
+          description: "We’re here when you need help the most.",
+        },
+      ],
+    },
+    pricing: {
+      title: "Pricing",
+      subtitle: "Simple, transparent plans that grow with you.",
+      popularLabel: "Popular",
+      plans: {
+        starter: {
+          name: "Starter",
+          tagline: "For new stores",
+          price: "$0/mo",
+          cta: "Choose Starter",
+          features: [
+            "Up to 25 products",
+            "Basic analytics",
+            "Community support",
+          ],
+        },
+        growth: {
+          name: "Growth",
+          tagline: "For growing brands",
+          price: "$39/mo",
+          cta: "Choose Growth",
+          features: [
+            "Unlimited products",
+            "Advanced analytics",
+            "Priority support",
+          ],
+        },
+        scale: {
+          name: "Scale",
+          tagline: "For high volume",
+          price: "Custom",
+          cta: "Contact Sales",
+          features: ["VIP support", "Custom SLAs", "White-glove onboarding"],
+        },
+      },
+    },
+    faq: {
+      title: "Frequently asked questions",
+      subtitle: "Quick answers to common questions.",
+      items: [
+        {
+          q: "Can I use my own domain?",
+          a: "Yes. Connect a custom domain in settings after creating your store.",
+        },
+        {
+          q: "What payment methods are supported?",
+          a: "Major credit cards and wallets via leading gateways. Availability varies by region.",
+        },
+        {
+          q: "Can I switch plans later?",
+          a: "Absolutely. Upgrade or downgrade anytime from your billing page.",
+        },
+      ],
+    },
+    contact: {
+      title: "Contact us",
+      subtitle: "Have questions? We’d love to help you find the right plan.",
+      form: {
+        name: { label: "Name", placeholder: "Jane Doe" },
+        email: { label: "Email", placeholder: "jane@example.com" },
+        message: {
+          label: "Message",
+          placeholder: "Tell us a bit about your needs...",
+        },
+        submit: "Send message",
+      },
+    },
+    footer: {
+      links: {
+        howItWorks: "How it works",
+        benefits: "Benefits",
+        pricing: "Pricing",
+        faq: "FAQ",
+        contact: "Contact",
+      },
+      copyright: "All rights reserved.",
+    },
+  },
   auth: {
     login: {
       login: "Login",
@@ -76,12 +212,12 @@ const en = {
         children: "Orders",
         icon: "packagePlus",
       },
-      {
-        segments: ["stores"],
-        value: Paths.DashboardStores,
-        children: "Stores",
-        icon: "store",
-      },
+      // {
+      //   segments: ["stores"],
+      //   value: Paths.DashboardStores,
+      //   children: "Stores",
+      //   icon: "store",
+      // },
       {
         segments: ["settings"],
         value: Paths.DashboardSettings,

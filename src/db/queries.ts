@@ -6,9 +6,13 @@ import { OrderStatus, ProductStatus } from "@/lib/validations";
 export const queries = {
   stores: {
     get: unstable_cache(
-      async ({ id }: { id: string }) => {
+      async ({ id, ownerId }: { id?: string; ownerId?: string }) => {
         const store = await db.query.stores.findFirst({
-          where: (s, o) => o.eq(s?.id, id),
+          where: (s, o) =>
+            o.and(
+              id ? o.eq(s?.id, id) : undefined,
+              ownerId ? o.eq(s?.ownerId, ownerId) : undefined
+            ),
         });
         return { data: store };
       },

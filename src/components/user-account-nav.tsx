@@ -1,9 +1,10 @@
 import { Paths } from "@/constants";
 import { SelectItem } from "@/types";
 
-import { getAuth } from "@/lib/auth";
 import { logout } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
@@ -42,23 +43,48 @@ export async function UserAccountNav({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex flex-row-reverse items-center gap-2">
-          <Avatar className="size-8">
-            <AvatarImage src={user?.image!} alt={user?.name ?? ""} />
-            <AvatarFallback>
-              <Icons.user />
-            </AvatarFallback>
-          </Avatar>
-          {/* <p className="hidden text-sm text-muted-foreground md:block">
-            {user?.email}
-          </p> */}
-        </div>
+        <Avatar
+          className={cn(
+            buttonVariants({ variant: "outline", size: "icon" }),
+            "rounded-full"
+          )}
+        >
+          <AvatarImage src={user?.image!} alt={user?.name ?? ""} />
+          <AvatarFallback className="bg-transparent">
+            <Icons.user />
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" align="end" sideOffset={4}>
+      <DropdownMenuContent
+        side="bottom"
+        align="end"
+        sideOffset={4}
+        className="w-[12rem]"
+      >
         <DropdownMenuLabel>
           <h2>{user?.name}</h2>
-          <p className="text-muted-foreground text-xs">{user?.email}</p>
+          <p className="text-muted-foreground line-clamp-1 truncate text-xs">
+            {user?.email}
+          </p>
         </DropdownMenuLabel>
+
+        {!!user?.stores?.[0]?.id && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>
+              <p className="text-muted-foreground text-xs">Go to</p>
+            </DropdownMenuLabel>
+
+            <DropdownMenuGroup>
+              <Link href={`${Paths.DashboardStore}/${user?.stores?.[0]?.id}`}>
+                <DropdownMenuItem className="line-clamp-1 flex items-center gap-2 truncate text-sm">
+                  <Icons.store />
+                  {user?.stores?.[0]?.name}
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuGroup>
+          </>
+        )}
         {items?.length ? (
           <>
             <DropdownMenuSeparator />
@@ -96,3 +122,20 @@ export async function UserAccountNav({
     </DropdownMenu>
   );
 }
+// user?.stores?.[0]?.id ? (
+//   <Link
+//     href={`${Paths.DashboardStore}/${user?.stores?.[0]?.id}`}
+//     className={cn(
+//       buttonVariants({ variant: "ghost" }),
+//       "gap-2 hover:bg-transparent!"
+//     )}
+//   >
+//     <Avatar className="size-6">
+//       <AvatarImage src={user?.stores?.[0]?.logo ?? ""} />
+//       <AvatarFallback>
+//         <Icons.store />
+//       </AvatarFallback>
+//     </Avatar>
+//     {user?.stores?.[0]?.name}
+//   </Link>
+// ) :

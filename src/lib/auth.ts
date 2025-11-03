@@ -2,11 +2,11 @@ import { cookies as nextCookies } from "next/headers";
 import { cache } from "react";
 
 import { db } from "@/db";
-import { sessions, users, type User as DBUser } from "@/db/schema";
+import { sessions, Store, users, type User as DBUser } from "@/db/schema";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { Google } from "arctic";
-import type { Session, User } from "lucia";
-import { Lucia, TimeSpan } from "lucia";
+import type { Session } from "lucia";
+import { Lucia, TimeSpan, User } from "lucia";
 
 import { getURL } from "@/lib/utils";
 
@@ -41,12 +41,13 @@ declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
     DatabaseSessionAttributes: {};
-    DatabaseUserAttributes: Omit<DBUser, "password">;
+    DatabaseUserAttributes: Omit<DBUser, "password"> & { stores: Store[] };
   }
 }
 
 export const uncachedGetAuth = async (): Promise<
-  { user: User; session: Session } | { user: null; session: null }
+  | { user: User & { stores: Store[] }; session: Session }
+  | { user: null; session: null }
 > => {
   const cookies = await nextCookies();
   const sessionId = cookies.get(lucia.sessionCookieName)?.value ?? null;
@@ -75,6 +76,18 @@ export const uncachedGetAuth = async (): Promise<
   } catch {
     console.log("Failed to set session cookie");
   }
+
+  // TODO: try another way as this calls db each time
+  if (result.user) {
+    const userStores: Store[] =
+      (await db.query.stores.findMany({
+        where: (s, { eq }) => eq(s.ownerId, result.user.id),
+      })) ?? [];
+    console.log({ userStores });
+
+    return { ...result, user: { ...result?.user, stores: userStores } };
+  }
+
   return result;
 };
 

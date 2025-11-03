@@ -5,6 +5,7 @@ import { getDictionary } from "@/servers/locale";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Icons } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
+import { ModeSwitcherDropdownMenu } from "@/components/theme-provider";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type MarketingLayoutProps = React.PropsWithChildren<Readonly<{}>>;
@@ -30,7 +31,10 @@ export default async function MarketingLayout({
             </div>
           </Link>
 
-          <UserAccountNav items={c["user-nav"]} />
+          <div className="flex items-center gap-2">
+            <UserAccountNav items={c["user-nav"]} />
+            <ModeSwitcherDropdownMenu />
+          </div>
         </div>
       </header>
 

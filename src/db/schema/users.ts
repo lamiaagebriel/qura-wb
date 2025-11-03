@@ -63,3 +63,6 @@ export const sessions = pgTable(
     expiresIdx: index("session_expires_idx").on(t.expiresAt),
   })
 );
+
+export type User = typeof users.$inferSelect;
+export type Session = typeof sessions.$inferSelect;

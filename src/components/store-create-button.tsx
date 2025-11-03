@@ -24,8 +24,9 @@ export async function StoreCreateButton({
   return (
     <FormAlertDialogButton
       trigger={{
-        variant: "outline",
+        variant: "ghost",
         children: cmn["create store"],
+        ...props,
       }}
       title={cmn["are you absolutely sure?"]}
       description={

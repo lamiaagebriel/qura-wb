@@ -4,9 +4,18 @@ import * as React from "react";
 
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
+import { Button, ButtonProps } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLocale } from "@/components/locale-provider";
+
+import { Icons } from "./ui/icons";
 
 // TODO: onchanging the locale, we need to refresh to get the selected theme
 export function ThemeProvider({
@@ -19,7 +28,6 @@ export function ModeSwitcher() {
   const { "mode-switcher": c } = useLocale();
   const { theme, setTheme } = useTheme();
 
-  // Card indicator for light theme
   function LightCard() {
     return (
       <div className="border-muted hover:border-accent w-full items-center rounded-md border-2 bg-[#f8fafc] p-1">
@@ -40,8 +48,6 @@ export function ModeSwitcher() {
       </div>
     );
   }
-
-  // Card indicator for dark theme
   function DarkCard() {
     return (
       <div className="border-muted hover:border-accent w-full items-center rounded-md border-2 bg-[#0f172a] p-1">
@@ -62,8 +68,6 @@ export function ModeSwitcher() {
       </div>
     );
   }
-
-  // Card indicator for system theme (half light, half dark)
   function SystemCard() {
     return (
       <div className="border-muted hover:border-accent w-full items-center rounded-md border-2 bg-gradient-to-r from-[#f8fafc] to-[#0f172a] p-1">
@@ -145,5 +149,41 @@ export function ModeSwitcher() {
         </Label>
       </RadioGroup>
     </div>
+  );
+}
+
+export function ModeSwitcherDropdownMenu({ ...props }: ButtonProps) {
+  const { "mode-switcher": c } = useLocale();
+
+  const { setTheme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full"
+          {...props}
+        >
+          <Icons.sun className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Icons.moon className="absolute scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <span className="sr-only">
+            {c["automatically switch between day and night themes."]}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <Icons.sun /> {c["light"]}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <Icons.moon /> {c["dark"]}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <Icons.laptop /> {c["system"]}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

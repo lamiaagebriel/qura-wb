@@ -3,15 +3,16 @@ import { redirect } from "next/navigation";
 import { Paths } from "@/constants";
 import { queries } from "@/db/queries";
 
+import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { getDictionary } from "@/servers/locale";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { Link, NavLink } from "@/components/ui/link";
+import { ModeSwitcherDropdownMenu } from "@/components/theme-provider";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type StoreDashboardLayoutProps = React.PropsWithChildren<{
@@ -100,6 +101,7 @@ export default async function StoreDashboardLayout({
               <Icons.eye />
               <p className="hidden md:block"> {cmn["preview"]}</p>
             </Link>
+            <ModeSwitcherDropdownMenu />
             <UserAccountNav items={dashboard["user-nav"]} />
           </div>
         </div>

@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Icons } from "@/components/ui/icons";
 import { CartLink } from "@/components/cart-icon";
+import { ModeSwitcherDropdownMenu } from "@/components/theme-provider";
 import { UserAccountNav } from "@/components/user-account-nav";
 
 type StoreLayoutProps = React.PropsWithChildren<
@@ -70,6 +71,7 @@ export default async function StoreLayout({
 
           <div className="flex items-center gap-3 lg:gap-4">
             <CartLink href={`${Paths.Store}/${storeId}${Paths.StoreCart}`} />
+            <ModeSwitcherDropdownMenu />
             <UserAccountNav
               items={c["user-nav"].map((e) => ({
                 ...e,

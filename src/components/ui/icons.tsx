@@ -6,16 +6,19 @@ import {
   EyeOff,
   Heart,
   Inbox,
+  Laptop,
   LayoutDashboard,
   Loader2,
   LogOut,
   Minus,
+  Moon,
   PackagePlus,
   Plus,
   Settings2,
   ShoppingBag,
   ShoppingBasket,
   Store,
+  Sun,
   Upload,
   User,
   Verified,
@@ -101,6 +104,15 @@ export const Icons = {
       className={cn(IconsVariants({}), "rtl:rotate-180", className)}
       {...props}
     />
+  ),
+  sun: ({ className, ...props }: IconProps) => (
+    <Sun className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  moon: ({ className, ...props }: IconProps) => (
+    <Moon className={cn(IconsVariants({}), className)} {...props} />
+  ),
+  laptop: ({ className, ...props }: IconProps) => (
+    <Laptop className={cn(IconsVariants({}), className)} {...props} />
   ),
   upload: ({ className, ...props }: IconProps) => (
     <Upload className={cn(IconsVariants({}), className)} {...props} />
