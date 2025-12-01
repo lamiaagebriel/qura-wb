@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
 
+import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { getDictionary } from "@/servers/locale";
 
 import { buttonVariants } from "@/components/ui/button";
 import { NavLink } from "@/components/ui/link";

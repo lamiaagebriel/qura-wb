@@ -64,12 +64,8 @@
           "name": "qurawb__sessions_user_id_qurawb__users_id_fk",
           "tableFrom": "qurawb__sessions",
           "tableTo": "qurawb__users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -219,16 +215,12 @@
         "qurawb__users_email_unique": {
           "name": "qurawb__users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "qurawb__users_google_id_unique": {
           "name": "qurawb__users_google_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "google_id"
-          ]
+          "columns": ["google_id"]
         }
       },
       "policies": {},
@@ -350,12 +342,8 @@
           "name": "qurawb__stores_owner_id_qurawb__users_id_fk",
           "tableFrom": "qurawb__stores",
           "tableTo": "qurawb__users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -365,9 +353,7 @@
         "qurawb__stores_username_unique": {
           "name": "qurawb__stores_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       },
       "policies": {},
@@ -544,12 +530,8 @@
           "name": "qurawb__products_store_id_qurawb__stores_id_fk",
           "tableFrom": "qurawb__products",
           "tableTo": "qurawb__stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["store_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -559,9 +541,7 @@
         "qurawb__products_slug_unique": {
           "name": "qurawb__products_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -716,12 +696,8 @@
           "name": "qurawb__orders_store_id_qurawb__stores_id_fk",
           "tableFrom": "qurawb__orders",
           "tableTo": "qurawb__stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["store_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -729,12 +705,8 @@
           "name": "qurawb__orders_created_by_qurawb__users_id_fk",
           "tableFrom": "qurawb__orders",
           "tableTo": "qurawb__users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -742,12 +714,8 @@
           "name": "qurawb__orders_user_id_qurawb__users_id_fk",
           "tableFrom": "qurawb__orders",
           "tableTo": "qurawb__users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -763,47 +731,27 @@
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "admin",
-        "user",
-        "merchant"
-      ]
+      "values": ["admin", "user", "merchant"]
     },
     "public.store_status": {
       "name": "store_status",
       "schema": "public",
-      "values": [
-        "draft",
-        "live"
-      ]
+      "values": ["draft", "live"]
     },
     "public.product_status": {
       "name": "product_status",
       "schema": "public",
-      "values": [
-        "draft",
-        "active",
-        "archived"
-      ]
+      "values": ["draft", "active", "archived"]
     },
     "public.payment_method": {
       "name": "payment_method",
       "schema": "public",
-      "values": [
-        "cod",
-        "instapay"
-      ]
+      "values": ["cod", "instapay"]
     },
     "public.payment_status": {
       "name": "payment_status",
       "schema": "public",
-      "values": [
-        "unpaid",
-        "paid",
-        "pending",
-        "failed",
-        "refunded"
-      ]
+      "values": ["unpaid", "paid", "pending", "failed", "refunded"]
     },
     "public.order_status": {
       "name": "order_status",

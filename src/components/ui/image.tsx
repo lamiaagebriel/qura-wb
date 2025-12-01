@@ -14,7 +14,7 @@ const Image = React.forwardRef<React.ElementRef<typeof NextImage>, ImageProps>(
         width={999999999999999}
         height={999999999999999}
         className={cn(
-          "h-full w-full border bg-muted object-cover object-center transition-colors",
+          "bg-muted h-full w-full border object-cover object-center transition-colors",
           className
         )}
         {...props}

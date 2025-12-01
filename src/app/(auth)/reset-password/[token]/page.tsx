@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import { Paths } from "@/constants";
 
-import { cn } from "@/lib/utils";
 import { resetPassword } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
+import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";

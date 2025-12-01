@@ -9,9 +9,9 @@ import { getAuth } from "@/lib/auth";
 
 import { DataTable, DataTableProvider } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
+import { ProductCreateButton } from "@/components/product-create-button";
 
 import { columns } from "./columns";
-import { ProductCreateButton } from "@/components/product-create-button";
 
 type StoreProductsDashboardProps = Readonly<{
   params: Promise<{ "store-id": string }>;

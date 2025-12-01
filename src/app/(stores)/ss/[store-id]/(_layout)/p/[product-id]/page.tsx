@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 
 import { Paths } from "@/constants";
-
 import { queries } from "@/db/queries";
-import { cn } from "@/lib/utils";
-import { getDictionary } from "@/servers/locale";
 
-import { ProductCard } from "@/components/product-card";
-import { ProductDetailsCartForm } from "@/components/product-details-cart-form";
+import { getDictionary } from "@/servers/locale";
+import { cn } from "@/lib/utils";
+
 import {
   Accordion,
   AccordionContent,
@@ -26,6 +24,8 @@ import { Icons } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProductCard } from "@/components/product-card";
+import { ProductDetailsCartForm } from "@/components/product-details-cart-form";
 
 type ProductProps = Readonly<{
   params: Promise<{ "store-id": string; "product-id": string }>;
@@ -59,7 +59,7 @@ export default async function Product({ params }: ProductProps) {
             {cmn["back"]}
           </Link>
 
-          <div className="flex items-center gap-4 text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-4">
             <Icons.dot />
             <p>Product Details</p>
           </div>
@@ -272,7 +272,7 @@ export default async function Product({ params }: ProductProps) {
           </div> */}
         </div>
 
-        <div className="mb-6 mt-16 space-y-2">
+        <div className="mt-16 mb-6 space-y-2">
           <h1>{cmn["you maight also like:"]} </h1>
 
           <Carousel opts={{ align: "start" }} className="w-full">

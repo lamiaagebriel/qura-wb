@@ -3,10 +3,10 @@ import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
 
-import { getAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 import { sendPasswordResetLink } from "@/servers/auth";
 import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Form, FormButton, FormInputField } from "@/components/ui/form";

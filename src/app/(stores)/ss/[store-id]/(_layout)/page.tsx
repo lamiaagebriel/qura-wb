@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
-
 import { queries } from "@/db/queries";
-import { getAuth } from "@/lib/auth";
-import { getDictionary } from "@/servers/locale";
 
+import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
+
+import { Separator } from "@/components/ui/separator";
 import {
   EmptyPlaceholder,
   EmptyPlaceholderDescription,
@@ -15,7 +16,6 @@ import {
 } from "@/components/empty-placeholder";
 import { ProductCard } from "@/components/product-card";
 import { ProductCreateButton } from "@/components/product-create-button";
-import { Separator } from "@/components/ui/separator";
 
 type ProductsProps = Readonly<{ params: Promise<{ "store-id": string }> }>;
 export const metadata: Metadata = { title: "Products" };
@@ -44,7 +44,7 @@ export default async function Products({ params }: ProductsProps) {
               <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
                 {c["products"]}
               </h2>
-              <p className="max-w-prose text-sm text-muted-foreground">
+              <p className="text-muted-foreground max-w-prose text-sm">
                 {c["create, browse, edit, and filter all products easily."]}
               </p>
             </div>

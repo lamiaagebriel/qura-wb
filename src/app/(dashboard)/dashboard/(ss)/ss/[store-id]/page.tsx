@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { Paths } from "@/constants";
 import { queries } from "@/db/queries";
 
-import { getAuth } from "@/lib/auth";
 import { getDictionary } from "@/servers/locale";
+import { getAuth } from "@/lib/auth";
 
 import { Separator } from "@/components/ui/separator";
 
