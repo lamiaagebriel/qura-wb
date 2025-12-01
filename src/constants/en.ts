@@ -218,6 +218,12 @@ const en = {
       //   children: "Stores",
       //   icon: "store",
       // },
+      // {
+      //   segments: ["create-store"],
+      //   value: Paths.DashboardCreateStore,
+      //   children: "Create Store",
+      //   icon: "store",
+      // },
       {
         segments: ["settings"],
         value: Paths.DashboardSettings,
@@ -618,6 +624,9 @@ const en = {
     "check code": "Check Code",
     "next step": "Next step",
     "pre step": "Pre step",
+    "continue to shipping": "Continue to shipping",
+    "continue to payment": "Continue to payment",
+    "continue to review": "Continue to review",
     back: "Back",
     discard: "Discard",
     preview: "Preview",
@@ -628,6 +637,7 @@ const en = {
     choose: "Choose",
     varients: "Varients",
     "add to cart": "Add To Cart",
+    login: "Login",
   },
 
   "mode-switcher": {

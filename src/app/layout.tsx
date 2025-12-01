@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/components/locale-provider";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin", "latin-ext"] });
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           >
             {children}
             <Toaster />
+            <TailwindIndicator />
           </ThemeProvider>
         </LocaleProvider>
       </body>

@@ -83,7 +83,7 @@ export const uncachedGetAuth = async (): Promise<
       (await db.query.stores.findMany({
         where: (s, { eq }) => eq(s.ownerId, result.user.id),
       })) ?? [];
-    console.log({ userStores });
+    // console.log({ userStores });
 
     return { ...result, user: { ...result?.user, stores: userStores } };
   }

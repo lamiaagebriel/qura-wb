@@ -70,7 +70,7 @@ export default async function StoreLayout({
           />
 
           <div className="flex items-center gap-3 lg:gap-4">
-            <CartLink href={`${Paths.Store}/${storeId}${Paths.StoreCart}`} />
+            <CartLink store={selectedStore} />
             <ModeSwitcherDropdownMenu />
             <UserAccountNav
               items={c["user-nav"].map((e) => ({

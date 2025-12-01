@@ -4,17 +4,17 @@ import * as React from "react";
 
 import { Paths } from "@/constants";
 import { queries } from "@/db/queries";
+import { getOrderNumbers } from "@/stores/cart-store";
 
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 import { cn, formatPrice } from "@/lib/utils";
-import { OrderPaymentMethod, Validation } from "@/lib/validations";
+import { OrderPaymentMethod } from "@/lib/validations";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Icons } from "@/components/ui/icons";
-import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { Timeline, type TimelineItem } from "@/components/ui/timeline";
 
@@ -31,14 +31,13 @@ export const metadata = async (): Promise<Metadata> => {
 
 export default async function OrderDetails({ params }: OrderDetailProps) {
   const { "order-id": id, "store-id": storeId } = await params;
-  const { locale, ...dic } = await getDictionary();
+  const dic = await getDictionary();
   const { user } = await getAuth();
   if (!user) redirect(Paths.Login);
 
   const c = dic["dashboard"]["orders"]["order"];
   const cmn = dic["cmn"];
   const dbOrder = dic?.db?.orders;
-  // Fetch the order by `id`.
   const { data: order } = await queries.orders.get({ id });
 
   if (!order) {
@@ -54,33 +53,11 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
     );
   }
 
-  // Display order attributes: You can extend as needed
-  // Order fields: id, orderNumber, status, createdAt, items, userId, storeId, address, transactions, expenses, etc.
-  // Note: dbOrder likely contains localizations/enums for order status etc.
-
-  // Calculate order total, similar to list page logic
-  const itemsTotal = Array.isArray(order.items)
-    ? order.items.reduce((sum, item) => {
-        // If item has attributes (array), sum the price*quantity for each attribute
-        if (Array.isArray(item.attributes) && item.attributes.length > 0) {
-          return (
-            sum +
-            item.attributes.reduce((attrSum, attr) => {
-              const attrPrice = Number(attr.price) || 0;
-              const attrQty = Number(attr.quantity) || 0;
-              return attrSum + attrPrice * attrQty;
-            }, 0)
-          );
-        }
-        // fallback: try item.price/item.quantity if present at item level
-        const price = Number((item as any).price) || 0;
-        const qty = Number((item as any).quantity) || 0;
-        return sum + price * qty;
-      }, 0)
-    : 0;
-  const shipping = Number(order.expenses?.shipping) || 0;
-  const discount = Number(order.expenses?.discount) || 0;
-  const total = itemsTotal + shipping - discount;
+  const { subtotal, total, discountAmount, deliveryFee } = getOrderNumbers({
+    products: order?.items ?? [],
+    discount: order?.discount ?? undefined,
+    shippingFee: order?.address?.[0]?.shipping,
+  });
 
   // Localized order status label/color
   const statusEnum = dbOrder?.status?.enums?.[order?.status];
@@ -143,7 +120,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
               data = {
                 amount:
                   action.data.amount != null
-                    ? `$${Number(action.data.amount).toLocaleString()}`
+                    ? formatPrice(action.data.amount)
                     : undefined,
                 username: action.data.username,
               };
@@ -192,15 +169,19 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             <Icons.chevronLeft />
             <span className="sr-only">{cmn["back"]}</span>
           </Link>
-          <h1 className="flex-1 text-xl font-semibold tracking-tight">
+          <h1 className="flex flex-1 items-center gap-2 text-xl font-semibold tracking-tight">
+            <Icons.dot
+              style={{ backgroundColor: orderStatusColor }}
+              className="w-6"
+            />{" "}
             {c["order details"]} #{order?.id}
           </h1>
-          <Badge variant="outline">
+          {/* <Badge variant="outline">
             <div className="flex items-center gap-2">
               <Icons.dot style={{ backgroundColor: orderStatusColor }} />
               {orderStatusLabel}
             </div>
-          </Badge>
+          </Badge> */}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -225,44 +206,84 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="text-muted-foreground text-sm font-medium uppercase">
+                  {c["order info"]}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["order ID"]}:</span>{" "}
+                    <span className="font-mono">{order.id}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["date"]}:</span>{" "}
+                    <span>
+                      {order.createdAt
+                        ? new Date(order.createdAt).toLocaleString()
+                        : "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["status"]}:</span>{" "}
+                    <Badge variant="outline">
+                      <span className="flex items-center gap-2">
+                        <Icons.dot
+                          style={{ backgroundColor: orderStatusColor }}
+                        />
+                        {orderStatusLabel}
+                      </span>
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["total"]}:</span>{" "}
+                    <span className="font-mono">{formatPrice(total)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-muted-foreground text-sm font-medium uppercase">
                   {c["customer"]}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {order.address?.[0] ? (
-                  <div>
-                    <div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["name"]}:</span>{" "}
-                      {order.address[0].name || "-"}
+                      {order.address[0].name ?? "-"}
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["phone"]}:</span>{" "}
                       {order.address[0].phones && order.address[0].phones.length
                         ? order.address[0].phones.join(", ")
                         : "-"}
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["street"]}:</span>{" "}
                       {order.address[0].street || "-"}
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["city"]}:</span>{" "}
                       {order.address[0].city || "-"}
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["state"]}:</span>{" "}
                       {order.address[0].state || "-"}
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["country"]}:</span>{" "}
                       {order.address[0].country || "-"}
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c["postalCode"]}:</span>{" "}
                       {order.address[0].postalCode || "-"}
                     </div>
                     {order.address[0].coordinates && (
-                      <div>
+                      <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold">
                           {c["coordinates"]}:
                         </span>{" "}
@@ -303,30 +324,39 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                 Array.isArray(order.items) &&
                 order.items.length > 0 ? (
                   <div className="space-y-4">
-                    {(order.items as Validation["order-schema"]["items"]).map(
-                      (item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex flex-col gap-1 rounded border p-2"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={item?.images?.[0]!}
-                              alt={item?.title}
-                              className="aspect-square w-10"
-                            />
-                            <span className="font-medium">{item.title}</span>
-                          </div>
-                          {Array.isArray(item.attributes) &&
-                            item.attributes.length > 0 && (
-                              <div className="space-y-1 text-xs">
-                                {item.attributes.map((attr, aidx: number) => (
+                    {order.items.map((item: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col gap-1 rounded border p-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {item.title ||
+                              item.name ||
+                              c["product"] ||
+                              "Product"}
+                          </span>
+                          {item.sku && (
+                            <span className="text-muted-foreground text-xs">
+                              #{item.sku}
+                            </span>
+                          )}
+                          {item.quantity && (
+                            <span className="ml-auto">× {item.quantity}</span>
+                          )}
+                        </div>
+                        {/* Show item attributes if present */}
+                        {Array.isArray(item.attributes) &&
+                          item.attributes.length > 0 && (
+                            <div className="space-y-1 pl-2 text-xs">
+                              {item.attributes.map(
+                                (attr: any, aidx: number) => (
                                   <div
                                     key={aidx}
-                                    className="flex items-center gap-2"
+                                    className="flex items-center justify-between gap-2"
                                   >
                                     <span>
-                                      {attr.name}
+                                      {attr.title || attr.name}
                                       {attr.value ? (
                                         <>
                                           :{" "}
@@ -338,21 +368,19 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                                     </span>
                                     {attr.price ? (
                                       <span className="ml-auto font-mono">
-                                        {formatPrice(attr.price, {
-                                          currency: "USD",
-                                        })}
+                                        {formatPrice(attr.price)}
                                       </span>
                                     ) : null}
                                     {typeof attr.quantity !== "undefined" ? (
                                       <span>×{attr.quantity}</span>
                                     ) : null}
                                   </div>
-                                ))}
-                              </div>
-                            )}
-                        </div>
-                      )
-                    )}
+                                )
+                              )}
+                            </div>
+                          )}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="text-muted-foreground">{c["no items"]}</div>
@@ -370,28 +398,23 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                 <div className="flex flex-col gap-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span>{c["items total"]}:</span>
-                    <span className="font-mono">
-                      {formatPrice(itemsTotal, { currency: "USD" })}
-                    </span>
+                    <span className="font-mono">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{c["shipping"]}:</span>
                     <span className="font-mono">
-                      {formatPrice(shipping, { currency: "USD" })}
+                      {formatPrice(deliveryFee)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{c["discount"]}:</span>
-
                     <span className="font-mono">
-                      {formatPrice(discount, { currency: "USD" })}
+                      {formatPrice(discountAmount)}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t pt-2 font-semibold">
                     <span>{c["total"]}:</span>
-                    <span className="font-mono">
-                      {formatPrice(total, { currency: "USD" })}
-                    </span>
+                    <span className="font-mono">{formatPrice(total)}</span>
                   </div>
                 </div>
               </CardContent>

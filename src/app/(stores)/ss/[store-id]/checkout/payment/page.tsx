@@ -7,11 +7,15 @@ import { queries } from "@/db/queries";
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
 
-import { CheckoutInfo } from "./checkout-page";
+import { Payment } from "./checkout-payment-page";
 
-type StoreCheckoutProps = Readonly<{ params: Promise<{ "store-id": string }> }>;
-export const metadata: Metadata = { title: "Store Checkout" };
-export default async function StoreCheckout({ params }: StoreCheckoutProps) {
+type StoreCheckoutPaymentProps = Readonly<{
+  params: Promise<{ "store-id": string }>;
+}>;
+export const metadata: Metadata = { title: "Payment Checkout" };
+export default async function StoreCheckoutPayment({
+  params,
+}: StoreCheckoutPaymentProps) {
   const { "store-id": storeId } = await params;
 
   const { user } = await getAuth();
@@ -23,5 +27,5 @@ export default async function StoreCheckout({ params }: StoreCheckoutProps) {
   const { data: selectedStore } = await queries.stores.get({ id: storeId });
   if (!selectedStore) return <div>NO STORE</div>;
 
-  return <CheckoutInfo user={user} store={selectedStore} />;
+  return <Payment user={user} store={selectedStore} />;
 }

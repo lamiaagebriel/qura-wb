@@ -1,15 +1,17 @@
 "use client";
 
 import { Paths } from "@/constants";
+import { getOrderNumbers } from "@/stores/cart-store";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { deleteOrder } from "@/servers/orders";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { OrderPaymentMethod, Validation } from "@/lib/validations";
 
 import { Badge } from "@/components/ui/badge";
 import { DataTableRowActions } from "@/components/ui/data-table";
 import { FormAlertDialogButton } from "@/components/ui/form";
+import { Icons } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { useLocale } from "@/components/locale-provider";
 
@@ -43,13 +45,11 @@ export const columns: ColumnDef<OrderSchema>[] = [
   {
     accessorKey: "actions.0.action",
     header: "Payment Method",
-    cell: ({ row: { original: e } }) => {
+    cell: function Cell({ row: { original: e } }) {
       const {
         db: { orders: oo },
       } = useLocale();
       const pp = e?.actions?.find((e) => e?.action?.startsWith("paying__"));
-      console.log({ pp, a: e?.actions });
-
       const t =
         oo["actions"]["action"]["enums"]?.[pp?.action as OrderPaymentMethod];
 
@@ -60,48 +60,33 @@ export const columns: ColumnDef<OrderSchema>[] = [
     accessorKey: "total",
     header: "Total",
     cell: ({ row: { original: e } }) => {
-      // Calculate total: sum of item prices * quantity + shipping - discount
-      // Calculate the total price based on attributes for each item
-      const itemsTotal = Array.isArray(e.items)
-        ? e.items.reduce((sum, item) => {
-            // If item has attributes (array), sum the price*quantity for each attribute
-            if (Array.isArray(item.attributes) && item.attributes.length > 0) {
-              return (
-                sum +
-                item.attributes.reduce((attrSum, attr) => {
-                  const attrPrice = Number(attr.price) || 0;
-                  const attrQty = Number(attr.quantity) || 0;
-                  return attrSum + attrPrice * attrQty;
-                }, 0)
-              );
-            }
-            // fallback: try item.price/item.quantity if present at item level
-            const price = Number((item as any).price) || 0;
-            const qty = Number((item as any).quantity) || 0;
-            return sum + price * qty;
-          }, 0)
-        : 0;
-      const shipping = Number(e.expenses?.shipping) || 0;
-      const discount = Number(e.expenses?.discount) || 0;
-      const total = itemsTotal + shipping - discount;
+      const { subtotal, total, discountAmount, deliveryFee } = getOrderNumbers({
+        products: e?.items ?? [],
+        discount: e?.discount ?? undefined,
+        shippingFee: e?.address?.[0]?.shipping,
+      });
 
-      return (
-        <span className="font-mono">
-          {total.toLocaleString(undefined, {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 2,
-          })}
-        </span>
-      );
+      return <span className="font-mono">{formatPrice(total)}</span>;
     },
   },
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row: { original: e } }) => (
-      <Badge variant="outline">{e?.status}</Badge>
-    ),
+    cell: function Cell({ row: { original: e } }) {
+      const {
+        db: { orders: dbOrder },
+      } = useLocale();
+
+      const statusEnum = dbOrder?.status?.enums?.[e?.status];
+      const orderStatusLabel = statusEnum?.label ?? e.status;
+      const orderStatusColor = statusEnum?.color;
+      return (
+        <Badge variant="outline">
+          <Icons.dot style={{ backgroundColor: orderStatusColor }} />{" "}
+          {orderStatusLabel}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "createdAt",
@@ -114,7 +99,7 @@ export const columns: ColumnDef<OrderSchema>[] = [
   },
   {
     id: "actions",
-    cell: ({ row: { original: e } }) => {
+    cell: function Cell({ row: { original: e } }) {
       const { cmn } = useLocale();
 
       return (

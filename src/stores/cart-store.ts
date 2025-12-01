@@ -1,8 +1,16 @@
+import z from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { Validation, validations } from "@/lib/validations";
+import { formatPrice } from "@/lib/utils";
+import {
+  checkOrderInfo,
+  checkOrderPayment,
+  checkOrderShipping,
+  Validation,
+  validations,
+} from "@/lib/validations";
 
 export type CartProduct = Omit<Validation["cart-product-schema"], "quantity">;
 export type CartItem = CartProduct;
@@ -13,15 +21,20 @@ export type ProductIdProps = {
   >;
 };
 
-export interface StoreCart {
-  [productId: string]: CartItem;
-}
+export type StoreDiscount = Validation["order-schema"]["discount"];
+export type StoreCart = {
+  products: { [productId: string]: CartItem };
+  discount?: StoreDiscount;
+  info?: z.infer<typeof checkOrderInfo>;
+  shipping?: z.infer<typeof checkOrderShipping>;
+  payment?: z.infer<typeof checkOrderPayment>;
+};
 
-export interface CartState {
+export type CartState = {
   cart: {
     [storeId: string]: StoreCart;
   };
-}
+};
 
 export interface CartActions {
   addProduct: (
@@ -36,11 +49,37 @@ export interface CartActions {
   ) => void;
   clearStoreCart: (storeId: string) => void;
   clearCart: () => void;
+  setStoreDiscount: (props: {
+    storeId: string;
+    discount: StoreDiscount;
+  }) => void;
+  removeStoreDiscount: (storeId: string) => void;
+  setStoreInfo: (props: {
+    storeId: string;
+    info: z.infer<typeof checkOrderInfo>;
+  }) => void;
+  removeStoreInfo: (storeId: string) => void;
+  setStoreShipping: (props: {
+    storeId: string;
+    shipping: z.infer<typeof checkOrderShipping>;
+  }) => void;
+  removeStoreShipping: (storeId: string) => void;
+  setStorePayment: (props: {
+    storeId: string;
+    payment: z.infer<typeof checkOrderPayment>;
+  }) => void;
+  removeStorePayment: (storeId: string) => void;
 }
 
 export interface CartSelectors {
   getProductsByStore: (storeId: string) => CartItem[];
   getTotalByStore: (storeId: string) => number;
+  getNumbersByStore: (storeId: string) => {
+    subtotal: number;
+    discountAmount: number;
+    total: number;
+    deliveryFee: number;
+  };
   getGrandTotal: () => number;
   getCartItemCount: () => number;
   getStoreItemCount: (storeId: string) => number;
@@ -49,6 +88,8 @@ export interface CartSelectors {
       storeId: string;
     } & ProductIdProps
   ) => boolean;
+  getStoreDiscount: (storeId: string) => StoreDiscount | undefined;
+  getStoreDiscountAmount: (storeId: string) => number;
 }
 
 export type CartStore = CartState & CartActions & CartSelectors;
@@ -71,8 +112,8 @@ export const useCartStore = create<CartStore>()(
           const productId = product.id;
 
           // Initialize store cart if it doesn't exist
-          if (!state.cart[storeId]) state.cart[storeId] = {};
-          if (!state.cart[storeId][productId]) {
+          if (!state.cart[storeId]) state.cart[storeId] = { products: {} };
+          if (!state.cart[storeId]?.["products"]?.[productId]) {
             // Add new product to the store cart
             const newItem = validations["cart-product-schema"].parse({
               ...payload,
@@ -81,14 +122,15 @@ export const useCartStore = create<CartStore>()(
                 quantity: e?.quantity ?? 1,
               })),
             });
-            state.cart[storeId][productId] = newItem;
+            state.cart[storeId]["products"][productId] = newItem;
             return;
           }
 
           // If product already exists in the store, increase quantity
           // Merge existing and payload attributes, summing quantities for matching (name, value) pairs,
           // and including all unique attributes from both.
-          const existingAttrs = state.cart[storeId][productId].attributes ?? [];
+          const existingAttrs =
+            state.cart[storeId]?.["products"]?.[productId].attributes ?? [];
           const payloadAttrs = payload.attributes ?? [];
 
           // Create a map to merge by (name, value)
@@ -114,7 +156,7 @@ export const useCartStore = create<CartStore>()(
             }
           }
 
-          state.cart[storeId][productId].attributes = Array.from(
+          state.cart[storeId]["products"][productId].attributes = Array.from(
             attrMap.values()
           );
         });
@@ -126,7 +168,7 @@ export const useCartStore = create<CartStore>()(
         attributes,
       }: { storeId: string } & ProductIdProps) => {
         set((state) => {
-          const product = state.cart[storeId]?.[productId];
+          const product = state.cart[storeId]?.["products"]?.[productId];
           if (!product) return;
 
           // If no attributes specified, remove the whole product
@@ -135,7 +177,7 @@ export const useCartStore = create<CartStore>()(
             !Array.isArray(attributes) ||
             attributes.length === 0
           ) {
-            delete state.cart[storeId][productId];
+            delete state.cart[storeId]?.["products"]?.[productId];
           } else {
             // Remove only the specified attribute variants
             const existingAttrs = product.attributes ?? [];
@@ -149,14 +191,15 @@ export const useCartStore = create<CartStore>()(
             );
             if (filteredAttrs.length === 0) {
               // If no attributes left, remove the product entirely
-              delete state.cart[storeId][productId];
+              delete state.cart[storeId]?.["products"]?.[productId];
             } else {
-              state.cart[storeId][productId].attributes = filteredAttrs;
+              state.cart[storeId]["products"][productId].attributes =
+                filteredAttrs;
             }
           }
 
           // Clean up empty store cart
-          if (Object.keys(state.cart[storeId]).length === 0) {
+          if (Object.keys(state.cart[storeId]?.["products"]).length === 0) {
             delete state.cart[storeId];
           }
         });
@@ -169,7 +212,7 @@ export const useCartStore = create<CartStore>()(
         attributes,
       }: { storeId: string; quantity: number } & ProductIdProps) => {
         set((state) => {
-          const product = state.cart[storeId]?.[productId];
+          const product = state.cart[storeId]?.["products"]?.[productId];
           if (!product) return;
 
           // If quantity is 0 or less, remove the specified attribute(s) or the whole product
@@ -180,7 +223,7 @@ export const useCartStore = create<CartStore>()(
               attributes.length === 0
             ) {
               // Remove the whole product
-              delete state.cart[storeId][productId];
+              delete state.cart[storeId]?.["products"]?.[productId];
             } else {
               // Remove only the specified attribute variants
               const existingAttrs = product.attributes ?? [];
@@ -194,13 +237,14 @@ export const useCartStore = create<CartStore>()(
               );
               if (filteredAttrs.length === 0) {
                 // If no attributes left, remove the product entirely
-                delete state.cart[storeId][productId];
+                delete state.cart[storeId]?.["products"]?.[productId];
               } else {
-                state.cart[storeId][productId].attributes = filteredAttrs;
+                state.cart[storeId]["products"][productId].attributes =
+                  filteredAttrs;
               }
             }
             // Clean up empty store cart
-            if (Object.keys(state.cart[storeId]).length === 0) {
+            if (Object.keys(state.cart[storeId]?.["products"]).length === 0) {
               delete state.cart[storeId];
             }
             return;
@@ -213,16 +257,15 @@ export const useCartStore = create<CartStore>()(
             attributes.length === 0
           ) {
             // If no attributes specified, update all attribute variants
-            state.cart[storeId][productId].attributes = product.attributes?.map(
-              (e) => ({
+            state.cart[storeId]["products"][productId].attributes =
+              product.attributes?.map((e) => ({
                 ...e,
                 quantity,
-              })
-            );
+              }));
           } else {
             // Update only the specified attribute variants
-            state.cart[storeId][productId].attributes = product.attributes?.map(
-              (e) => {
+            state.cart[storeId]["products"][productId].attributes =
+              product.attributes?.map((e) => {
                 const match = attributes.find(
                   (attr) => attr.name === e.name && attr.value === e.value
                 );
@@ -230,8 +273,7 @@ export const useCartStore = create<CartStore>()(
                   return { ...e, quantity };
                 }
                 return e;
-              }
-            );
+              });
           }
         });
       },
@@ -250,29 +292,123 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
+      setStoreDiscount: ({
+        storeId,
+        discount,
+      }: {
+        storeId: string;
+        discount: StoreDiscount;
+      }) => {
+        set((state) => {
+          if (!state.cart[storeId]) {
+            state.cart[storeId] = { products: {}, discount };
+          } else {
+            state.cart[storeId].discount = discount;
+          }
+        });
+      },
+
+      removeStoreDiscount: (storeId: string) => {
+        set((state) => {
+          if (state.cart[storeId] && "discount" in state.cart[storeId]) {
+            delete state.cart[storeId].discount;
+          }
+        });
+      },
+
+      setStoreInfo: ({
+        storeId,
+        info,
+      }: {
+        storeId: string;
+        info: z.infer<typeof checkOrderInfo>;
+      }) => {
+        set((state) => {
+          if (!state.cart[storeId]) {
+            state.cart[storeId] = { products: {}, info };
+          } else {
+            state.cart[storeId].info = info;
+          }
+        });
+      },
+
+      removeStoreInfo: (storeId: string) => {
+        set((state) => {
+          if (state.cart[storeId] && "info" in state.cart[storeId]) {
+            delete state.cart[storeId].info;
+          }
+        });
+      },
+
+      setStoreShipping: ({
+        storeId,
+        shipping,
+      }: {
+        storeId: string;
+        shipping: z.infer<typeof checkOrderShipping>;
+      }) => {
+        set((state) => {
+          if (!state.cart[storeId]) {
+            state.cart[storeId] = { products: {}, shipping };
+          } else {
+            state.cart[storeId].shipping = shipping;
+          }
+        });
+      },
+
+      removeStoreShipping: (storeId: string) => {
+        set((state) => {
+          if (state.cart[storeId] && "shipping" in state.cart[storeId]) {
+            delete state.cart[storeId].shipping;
+          }
+        });
+      },
+
+      setStorePayment: ({
+        storeId,
+        payment,
+      }: {
+        storeId: string;
+        payment: z.infer<typeof checkOrderPayment>;
+      }) => {
+        set((state) => {
+          if (!state.cart[storeId]) {
+            state.cart[storeId] = { products: {}, payment };
+          } else {
+            state.cart[storeId].payment = payment;
+          }
+        });
+      },
+
+      removeStorePayment: (storeId: string) => {
+        set((state) => {
+          if (state.cart[storeId] && "payment" in state.cart[storeId]) {
+            delete state.cart[storeId].payment;
+          }
+        });
+      },
+
       // Selectors
       getProductsByStore: (storeId: string) => {
-        const store = get().cart[storeId];
+        const store = get().cart[storeId]?.["products"];
         return store ? Object.values(store) : [];
       },
 
       getTotalByStore: (storeId: string) => {
-        const products = get().getProductsByStore(storeId);
-        // Each product may have multiple attribute objects, each with price and quantity
-        return products.reduce((total, item) => {
-          if (Array.isArray(item.attributes) && item.attributes.length > 0) {
-            // Sum over all attribute variants for this product
-            return (
-              total +
-              item.attributes.reduce(
-                (attrTotal, attr) =>
-                  attrTotal + (attr.price ?? 0) * (attr.quantity ?? 0),
-                0
-              )
-            );
-          }
-          return total;
-        }, 0);
+        const { subtotal } = getOrderNumbers({
+          products: get().getProductsByStore(storeId),
+          discount: get().cart[storeId]?.discount,
+        });
+
+        return subtotal;
+      },
+
+      getNumbersByStore: (storeId: string) => {
+        return getOrderNumbers({
+          products: get().getProductsByStore(storeId),
+          discount: get().cart[storeId]?.discount,
+          shippingFee: get().cart[storeId]?.shipping?.address?.[0]?.shipping,
+        });
       },
 
       getGrandTotal: () => {
@@ -288,7 +424,7 @@ export const useCartStore = create<CartStore>()(
         return Object.values(state.cart).reduce((total, storeCart) => {
           return (
             total +
-            Object.values(storeCart).reduce((storeTotal, item) => {
+            Object.values(storeCart["products"]).reduce((storeTotal, item) => {
               if (
                 Array.isArray(item.attributes) &&
                 item.attributes.length > 0
@@ -333,7 +469,39 @@ export const useCartStore = create<CartStore>()(
         productId: string;
       }) => {
         const state = get();
-        return !!state.cart[storeId]?.[productId];
+        return !!state.cart[storeId]?.["products"]?.[productId];
+      },
+
+      getStoreDiscount: (storeId: string): StoreDiscount | undefined => {
+        return get().cart[storeId]?.discount;
+      },
+
+      getStoreDiscountAmount: (storeId: string): number => {
+        // Returns the absolute amount discounted (not percentage)
+        const products = get().getProductsByStore(storeId);
+        const subtotal = products.reduce((total, item) => {
+          if (Array.isArray(item.attributes) && item.attributes.length > 0) {
+            return (
+              total +
+              item.attributes.reduce(
+                (attrTotal, attr) =>
+                  attrTotal + (attr.price ?? 0) * (attr.quantity ?? 0),
+                0
+              )
+            );
+          }
+          return total;
+        }, 0);
+        const discount = get().cart[storeId]?.discount;
+        if (discount) {
+          if ("value" in discount) {
+            return Math.min(subtotal, discount.value);
+          }
+          if ("percentage" in discount) {
+            return Math.min(subtotal, (subtotal * discount.percentage) / 100);
+          }
+        }
+        return 0;
       },
     })),
     {
@@ -351,10 +519,13 @@ export const useCartSelectors = () => {
   return {
     getProductsByStore: store.getProductsByStore,
     getTotalByStore: store.getTotalByStore,
+    getNumbersByStore: store.getNumbersByStore,
     getGrandTotal: store.getGrandTotal,
     getCartItemCount: store.getCartItemCount,
     getStoreItemCount: store.getStoreItemCount,
     isProductInCart: store.isProductInCart,
+    getStoreDiscount: store.getStoreDiscount,
+    getStoreDiscountAmount: store.getStoreDiscountAmount,
   };
 };
 
@@ -367,8 +538,86 @@ export const useCartActions = () => {
     updateQuantity: store.updateQuantity,
     clearStoreCart: store.clearStoreCart,
     clearCart: store.clearCart,
+    setStoreDiscount: store.setStoreDiscount,
+    removeStoreDiscount: store.removeStoreDiscount,
+    setStoreInfo: store.setStoreInfo,
+    removeStoreInfo: store.removeStoreInfo,
+    setStoreShipping: store.setStoreShipping,
+    removeStoreShipping: store.removeStoreShipping,
+    setStorePayment: store.setStorePayment,
+    removeStorePayment: store.removeStorePayment,
   };
 };
 
 // Export the raw store for advanced usage
 export { useCartStore as cartStore };
+
+// UTILS: some ui helper functions
+
+export function getDiscountLabel({ storeDiscount, subTotal }: any) {
+  if (storeDiscount) {
+    if ("percentage" in storeDiscount && subTotal > 0) {
+      // discountAmount = Math.round((subTotal * storeDiscount.percentage) / 100);
+      return `Discount (${storeDiscount.percentage}%)`;
+    } else if ("value" in storeDiscount) {
+      // discountAmount = Math.min(storeDiscount.value, subTotal);
+      return `Discount (${formatPrice(storeDiscount.value)})`;
+    }
+  }
+
+  return undefined;
+}
+
+export function getOrderNumbers({
+  products,
+  discount,
+  shippingFee,
+}: {
+  products: CartProduct[];
+  discount?: Validation["order-schema"]["discount"];
+  shippingFee?: number;
+}) {
+  // Calculate subtotal as a float number
+  const subtotal = products.reduce((total, item) => {
+    if (Array.isArray(item.attributes) && item.attributes.length > 0) {
+      return (
+        total +
+        item.attributes.reduce((attrTotal, attr) => {
+          const price = Number(attr.price) || 0;
+          const quantity = Number(attr.quantity) || 0;
+          return attrTotal + price * quantity;
+        }, 0)
+      );
+    }
+    return total;
+  }, 0);
+
+  let discountAmount = 0;
+  let total = subtotal;
+
+  if (discount) {
+    if ("value" in discount) {
+      const value = Number(discount.value) || 0;
+      discountAmount = Math.min(value, subtotal);
+      total = Math.max(0, subtotal - discountAmount);
+    } else if ("percentage" in discount) {
+      const percentage = Number(discount.percentage) || 0;
+      // Discount amount should be calculated from the original subtotal
+      discountAmount = Math.round((subtotal * percentage) / 100);
+      total = Math.max(0, subtotal - discountAmount);
+    }
+  }
+
+  // Delivery fee logic: use options.deliveryFee if provided, otherwise default to 0
+  const deliveryFee = shippingFee ?? 0;
+  total = total + deliveryFee;
+
+  // Ensure all numbers are precise, round cents to avoid floating point errors
+  const result = {
+    subtotal: Math.round(subtotal * 100) / 100,
+    discountAmount: Math.round(discountAmount * 100) / 100,
+    deliveryFee: Math.round(deliveryFee * 100) / 100,
+    total: Math.round(total * 100) / 100,
+  };
+  return result;
+}

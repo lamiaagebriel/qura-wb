@@ -5,15 +5,15 @@ import Image from "next/image";
 import { Paths } from "@/constants";
 import { ColumnDef } from "@tanstack/react-table";
 
+import { deleteStore } from "@/servers/stores";
 import { cn } from "@/lib/utils";
 import { Validation } from "@/lib/validations";
-import { deleteStore } from "@/servers/stores";
 
-import { useLocale } from "@/components/locale-provider";
 import { Badge } from "@/components/ui/badge";
 import { DataTableRowActions } from "@/components/ui/data-table";
 import { FormAlertDialogButton } from "@/components/ui/form";
 import { Link } from "@/components/ui/link";
+import { useLocale } from "@/components/locale-provider";
 
 type Schema = Validation["store-schema"];
 export const columns: ColumnDef<Schema>[] = [
@@ -95,7 +95,7 @@ export const columns: ColumnDef<Schema>[] = [
   // },
   {
     id: "actions",
-    cell: ({ row: { original: e } }) => {
+    cell: function Cell({ row: { original: e } }) {
       const { cmn } = useLocale();
 
       return (

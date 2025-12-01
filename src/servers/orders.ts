@@ -11,6 +11,51 @@ import { getAuth } from "@/lib/auth";
 import { ID } from "@/lib/utils";
 import { Validation, validations } from "@/lib/validations";
 
+export const checkOrderInfo = createServerAction(
+  async (formData: Validation["check-order-info"]) => {
+    const { storeId, ...data } =
+      validations["check-order-info"]?.parse(formData);
+    const { actions: c } = await getDictionary();
+
+    console.log({ data });
+    return {
+      ok: true,
+      redirect: `${Paths.Store}/${storeId}${Paths.StoreCheckoutShipping}`,
+    };
+  },
+  { defaultMessage: "your order was not created. please try again." }
+);
+
+export const checkOrderShipping = createServerAction(
+  async (formData: Validation["check-order-shipping"]) => {
+    const { storeId, ...data } =
+      validations["check-order-shipping"]?.parse(formData);
+    const { actions: c } = await getDictionary();
+
+    console.log({ data });
+    return {
+      ok: true,
+      redirect: `${Paths.Store}/${storeId}${Paths.StoreCheckoutPayment}`,
+    };
+  },
+  { defaultMessage: "your order was not created. please try again." }
+);
+
+export const checkOrderPayment = createServerAction(
+  async (formData: Validation["check-order-payment"]) => {
+    const { storeId, ...data } =
+      validations["check-order-payment"]?.parse(formData);
+    const { actions: c } = await getDictionary();
+
+    console.log({ data });
+    return {
+      ok: true,
+      redirect: `${Paths.Store}/${storeId}${Paths.StoreCheckoutReview}`,
+    };
+  },
+  { defaultMessage: "your order was not created. please try again." }
+);
+
 export const createOrder = createServerAction(
   async (formData: Validation["create-order"]) => {
     const data = validations["create-order"]?.parse(formData);

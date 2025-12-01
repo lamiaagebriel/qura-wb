@@ -1,10 +1,23 @@
+import { contactUs } from "@/servers/contact";
 import { getDictionary } from "@/servers/locale";
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Form,
+  FormButton,
+  FormInputField,
+  FormTextareaField,
+} from "@/components/ui/form";
 
 type HomeProps = Readonly<{}>;
 export default async function Home({}: HomeProps) {
-  const dic = await getDictionary();
+  const { db, cmn, marketing: c, ...dic } = await getDictionary();
 
-  const c = dic["marketing"];
   return (
     <main className="min-h-screen">
       {/* Hero */}
@@ -177,22 +190,30 @@ export default async function Home({}: HomeProps) {
 
       {/* FAQ */}
       <section id="faq" className="border-b">
-        <div className="container mx-auto px-4 py-16 md:py-24">
+        <div className="container px-4 py-16 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-semibold md:text-4xl">
               {c.faq["title"]}
             </h2>
             <p className="text-muted-foreground mt-3">{c.faq["subtitle"]}</p>
           </div>
+
           <div className="mx-auto mt-10 max-w-3xl space-y-3">
-            {(c.faq["items"] ?? []).map((it: any, i: number) => (
-              <details key={i} className="rounded-lg border p-4">
-                <summary className="cursor-pointer text-base font-medium">
-                  {it["q"]}
-                </summary>
-                <p className="text-muted-foreground mt-2 text-sm">{it["a"]}</p>
-              </details>
-            ))}
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              defaultValue={`item-${0 + 1}`}
+            >
+              {(c.faq["items"] ?? []).map((e: any, i: number) => (
+                <AccordionItem key={i} value={`item-${i + 1}`}>
+                  <AccordionTrigger>{e["q"]}</AccordionTrigger>
+                  <AccordionContent className="flex flex-col gap-4 text-balance">
+                    <p>{e["a"]}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </div>
       </section>
@@ -208,53 +229,39 @@ export default async function Home({}: HomeProps) {
               {c.contact["subtitle"]}
             </p>
           </div>
-          <form className="mx-auto mt-10 max-w-2xl space-y-4">
+          <Form
+            infiniteLoading
+            validation="contact-us"
+            onSubmit={contactUs}
+            className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-6"
+            useForm={{ defaultValues: { name: "", email: "", message: "" } }}
+          >
             <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium">
-                  {c.contact["form"]["name"]["label"]}
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  className="bg-background focus:ring-primary mt-1 w-full rounded-md border px-3 py-2 outline-none focus:ring-2"
-                  placeholder={c.contact["form"]["name"]["placeholder"]}
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium">
-                  {c.contact["form"]["email"]["label"]}
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  className="bg-background focus:ring-primary mt-1 w-full rounded-md border px-3 py-2 outline-none focus:ring-2"
-                  placeholder={c.contact["form"]["email"]["placeholder"]}
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium">
-                {c.contact["form"]["message"]["label"]}
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={5}
-                className="bg-background focus:ring-primary mt-1 w-full rounded-md border px-3 py-2 outline-none focus:ring-2"
-                placeholder={c.contact["form"]["message"]["placeholder"]}
+              <FormInputField
+                field={{ name: "name" }}
+                label={c.contact["form"]["name"]["label"]}
+                placeholder={c.contact["form"]["name"]["placeholder"]}
+              />
+
+              <FormInputField
+                type="email"
+                field={{ name: "email" }}
+                label={c.contact["form"]["email"]["label"]}
+                placeholder={c.contact["form"]["email"]["placeholder"]}
               />
             </div>
-            <div className="flex items-center justify-end">
-              <button
-                type="submit"
-                className="bg-foreground text-background inline-flex items-center rounded-md px-5 py-2.5 hover:opacity-90"
-              >
-                {c.contact["form"]["submit"]}
-              </button>
-            </div>
-          </form>
+
+            <FormTextareaField
+              field={{ name: "message" }}
+              label={c.contact["form"]["message"]["label"]}
+              placeholder={c.contact["form"]["message"]["placeholder"]}
+              className="min-h-40"
+            />
+
+            <FormButton type="submit" className="w-full">
+              {c.contact["form"]["submit"]}
+            </FormButton>
+          </Form>
         </div>
       </section>
 

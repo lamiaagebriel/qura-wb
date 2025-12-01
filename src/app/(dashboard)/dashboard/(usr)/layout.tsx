@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { Paths } from "@/constants";
+import { NavItem } from "@/types";
 
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
@@ -11,7 +12,6 @@ import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { NavLink } from "@/components/ui/link";
-import { StoreCreateButton } from "@/components/store-create-button";
 import { ModeSwitcherDropdownMenu } from "@/components/theme-provider";
 import { UserAccountNav } from "@/components/user-account-nav";
 
@@ -64,35 +64,50 @@ export default async function DashboardLayout({
                 ?.filter((e) =>
                   user?.emailVerified ? e?.value !== Paths.VerifyEmail : e
                 )
-                ?.map((e, i) => {
-                  const Icon = e?.icon ? Icons[e?.icon] : null;
-
-                  return (
-                    <li key={i}>
-                      <NavLink
-                        disabled={e?.disabled}
-                        segments={e?.segments}
-                        href={e?.value}
-                        className={cn(buttonVariants({ variant: "ghost" }))}
-                        activeClassNames={cn(
-                          buttonVariants({ variant: "secondary" }),
-                          "border-primary hover:text-secondary-foreground rounded-b-none border-b"
-                        )}
-                      >
-                        {Icon && <Icon />}
-                        {e?.children}
-                      </NavLink>
-                    </li>
-                  );
-                })}
+                ?.map((e, i) => (
+                  <li key={i}>
+                    <LinkComponent e={e} />
+                  </li>
+                ))}
             </ul>
 
-            <div>{!user?.stores?.[0]?.id && <StoreCreateButton />}</div>
+            <div>
+              {!user?.stores?.[0]?.id && (
+                <LinkComponent
+                  e={{
+                    segments: ["create-store"],
+                    value: Paths.DashboardCreateStore,
+                    children: "Create Store",
+                    icon: "store",
+                  }}
+                />
+              )}
+            </div>
           </nav>
         </div>
       </header>
 
       {children}
     </div>
+  );
+}
+
+function LinkComponent({ e }: { e: NavItem }) {
+  const Icon = e?.icon ? Icons[e?.icon] : null;
+
+  return (
+    <NavLink
+      disabled={e?.disabled}
+      segments={e?.segments}
+      href={e?.value}
+      className={cn(buttonVariants({ variant: "ghost" }))}
+      activeClassNames={cn(
+        buttonVariants({ variant: "secondary" }),
+        "border-primary hover:text-secondary-foreground rounded-b-none border-b"
+      )}
+    >
+      {Icon && <Icon />}
+      {e?.children}
+    </NavLink>
   );
 }

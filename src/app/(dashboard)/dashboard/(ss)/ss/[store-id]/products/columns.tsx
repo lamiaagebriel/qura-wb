@@ -3,17 +3,17 @@
 import { Paths } from "@/constants";
 import { ColumnDef } from "@tanstack/react-table";
 
+import { deleteProduct } from "@/servers/products";
 import { cn } from "@/lib/utils";
 import { Validation } from "@/lib/validations";
-import { deleteProduct } from "@/servers/products";
 
-import { useLocale } from "@/components/locale-provider";
 import { Badge } from "@/components/ui/badge";
 import { DataTableRowActions } from "@/components/ui/data-table";
 import { FormAlertDialogButton } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
+import { useLocale } from "@/components/locale-provider";
 
 type Schema = Validation["product-schema"];
 export const columns: ColumnDef<Schema>[] = [
@@ -48,7 +48,7 @@ export const columns: ColumnDef<Schema>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row: { original: e } }) => {
+    cell: function Cell({ row: { original: e } }) {
       const {
         db: { products: pp },
       } = useLocale();
@@ -103,7 +103,7 @@ export const columns: ColumnDef<Schema>[] = [
   // },
   {
     id: "actions",
-    cell: ({ row: { original: e } }) => {
+    cell: function Cell({ row: { original: e } }) {
       const { cmn } = useLocale();
 
       return (

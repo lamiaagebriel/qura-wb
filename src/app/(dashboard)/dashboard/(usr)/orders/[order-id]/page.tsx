@@ -4,10 +4,11 @@ import * as React from "react";
 
 import { Paths } from "@/constants";
 import { queries } from "@/db/queries";
+import { getOrderNumbers } from "@/stores/cart-store";
 
 import { getDictionary } from "@/servers/locale";
 import { getAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { OrderPaymentMethod } from "@/lib/validations";
 
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +38,6 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
   const c = dic["dashboard"]["orders"]["order"];
   const cmn = dic["cmn"];
   const dbOrder = dic?.db?.orders;
-  // Fetch the order by `id`.
   const { data: order } = await queries.orders.get({ id });
 
   if (!order) {
@@ -52,34 +52,11 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
       </main>
     );
   }
-
-  // Display order attributes: You can extend as needed
-  // Order fields: id, orderNumber, status, createdAt, items, userId, storeId, address, transactions, expenses, etc.
-  // Note: dbOrder likely contains localizations/enums for order status etc.
-
-  // Calculate order total, similar to list page logic
-  const itemsTotal = Array.isArray(order.items)
-    ? order.items.reduce((sum, item) => {
-        // If item has attributes (array), sum the price*quantity for each attribute
-        if (Array.isArray(item.attributes) && item.attributes.length > 0) {
-          return (
-            sum +
-            item.attributes.reduce((attrSum, attr) => {
-              const attrPrice = Number(attr.price) || 0;
-              const attrQty = Number(attr.quantity) || 0;
-              return attrSum + attrPrice * attrQty;
-            }, 0)
-          );
-        }
-        // fallback: try item.price/item.quantity if present at item level
-        const price = Number((item as any).price) || 0;
-        const qty = Number((item as any).quantity) || 0;
-        return sum + price * qty;
-      }, 0)
-    : 0;
-  const shipping = Number(order.expenses?.shipping) || 0;
-  const discount = Number(order.expenses?.discount) || 0;
-  const total = itemsTotal + shipping - discount;
+  const { subtotal, total, discountAmount, deliveryFee } = getOrderNumbers({
+    products: order?.items ?? [],
+    discount: order?.discount ?? undefined,
+    shippingFee: order?.address?.[0]?.shipping,
+  });
 
   // Localized order status label/color
   const statusEnum = dbOrder?.status?.enums?.[order?.status];
@@ -142,7 +119,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
               data = {
                 amount:
                   action.data.amount != null
-                    ? `$${Number(action.data.amount).toLocaleString()}`
+                    ? formatPrice(action.data.amount)
                     : undefined,
                 username: action.data.username,
               };
@@ -191,15 +168,19 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             <Icons.chevronLeft />
             <span className="sr-only">{cmn["back"] ?? "Back"}</span>
           </Link>
-          <h1 className="flex-1 text-xl font-semibold tracking-tight">
-            {c["order details"] ?? "Order Details"}
+          <h1 className="flex flex-1 items-center gap-2 text-xl font-semibold tracking-tight">
+            <Icons.dot
+              style={{ backgroundColor: orderStatusColor }}
+              className="w-6"
+            />{" "}
+            {c["order details"]} #{order?.id}
           </h1>
-          <Badge variant="outline">
+          {/* <Badge variant="outline">
             <div className="flex items-center gap-2">
               <Icons.dot style={{ backgroundColor: orderStatusColor }} />
               {orderStatusLabel}
             </div>
-          </Badge>
+          </Badge> */}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -220,35 +201,29 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             </CardContent>
           </Card>
 
-          <div>
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-muted-foreground text-sm font-medium uppercase">
-                  {c["order info"] ?? "Order Info"}
+                  {c["order info"]}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-semibold">
-                      {c["order ID"] ?? "Order ID"}:
-                    </span>{" "}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["order ID"]}:</span>{" "}
                     <span className="font-mono">{order.id}</span>
                   </div>
-                  <div>
-                    <span className="font-semibold">
-                      {c["date"] ?? "Date"}:
-                    </span>{" "}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["date"]}:</span>{" "}
                     <span>
                       {order.createdAt
                         ? new Date(order.createdAt).toLocaleString()
                         : "-"}
                     </span>
                   </div>
-                  <div>
-                    <span className="font-semibold">
-                      {c["status"] ?? "Status"}:
-                    </span>{" "}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["status"]}:</span>{" "}
                     <Badge variant="outline">
                       <span className="flex items-center gap-2">
                         <Icons.dot
@@ -258,23 +233,10 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                       </span>
                     </Badge>
                   </div>
-                  {/* <div>
-                  <span className="font-semibold">
-                    {c["payment method"] ?? "Payment"}:
-                  </span>{" "}
-                  <span>{paymentType}</span>
-                </div> */}
-                  <div>
-                    <span className="font-semibold">
-                      {c["total"] ?? "Total"}:
-                    </span>{" "}
-                    <span className="font-mono">
-                      {total.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">{c["total"]}:</span>{" "}
+                    <span className="font-mono">{formatPrice(total)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -283,60 +245,46 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="text-muted-foreground text-sm font-medium uppercase">
-                  {c["customer"] ?? "Customer"}
+                  {c["customer"]}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {order.address?.[0] ? (
                   <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="font-semibold">
-                        {c["name"] ?? "Name"}:
-                      </span>{" "}
-                      {order.address[0].name || "-"}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["name"]}:</span>{" "}
+                      {order.address[0].name ?? "-"}
                     </div>
-                    <div>
-                      <span className="font-semibold">
-                        {c["phone"] ?? "Phone"}:
-                      </span>{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["phone"]}:</span>{" "}
                       {order.address[0].phones && order.address[0].phones.length
                         ? order.address[0].phones.join(", ")
                         : "-"}
                     </div>
-                    <div>
-                      <span className="font-semibold">
-                        {c["street"] ?? "Street"}:
-                      </span>{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["street"]}:</span>{" "}
                       {order.address[0].street || "-"}
                     </div>
-                    <div>
-                      <span className="font-semibold">
-                        {c["city"] ?? "City"}:
-                      </span>{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["city"]}:</span>{" "}
                       {order.address[0].city || "-"}
                     </div>
-                    <div>
-                      <span className="font-semibold">
-                        {c["state"] ?? "State"}:
-                      </span>{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["state"]}:</span>{" "}
                       {order.address[0].state || "-"}
                     </div>
-                    <div>
-                      <span className="font-semibold">
-                        {c["country"] ?? "Country"}:
-                      </span>{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["country"]}:</span>{" "}
                       {order.address[0].country || "-"}
                     </div>
-                    <div>
-                      <span className="font-semibold">
-                        {c["postalCode"] ?? "Postal Code"}:
-                      </span>{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c["postalCode"]}:</span>{" "}
                       {order.address[0].postalCode || "-"}
                     </div>
                     {order.address[0].coordinates && (
-                      <div>
+                      <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold">
-                          {c["coordinates"] ?? "Coordinates"}:
+                          {c["coordinates"]}:
                         </span>{" "}
                         <span>
                           {order.address[0].coordinates.latitude != null
@@ -358,7 +306,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                   </div>
                 ) : (
                   <div className="text-muted-foreground">
-                    {c["no customer info"] ?? "No customer information."}
+                    {c["no customer info"]}
                   </div>
                 )}
               </CardContent>
@@ -367,7 +315,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="text-muted-foreground text-sm font-medium uppercase">
-                  {c["items"] ?? "Items"}
+                  {c["items"]}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -404,7 +352,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                                 (attr: any, aidx: number) => (
                                   <div
                                     key={aidx}
-                                    className="flex items-center gap-2"
+                                    className="flex items-center justify-between gap-2"
                                   >
                                     <span>
                                       {attr.title || attr.name}
@@ -419,14 +367,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                                     </span>
                                     {attr.price ? (
                                       <span className="ml-auto font-mono">
-                                        {Number(attr.price).toLocaleString(
-                                          undefined,
-                                          {
-                                            style: "currency",
-                                            currency: "USD",
-                                            minimumFractionDigits: 2,
-                                          }
-                                        )}
+                                        {formatPrice(attr.price)}
                                       </span>
                                     ) : null}
                                     {typeof attr.quantity !== "undefined" ? (
@@ -441,9 +382,7 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-muted-foreground">
-                    {c["no items"] ?? "No items."}
-                  </div>
+                  <div className="text-muted-foreground">{c["no items"]}</div>
                 )}
               </CardContent>
             </Card>
@@ -451,50 +390,30 @@ export default async function OrderDetails({ params }: OrderDetailProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="text-muted-foreground text-sm font-medium uppercase">
-                  {c["summary"] ?? "Summary"}
+                  {c["summary"]}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span>{c["items total"] ?? "Items Total"}:</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span>{c["items total"]}:</span>
+                    <span className="font-mono">{formatPrice(subtotal)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span>{c["shipping"]}:</span>
                     <span className="font-mono">
-                      {itemsTotal.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatPrice(deliveryFee)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>{c["shipping"] ?? "Shipping"}:</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span>{c["discount"]}:</span>
                     <span className="font-mono">
-                      {shipping.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatPrice(discountAmount)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>{c["discount"] ?? "Discount"}:</span>
-                    <span className="font-mono">
-                      {discount.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between border-t pt-2 font-semibold">
-                    <span>{c["total"] ?? "Total"}:</span>
-                    <span className="font-mono">
-                      {total.toLocaleString(undefined, {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
+                  <div className="mt-2 flex items-center justify-between gap-2 border-t pt-2 font-semibold">
+                    <span>{c["total"]}:</span>
+                    <span className="font-mono">{formatPrice(total)}</span>
                   </div>
                 </div>
               </CardContent>

@@ -135,7 +135,7 @@ const Form = <T extends ValidationName, R>({
     setDisabled,
   } as ExtendedUseForm<Validation[T]>;
 
-  // console.log("error: ", form?.formState?.errors);
+  console.log("error: ", form?.formState?.errors);
   return (
     <FormProvider {...{ ...extendedUseForm }}>
       <form

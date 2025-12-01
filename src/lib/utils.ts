@@ -164,14 +164,13 @@ export function formatDate(
 
 export function formatPrice(
   amount: number | string | null,
-  props: Intl.NumberFormatOptions = {
-    currency: "EGP",
-  }
+  props?: Intl.NumberFormatOptions
 ) {
   if (!amount) return null;
   return formatNumber(amount, {
     style: "currency",
-    // currencyDisplay: "name",
+    currency: "EGP",
+    currencyDisplay: "code",
     ...props,
   });
 }

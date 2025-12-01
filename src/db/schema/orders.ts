@@ -24,13 +24,11 @@ export const orders = pgTable(
     userId: references("user_id", { length: 255 }, users.id, {
       onDelete: "restrict",
     }),
+    discount: json("discount").$type<Validation["order-schema"]["discount"]>(),
     status: orderStatus("status").default("pending").notNull(),
     address: json("address").$type<Validation["order-schema"]["address"]>(),
     items: json("items").$type<Validation["order-schema"]["items"]>(),
-    expenses: json("expenses").$type<Validation["order-schema"]["expenses"]>(),
     actions: json("actions").$type<Validation["order-schema"]["actions"]>(), // NOTE: it has actor, connected to users schema
-    // transactions:
-    //   json("transactions").$type<Validation["order-schema"]["transactions"]>(),
 
     notes: text("notes"),
   },

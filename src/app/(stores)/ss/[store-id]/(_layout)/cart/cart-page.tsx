@@ -2,10 +2,12 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import React from "react";
 
 import { Paths } from "@/constants";
 import { Store } from "@/db/schema";
 import {
+  getDiscountLabel,
   ProductIdProps,
   useCartActions,
   useCartSelectors,
@@ -13,50 +15,43 @@ import {
 } from "@/stores/cart-store";
 import { User } from "lucia";
 
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Icons } from "@/components/ui/icons";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Link } from "@/components/ui/link";
 
 type CartPageProps = { store: Store; user: User };
-
 function CartPage({ store: { id: storeId }, user }: CartPageProps) {
   const cart = useCartStore();
   const actions = useCartActions();
   const selectors = useCartSelectors();
-
-  // For demo, you might want to hardcode a delivery fee and discount for now
-  const DELIVERY_FEE = 0;
-  const DISCOUNT = 50;
-
-  // Flatten all products for all stores for the table
-  const allCartItems = Object.keys(cart.cart).flatMap((storeId) => {
-    const storeProducts = selectors.getProductsByStore(storeId);
-    return storeProducts.flatMap((item) => {
-      const variants =
-        Array.isArray(item.attributes) && item.attributes.length > 0
-          ? item.attributes
-          : [];
-      return variants.map((variant, j) => ({
-        ...item,
-        variant,
-        storeId,
-        productId: item.id,
-        key: `${storeId}-${item.id}-${variant.name}-${variant.value}`,
-        image: item.images?.[0] || "/placeholder.svg",
-      }));
-    });
+  const storeProducts = selectors.getProductsByStore(storeId);
+  const allCartItems = storeProducts.flatMap((item) => {
+    const variants =
+      Array.isArray(item.attributes) && item.attributes.length > 0
+        ? item.attributes
+        : [];
+    return variants.map((variant, j) => ({
+      ...item,
+      variant,
+      storeId,
+      productId: item.id,
+      key: `${storeId}-${item.id}-${variant.name}-${variant.value}`,
+      image: item.images?.[0] || "/placeholder.svg",
+    }));
   });
-
-  // Calculate subtotal
-  const subTotal = allCartItems.reduce(
-    (sum, item) =>
-      sum + (item.variant.price || 0) * (item.variant.quantity || 0),
-    0
-  );
-  const total = subTotal - DISCOUNT + DELIVERY_FEE;
 
   const handleUpdateQuantity = (
     storeId: string,
@@ -76,22 +71,64 @@ function CartPage({ store: { id: storeId }, user }: CartPageProps) {
     actions.removeProduct({ storeId, productId, attributes });
   };
 
+  if (!allCartItems?.length)
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Icons.inbox />
+          </EmptyMedia>
+          <EmptyTitle>Your Cart is Empty</EmptyTitle>
+          <EmptyDescription>
+            You haven&apos;t added any items to your cart yet. Start shopping to
+            fill your cart.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <div className="flex gap-2">
+            <Link
+              href={`${Paths.Store}/${storeId}`}
+              className={cn(buttonVariants({}))}
+            >
+              Shop Now
+            </Link>
+            <Link
+              href={`${Paths.Store}/${storeId}`}
+              className={cn(buttonVariants({ variant: "outline" }))}
+            >
+              Browse Stores
+            </Link>
+          </div>
+        </EmptyContent>
+        <Link
+          href={`${Paths.Store}/${storeId}`}
+          className={cn(
+            buttonVariants({
+              variant: "link",
+              size: "sm",
+            })
+          )}
+        >
+          <Icons.chevronLeft /> Learn more
+        </Link>
+      </Empty>
+    );
   return (
     <div className="container py-10">
       <div className="flex justify-between">
         <h1 className="mb-6 text-2xl font-semibold">Shopping Cart</h1>
+        {/* <span>{JSON.stringify(cart.cart, null, 0)}</span> */}
         {/* {allCartItems.length > 0 && (
           <Button
             type="button"
             variant="destructive"
-             onClick={() => actions.clearCart()}
+            onClick={() => actions.clearCart()}
           >
             Clear All
           </Button>
         )} */}
       </div>
       <div className="flex flex-col gap-8 md:flex-row">
-        {/* Cart Table */}
         <div className="flex-1">
           <Card className="overflow-x-auto">
             <table className="divide-muted min-w-full divide-y">
@@ -144,7 +181,6 @@ function CartPage({ store: { id: storeId }, user }: CartPageProps) {
                       <div className="inline-flex items-center overflow-hidden rounded-full border">
                         <Button
                           variant="ghost"
-                          // className="hover:bg-muted flex h-8 w-8 items-center justify-center text-lg font-bold text-gray-600"
                           onClick={() =>
                             handleUpdateQuantity(
                               item.storeId,
@@ -167,7 +203,6 @@ function CartPage({ store: { id: storeId }, user }: CartPageProps) {
                         </span>
                         <Button
                           variant="ghost"
-                          // className="hover:bg-muted flex h-8 w-8 items-center justify-center text-lg font-bold text-gray-600"
                           onClick={() =>
                             handleUpdateQuantity(
                               item.storeId,
@@ -188,10 +223,9 @@ function CartPage({ store: { id: storeId }, user }: CartPageProps) {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center text-lg font-semibold">
-                      $
-                      {(
+                      {formatPrice(
                         (item.variant.price || 0) * (item.variant.quantity || 0)
-                      ).toLocaleString()}
+                      )}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <Button
@@ -217,49 +251,11 @@ function CartPage({ store: { id: storeId }, user }: CartPageProps) {
           </Card>
         </div>
 
-        {/* Order Summary */}
         <div className="w-full flex-shrink-0 md:w-96">
           <Card className="p-6">
             <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
-            {/* <div className="mb-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Discount voucher"
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-black focus:outline-none"
-                disabled
-              />
-              <button
-                type="button"
-                className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-900"
-                disabled
-              >
-                Apply
-              </button>
-            </div>
-          </div> */}
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Sub Total</span>
-                <span>{subTotal.toLocaleString()} USD</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Discount (10%)</span>
-                <span>-{DISCOUNT.toLocaleString()} USD</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Delivery fee</span>
-                <span className="text-muted-foreground">
-                  calculated on checkout
-                </span>
-                {/* <span>{DELIVERY_FEE.toLocaleString()} USD</span> */}
-              </div>
-              <div className="border-muted my-2 border-t"></div>
-              <div className="flex justify-between text-base font-semibold">
-                <span>Total</span>
-                <span>{total.toLocaleString()} USD</span>
-              </div>
-            </div>
+
+            <OrderSummary step="cart-page" storeId={storeId} />
 
             <Link
               href={`${Paths.Store}/${storeId}${Paths.StoreCheckout}`}
@@ -269,6 +265,123 @@ function CartPage({ store: { id: storeId }, user }: CartPageProps) {
             </Link>
           </Card>
         </div>
+      </div>
+    </div>
+  );
+}
+
+export function OrderSummary({
+  step = "cart-page",
+  storeId,
+}: {
+  step?: "cart-page" | "checkout-page";
+  storeId: string;
+}) {
+  const cart = useCartStore();
+  const actions = useCartActions();
+  const selectors = useCartSelectors();
+
+  const storeDiscount = selectors.getStoreDiscount(storeId);
+  const {
+    subtotal: subTotal,
+    discountAmount,
+    total,
+    deliveryFee,
+  } = selectors.getNumbersByStore(storeId);
+  const [discountCode, setDiscountCode] = React.useState(storeDiscount?.code);
+  const [isApplyingDiscount, setIsApplyingDiscount] = React.useState(false);
+  const [discountError, setDiscountError] = React.useState("");
+
+  const discountLabel = getDiscountLabel({ storeDiscount, subTotal });
+
+  const handleApplyDiscount = async () => {
+    setIsApplyingDiscount(true);
+    setDiscountError("");
+    const code = discountCode?.trim().toUpperCase();
+    if (code === "SAVE10") {
+      actions.setStoreDiscount({ storeId, discount: { code, percentage: 10 } });
+    } else if (code === "SAVE50") {
+      actions.setStoreDiscount({ storeId, discount: { code, value: 50 } });
+    } else {
+      setDiscountError("Invalid discount code");
+    }
+    setIsApplyingDiscount(false);
+  };
+  const handleRemoveDiscount = () => {
+    actions.removeStoreDiscount(storeId);
+    setDiscountError("");
+    setDiscountCode("");
+  };
+  return (
+    <div>
+      <div className="mb-4">
+        <div className="flex items-end gap-2">
+          <div className="flex w-full flex-col gap-1">
+            <Label htmlFor="discount">Discount Voucher</Label>
+            <Input
+              id="discount"
+              name="discount"
+              placeholder="Discount voucher"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
+              disabled={isApplyingDiscount || !!storeDiscount?.code}
+            />
+          </div>
+          {!storeDiscount?.code ? (
+            <Button
+              onClick={handleApplyDiscount}
+              disabled={isApplyingDiscount || !discountCode}
+            >
+              {isApplyingDiscount ? "Applying..." : "Apply"}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              onClick={handleRemoveDiscount}
+            >
+              <Icons.x />
+            </Button>
+          )}
+        </div>
+        {discountError && (
+          <div className="mt-1 text-sm text-red-600">{discountError}</div>
+        )}
+      </div>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span>Subtotal</span>
+          <span>{formatPrice(subTotal)}</span>
+        </div>
+        {discountLabel ? (
+          <div className="flex justify-between">
+            <span>{discountLabel || "Discount"}</span>
+            <span className="text-destructive">
+              - {formatPrice(discountAmount)}
+            </span>{" "}
+          </div>
+        ) : null}
+
+        {step === "checkout-page" ? (
+          <div className="flex justify-between">
+            <span>Shipping</span>
+            <span className="text-muted-foreground">
+              {!!deliveryFee ? `+${formatPrice(deliveryFee)}` : "-"}
+            </span>
+          </div>
+        ) : null}
+
+        <div className="mt-8 flex justify-between text-lg font-bold">
+          <span>{step === "checkout-page" ? "Total" : "Estimated total"} </span>
+          <span className="font-serif">{formatPrice(total)}</span>
+        </div>
+
+        {step === "cart-page" ? (
+          <p className="text-muted-foreground">
+            Taxes and shipping calculated at checkout.
+          </p>
+        ) : null}
       </div>
     </div>
   );

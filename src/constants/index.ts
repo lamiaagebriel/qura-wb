@@ -12,6 +12,7 @@ export enum Paths {
   Dashboard = "/dashboard",
   DashboardOrders = "/dashboard/orders",
   DashboardStores = "/dashboard/stores",
+  DashboardCreateStore = "/dashboard/create-store",
   DashboardSettings = "/dashboard/settings",
   DashboardSettingsAppearance = "/dashboard/settings/appearance",
 
@@ -25,4 +26,7 @@ export enum Paths {
   StoreProduct = "/p",
   StoreCart = "/cart",
   StoreCheckout = "/checkout",
+  StoreCheckoutShipping = "/checkout/shipping",
+  StoreCheckoutPayment = "/checkout/payment",
+  StoreCheckoutReview = "/checkout/review",
 }

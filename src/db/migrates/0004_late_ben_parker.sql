@@ -1,0 +1,1 @@
+ALTER TABLE "qurawb__orders" DROP COLUMN "expenses";

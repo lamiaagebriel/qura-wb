@@ -185,6 +185,16 @@ const orderSchema = z.object({
   userId: z.stringRequired("userId").nullable(),
 
   status: z.enum(orderStatus.enumValues ?? []).default("pending"),
+  discount: z.union([
+    z.object({
+      code: z.stringRequired("code"),
+      value: z.number("discount value"),
+    }),
+    z.object({
+      code: z.stringRequired("code"),
+      percentage: z.number("discount percentage"),
+    }),
+  ]),
   address: z
     .array(
       addressSchema.extend(
@@ -200,6 +210,9 @@ const orderSchema = z.object({
               // )
             )
             .min(1, "you must have one phone at least."),
+          shipping: z.coerce
+            .number("shipping")
+            .min(0, "Shipping can't be less than 0"),
         }
         // })
       )
@@ -211,17 +224,6 @@ const orderSchema = z.object({
     .array(cartProductSchema)
     .min(1, "Order must have at least one item."),
 
-  expenses: z
-    .object({
-      shipping: z.coerce
-        .number("shipping")
-        .min(0, "Shipping can't be less than 0"),
-      discount: z.coerce
-        .number("discount")
-        .min(0, "Discount can't be less than 0")
-        .optional(),
-    })
-    .default({ shipping: 0, discount: 0 }),
   actions: z
     .array(
       z.discriminatedUnion("action", [
@@ -303,6 +305,45 @@ export type Validation = {
   [K in ValidationName]: zod.infer<(typeof validations)[K]>;
 };
 
+export const checkOrderInfo = z
+  .object({
+    name: z.stringRequired("name"),
+    phones: z
+      .array(
+        z.stringRequired("phone number")
+        // .regex(
+        //   /^01[0,1,2,5][0-9]{8}$/,
+        //   "only an egyptian phone number is valid."
+        // )
+      )
+      .min(1, "you must have one phone at least."),
+
+    // name: z.stringRequired("email or valid phone number").refine(
+    //   (val) => {
+    //     // Basic phone number regex (international + local) and simple email regex
+    //     const phoneRegex =
+    //       /^(\+?\d{1,3}[-.\s]?)?((\(\d{2,4}\))|\d{2,4})[-.\s]?\d{3,5}[-.\s]?\d{4,6}$/;
+    //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //     return phoneRegex.test(val) || emailRegex.test(val);
+    //   },
+    //   { message: "Valid phone number or email" }
+    // ),
+  })
+  .and(
+    orderSchema.pick({
+      items: true,
+    })
+  );
+
+export const checkOrderShipping = orderSchema.pick({
+  address: true,
+  notes: true,
+});
+
+export const checkOrderPayment = orderSchema.pick({
+  status: true,
+  actions: true,
+});
 export const validations = {
   "user-schema": userSchema,
   "store-schema": storeSchema,
@@ -374,14 +415,39 @@ export const validations = {
   // cart
   "cart-product-schema": cartProductSchema,
 
+  // fields
+  "contact-us": z.object({
+    name: z.stringRequired("name"),
+    email: z.stringRequired("email"),
+    message: z.stringRequired("message"),
+  }),
+
   // orders
+  "check-order-info": checkOrderInfo.and(
+    orderSchema.pick({
+      storeId: true,
+      userId: true,
+    })
+  ),
+  "check-order-shipping": checkOrderShipping.and(
+    orderSchema.pick({
+      storeId: true,
+      userId: true,
+    })
+  ),
+  "check-order-payment": checkOrderPayment.and(
+    orderSchema.pick({
+      storeId: true,
+      userId: true,
+    })
+  ),
   "create-order": orderSchema.pick({
     storeId: true,
     userId: true,
     status: true,
+    discount: true,
     address: true,
     items: true,
-    expenses: true,
     actions: true,
     notes: true,
   }),
@@ -391,7 +457,6 @@ export const validations = {
     // status: true,
     // address: true,
     // items: true,
-    // expenses: true,
     actions: true,
     // notes: true,
   }),
