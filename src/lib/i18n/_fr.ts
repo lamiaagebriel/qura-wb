@@ -1,0 +1,82 @@
+export const fr = {
+  //   meta
+  "Qura — Your city, one feed": "Qura — Ta ville, un seul fil",
+  "Discover restaurants, events, jobs, apartments, and more — all in one local feed. Launching in Sousse and Hammamet.":
+    "Découvre des restaurants, des événements, des emplois, des appartements et plus encore — tout dans un seul fil local. Lancement à Sousse et Hammamet.",
+
+  "Sign in": "Se connecter",
+  "Get early access": "Accès anticipé",
+  "Launching in Sousse & Hammamet": "Bientôt à Sousse & Hammamet",
+
+  // Hero
+  "Your city,": "Ta ville,",
+  "one feed.": "un seul fil.",
+  "Restaurants, events, rentals, jobs, homemade food, local services — everything happening around you, in a single scrollable feed.":
+    "Restaurants, événements, locations, emplois, plats faits maison, services locaux — tout ce qui se passe près de toi, dans un seul fil d'actualité.",
+
+  // Steps (@page.tsx 33-51)
+  "01": "01",
+  "02": "02",
+  "03": "03",
+  "Create your profile": "Crée ton profil",
+  "Sign up in seconds. Pick your categories — restaurant, event organizer, landlord, whatever you are. Your profile goes live immediately.":
+    "Inscris-toi en quelques secondes. Choisis tes catégories — restaurant, organisateur d'événements, propriétaire, peu importe. Ton profil est en ligne immédiatement.",
+  "Post your content": "Publie ton contenu",
+  "Share your menu, announce an event, post a rental, list a job. Everything you publish appears in the city feed instantly.":
+    "Partage ton menu, annonce un événement, poste une location, publie une offre d'emploi. Tout ce que tu publies apparaît dans le fil de la ville instantanément.",
+  "Connect on WhatsApp": "Connecte sur WhatsApp",
+  "Every inquiry, order, or reservation goes straight to your WhatsApp. No middleman. No commission. Just real conversations.":
+    "Chaque demande, commande ou réservation va directement sur ton WhatsApp. Pas d'intermédiaire. Pas de commission. Juste de vraies conversations.",
+
+  // Categories (@page.tsx 34-46)
+  Restaurants: "Restaurants",
+  Cafés: "Cafés",
+  "Real Estate": "Immobilier",
+  Events: "Événements",
+  Jobs: "Emplois",
+  Shopping: "Shopping",
+  "Homemade Food": "Plats faits maison",
+  Activities: "Activités",
+  Cars: "Voitures",
+  "Health & Beauty": "Santé & Beauté",
+  Education: "Éducation",
+  Services: "Services",
+
+  // Feed cards labels/types & meta (@page.tsx 48-80)
+  Offer: "Offre",
+  Event: "Événement",
+  Rental: "Location",
+  Job: "Emploi",
+  "Summer Menu — 20% off all starters":
+    "Menu d'été — 20% de réduction sur toutes les entrées",
+  "Café Jasmine · Sousse · 2h ago": "Café Jasmine · Sousse · il y a 2h",
+  "Rooftop Jazz Night — Friday 9 PM": "Soirée jazz sur le toit — vendredi 21h",
+  "Le Nour · Hammamet · 4h ago": "Le Nour · Hammamet · il y a 4h",
+  "Modern 2BR with sea view — 1 200 TND":
+    "Appartement moderne 2 pièces vue mer — 1 200 TND",
+  "Immo Côte d'Azur · Sousse · 6h ago": "Immo Côte d'Azur · Sousse · il y a 6h",
+  "Looking for a barista — full time": "Recherche barista — temps plein",
+  "Brew & Co · Hammamet · 1d ago": "Brew & Co · Hammamet · il y a 1j",
+
+  // --- BELOW: existing translations, kept as-is/extra ---
+  "Create your profile — it's free": "Créer mon profil — c'est gratuit",
+  "Explore the feed →": "Explorer le fil →",
+  "Live in your city right now": "En direct dans ta ville",
+  "Everything in one place": "Tout au même endroit",
+  "One account. Pick your categories. Reach your whole city.":
+    "Un compte. Choisis tes catégories. Touche toute ta ville.",
+  "Up and running in minutes": "Opérationnel en quelques minutes",
+  "No technical skills required. No approval process.":
+    "Aucune compétence technique requise. Aucune validation.",
+  "WhatsApp is the only CTA": "WhatsApp est le seul bouton d'action",
+  "No in-app payments. No booking forms. When a customer is ready, they tap one button and land in your WhatsApp chat with the full order or inquiry already typed. You handle it your way, on your terms.":
+    "Pas de paiement intégré. Pas de formulaires de réservation. Quand un client est prêt, il tape un bouton et atterrit dans ton chat WhatsApp avec la commande déjà rédigée. Tu gères à ta façon.",
+  "Be first": "Sois le premier",
+  "Your city is waiting.": "Ta ville t'attend.",
+  "Put yourself on the map.": "Mets-toi sur la carte.",
+  "Create your free profile today. No credit card. No approval.\nGo live in minutes.":
+    "Crée ton profil gratuit aujourd'hui. Sans carte bancaire. Sans validation.\nEn ligne en quelques minutes.",
+  "Create your free profile": "Créer mon profil gratuit",
+  "Launching in Sousse & Hammamet — Tunisia":
+    "Bientôt à Sousse & Hammamet — Tunisie",
+};

@@ -128,3 +128,10 @@
     @apply font-sans;
   }
 }
+
+/** 
+ * Container utility class for consistent horizontal layouts using Tailwind's @apply directive 
+ */
+.container {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6;
+}
