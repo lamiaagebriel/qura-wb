@@ -6,7 +6,7 @@ export const fr = {
 
   "Sign in": "Se connecter",
   "Get early access": "Accès anticipé",
-  "Launching in Sousse & Hammamet": "Bientôt à Sousse & Hammamet",
+  "Launching in Aswan": "Bientôt à Aswan",
 
   // Hero
   "Your city,": "Ta ville,",
@@ -58,6 +58,25 @@ export const fr = {
   "Looking for a barista — full time": "Recherche barista — temps plein",
   "Brew & Co · Hammamet · 1d ago": "Brew & Co · Hammamet · il y a 1j",
 
+  // Stats strip
+  cities: "villes",
+  "at launch": "au lancement",
+  commission: "commission",
+  ever: "jamais",
+  tap: "tap",
+  "to reach you": "pour te contacter",
+
+  // New section labels
+  "One feed, every category": "Un seul fil, toutes les catégories",
+  "Every category": "Chaque catégorie",
+  "Explore map →": "Explorer la carte →",
+  "How it works": "Comment ça marche",
+
+  // CTA split lines
+  "Create your free profile today. No credit card. No approval.":
+    "Crée ton profil gratuit aujourd'hui. Sans carte bancaire. Sans validation.",
+  "Go live in minutes.": "En ligne en quelques minutes.",
+
   // --- BELOW: existing translations, kept as-is/extra ---
   "Create your profile — it's free": "Créer mon profil — c'est gratuit",
   "Explore the feed →": "Explorer le fil →",
@@ -77,6 +96,5 @@ export const fr = {
   "Create your free profile today. No credit card. No approval.\nGo live in minutes.":
     "Crée ton profil gratuit aujourd'hui. Sans carte bancaire. Sans validation.\nEn ligne en quelques minutes.",
   "Create your free profile": "Créer mon profil gratuit",
-  "Launching in Sousse & Hammamet — Tunisia":
-    "Bientôt à Sousse & Hammamet — Tunisie",
+  "Launching in Aswan — Egypt": "Bientôt à Aswan — Égypte",
 };

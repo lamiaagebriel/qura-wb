@@ -2,12 +2,12 @@ export const ar = {
   //   meta
   "Qura — Your city, one feed": "قرى — مدينتك، في تدفق واحد",
   "Discover restaurants, events, jobs, apartments, and more — all in one local feed. Launching in Sousse and Hammamet.":
-    "اكتشف المطاعم، الفعاليات، الوظائف، الشقق، وأكثر — كل ذلك في تدفق مدينتك. قريباً في سوسة والحمامات.",
+    "اكتشف المطاعم، الفعاليات، الوظائف، الشقق، وأكثر — كل ذلك في تدفق مدينتك. قريباً في أسوان.",
 
   // Top bar / CTA
   "Sign in": "تسجيل الدخول",
   "Get early access": "الوصول المبكر",
-  "Launching in Sousse & Hammamet": "قريباً في سوسة والحمامات",
+  "Launching in Aswan": "قريباً في أسوان",
 
   // Hero
   "Your city,": "مدينتك،",
@@ -59,6 +59,25 @@ export const ar = {
   "Looking for a barista — full time": "مطلوب باريستا — دوام كامل",
   "Brew & Co · Hammamet · 1d ago": "برو & كو · الحمامات · قبل يوم",
 
+  // Stats strip
+  cities: "مدن",
+  "at launch": "عند الإطلاق",
+  commission: "عمولة",
+  ever: "أبداً",
+  tap: "نقرة",
+  "to reach you": "للتواصل معك",
+
+  // New section labels
+  "One feed, every category": "تدفق واحد، كل الفئات",
+  "Every category": "كل فئة",
+  "Explore map →": "استكشف الخريطة ←",
+  "How it works": "كيف يعمل",
+
+  // CTA split lines
+  "Create your free profile today. No credit card. No approval.":
+    "أنشئ ملفك المجاني اليوم. بدون بطاقة ائتمان. بدون موافقة.",
+  "Go live in minutes.": "مباشر خلال دقائق.",
+
   // Others (keep these)
   "Create your profile — it's free": "أنشئ ملفك — مجاناً",
   "Explore the feed →": "استكشف التدفق ←",
@@ -78,5 +97,5 @@ export const ar = {
   "Create your free profile today. No credit card. No approval.\nGo live in minutes.":
     "أنشئ ملفك المجاني اليوم. بدون بطاقة ائتمان. بدون موافقة.\nمباشر خلال دقائق.",
   "Create your free profile": "أنشئ ملفك المجاني",
-  "Launching in Sousse & Hammamet — Tunisia": "قريباً في سوسة والحمامات — تونس",
+  "Launching in Aswan — Egypt": "قريباً في أسوان — مصر",
 };

@@ -9,8 +9,16 @@ import {
 } from "react";
 
 import { setLang } from "./actions";
-import { Dict, dict, LOCALE_META, type Locale } from "./config";
+import { Dict, dict, LOCALE_META, LOCALES, type Locale } from "./config";
 import { DirectionProvider } from "@/components/ui/direction";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type LocaleContextValue = {
   locale: Locale;
@@ -60,4 +68,57 @@ export function useLocale() {
   const ctx = useContext(LocaleCtx);
   if (!ctx) throw new Error("useLocale must be used inside <LocaleProvider>");
   return ctx;
+}
+
+/**
+ * LocaleSwitcher — now uses a Select to select language.
+ */
+export function LocaleSwitcher() {
+  const { locale, changeLocale, isPending } = useLocale();
+
+  return (
+    <Select
+      value={locale}
+      onValueChange={(val: Locale) => {
+        if (!isPending && val !== locale) changeLocale(val);
+      }}
+      disabled={isPending}
+    >
+      <SelectTrigger aria-label="Select language">
+        <SelectValue placeholder="Language">
+          <span className="flex items-center gap-1.5">
+            <img
+              src={`https://flagcdn.com/h24/${LOCALE_META[locale].flag}.png`}
+              alt={`${LOCALE_META[locale].label} flag`}
+              className="mr-1 inline-block h-3 w-4 object-contain object-center align-middle"
+            />
+
+            <span>{LOCALE_META[locale].label}</span>
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {LOCALES.map((l) => (
+            <SelectItem
+              key={l}
+              value={l}
+              disabled={isPending}
+              className={l === locale ? "text-primary font-semibold" : ""}
+              aria-selected={l === locale}
+            >
+              <span className="flex items-center gap-1.5">
+                <img
+                  src={`https://flagcdn.com/h24/${LOCALE_META[l].flag}.png`}
+                  alt={`${LOCALE_META[l].label} flag`}
+                  className="mr-1 inline-block h-3 w-4 object-contain object-center align-middle"
+                />{" "}
+                <span>{LOCALE_META[l].label}</span>
+              </span>
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
 }

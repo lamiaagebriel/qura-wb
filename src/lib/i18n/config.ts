@@ -13,7 +13,7 @@ export const LOCALE_META: Record<
 > = {
   en: { label: "English", dir: "ltr", lang: "en", flag: "gb" }, // Great Britain
   fr: { label: "Français", dir: "ltr", lang: "fr", flag: "fr" }, // France
-  ar: { label: "العربية", dir: "rtl", lang: "ar", flag: "tn" }, // Tunisia
+  ar: { label: "العربية", dir: "rtl", lang: "ar", flag: "eg" }, // Egypt
 };
 export type Dict = typeof ar;
 export const dict: Record<Locale, Dict> = { en: {} as any, fr, ar };
