@@ -16,9 +16,6 @@ export const ar = {
     "مطاعم، فعاليات، إيجارات، وظائف، أكل منزلي، خدمات محلية — كل ما يحدث حولك في تدفق واحد قابل للتمرير.",
 
   // Steps (@page.tsx 33-51)
-  "01": "٠١",
-  "02": "٠٢",
-  "03": "٠٣",
   "Create your profile": "أنشئ ملفك الشخصي",
   "Sign up in seconds. Pick your categories — restaurant, event organizer, landlord, whatever you are. Your profile goes live immediately.":
     "سجّل خلال ثوانٍ. اختر فئاتك — مطعم، منظم فعاليات، مالك عقار، مهما كان نشاطك. ملفك يصبح مباشرةً على الهواء.",
@@ -42,30 +39,6 @@ export const ar = {
   "Health & Beauty": "الصحة والجمال",
   Education: "تعليم",
   Services: "خدمات",
-
-  // Feed cards labels/types & meta (@page.tsx 48-80)
-  Offer: "عرض",
-  Event: "فعالية",
-  Rental: "إيجار",
-  Job: "وظيفة",
-  "Summer Menu — 20% off all starters":
-    "قائمة الصيف — خصم 20% على جميع المقبلات",
-  "Café Jasmine · Sousse · 2h ago": "كافيه ياسمين · سوسة · قبل ساعتين",
-  "Rooftop Jazz Night — Friday 9 PM": "ليلة جاز فوق السطح — الجمعة 9 مساءً",
-  "Le Nour · Hammamet · 4h ago": "لو نور · الحمامات · قبل ٤ ساعات",
-  "Modern 2BR with sea view — 1 200 TND":
-    "شقة حديثة غرفتين وصالة بإطلالة بحرية — ١٢٠٠ دينار",
-  "Immo Côte d'Azur · Sousse · 6h ago": "عقارات كوت دازور · سوسة · قبل ٦ ساعات",
-  "Looking for a barista — full time": "مطلوب باريستا — دوام كامل",
-  "Brew & Co · Hammamet · 1d ago": "برو & كو · الحمامات · قبل يوم",
-
-  // Stats strip
-  cities: "مدن",
-  "at launch": "عند الإطلاق",
-  commission: "عمولة",
-  ever: "أبداً",
-  tap: "نقرة",
-  "to reach you": "للتواصل معك",
 
   // New section labels
   "One feed, every category": "تدفق واحد، كل الفئات",

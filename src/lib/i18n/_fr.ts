@@ -15,9 +15,6 @@ export const fr = {
     "Restaurants, événements, locations, emplois, plats faits maison, services locaux — tout ce qui se passe près de toi, dans un seul fil d'actualité.",
 
   // Steps (@page.tsx 33-51)
-  "01": "01",
-  "02": "02",
-  "03": "03",
   "Create your profile": "Crée ton profil",
   "Sign up in seconds. Pick your categories — restaurant, event organizer, landlord, whatever you are. Your profile goes live immediately.":
     "Inscris-toi en quelques secondes. Choisis tes catégories — restaurant, organisateur d'événements, propriétaire, peu importe. Ton profil est en ligne immédiatement.",
@@ -41,30 +38,6 @@ export const fr = {
   "Health & Beauty": "Santé & Beauté",
   Education: "Éducation",
   Services: "Services",
-
-  // Feed cards labels/types & meta (@page.tsx 48-80)
-  Offer: "Offre",
-  Event: "Événement",
-  Rental: "Location",
-  Job: "Emploi",
-  "Summer Menu — 20% off all starters":
-    "Menu d'été — 20% de réduction sur toutes les entrées",
-  "Café Jasmine · Sousse · 2h ago": "Café Jasmine · Sousse · il y a 2h",
-  "Rooftop Jazz Night — Friday 9 PM": "Soirée jazz sur le toit — vendredi 21h",
-  "Le Nour · Hammamet · 4h ago": "Le Nour · Hammamet · il y a 4h",
-  "Modern 2BR with sea view — 1 200 TND":
-    "Appartement moderne 2 pièces vue mer — 1 200 TND",
-  "Immo Côte d'Azur · Sousse · 6h ago": "Immo Côte d'Azur · Sousse · il y a 6h",
-  "Looking for a barista — full time": "Recherche barista — temps plein",
-  "Brew & Co · Hammamet · 1d ago": "Brew & Co · Hammamet · il y a 1j",
-
-  // Stats strip
-  cities: "villes",
-  "at launch": "au lancement",
-  commission: "commission",
-  ever: "jamais",
-  tap: "tap",
-  "to reach you": "pour te contacter",
 
   // New section labels
   "One feed, every category": "Un seul fil, toutes les catégories",
