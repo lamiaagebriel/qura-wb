@@ -7,6 +7,7 @@ import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/actions";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -20,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-type RootLayoutProps = React.PropsWithChildren<{}>;
+type RootLayoutProps = React.PropsWithChildren;
 export default async function RootLayout({ children }: RootLayoutProps) {
   const { locale, dir } = await getLocale();
 
@@ -31,7 +32,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       className={cn("h-full font-sans antialiased", inter.variable)}
     >
       <body className="flex min-h-full flex-col">
-        <LocaleProvider locale={locale}>{children}</LocaleProvider>
+        <LocaleProvider locale={locale}>
+          {children}
+
+          <Toaster />
+        </LocaleProvider>
       </body>
     </html>
   );

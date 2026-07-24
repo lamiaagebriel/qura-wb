@@ -74,7 +74,7 @@ export function useLocale() {
  * LocaleSwitcher — now uses a Select to select language.
  */
 export function LocaleSwitcher() {
-  const { locale, changeLocale, isPending } = useLocale();
+  const { locale, changeLocale, isPending, t } = useLocale();
 
   return (
     <Select
@@ -84,16 +84,18 @@ export function LocaleSwitcher() {
       }}
       disabled={isPending}
     >
-      <SelectTrigger aria-label="Select language">
-        <SelectValue placeholder="Language">
+      <SelectTrigger aria-label={t("Select language")}>
+        <SelectValue placeholder={t("Language")}>
           <span className="flex items-center gap-1.5">
             <img
               src={`https://flagcdn.com/h24/${LOCALE_META[locale].flag}.png`}
-              alt={`${LOCALE_META[locale].label} flag`}
+              alt={LOCALE_META[locale].label}
               className="mr-1 inline-block h-3 w-4 object-contain object-center align-middle"
             />
 
-            <span>{LOCALE_META[locale].label}</span>
+            <span className="hidden sm:inline-block">
+              {LOCALE_META[locale].label}
+            </span>
           </span>
         </SelectValue>
       </SelectTrigger>
@@ -110,7 +112,7 @@ export function LocaleSwitcher() {
               <span className="flex items-center gap-1.5">
                 <img
                   src={`https://flagcdn.com/h24/${LOCALE_META[l].flag}.png`}
-                  alt={`${LOCALE_META[l].label} flag`}
+                  alt={LOCALE_META[l].label}
                   className="mr-1 inline-block h-3 w-4 object-contain object-center align-middle"
                 />{" "}
                 <span>{LOCALE_META[l].label}</span>

@@ -1,5 +1,6 @@
 import {
   decimal as _decimal,
+  text as _text,
   timestamp as _timestamp,
   varchar as _varchar,
   PgColumn,
@@ -11,6 +12,12 @@ import {
 export const pgTable = pgTableCreator((name) => name);
 export const varchar = (k: string, p: { length: number } = { length: 255 }) =>
   _varchar(k, p);
+// Unbounded — for anything whose length we don't fully control (OAuth
+// tokens, Better Auth's opaque `verification.value` blobs, password
+// hashes). `varchar(255)` silently truncating — or in Postgres's case,
+// erroring — on a longer value than whoever wrote the column expected is
+// exactly the class of bug this exists to avoid.
+export const text = (k: string) => _text(k);
 export const timestamp = (k: string) =>
   _timestamp(k, { withTimezone: true, mode: "date" });
 export const decimal = (

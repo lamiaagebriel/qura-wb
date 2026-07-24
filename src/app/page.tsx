@@ -1,10 +1,14 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { UserNav } from "@/components/auth/user-nav";
+import { getCurrentUser } from "@/lib/auth/guard";
 import { LocaleSwitcher } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/actions";
+import { cn } from "@/lib/utils";
 
 export default async function LandingPage() {
   const { t } = await getLocale();
+  const user = await getCurrentUser();
 
   const steps = [
     {
@@ -92,25 +96,36 @@ export default async function LandingPage() {
     <div className="bg-background flex min-h-full flex-col">
       {/* ─── Nav ─── */}
       <header className="border-border/50 bg-background/85 sticky top-0 z-50 border-b backdrop-blur-xl">
-        <nav className="container flex h-[58px] items-center justify-between">
+        <nav className="container flex h-14.5 items-center justify-between">
           <span className="text-foreground text-[20px] font-bold tracking-tight">
             qura<span className="text-primary">.</span>
           </span>
           <div className="flex items-center gap-2">
             <LocaleSwitcher />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden text-[13px] font-medium sm:inline-flex"
-            >
-              {t("Sign in")}
-            </Button>
-            <Button
-              size="sm"
-              className="h-8 rounded-full px-4 text-[13px] font-semibold shadow-[0_4px_12px_rgba(249,115,22,0.3)]"
-            >
-              {t("Get early access")}
-            </Button>
+            {user ? (
+              <UserNav user={user} />
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "flex text-[13px] font-medium",
+                  )}
+                >
+                  {t("Sign in")}
+                </Link>
+                <Link
+                  href="/signup"
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    "h-8 rounded-full px-4 text-[13px] font-semibold shadow-[0_4px_12px_rgba(249,115,22,0.3)]",
+                  )}
+                >
+                  {t("Get early access")}
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </header>
