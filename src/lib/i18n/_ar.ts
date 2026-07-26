@@ -11,6 +11,11 @@ export const ar = {
   "Launching in Aswan": "قريباً في أسوان",
   "Select language": "اختر اللغة",
   Language: "اللغة",
+  "Select theme": "اختر المظهر",
+  Theme: "المظهر",
+  Light: "فاتح",
+  Dark: "داكن",
+  System: "النظام",
 
   // Hero
   "Your city,": "مدينتك،",

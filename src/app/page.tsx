@@ -3,6 +3,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { UserNav } from "@/components/auth/user-nav";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { LocaleSwitcher } from "@/lib/i18n/client";
+import { ModeSwitcher } from "@/components/mode-switcher";
 import { getLocale } from "@/lib/i18n/actions";
 import { cn } from "@/lib/utils";
 
@@ -102,6 +103,7 @@ export default async function LandingPage() {
           </span>
           <div className="flex items-center gap-2">
             <LocaleSwitcher />
+            <ModeSwitcher />
             {user ? (
               <UserNav user={user} />
             ) : (
@@ -114,15 +116,6 @@ export default async function LandingPage() {
                   )}
                 >
                   {t("Sign in")}
-                </Link>
-                <Link
-                  href="/signup"
-                  className={cn(
-                    buttonVariants({ size: "sm" }),
-                    "h-8 rounded-full px-4 text-[13px] font-semibold shadow-[0_4px_12px_rgba(249,115,22,0.3)]",
-                  )}
-                >
-                  {t("Get early access")}
                 </Link>
               </>
             )}
@@ -196,7 +189,7 @@ export default async function LandingPage() {
               {categories.map(({ emoji, label }) => (
                 <div
                   key={label}
-                  className="border-border hover:border-primary/30 flex flex-col items-center gap-2.5 rounded-[16px] border bg-white px-3 py-4 text-center transition-all hover:shadow-md"
+                  className="border-border hover:border-primary/30 bg-card flex flex-col items-center gap-2.5 rounded-[16px] border px-3 py-4 text-center transition-all hover:shadow-md"
                 >
                   <span className="text-[26px]">{emoji}</span>
                   <span className="text-foreground text-[12px] leading-tight font-medium">
@@ -226,7 +219,7 @@ export default async function LandingPage() {
               {steps.map(({ n, icon, title, body }) => (
                 <div
                   key={n}
-                  className="border-border flex flex-col gap-4 rounded-[20px] border bg-white p-6 shadow-sm"
+                  className="border-border bg-card flex flex-col gap-4 rounded-[20px] border p-6 shadow-sm"
                 >
                   <div className="flex items-center gap-3">
                     <div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-[12px]">
@@ -251,7 +244,7 @@ export default async function LandingPage() {
         {/* ─── WhatsApp callout ─── */}
         <section className="pb-24">
           <div className="container max-w-5xl">
-            <div className="border-border overflow-hidden rounded-[22px] border bg-white shadow-sm">
+            <div className="border-border bg-card overflow-hidden rounded-[22px] border shadow-sm">
               <div className="flex flex-col gap-6 p-7 sm:flex-row sm:items-center sm:gap-8 sm:p-9">
                 <div className="flex size-[60px] shrink-0 items-center justify-center rounded-[16px] bg-green-50">
                   <svg

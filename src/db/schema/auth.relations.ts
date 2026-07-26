@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 
-import { accounts } from "./accounts";
-import { sessions } from "./sessions";
+import { accounts } from "./auth.accounts";
+import { sessions } from "./auth.sessions";
 import { users } from "./users";
 
 /**

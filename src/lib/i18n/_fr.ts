@@ -10,6 +10,11 @@ export const fr = {
   "Launching in Aswan": "Bientôt à Aswan",
   "Select language": "Choisir la langue",
   Language: "Langue",
+  "Select theme": "Choisir le thème",
+  Theme: "Thème",
+  Light: "Clair",
+  Dark: "Sombre",
+  System: "Système",
 
   // Hero
   "Your city,": "Ta ville,",

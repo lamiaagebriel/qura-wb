@@ -31,7 +31,10 @@ export const sessions = pgTable(
   // this user" (Better Auth's own revoke-on-password-reset, listing
   // sessions, our cleanup job in `lib/db/cleanup.ts`) is a sequential scan
   // over the whole table as it grows.
-  (t) => [index("session__user_id__idx").on(t.userId)],
+  (t) => [
+    index("session__user_id__idx").on(t.userId),
+    index("session__expires_at__idx").on(t.expiresAt),
+  ],
 );
 
 export type Session = typeof sessions.$inferSelect;

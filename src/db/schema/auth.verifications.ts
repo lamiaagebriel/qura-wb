@@ -23,7 +23,10 @@ export const verifications = pgTable(
     value: text("value").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
   },
-  (t) => [index("verification__identifier__idx").on(t.identifier)],
+  (t) => [
+    index("verification__identifier__idx").on(t.identifier),
+    index("verification__expires_at__idx").on(t.expiresAt),
+  ],
 );
 
 export type Verification = typeof verifications.$inferSelect;

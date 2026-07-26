@@ -2,6 +2,7 @@ import {
   createdAt,
   id,
   pgTable,
+  text,
   timestamp,
   updatedAt,
   varchar,
@@ -37,7 +38,11 @@ export const users = pgTable("users", {
   // an index that duplicates this one exactly.
   email: varchar("email").unique().notNull(),
   emailVerified: boolean("email_verified").notNull().default(false),
-  image: varchar("image"),
+  // `text`, not `varchar(255)` — OAuth avatar URLs (Google's especially)
+  // routinely exceed 255 chars once sizing/token query params are
+  // included; same overflow class already fixed for `accounts`'
+  // password/token columns and `verifications.value`.
+  image: text("image"),
 
   role: userRoleEnum("role").notNull().default("bussiness_owner"),
   status: userStatusEnum("status").notNull().default("pending"),
