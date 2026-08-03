@@ -1,7 +1,15 @@
-import { createdAt, id, pgTable, references, timestamp, updatedAt, varchar } from "@/db/helpers";
+import {
+  createdAt,
+  id,
+  pgTable,
+  references,
+  timestamp,
+  updatedAt,
+  varchar,
+} from "@/db/helpers";
 import { index } from "drizzle-orm/pg-core";
 
-import { users } from "./users";
+import { users } from "./g.users";
 
 /**
  * Better Auth's "session" model. Unlike the old hand-rolled table, the raw

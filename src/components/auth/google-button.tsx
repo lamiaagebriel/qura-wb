@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth/auth-client";
 
 export function GoogleButton({
-  callbackURL = "/dashboard",
+  callbackURL = "/account",
   children,
   disabled,
   ...props

@@ -136,7 +136,7 @@ export function LoginForm({
           </Field>
           <FieldSeparator>{t("Or continue with")}</FieldSeparator>
           <Field>
-            <GoogleButton callbackURL="/dashboard" className="w-full">
+            <GoogleButton callbackURL="/account" className="w-full">
               {t("Continue with Google")}
             </GoogleButton>
             <FieldDescription className="text-center">

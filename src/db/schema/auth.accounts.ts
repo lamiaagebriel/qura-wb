@@ -1,7 +1,16 @@
-import { createdAt, id, pgTable, references, text, timestamp, updatedAt, varchar } from "@/db/helpers";
+import {
+  createdAt,
+  id,
+  pgTable,
+  references,
+  text,
+  timestamp,
+  updatedAt,
+  varchar,
+} from "@/db/helpers";
 import { index, uniqueIndex } from "drizzle-orm/pg-core";
 
-import { users } from "./users";
+import { users } from "./g.users";
 
 /**
  * Better Auth's "account" model — one row per way a user can sign in.

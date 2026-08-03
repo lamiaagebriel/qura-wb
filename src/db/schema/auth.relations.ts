@@ -2,16 +2,18 @@ import { relations } from "drizzle-orm";
 
 import { accounts } from "./auth.accounts";
 import { sessions } from "./auth.sessions";
-import { users } from "./users";
+import { users } from "./g.users";
 
 /**
- * All cross-table relations live here (rather than inside each table's own
- * file) so tables that reference each other both ways never end up in a
- * circular import between schema files.
+ * Pure auth <-> auth relations only (sessions/accounts belong to a user).
+ * The reverse `users` many-side, plus every relation that crosses into the
+ * business domain (businesses, posts, reviews, comments, ...), lives in
+ * `relations.ts` instead so this file never has to import business-domain
+ * schema files — auth stays self-contained.
  *
  * `verifications` has no relation here on purpose — Better Auth's
  * verification model isn't linked to `users` by a foreign key (see
- * `verifications.ts`), so there's nothing to declare.
+ * `auth.verifications.ts`), so there's nothing to declare.
  */
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),

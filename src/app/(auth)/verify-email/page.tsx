@@ -33,8 +33,10 @@ export default async function VerifyEmailPage({
   }
 
   const user = await getGuardedUser();
-  if (!user) redirect("/login");
-  if (user.emailVerified) redirect("/dashboard");
+  // See `force-signout`'s route.ts for why this goes through it rather
+  // than a plain `redirect("/login")`.
+  if (!user) redirect("/api/auth/force-signout");
+  if (user.emailVerified) redirect("/account");
 
   return (
     <div className="w-full max-w-sm">

@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import { Monitor, Moon, Sun } from "lucide-react";
 
 import { useLocale } from "@/lib/i18n/client";
@@ -12,23 +13,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import dynamic from "next/dynamic";
-
-import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
-
 const MODES = ["light", "dark", "system"] as const;
 
-const ThemeProviderInner = ({
+import * as React from "react";
+
+export function ThemeProvider({
   ...props
-}: React.ComponentProps<typeof NextThemesProvider>) => (
-  <NextThemesProvider
-    attribute="class"
-    defaultTheme="system"
-    enableSystem
-    disableTransitionOnChange
-    {...props}
-  />
-);
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      {...props}
+    />
+  );
+}
 const MODE_ICON = {
   light: Sun,
   dark: Moon,
@@ -41,7 +42,7 @@ const MODE_LABEL = {
   system: "System",
 } as const;
 
-function ModeSwitcherInner() {
+export function ModeSwitcher() {
   const { theme, setTheme } = useTheme();
   const { t } = useLocale();
   const active = (theme ?? "system") as (typeof MODES)[number];
@@ -56,6 +57,7 @@ function ModeSwitcherInner() {
         <SelectValue placeholder={t("Theme")}>
           <span className="flex items-center gap-1.5">
             <Icon className="size-4" />
+            {t(MODE_LABEL[active])}
           </span>
         </SelectValue>
       </SelectTrigger>
@@ -82,11 +84,3 @@ function ModeSwitcherInner() {
     </Select>
   );
 }
-
-export const ThemeProvider = dynamic(
-  () => Promise.resolve(ThemeProviderInner),
-  { ssr: false },
-);
-export const ModeSwitcher = dynamic(() => Promise.resolve(ModeSwitcherInner), {
-  ssr: false,
-});

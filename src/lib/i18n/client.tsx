@@ -92,10 +92,7 @@ export function LocaleSwitcher() {
               alt={LOCALE_META[locale].label}
               className="mr-1 inline-block h-3 w-4 object-contain object-center align-middle"
             />
-
-            <span className="hidden sm:inline-block">
-              {LOCALE_META[locale].label}
-            </span>
+            <span>{LOCALE_META[locale].label}</span>
           </span>
         </SelectValue>
       </SelectTrigger>

@@ -32,18 +32,19 @@ export async function getCurrentUser(): Promise<SafeUser | null> {
  * already-suspended user never gets this far — see the `session.create`
  * hook in `lib/auth/auth.ts`, which blocks that case at creation time).
  *
- * That revoke is what keeps this loop-free: the very next request
- * (`/login` itself) reads the same browser cookie, but the session row is
- * gone, so it resolves as logged-out and the login page just renders
- * normally with the suspended-account message instead of bouncing again.
+ * The actual sign-out happens in `/api/auth/force-signout`, not here —
+ * this runs inside a Server Component render (a layout/page), and Next.js
+ * only allows clearing cookies from a Server Action or Route Handler.
+ * Signing out inline here would revoke the DB session but leave the
+ * browser's cookie in place, and `proxy.ts` (cookie-presence check only)
+ * would then bounce `/login` straight back to the protected route forever.
  */
 export async function getGuardedUser(): Promise<SafeUser | null> {
   const result = await getCurrentSession();
   if (!result) return null;
 
   if (result.user.status === "suspended") {
-    await auth.api.signOut({ headers: await headers() });
-    redirect("/login?error=account_suspended");
+    redirect("/api/auth/force-signout?error=account_suspended");
   }
 
   return result.user;
@@ -58,5 +59,5 @@ export async function getGuardedUser(): Promise<SafeUser | null> {
 export function getPostAuthRedirect(
   user: Pick<SafeUser, "emailVerified">,
 ): string {
-  return user.emailVerified ? "/dashboard" : "/verify-email";
+  return user.emailVerified ? "/account" : "/verify-email";
 }

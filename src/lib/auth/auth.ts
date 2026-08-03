@@ -71,7 +71,7 @@ export const auth = betterAuth({
     },
     // Sessions start right after sign-up, verified or not — `getPostAuthRedirect`
     // (in `lib/auth/guard.ts`) is what actually routes an unverified user to
-    // `/verify-email` instead of `/dashboard`.
+    // `/verify-email` instead of `/account`.
     requireEmailVerification: false,
     // `request` is a plain Fetch API `Request` here, not a Next.js one —
     // Better Auth's own runtime, not our app, calls this — so the locale

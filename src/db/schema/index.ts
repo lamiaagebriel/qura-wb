@@ -1,4 +1,4 @@
-export * from "./users";
+export * from "./g.users";
 export * from "./auth.sessions";
 export * from "./auth.accounts";
 export * from "./auth.verifications";

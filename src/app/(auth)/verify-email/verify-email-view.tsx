@@ -61,10 +61,10 @@ function ConfirmView({ token }: { token: string }) {
           {/* Signup already starts a session before verification, so the
               common case is this browser is still logged in — send them
               straight in. If it isn't (e.g. verified from a different
-              device), `/dashboard`'s own guard bounces to `/login` for us,
+              device), `/account`'s own guard bounces to `/login` for us,
               so this link is correct either way without knowing which case
               it is. */}
-          <Link href="/dashboard">{t("Go to your dashboard")}</Link>
+          <Link href="/account">{t("Go to your profile")}</Link>
         </Button>
       </AuthCard>
     );
