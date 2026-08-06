@@ -10,7 +10,7 @@ import {
 } from "@/db/helpers";
 import { index, uniqueIndex } from "drizzle-orm/pg-core";
 
-import { users } from "./g.users";
+import { users } from "./users";
 
 /**
  * Better Auth's "account" model — one row per way a user can sign in.

@@ -19,8 +19,8 @@ export async function DesktopTopBar() {
             qura<span className="text-primary">.</span>
           </Link>
           <div className="text-muted-foreground flex items-center gap-4 text-[13px] font-medium">
-            <Link href="/categories" className="hover:text-foreground">
-              {t("Categories & News")}
+            <Link href="/search" className="hover:text-foreground">
+              {t("Search")}
             </Link>
           </div>
         </div>

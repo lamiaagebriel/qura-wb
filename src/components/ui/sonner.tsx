@@ -11,6 +11,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      // Default `bottom-right` sits right under `BottomNav`'s floating
+      // pill (also fixed, also high z-index) on mobile — toasts render but
+      // are visually hidden behind it. Top-center is clear of that on
+      // every viewport.
+      position="top-center"
       className="toaster group"
       icons={{
         success: (

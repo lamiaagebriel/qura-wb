@@ -9,7 +9,7 @@ import {
 } from "@/db/helpers";
 import { index } from "drizzle-orm/pg-core";
 
-import { users } from "./g.users";
+import { users } from "./users";
 
 /**
  * Better Auth's "session" model. Unlike the old hand-rolled table, the raw

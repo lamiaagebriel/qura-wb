@@ -47,6 +47,12 @@ export const users = pgTable("users", {
   role: userRoleEnum("role").notNull().default("bussiness_owner"),
   status: userStatusEnum("status").notNull().default("pending"),
 
+  // Auto-generated on create (see the `user.create` databaseHook in
+  // `lib/auth/auth.ts`) so every account always has one to be linked/shared
+  // by — user-editable afterward from the Edit Profile page.
+  username: varchar("username").unique().notNull(),
+  bio: text("bio"),
+
   // Cooldown bookkeeping for the two "resend the link" actions — see
   // `lib/auth/actions/verify-email.ts` and `forgot-password.ts`. Better
   // Auth's own verification store has no notion of a per-user send

@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  GridViewIcon,
   Home01Icon,
+  Search01Icon,
   UserCircleIcon,
 } from "@hugeicons/core-free-icons";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NewThreadButton } from "@/components/new-thread-composer";
 import { useLocale } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
@@ -18,18 +20,34 @@ const SCROLL_DELTA_THRESHOLD = 12;
 // Always full-size this close to the top, regardless of scroll direction.
 const SCROLL_TOP_GUARD = 48;
 
+// Per-tab hit area — the only thing that determines the pill's overall
+// width (it's `w-fit`, sized to its content, not a fraction of the
+// screen). Add/remove a `TABS` entry below and the pill resizes on its
+// own; tweak spacing for every tab at once by changing these two.
+const TAB_PADDING_X = "px-4 mx-1!";
+const TAB_GAP = "gap-1";
+
 /**
  * Fixed app-style tab bar, mobile only (`sm:hidden`) — the app-shell feel
  * this UI is going for only makes sense at phone width; `DesktopTopBar`
  * covers the same destinations at `sm` and up.
  *
- * Styled after Instagram's floating reel tab bar: a dark, icon-only
- * capsule that stays dark regardless of the site's own light/dark theme
- * (it reads as overlay chrome, not page content), and shrinks on
- * scroll-down / grows back on scroll-up so it stays out of the way of
- * reading but is never more than one upward flick away.
+ * Styled after Instagram's floating reel tab bar: frosted glass that stays
+ * glassy regardless of the site's own light/dark theme (it reads as
+ * overlay chrome, not page content), and shrinks on scroll-down / grows
+ * back on scroll-up so it stays out of the way of reading but is never
+ * more than one upward flick away.
  */
-export function BottomNav() {
+export function BottomNav({
+  user,
+}: {
+  user?: {
+    id: string;
+    name: string;
+    username: string;
+    image?: string | null;
+  } | null;
+}) {
   const { t } = useLocale();
   const pathname = usePathname();
   const [shrunk, setShrunk] = useState(false);
@@ -48,6 +66,7 @@ export function BottomNav() {
 
         if (scrollY < SCROLL_TOP_GUARD) {
           setShrunk(false);
+          lastScrollY.current = scrollY;
         } else if (delta > SCROLL_DELTA_THRESHOLD) {
           setShrunk(true);
           lastScrollY.current = scrollY;
@@ -70,42 +89,124 @@ export function BottomNav() {
     icon: typeof Home01Icon;
     exact?: boolean;
   }[] = [
-    { href: "/", label: t("Home"), icon: Home01Icon, exact: true },
-    { href: "/categories", label: t("Categories & News"), icon: GridViewIcon },
+    { href: "/", label: t("Feed"), icon: Home01Icon, exact: true },
+    // { href: "/search", label: t("Search"), icon: Search01Icon },
+    { href: "/create-thread", label: t("Search"), icon: Search01Icon },
     { href: "/account", label: t("Profile"), icon: UserCircleIcon },
   ];
+
+  const activeIndex = TABS.findIndex((tab) =>
+    tab.exact ? pathname === tab.href : pathname.startsWith(tab.href),
+  );
+
+  const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const [indicator, setIndicator] = useState<{
+    left: number;
+    width: number;
+  } | null>(null);
+
+  // Measures the active tab's actual rendered box (not a guessed 1/3
+  // split) so the indicator lands correctly regardless of writing
+  // direction (`offsetLeft` is relative to the row's own layout either
+  // way) or unequal tab widths. `useLayoutEffect` so it's positioned
+  // before paint — no frame of it sitting in the wrong spot first.
+  useLayoutEffect(() => {
+    const el = tabRefs.current[activeIndex];
+    if (!el) return;
+    setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [activeIndex]);
 
   return (
     <nav
       className={cn(
-        "bg-card/85 fixed inset-x-6 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 origin-bottom rounded-full shadow-xl backdrop-blur-xl transition-transform duration-300 ease-out md:hidden",
+        // `w-fit` + centered via `left-1/2 -translate-x-1/2` — width comes
+        // purely from its content (`TABS` below), not a screen-relative
+        // inset. Add/remove a tab and this resizes on its own.
+        "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-50 w-fit origin-bottom -translate-x-1/2 rounded-full transition-transform duration-300 ease-out md:hidden",
+        // Frosted glass, always — this is overlay chrome sitting on top of
+        // whatever's behind it (a photo, the feed, ...), not page content,
+        // so it doesn't switch with the site's own light/dark theme the
+        // way the rest of the UI does. Kept deliberately light on both
+        // fill opacity *and* blur radius — a heavy blur reads as opaque
+        // frosted plastic, not glass; what you actually see through
+        // is a faint tint plus a lightly softened backdrop, with the
+        // inset highlight along the top edge doing the work of reading
+        // as "glass" rather than just "translucent".
+        "bg-background/25 border-border/40 border shadow-[0_8px_32px_rgba(var(--foreground),0.14)] backdrop-blur-xs backdrop-saturate-150",
         shrunk ? "scale-90" : "scale-100",
       )}
     >
-      <div className="flex items-center justify-between px-2 py-2">
-        {TABS.map((tab) => {
-          const active = tab.exact
-            ? pathname === tab.href
-            : pathname.startsWith(tab.href);
+      <div className={cn("relative flex items-center px-2 py-1", TAB_GAP)}>
+        {indicator && (
+          <span
+            aria-hidden
+            className="bg-foreground/20 absolute top-1/2 left-0 h-11 rounded-full shadow-[0_1px_4px_rgba(var(--foreground),0.08)] transition-[transform,width] duration-300 ease-out"
+            style={{
+              width: indicator.width,
+              transform: `translateX(${indicator.left}px) translateY(-50%)`,
+            }}
+          />
+        )}
 
+        {TABS.map((tab, index) => {
+          const active = index === activeIndex;
+          if (tab.href === "/create-thread")
+            //   Not part of `TABS` — it's an action, not a destination, so it
+            // never participates in the sliding active-tab indicator above.
+            // Sits after Profile since it's appended after `TABS.map` renders
+            // (still visually last in the pill, same idea as Threads' "+").
+            return (
+              <div
+                key={tab.href}
+                className={cn(
+                  "relative flex items-center justify-center py-1",
+                  TAB_PADDING_X,
+                )}
+              >
+                <NewThreadButton user={user} />
+              </div>
+            );
           return (
             <Link
               key={tab.href}
+              ref={(el) => {
+                tabRefs.current[index] = el;
+              }}
               href={tab.href}
               aria-label={tab.label}
-              className="flex flex-1 items-center justify-center py-1"
+              className={cn(
+                "relative flex items-center justify-center py-1",
+                TAB_PADDING_X,
+              )}
             >
-              <span
-                className={cn(
-                  "flex items-center justify-center rounded-full p-2.5 transition-colors",
-                  active ? "text-primary bg-white/15" : "text-foreground/60",
+              <span className="flex items-center justify-center rounded-full p-2.5 text-neutral-900">
+                {tab.href === "/account" && user?.name ? (
+                  <Avatar
+                    className={cn(
+                      "outline-muted-foreground/25 outline-2 -outline-offset-1",
+                      active && "outline-neutral-900",
+                    )}
+                  >
+                    <AvatarImage src={user.image!} alt={user.name} />
+                    <AvatarFallback
+                      className={cn(
+                        "text-muted-foreground/25",
+                        active && "text-neutral-900",
+                      )}
+                    >
+                      {user.name}
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <HugeiconsIcon
+                    icon={tab.icon}
+                    strokeWidth={active ? 2.5 : 1.8}
+                    className={cn(
+                      "text-muted-foreground/50 size-6",
+                      active && "text-foreground",
+                    )}
+                  />
                 )}
-              >
-                <HugeiconsIcon
-                  icon={tab.icon}
-                  strokeWidth={active ? 2.5 : 1.8}
-                  className="size-6"
-                />
               </span>
             </Link>
           );

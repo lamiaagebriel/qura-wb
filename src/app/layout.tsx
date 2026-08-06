@@ -1,16 +1,18 @@
 import "./globals.css";
 
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Source_Sans_3 } from "next/font/google";
 
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/actions";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { AuthPromptProvider } from "@/components/auth-prompt";
+import { ThreadComposerProvider } from "@/components/new-thread-composer";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/mode-switcher";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const sourceSans3 = Source_Sans_3({subsets:['latin'],variable:'--font-sans'});
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getLocale();
@@ -42,15 +44,19 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     <html
       lang={locale}
       dir={dir}
-      className={cn("h-full font-sans antialiased", inter.variable)}
+      className={cn("h-full font-sans antialiased", "font-sans", sourceSans3.variable)}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
         <LocaleProvider locale={locale}>
           <ThemeProvider>
-            {children}
+            <AuthPromptProvider>
+              <ThreadComposerProvider>
+                {children}
 
-            <Toaster />
+                <Toaster />
+              </ThreadComposerProvider>
+            </AuthPromptProvider>
           </ThemeProvider>
         </LocaleProvider>
       </body>

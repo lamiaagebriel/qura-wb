@@ -6,12 +6,18 @@ import { getSessionCookie } from "better-auth/cookies";
 // forward instead of showing a "create account" form they can't use.
 const GUEST_ONLY_PATHS = ["/login", "/signup"];
 // Requires a session at all. `/account` itself is NOT here — it works both
-// signed-in and signed-out (sign-in CTA vs. profile). Only its
-// business/news-management sub-routes need a session up front.
+// signed-in and signed-out (sign-in CTA vs. profile). Its profile-management
+// sub-routes (edit, followers/following, privacy, settings) all require a
+// session up front, same as the business/news-management ones.
 // `/forgot-password` and `/reset-password` are deliberately excluded too —
 // both are token-driven and stay reachable whether or not the browser also
 // happens to hold a valid session cookie.
-const PROTECTED_PREFIXES = ["/account/business"];
+const PROTECTED_PREFIXES = [
+  "/account/edit",
+  "/account/followers",
+  "/account/following",
+  "/account/settings",
+];
 
 /**
  * This is a fast, DB-free first pass — `getSessionCookie` only ever checks
@@ -50,5 +56,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/signup", "/account/business/:path*"],
+  matcher: ["/login", "/signup", "/account/:path*"],
 };

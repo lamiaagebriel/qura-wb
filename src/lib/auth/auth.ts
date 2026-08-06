@@ -9,9 +9,13 @@ import { nextCookies } from "better-auth/next-js";
 
 import { db, schema } from "@/db";
 import { getLocaleFromCookieHeader } from "@/lib/i18n/config";
-import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/email/auth-emails";
+import {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+} from "@/lib/email/auth-emails";
 
 import { hashPassword, verifyPasswordHash } from "./password";
+import { generateUniqueUsername } from "./utils";
 
 if (!process.env.BETTER_AUTH_SECRET) {
   throw new Error("BETTER_AUTH_SECRET is not set. Add it to your .env file.");
@@ -30,6 +34,14 @@ const SESSION_RENEW_THRESHOLD_SECONDS = 60 * 60 * 24 * 15; // renew once <15 day
 export const auth = betterAuth({
   baseURL: process.env.APP_URL,
   secret: process.env.BETTER_AUTH_SECRET,
+
+  // Better Auth only trusts `baseURL` by default — a request whose Origin
+  // header is anything else (e.g. testing from a phone against
+  // `http://192.168.x.x:3000` instead of `http://localhost:3000`) gets
+  // rejected with "Invalid origin" before it ever reaches a route. Add
+  // more via `TRUSTED_ORIGINS` (comma-separated) rather than hardcoding a
+  // LAN IP here — it's only ever needed for local dev, never in prod.
+  trustedOrigins: process.env.TRUSTED_ORIGINS?.split(",").map((o) => o.trim()),
 
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -57,8 +69,23 @@ export const auth = betterAuth({
     additionalFields: {
       role: { type: "string", input: false, defaultValue: "bussiness_owner" },
       status: { type: "string", input: false, defaultValue: "pending" },
-      lastVerificationEmailSentAt: { type: "date", input: false, required: false },
-      lastPasswordResetEmailSentAt: { type: "date", input: false, required: false },
+      lastVerificationEmailSentAt: {
+        type: "date",
+        input: false,
+        required: false,
+      },
+      lastPasswordResetEmailSentAt: {
+        type: "date",
+        input: false,
+        required: false,
+      },
+      // Profile/privacy/settings fields — all `input: false` because
+      // nothing writes them through `auth.api.*`; they're generated here
+      // (username, on create) or updated directly via Drizzle from this
+      // app's own server actions (`lib/auth/actions/*`), same as `status`
+      // above.
+      username: { type: "string", input: false },
+      bio: { type: "string", input: false, required: false },
     },
   },
 
@@ -116,11 +143,14 @@ export const auth = betterAuth({
         // New user, any path (email/password or social): pin down `role`
         // and derive `status` from whether the provider already verified
         // the email (Google always does; email/password never does yet).
+        // `username` is generated here too — every account needs one from
+        // creation on, and this is the one path both sign-up methods share.
         before: async (user) => ({
           data: {
             ...user,
             role: "bussiness_owner",
             status: user.emailVerified ? "active" : "pending",
+            username: await generateUniqueUsername(user.name),
           },
         }),
       },
@@ -156,7 +186,8 @@ export const auth = betterAuth({
           });
           if (user?.status === "suspended") {
             throw new APIError("FORBIDDEN", {
-              message: "Your account has been suspended. Contact support for help.",
+              message:
+                "Your account has been suspended. Contact support for help.",
             });
           }
           return { data: session };

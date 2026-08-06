@@ -1,5 +1,6 @@
 import { BottomNav } from "@/components/bottom-nav";
 import { DesktopTopBar } from "@/components/desktop-topbar";
+import { getCurrentUser } from "@/lib/auth/guard";
 
 type ExploreLayoutProps = React.PropsWithChildren;
 
@@ -14,12 +15,14 @@ type ExploreLayoutProps = React.PropsWithChildren;
  * height) on mobile; `sm:pb-8` removes that reserved space once the nav
  * itself is hidden.
  */
-export default function ExploreLayout({ children }: ExploreLayoutProps) {
+export default async function ExploreLayout({ children }: ExploreLayoutProps) {
+  const user = await getCurrentUser();
+
   return (
     <div className="bg-background min-h-svh">
       <DesktopTopBar />
       <div className="pb-24 sm:pb-8">{children}</div>
-      <BottomNav />
+      <BottomNav user={user} />
     </div>
   );
 }
