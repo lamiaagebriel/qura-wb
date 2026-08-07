@@ -21,7 +21,7 @@ import {
 
 export async function updateThreadAction(
   threadId: string,
-  values: Pick<ThreadValues, "body" | "imageUrl">,
+  values: Pick<ThreadValues, "body" | "images">,
 ): Promise<ActionResult> {
   const [user, { t }] = await Promise.all([getGuardedUser(), getLocale()]);
   if (!user) return fail(messageError(t("You need to sign in to do that.")));
@@ -30,7 +30,7 @@ export async function updateThreadAction(
   }
 
   const parsed = createThreadSchema(t)
-    .pick({ body: true, imageUrl: true })
+    .pick({ body: true, images: true })
     .safeParse(values);
   if (!parsed.success) return fail(zodIssuesError(parsed.error));
 
@@ -39,7 +39,7 @@ export async function updateThreadAction(
   // separate lookup beforehand.
   const [row] = await db
     .update(schema.threads)
-    .set({ body: parsed.data.body, imageUrl: parsed.data.imageUrl || null })
+    .set({ body: parsed.data.body, images: parsed.data.images })
     .where(
       and(
         eq(schema.threads.id, threadId),

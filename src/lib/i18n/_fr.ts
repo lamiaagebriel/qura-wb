@@ -243,4 +243,12 @@ export const fr = {
   "Discard changes?": "Abandonner les modifications ?",
   "Delete thread?": "Supprimer le thread ?",
   "This can't be undone.": "Cette action est irréversible.",
+  "Something went wrong": "Une erreur s'est produite",
+  "We couldn't reach our servers. This is usually temporary — try again in a moment.":
+    "Nous n'avons pas pu joindre nos serveurs. C'est généralement temporaire — réessaie dans un instant.",
+  "Reference": "Référence",
+  "Try again": "Réessayer",
+  "Up to 4 images.": "Jusqu'à 4 images.",
+  "Add another image": "Ajouter une autre image",
+  "Remove this image": "Supprimer cette image",
 };

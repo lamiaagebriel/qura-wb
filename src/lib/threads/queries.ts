@@ -102,7 +102,7 @@ async function paginatedThreads(
   return { items, nextCursor: hasMore ? cursor + pageSize : null };
 }
 
-/** Just the raw row — for the edit page, which only needs `body`/`imageUrl`
+/** Just the raw row — for the edit page, which only needs `body`/`images`
  * and an ownership check, not the author join or like/reply counts every
  * other query here attaches. */
 export async function getThreadById(threadId: string) {

@@ -4,9 +4,15 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ImageAdd01Icon, SentIcon, User } from "@hugeicons/core-free-icons";
+import {
+  Delete02Icon,
+  ImageAdd01Icon,
+  SentIcon,
+  User,
+} from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import {
   InputGroup,
@@ -24,6 +30,8 @@ import {
 } from "@/lib/validations/thread";
 import { createZodResolver } from "@/lib/validations/resolver";
 import { useAuthPrompt } from "./auth-prompt";
+
+const MAX_IMAGES = 4;
 
 export function ComposeBox({
   user,
@@ -47,12 +55,12 @@ export function ComposeBox({
   const { t } = useLocale();
   const router = useRouter();
   const { promptSignIn } = useAuthPrompt();
-  const [showImageField, setShowImageField] = useState(false);
+  const [showImages, setShowImages] = useState(false);
   const schema = useMemo(() => createThreadSchema(t), [t]);
 
   const form = useForm<ThreadValues>({
     resolver: createZodResolver(schema),
-    defaultValues: { body: "", imageUrl: "", parentId },
+    defaultValues: { body: "", images: [], parentId },
   });
 
   async function onSubmit(values: ThreadValues) {
@@ -66,8 +74,8 @@ export function ComposeBox({
       handleAppError(result.error, form);
       return;
     }
-    form.reset({ body: "", imageUrl: "", parentId });
-    setShowImageField(false);
+    form.reset({ body: "", images: [], parentId });
+    setShowImages(false);
     router.refresh();
     onPosted?.();
   }
@@ -121,12 +129,18 @@ export function ComposeBox({
                   <InputGroupButton
                     type="button"
                     size="icon-xs"
-                    aria-label={
-                      showImageField ? t("Remove image") : t("Add image")
+                    aria-label={showImages ? t("Remove image") : t("Add image")}
+                    aria-pressed={showImages}
+                    onClick={() =>
+                      setShowImages((v) => {
+                        const next = !v;
+                        if (next && form.getValues("images").length === 0) {
+                          form.setValue("images", [""]);
+                        }
+                        return next;
+                      })
                     }
-                    aria-pressed={showImageField}
-                    onClick={() => setShowImageField((v) => !v)}
-                    className={showImageField ? "text-primary" : undefined}
+                    className={showImages ? "text-primary" : undefined}
                   >
                     <HugeiconsIcon icon={ImageAdd01Icon} className="size-4" />
                   </InputGroupButton>
@@ -145,26 +159,56 @@ export function ComposeBox({
           )}
         />
 
-        {showImageField && (
-          <FieldGroup>
-            <Controller
-              name="imageUrl"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <Textarea
-                    {...field}
-                    rows={1}
-                    placeholder={t("Image URL (optional)")}
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
+        {showImages && (
+          <Controller
+            name="images"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <FieldGroup>
+                {field.value.map((url, index) => (
+                  <Field key={index}>
+                    <div className="flex items-center gap-1.5">
+                      <Textarea
+                        rows={1}
+                        value={url}
+                        onChange={(e) => {
+                          const next = [...field.value];
+                          next[index] = e.target.value;
+                          field.onChange(next);
+                        }}
+                        placeholder={t("Image URL (optional)")}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={t("Remove this image")}
+                        onClick={() => {
+                          const next = field.value.filter((_, i) => i !== index);
+                          field.onChange(next);
+                          if (next.length === 0) setShowImages(false);
+                        }}
+                      >
+                        <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+                      </Button>
+                    </div>
+                  </Field>
+                ))}
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {field.value.length < MAX_IMAGES && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-fit"
+                    onClick={() => field.onChange([...field.value, ""])}
+                  >
+                    {t("Add another image")}
+                  </Button>
+                )}
+              </FieldGroup>
+            )}
+          />
         )}
       </div>
     </form>

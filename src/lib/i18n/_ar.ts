@@ -243,4 +243,12 @@ export const ar = {
   "Discard changes?": "تجاهل التغييرات؟",
   "Delete thread?": "حذف المنشور؟",
   "This can't be undone.": "لا يمكن التراجع عن هذا الإجراء.",
+  "Something went wrong": "حدث خطأ ما",
+  "We couldn't reach our servers. This is usually temporary — try again in a moment.":
+    "تعذّر الوصول إلى خوادمنا. عادةً ما يكون هذا مؤقتاً — حاول مرة أخرى بعد قليل.",
+  "Reference": "المرجع",
+  "Try again": "حاول مرة أخرى",
+  "Up to 4 images.": "بحد أقصى 4 صور.",
+  "Add another image": "أضف صورة أخرى",
+  "Remove this image": "إزالة هذه الصورة",
 };

@@ -28,7 +28,7 @@ export async function createThreadAction(
     .values({
       authorId: user.id,
       body: parsed.data.body,
-      imageUrl: parsed.data.imageUrl || null,
+      images: parsed.data.images,
       parentId: parsed.data.parentId ?? null,
     })
     .returning({ id: schema.threads.id });

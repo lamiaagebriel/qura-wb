@@ -25,6 +25,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { ThreadImageCarousel } from "@/components/thread-image-carousel";
 import { followAction } from "@/lib/auth/actions/follow";
 import { copyToClipboard } from "@/lib/clipboard";
 import { deleteThreadAction } from "@/lib/threads/actions/delete";
@@ -39,7 +40,7 @@ import { cn, formatCompactRelativeTime } from "@/lib/utils";
 export type ThreadCardData = {
   id: string;
   body: string;
-  imageUrl: string | null;
+  images: string[];
   createdAt: Date;
   author: { id: string; name: string; username: string; image: string | null };
   likeCount: number;
@@ -87,24 +88,22 @@ export function ThreadCard({
     thread.authorFollowedByViewer,
   );
   const [body, setBody] = useState(thread.body);
-  const [imageUrl, setImageUrl] = useState(thread.imageUrl);
+  const [images, setImages] = useState(thread.images);
   const [isPending, startTransition] = useTransition();
 
-  // Picks up a fresher `body`/`imageUrl` when the server re-fetches this
+  // Picks up a fresher `body`/`images` when the server re-fetches this
   // thread (e.g. `router.refresh()` after the edit above, or someone else's
   // concurrent edit) — done during render, same pattern as
   // `useInfiniteList`, so it never shows a stale frame first.
   const [prevServerBody, setPrevServerBody] = useState(thread.body);
-  const [prevServerImageUrl, setPrevServerImageUrl] = useState(
-    thread.imageUrl,
-  );
+  const [prevServerImages, setPrevServerImages] = useState(thread.images);
   if (thread.body !== prevServerBody) {
     setPrevServerBody(thread.body);
     setBody(thread.body);
   }
-  if (thread.imageUrl !== prevServerImageUrl) {
-    setPrevServerImageUrl(thread.imageUrl);
-    setImageUrl(thread.imageUrl);
+  if (thread.images !== prevServerImages) {
+    setPrevServerImages(thread.images);
+    setImages(thread.images);
   }
 
   function toggleLike() {
@@ -292,14 +291,7 @@ export function ThreadCard({
             {body}
           </p>
 
-          {imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- user-supplied external URL, no image optimizer domain configured
-            <img
-              src={imageUrl}
-              alt=""
-              className="border-border/50 mt-1 max-h-96 w-full rounded-lg border object-cover"
-            />
-          )}
+          <ThreadImageCarousel images={images} />
         </div>
 
         <div
@@ -387,11 +379,11 @@ export function ThreadCard({
                   openEdit({
                     threadId: thread.id,
                     body,
-                    imageUrl: imageUrl ?? "",
+                    images,
                     user: thread.author,
                     onSaved: (values) => {
                       setBody(values.body);
-                      setImageUrl(values.imageUrl || null);
+                      setImages(values.images);
                     },
                   });
                 }}

@@ -1,4 +1,11 @@
-import { createdAt, id, pgTable, references, varchar, text } from "@/db/helpers";
+import {
+  createdAt,
+  id,
+  pgTable,
+  references,
+  varchar,
+  text,
+} from "@/db/helpers";
 import { index, uuid, type AnyPgColumn } from "drizzle-orm/pg-core";
 
 import { users } from "./users";
@@ -24,13 +31,16 @@ export const threads = pgTable(
     // (`threads.id`) that doesn't exist yet while `threads` itself is still
     // being defined. Drizzle's own escape hatch for this is a lazy
     // `(): AnyPgColumn => ...` getter instead of a resolved column.
-    parentId: uuid("parent_id").references(
-      (): AnyPgColumn => threads.id,
-      { onDelete: "cascade" },
-    ),
+    parentId: uuid("parent_id").references((): AnyPgColumn => threads.id, {
+      onDelete: "cascade",
+    }),
 
     body: varchar("body", { length: 500 }).notNull(),
-    imageUrl: text("image_url"),
+    // Postgres `text[]`, not a second table — a thread's images are never
+    // queried or joined on independently of the thread itself, so there's
+    // nothing a join buys here that an array doesn't already give for
+    // free.
+    images: text("images").array().notNull().default([]),
   },
   (t) => [
     index("thread__author_id__idx").on(t.authorId),

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ import { useAuthPrompt } from "./auth-prompt";
 
 const DRAFT_STORAGE_KEY = "qura:new-thread-draft";
 
-type Draft = { body: string; imageUrl: string };
+type Draft = { body: string; images: string[] };
 
 function readDraft(): Draft | null {
   try {
@@ -60,8 +60,8 @@ type ComposerRequest =
       user: ComposerUser;
       threadId: string;
       body: string;
-      imageUrl: string;
-      onSaved?: (values: { body: string; imageUrl: string }) => void;
+      images: string[];
+      onSaved?: (values: { body: string; images: string[] }) => void;
     };
 
 type ThreadComposerContextValue = {
@@ -71,14 +71,14 @@ type ThreadComposerContextValue = {
    * — this is the merge point: creating and editing are one sheet, one
    * form, just a different submit action and a different "did you mean
    * to lose this?" prompt on the way out. `onSaved` lets the calling
-   * `ThreadCard` update its own local body/imageUrl the instant the save
+   * `ThreadCard` update its own local body/images the instant the save
    * succeeds, instead of waiting on `router.refresh()` to re-fetch. */
   openEdit: (request: {
     threadId: string;
     body: string;
-    imageUrl: string;
+    images: string[];
     user: ComposerUser;
-    onSaved?: (values: { body: string; imageUrl: string }) => void;
+    onSaved?: (values: { body: string; images: string[] }) => void;
   }) => void;
 };
 
@@ -142,18 +142,15 @@ function ComposerSheet({
   const isEdit = request.mode === "edit";
   const [open, setOpen] = useState(true);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
-  const [showImageField, setShowImageField] = useState(
-    isEdit ? !!request.imageUrl : false,
-  );
   const schema = useMemo(() => createThreadSchema(t), [t]);
 
   const form = useForm<ThreadValues>({
     resolver: createZodResolver(schema),
     defaultValues: isEdit
-      ? { body: request.body, imageUrl: request.imageUrl }
+      ? { body: request.body, images: request.images }
       : (() => {
           const draft = readDraft();
-          return { body: draft?.body ?? "", imageUrl: draft?.imageUrl ?? "" };
+          return { body: draft?.body ?? "", images: draft?.images ?? [] };
         })(),
   });
 
@@ -166,11 +163,13 @@ function ComposerSheet({
   }
 
   function requestClose() {
-    const { body, imageUrl } = form.getValues();
+    const { body, images } = form.getValues();
 
     if (isEdit) {
       const changed =
-        body !== request.body || (imageUrl ?? "") !== request.imageUrl;
+        body !== request.body ||
+        images.length !== request.images.length ||
+        images.some((url, i) => url !== request.images[i]);
       if (!changed) {
         reallyClose();
         return;
@@ -179,7 +178,7 @@ function ComposerSheet({
       return;
     }
 
-    if (!body.trim() && !imageUrl?.trim()) {
+    if (!body.trim() && images.every((url) => !url.trim())) {
       clearDraft();
       reallyClose();
       return;
@@ -188,8 +187,8 @@ function ComposerSheet({
   }
 
   function saveDraft() {
-    const { body, imageUrl } = form.getValues();
-    writeDraft({ body, imageUrl: imageUrl ?? "" });
+    const { body, images } = form.getValues();
+    writeDraft({ body, images });
     toast.success(t("Draft saved."));
     reallyClose();
   }
@@ -212,7 +211,7 @@ function ComposerSheet({
       clearDraft();
     } else {
       toast.success(t("Thread updated."));
-      request.onSaved?.({ body: values.body, imageUrl: values.imageUrl ?? "" });
+      request.onSaved?.({ body: values.body, images: values.images });
     }
     reallyClose();
     router.refresh();
@@ -301,34 +300,62 @@ function ComposerSheet({
                         </Field>
                       )}
                     />
-                    {showImageField && (
-                      <Controller
-                        name="imageUrl"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid}>
-                            <Textarea
-                              {...field}
-                              rows={1}
-                              placeholder={t("Image URL (optional)")}
-                              aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
-                      />
-                    )}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="w-fit"
-                      onClick={() => setShowImageField((v) => !v)}
-                    >
-                      {showImageField ? t("Remove image") : t("Add image")}
-                    </Button>
+                    <Controller
+                      name="images"
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <>
+                          {field.value.map((url, index) => (
+                            <Field key={index}>
+                              <div className="flex items-center gap-1.5">
+                                <Textarea
+                                  rows={1}
+                                  value={url}
+                                  onChange={(e) => {
+                                    const next = [...field.value];
+                                    next[index] = e.target.value;
+                                    field.onChange(next);
+                                  }}
+                                  placeholder={t("Image URL (optional)")}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label={t("Remove this image")}
+                                  onClick={() =>
+                                    field.onChange(
+                                      field.value.filter((_, i) => i !== index),
+                                    )
+                                  }
+                                >
+                                  <HugeiconsIcon
+                                    icon={Delete02Icon}
+                                    className="size-4"
+                                  />
+                                </Button>
+                              </div>
+                            </Field>
+                          ))}
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                          {field.value.length < 4 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="w-fit"
+                              onClick={() => field.onChange([...field.value, ""])}
+                            >
+                              {field.value.length === 0
+                                ? t("Add image")
+                                : t("Add another image")}
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    />
                   </FieldGroup>
                 </div>
               </div>
