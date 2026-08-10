@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { db, schema } from "@/db";
 import { getGuardedUser } from "@/lib/auth/guard";
+import { getMyBusinessById } from "@/lib/business/queries";
 import {
   fail,
   messageError,
@@ -23,10 +24,29 @@ export async function createThreadAction(
   const parsed = createThreadSchema(t).safeParse(values);
   if (!parsed.success) return fail(zodIssuesError(parsed.error));
 
+  let authorId = user.id;
+  if (parsed.data.asBusinessId) {
+    // A business can only ever post its own top-level threads — never
+    // reply, so posting "as" one with a `parentId` set is rejected here
+    // rather than silently posting as the real account instead.
+    if (parsed.data.parentId) {
+      return fail(
+        messageError(
+          t("Business profiles can only post — not reply, follow, or like."),
+        ),
+      );
+    }
+    const business = await getMyBusinessById(parsed.data.asBusinessId, user.id);
+    if (!business) {
+      return fail(messageError(t("Something went wrong. Please try again.")));
+    }
+    authorId = business.id;
+  }
+
   const [row] = await db
     .insert(schema.threads)
     .values({
-      authorId: user.id,
+      authorId,
       body: parsed.data.body,
       images: parsed.data.images,
       parentId: parsed.data.parentId ?? null,

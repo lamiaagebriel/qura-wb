@@ -26,6 +26,12 @@ export function createThreadSchema(t: Translate) {
         message: t("Enter a valid image URL."),
       }),
     parentId: z.string().uuid().optional(),
+    // Set only when creating a brand-new top-level thread "as" one of
+    // the signer's own business profiles — a business can post but never
+    // reply, so this and `parentId` are never both meaningfully set at
+    // once (`createThreadAction` rejects that combination explicitly
+    // rather than silently picking one).
+    asBusinessId: z.string().uuid().optional(),
   });
 }
 export type ThreadValues = z.infer<ReturnType<typeof createThreadSchema>>;

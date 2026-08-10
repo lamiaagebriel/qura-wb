@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/page-header";
 import { getGuardedUser } from "@/lib/auth/guard";
+import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
 import { getFollowers, isFollowing } from "@/lib/profile/queries";
 
@@ -17,8 +18,12 @@ export default async function FollowersPage() {
   const user = await getGuardedUser();
   if (!user) redirect("/login");
 
-  const { t } = await getLocale();
-  const followers = await getFollowers(user.id);
+  const [{ t }, identity] = await Promise.all([getLocale(), getActiveIdentity()]);
+  // Whose followers this list is — the active identity's, business or
+  // not. "Follow back" is checked against the *real* account, though:
+  // that's who'd actually do the following (a business never can), same
+  // fallback rule as everywhere else this distinction shows up.
+  const followers = await getFollowers(identity!.id);
   const followingBack = await Promise.all(
     followers.map((f) => isFollowing(user.id, f.id)),
   );

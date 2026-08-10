@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Home01Icon,
   Search01Icon,
+  User,
   UserCircleIcon,
 } from "@hugeicons/core-free-icons";
 
@@ -40,12 +41,30 @@ const TAB_GAP = "gap-1";
  */
 export function BottomNav({
   user,
+  businesses,
+  activeIdentity,
 }: {
   user?: {
     id: string;
     name: string;
     username: string;
     image?: string | null;
+  } | null;
+  businesses?: {
+    id: string;
+    name: string;
+    username: string;
+    image: string | null;
+  }[];
+  // The Profile tab's avatar follows whichever identity is active — a
+  // business's initials/photo there, not yours, is the whole point of
+  // "the app feels switched". `NewThreadButton` gets it too, so a new
+  // top-level thread defaults to posting as it.
+  activeIdentity?: {
+    id: string;
+    name: string;
+    image: string | null;
+    isBusiness: boolean;
   } | null;
 }) {
   const { t } = useLocale();
@@ -163,7 +182,13 @@ export function BottomNav({
                   TAB_PADDING_X,
                 )}
               >
-                <NewThreadButton user={user} />
+                <NewThreadButton
+                  user={user}
+                  businesses={businesses}
+                  defaultPostAsId={
+                    activeIdentity?.isBusiness ? activeIdentity.id : undefined
+                  }
+                />
               </div>
             );
           return (
@@ -180,21 +205,21 @@ export function BottomNav({
               )}
             >
               <span className="flex items-center justify-center rounded-full p-2.5 text-neutral-900">
-                {tab.href === "/account" && user?.name ? (
-                  <Avatar
-                    className={cn(
-                      "outline-muted-foreground/25 outline-2 -outline-offset-1",
-                      active && "outline-neutral-900",
+                {tab.href === "/account" && (activeIdentity ?? user) ? (
+                  <Avatar>
+                    {(activeIdentity ?? user)!.image && (
+                      <AvatarImage
+                        src={(activeIdentity ?? user)!.image!}
+                        alt={(activeIdentity ?? user)!.name}
+                      />
                     )}
-                  >
-                    <AvatarImage src={user.image!} alt={user.name} />
                     <AvatarFallback
                       className={cn(
                         "text-muted-foreground/25",
                         active && "text-neutral-900",
                       )}
                     >
-                      {user.name}
+                      <HugeiconsIcon icon={User} strokeWidth={1.8} />
                     </AvatarFallback>
                   </Avatar>
                 ) : (

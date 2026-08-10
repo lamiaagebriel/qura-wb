@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/page-header";
 import { getGuardedUser } from "@/lib/auth/guard";
+import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
 import { getFollowing } from "@/lib/profile/queries";
 
@@ -17,8 +18,11 @@ export default async function FollowingPage() {
   const user = await getGuardedUser();
   if (!user) redirect("/login");
 
-  const { t } = await getLocale();
-  const following = await getFollowing(user.id);
+  const [{ t }, identity] = await Promise.all([getLocale(), getActiveIdentity()]);
+  // A business identity always follows nobody (see `followAction`'s
+  // ownership check), so this naturally comes back empty when viewing
+  // one — expected, not a bug.
+  const following = await getFollowing(identity!.id);
 
   return (
     <div className="flex flex-col gap-4">

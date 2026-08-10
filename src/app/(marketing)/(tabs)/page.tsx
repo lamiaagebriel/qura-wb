@@ -22,7 +22,7 @@ export default async function FeedPage() {
 
   return (
     <div className="flex flex-col">
-      <FeedHeader title={t("Search people")} />
+      <FeedHeader title={t("Search businesses")} />
 
       <div className="flex flex-col gap-2 py-4">
         <ThreadList

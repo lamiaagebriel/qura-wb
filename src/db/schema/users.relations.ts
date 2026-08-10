@@ -14,7 +14,7 @@ import { users } from "./users";
  * belongs here, not split into per-domain files).
  */
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
   // Rows where I'm the one being followed — my followers.
@@ -23,6 +23,16 @@ export const usersRelations = relations(users, ({ many }) => ({
   following: many(follows, { relationName: "follower" }),
   reports: many(reports),
   threads: many(threads),
+  // Self-relation for business profiles: the real account that controls
+  // this row (set only when `ownerId` is non-null, i.e. this row is a
+  // business), and — from the other side — every business profile a
+  // real account controls.
+  owner: one(users, {
+    fields: [users.ownerId],
+    references: [users.id],
+    relationName: "businesses",
+  }),
+  businesses: many(users, { relationName: "businesses" }),
 }));
 
 export const followsRelations = relations(follows, ({ one }) => ({

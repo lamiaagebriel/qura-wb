@@ -1,6 +1,6 @@
 "use server";
 
-import { or, ilike } from "drizzle-orm";
+import { and, or, ilike, isNotNull } from "drizzle-orm";
 
 import { db, schema } from "@/db";
 
@@ -10,14 +10,20 @@ const SEARCH_RESULTS_PAGE_SIZE = 20;
  * called straight from the search page's client component, both for the
  * initial query and for "load more" as the user scrolls the results.
  * Fetches `pageSize + 1` rows to answer "is there another page?" without
- * a separate COUNT query, same pattern as the thread list queries. */
+ * a separate COUNT query, same pattern as the thread list queries.
+ *
+ * Business profiles only, not personal accounts — search is meant for
+ * finding businesses to follow, not looking up other people. */
 export async function searchUsersAction(query: string, cursor = 0) {
   const trimmed = query.trim();
   if (trimmed.length < 2) return { items: [], nextCursor: null };
 
   const pattern = `%${trimmed}%`;
   const rows = await db.query.users.findMany({
-    where: or(ilike(schema.users.username, pattern), ilike(schema.users.name, pattern)),
+    where: and(
+      isNotNull(schema.users.ownerId),
+      or(ilike(schema.users.username, pattern), ilike(schema.users.name, pattern)),
+    ),
     orderBy: (users, { asc }) => [asc(users.username)],
     limit: SEARCH_RESULTS_PAGE_SIZE + 1,
     offset: cursor,

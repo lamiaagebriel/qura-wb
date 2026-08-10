@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAuthPrompt } from "@/components/auth-prompt";
 import { Button } from "@/components/ui/button";
 import { followAction, unfollowAction } from "@/lib/auth/actions/follow";
 import { handleAppError } from "@/lib/errors-client";
+import { setActiveProfile } from "@/lib/identity/actions";
 import { useLocale } from "@/lib/i18n/client";
 
 export function FollowProfileButton({
@@ -65,14 +67,33 @@ export function ProfileFollowStats({
   initialFollowerCount,
   followingCount,
   shareButton,
+  // Set only when this profile is a business the viewer owns — you can't
+  // follow your own business (see `followAction`'s matching check), so
+  // this slot gets an "Edit" button instead of `FollowProfileButton`,
+  // the same way `/account` swaps Follow for Edit/Settings on your own
+  // personal profile. `/account/business` (the one edit/create page for
+  // businesses) always acts on whichever identity is *active* — not
+  // necessarily this one, if you own more than one — so editing from
+  // here has to switch to this business first, then go there.
+  ownerBusinessId,
   ...buttonProps
 }: {
   initialFollowerCount: number;
   followingCount: number;
   shareButton: React.ReactNode;
+  ownerBusinessId?: string;
 } & React.ComponentProps<typeof FollowProfileButton>) {
   const { t } = useLocale();
+  const router = useRouter();
   const [followerCount, setFollowerCount] = useState(initialFollowerCount);
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  async function editThisBusiness() {
+    if (!ownerBusinessId) return;
+    setIsSwitching(true);
+    await setActiveProfile(ownerBusinessId);
+    router.push("/account/business");
+  }
 
   return (
     <>
@@ -92,12 +113,24 @@ export function ProfileFollowStats({
       </div>
 
       <div className="flex gap-2">
-        <FollowProfileButton
-          {...buttonProps}
-          onFollowChange={(following) =>
-            setFollowerCount((c) => c + (following ? 1 : -1))
-          }
-        />
+        {ownerBusinessId ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            disabled={isSwitching}
+            onClick={editThisBusiness}
+          >
+            {t("Edit")}
+          </Button>
+        ) : (
+          <FollowProfileButton
+            {...buttonProps}
+            onFollowChange={(following) =>
+              setFollowerCount((c) => c + (following ? 1 : -1))
+            }
+          />
+        )}
         {shareButton}
       </div>
     </>

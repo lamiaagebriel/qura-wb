@@ -11,6 +11,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -52,9 +59,23 @@ function clearDraft() {
 }
 
 type ComposerUser = { name: string; username: string; image?: string | null };
+// A business you own — same shape as `ComposerUser` plus the `id`
+// actually needed to post "as" it (`ComposerUser` never needed one: the
+// only identity it ever represented was "you", implicit in the session).
+type ComposerBusiness = {
+  id: string;
+  name: string;
+  username: string;
+  image?: string | null;
+};
 
 type ComposerRequest =
-  | { mode: "create"; user: ComposerUser }
+  | {
+      mode: "create";
+      user: ComposerUser;
+      businesses: ComposerBusiness[];
+      defaultPostAsId?: string;
+    }
   | {
       mode: "edit";
       user: ComposerUser;
@@ -65,14 +86,25 @@ type ComposerRequest =
     };
 
 type ThreadComposerContextValue = {
-  /** Opens the full-screen composer for a brand-new top-level thread. */
-  openCreate: (user: ComposerUser) => void;
+  /** Opens the full-screen composer for a brand-new top-level thread.
+   * `businesses` populates the "Post as" picker — empty for someone who
+   * hasn't created one, in which case the picker doesn't render at all.
+   * `defaultPostAsId` preselects one of them (the currently "active"
+   * identity from the profile switcher) instead of always starting on
+   * "You". */
+  openCreate: (
+    user: ComposerUser,
+    businesses: ComposerBusiness[],
+    defaultPostAsId?: string,
+  ) => void;
   /** Opens the *same* composer pre-filled for editing an existing thread
    * — this is the merge point: creating and editing are one sheet, one
    * form, just a different submit action and a different "did you mean
    * to lose this?" prompt on the way out. `onSaved` lets the calling
    * `ThreadCard` update its own local body/images the instant the save
-   * succeeds, instead of waiting on `router.refresh()` to re-fetch. */
+   * succeeds, instead of waiting on `router.refresh()` to re-fetch. Never
+   * offers a "post as" picker — a thread's author, business or not,
+   * isn't something editing changes. */
   openEdit: (request: {
     threadId: string;
     body: string;
@@ -110,7 +142,8 @@ export function ThreadComposerProvider({
   return (
     <ThreadComposerContext.Provider
       value={{
-        openCreate: (user) => setRequest({ mode: "create", user }),
+        openCreate: (user, businesses, defaultPostAsId) =>
+          setRequest({ mode: "create", user, businesses, defaultPostAsId }),
         openEdit: (args) => setRequest({ mode: "edit", ...args }),
       }}
     >
@@ -142,6 +175,15 @@ function ComposerSheet({
   const isEdit = request.mode === "edit";
   const [open, setOpen] = useState(true);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  // "self" (post as your own account) or a business id from
+  // `request.businesses` — only ever meaningful in create mode, but kept
+  // as plain state (not gated behind `isEdit`) since hooks can't be
+  // conditional. Starts on whichever identity was active when the "+"
+  // was tapped (see `defaultPostAsId`), not always "You" — the whole
+  // point of switching is that posting defaults to it from then on.
+  const [postAsId, setPostAsId] = useState(() =>
+    request.mode === "create" ? (request.defaultPostAsId ?? "self") : "self",
+  );
   const schema = useMemo(() => createThreadSchema(t), [t]);
 
   const form = useForm<ThreadValues>({
@@ -202,7 +244,10 @@ function ComposerSheet({
   async function onSubmit(values: ThreadValues) {
     const result = isEdit
       ? await updateThreadAction(request.threadId, values)
-      : await createThreadAction(values);
+      : await createThreadAction({
+          ...values,
+          asBusinessId: postAsId === "self" ? undefined : postAsId,
+        });
     if (!result.success) {
       handleAppError(result.error, form);
       return;
@@ -219,6 +264,14 @@ function ComposerSheet({
 
   const { user } = request;
   const title = isEdit ? t("Edit thread") : t("New thread");
+  // The identity actually shown/posted as — your own account unless a
+  // business is picked below. `postAsId` can only ever name one of
+  // `request.businesses` in create mode (edit mode never renders the
+  // picker that sets it), so the fallback to `user` is purely defensive.
+  const activeIdentity =
+    request.mode === "create" && postAsId !== "self"
+      ? (request.businesses.find((b) => b.id === postAsId) ?? user)
+      : user;
 
   return (
     <>
@@ -268,16 +321,40 @@ function ComposerSheet({
             </div>
 
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+              {request.mode === "create" && request.businesses.length > 0 && (
+                <Field>
+                  <Select value={postAsId} onValueChange={setPostAsId}>
+                    <SelectTrigger size="sm" className="w-fit">
+                      <span className="text-muted-foreground text-xs">
+                        {t("Post as")}
+                      </span>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                      <SelectItem value="self">{t("You")}</SelectItem>
+                      {request.businesses.map((business) => (
+                        <SelectItem key={business.id} value={business.id}>
+                          {business.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+
               <div className="flex gap-3">
                 <Avatar>
-                  {user.image && (
-                    <AvatarImage src={user.image} alt={user.name} />
+                  {activeIdentity.image && (
+                    <AvatarImage
+                      src={activeIdentity.image}
+                      alt={activeIdentity.name}
+                    />
                   )}
-                  <AvatarFallback>{user.name}</AvatarFallback>
+                  <AvatarFallback>{activeIdentity.name}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <p className="text-foreground text-[13.5px] font-semibold">
-                    {user.username}
+                    {activeIdentity.username}
                   </p>
                   <FieldGroup className="mt-1">
                     <Controller
@@ -403,8 +480,12 @@ function ComposerSheet({
  * `ThreadComposerProvider`. */
 export function NewThreadButton({
   user,
+  businesses = [],
+  defaultPostAsId,
 }: {
   user?: { username: string; name: string; image?: string | null } | null;
+  businesses?: ComposerBusiness[];
+  defaultPostAsId?: string;
 }) {
   const { t } = useLocale();
   const { promptSignIn } = useAuthPrompt();
@@ -415,7 +496,7 @@ export function NewThreadButton({
       promptSignIn();
       return;
     }
-    openCreate(user);
+    openCreate(user, businesses, defaultPostAsId);
   }
 
   return (

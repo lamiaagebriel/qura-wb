@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { db, schema } from "@/db";
 import { getGuardedUser } from "@/lib/auth/guard";
+import { getOwnedAuthorIds } from "@/lib/business/queries";
 import { fail, messageError, ok, type ActionResult } from "@/lib/errors";
 import { isValidId } from "@/lib/id";
 import { getLocale } from "@/lib/i18n/actions";
@@ -18,10 +19,17 @@ export async function deleteThreadAction(threadId: string): Promise<ActionResult
 
   // Ownership check baked into the WHERE rather than a separate lookup —
   // deleting 0 rows (someone else's thread, or one that's already gone) is
-  // silently a no-op, which is the right behavior either way.
+  // silently a no-op, which is the right behavior either way. Covers
+  // threads authored by one of the signer's own business profiles too.
+  const ownedAuthorIds = await getOwnedAuthorIds(user.id);
   await db
     .delete(schema.threads)
-    .where(and(eq(schema.threads.id, threadId), eq(schema.threads.authorId, user.id)));
+    .where(
+      and(
+        eq(schema.threads.id, threadId),
+        inArray(schema.threads.authorId, ownedAuthorIds),
+      ),
+    );
 
   revalidatePath("/");
   revalidatePath("/account");

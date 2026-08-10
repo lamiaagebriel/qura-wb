@@ -212,7 +212,7 @@ export const ar = {
   "No threads yet. Be the first to post.": "لا توجد منشورات بعد. كن أول من ينشر.",
   "No threads yet.": "لا توجد منشورات بعد.",
   "Search": "بحث",
-  "Search people": "ابحث عن أشخاص",
+  "Search businesses": "ابحث عن الأنشطة التجارية",
   "No people found.": "لم يتم العثور على أشخاص.",
   "Enter a valid image URL.": "أدخل رابط صورة صالحاً.",
   "Must be at most 500 characters.": "يجب ألا يتجاوز 500 حرف.",
@@ -251,4 +251,30 @@ export const ar = {
   "Up to 4 images.": "بحد أقصى 4 صور.",
   "Add another image": "أضف صورة أخرى",
   "Remove this image": "إزالة هذه الصورة",
+  "Please enter a business name.": "يرجى إدخال اسم النشاط التجاري.",
+  "You can only edit your own business profiles.":
+    "يمكنك فقط تعديل ملفات أعمالك التجارية.",
+  "Business profiles": "الملفات التجارية",
+  "Business name": "اسم النشاط التجاري",
+  "Create business profile": "إنشاء ملف تجاري",
+  "No business profiles yet.": "لا توجد ملفات تجارية بعد.",
+  "Add a business profile": "إضافة ملف تجاري",
+  "Manage the pages you post as — a business profile works exactly like your own, with its own posts, followers, and profile page.":
+    "أدر الصفحات التي تنشر باسمها — يعمل الملف التجاري تماماً مثل ملفك الشخصي، وله منشوراته ومتابعوه وصفحته الخاصة.",
+  "Business profile created.": "تم إنشاء الملف التجاري.",
+  "Business profile updated.": "تم تحديث الملف التجاري.",
+  "Business profile deleted.": "تم حذف الملف التجاري.",
+  "Delete business profile": "حذف الملف التجاري",
+  "Delete this business profile?": "حذف هذا الملف التجاري؟",
+  "This will permanently delete this business profile and everything it posted.":
+    "سيؤدي هذا إلى حذف هذا الملف التجاري وكل ما نشره نهائياً.",
+  "You can't follow your own business profile.":
+    "لا يمكنك متابعة ملفك التجاري الخاص.",
+  "Post as": "النشر باسم",
+  "You": "أنت",
+  "Business profiles can only post — not reply, follow, or like.":
+    "يمكن للملفات التجارية النشر فقط — لا يمكنها الرد أو المتابعة أو الإعجاب.",
+  "Switch profile": "تبديل الملف الشخصي",
+  "Business profile": "الملف التجاري",
+  "No businesses found.": "لم يتم العثور على أنشطة تجارية.",
 };

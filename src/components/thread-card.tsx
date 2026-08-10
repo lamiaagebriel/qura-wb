@@ -47,6 +47,10 @@ export type ThreadCardData = {
   replyCount: number;
   likedByViewer: boolean;
   authorFollowedByViewer: boolean;
+  // True when the author is a business profile owned by the viewer —
+  // "owns this thread" the same way `currentUserId === thread.author.id`
+  // does for a thread posted directly as yourself.
+  authorOwnedByViewer: boolean;
 };
 
 // Matches `Avatar`'s own `size-8`/`size-6` (32px/24px) — used to size the
@@ -189,7 +193,8 @@ export function ThreadCard({
 
   if (deleted) return null;
 
-  const isOwner = currentUserId === thread.author.id;
+  const isOwner =
+    currentUserId === thread.author.id || thread.authorOwnedByViewer;
   const showFollowBadge = !isOwner && !isFollowingAuthor;
   const avatarSize = variant === "reply" ? "default" : "lg";
   const content = (

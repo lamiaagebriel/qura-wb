@@ -72,7 +72,7 @@ export function SearchView() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("Search people")}
+            placeholder={t("Search businesses")}
             className="ps-8"
           />
         </div>
@@ -80,7 +80,7 @@ export function SearchView() {
 
       {searchedEnough && !isSearching && visibleItems.length === 0 && (
         <p className="text-muted-foreground py-8 text-center text-[13px]">
-          {t("No people found.")}
+          {t("No businesses found.")}
         </p>
       )}
 

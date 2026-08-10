@@ -30,7 +30,15 @@ export async function ProfileTabs({
   ]);
 
   return (
-    <Tabs defaultValue="threads" className="w-full gap-0">
+    // Keyed on `userId` — `ThreadList`'s `useInfiniteList` merges a fresh
+    // server page onto whatever it already has client-side, which is
+    // exactly right for "the same list got new data" but wrong for "this
+    // is now a completely different person's threads" (switching active
+    // identity on `/account` re-renders this in place via
+    // `router.refresh()`, no navigation, so nothing else would reset the
+    // old list's leftover client state). Changing `key` forces React to
+    // remount instead of reconcile, which is the actual fix.
+    <Tabs key={userId} defaultValue="threads" className="w-full gap-0">
       <TabsList
         variant="line"
         style={{ top: stickyTop }}

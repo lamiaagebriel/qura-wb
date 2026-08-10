@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Settings01Icon } from "@hugeicons/core-free-icons";
+import { Settings01Icon, User } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { ProfileSwitcher } from "@/components/profile-switcher";
 import { SettingsSheet } from "@/components/settings-sheet";
 import { getCurrentUser } from "@/lib/auth/guard";
+import {
+  getActiveIdentity,
+  getSwitchableIdentities,
+} from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
 import { getFollowCounts } from "@/lib/profile/queries";
 
@@ -57,15 +62,24 @@ export default async function AccountPage() {
     );
   }
 
-  const { followers, following } = await getFollowCounts(user.id);
-  const shareUrl = `${process.env.APP_URL ?? ""}/profile/${user.username}`;
+  const [identity, identities] = await Promise.all([
+    getActiveIdentity(),
+    getSwitchableIdentities(),
+  ]);
+  // Both derive from the same session `getCurrentUser()` already checked
+  // above, so neither can actually be null here — this only satisfies
+  // the type checker (both functions are written to also work when
+  // signed out, for callers that haven't already gated on that).
+  if (!identity) return null;
+
+  const { followers, following } = await getFollowCounts(identity.id);
+  const shareUrl = `${process.env.APP_URL ?? ""}/profile/${identity.username}`;
+  const editHref = identity.isBusiness ? "/account/business" : "/account/edit";
 
   return (
     <div className="flex flex-col gap-5">
       <div className="container flex items-center justify-between px-4 pt-5">
-        <h1 className="text-foreground text-[15px] font-semibold">
-          @{user.username}
-        </h1>
+        <ProfileSwitcher identities={identities} activeId={identity.id} />
         <Button
           asChild
           variant="ghost"
@@ -82,17 +96,19 @@ export default async function AccountPage() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <h2 className="text-foreground text-[20px] font-bold tracking-tight">
-              {user.name}
+              {identity.name}
             </h2>
-            {user.bio && (
+            {identity.bio && (
               <p className="text-foreground text-[13.5px] leading-relaxed whitespace-pre-line">
-                {user.bio}
+                {identity.bio}
               </p>
             )}
           </div>
           <Avatar size="lg" className="size-20!">
-            <AvatarImage src={user.image!} alt={user.name} />
-            <AvatarFallback>{user.name}</AvatarFallback>
+            <AvatarImage src={identity.image!} alt={identity.name} />
+            <AvatarFallback>
+              <HugeiconsIcon icon={User} />
+            </AvatarFallback>
           </Avatar>
         </div>
 
@@ -115,7 +131,7 @@ export default async function AccountPage() {
 
         <div className="flex gap-2">
           <Button asChild variant="outline" className="flex-1">
-            <Link href="/account/edit">{t("Edit profile")}</Link>
+            <Link href={editHref}>{t("Edit profile")}</Link>
           </Button>
           <CopyLinkButton
             value={shareUrl}
@@ -128,7 +144,7 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <ProfileTabs userId={user.id} currentUserId={user.id} />
+      <ProfileTabs userId={identity.id} currentUserId={user.id} />
     </div>
   );
 }

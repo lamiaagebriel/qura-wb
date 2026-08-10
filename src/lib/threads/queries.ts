@@ -21,16 +21,16 @@ export type Page<T> = { items: T[]; nextCursor: number | null };
  * liked each thread and whether they follow its author) to a flat list of
  * threads — shared by every list view so the feed, a profile's tabs, and a
  * thread's reply list never compute this differently. */
-async function withCounts<T extends { id: string; authorId: string }>(
-  rows: T[],
-  viewerId?: string,
-) {
+async function withCounts<
+  T extends { id: string; authorId: string; author: { ownerId: string | null } },
+>(rows: T[], viewerId?: string) {
   if (rows.length === 0) {
     return [] as (T & {
       likeCount: number;
       replyCount: number;
       likedByViewer: boolean;
       authorFollowedByViewer: boolean;
+      authorOwnedByViewer: boolean;
     })[];
   }
   const ids = rows.map((r) => r.id);
@@ -71,6 +71,11 @@ async function withCounts<T extends { id: string; authorId: string }>(
     replyCount: replyCounts.get(row.id) ?? 0,
     likedByViewer: likedIds.has(row.id),
     authorFollowedByViewer: followingIds.has(row.authorId),
+    // The author row's own `ownerId` is already on hand (it came in via
+    // `with: { author: true }`), so unlike `authorFollowedByViewer` this
+    // needs no extra query — a business's thread is "yours" if you're
+    // the one who owns that business profile.
+    authorOwnedByViewer: viewerId != null && row.author.ownerId === viewerId,
   }));
 }
 

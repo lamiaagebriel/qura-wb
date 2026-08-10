@@ -1,6 +1,8 @@
 import { BottomNav } from "@/components/bottom-nav";
 import { DesktopTopBar } from "@/components/desktop-topbar";
 import { getCurrentUser } from "@/lib/auth/guard";
+import { getMyBusinesses } from "@/lib/business/queries";
+import { getActiveIdentity } from "@/lib/identity/active";
 
 type ExploreLayoutProps = React.PropsWithChildren;
 
@@ -17,12 +19,16 @@ type ExploreLayoutProps = React.PropsWithChildren;
  */
 export default async function ExploreLayout({ children }: ExploreLayoutProps) {
   const user = await getCurrentUser();
+  const [businesses, identity] = await Promise.all([
+    user ? getMyBusinesses(user.id) : Promise.resolve([]),
+    user ? getActiveIdentity() : Promise.resolve(null),
+  ]);
 
   return (
     <div className="bg-background min-h-svh">
       <DesktopTopBar />
       <div className="pb-24 sm:pb-8">{children}</div>
-      <BottomNav user={user} />
+      <BottomNav user={user} businesses={businesses} activeIdentity={identity} />
     </div>
   );
 }

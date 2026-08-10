@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { db, schema } from "@/db";
 import { getGuardedUser } from "@/lib/auth/guard";
+import { getOwnedAuthorIds } from "@/lib/business/queries";
 import {
   fail,
   messageError,
@@ -36,14 +37,18 @@ export async function updateThreadAction(
 
   // Ownership check baked into the WHERE, same as `deleteThreadAction` —
   // updating 0 rows (someone else's thread) is the signal to fail, not a
-  // separate lookup beforehand.
+  // separate lookup beforehand. `ownedAuthorIds` covers both "this is
+  // your own thread" and "this is one of your business profiles'
+  // threads" — a business-authored row's `authorId` is the business's
+  // own id, not yours.
+  const ownedAuthorIds = await getOwnedAuthorIds(user.id);
   const [row] = await db
     .update(schema.threads)
     .set({ body: parsed.data.body, images: parsed.data.images })
     .where(
       and(
         eq(schema.threads.id, threadId),
-        eq(schema.threads.authorId, user.id),
+        inArray(schema.threads.authorId, ownedAuthorIds),
       ),
     )
     .returning({ id: schema.threads.id, parentId: schema.threads.parentId });

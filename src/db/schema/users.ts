@@ -7,9 +7,15 @@ import {
   updatedAt,
   varchar,
 } from "@/db/helpers";
-import { boolean, pgEnum } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgEnum,
+  uuid,
+  type AnyPgColumn,
+} from "drizzle-orm/pg-core";
 
-export const USER_ROLES = ["super_admin", "bussiness_owner"] as const;
+export const USER_ROLES = ["super_admin", "business_owner"] as const;
 export const userRoleEnum = pgEnum("user__role", USER_ROLES);
 
 export const USER_STATUSES = ["pending", "active", "suspended"] as const;
@@ -25,41 +31,62 @@ export const userStatusEnum = pgEnum("user__status", USER_STATUSES);
  * `accounts` (one row per sign-in method, `providerId: "credential"` for
  * email/password), not on the user itself. See `accounts.ts`.
  */
-export const users = pgTable("users", {
-  ...id,
-  ...createdAt,
-  ...updatedAt,
+export const users = pgTable(
+  "users",
+  {
+    ...id,
+    ...createdAt,
+    ...updatedAt,
 
-  name: varchar("name").notNull(),
-  // `.unique()` already creates a unique B-tree index covering this column
-  // — every lookup by email (sign-in, sign-up dupe-check, forgot-password)
-  // uses it. Don't add a second explicit index on the same column: it'd be
-  // pure waste, extra disk space and extra work on every insert/update for
-  // an index that duplicates this one exactly.
-  email: varchar("email").unique().notNull(),
-  emailVerified: boolean("email_verified").notNull().default(false),
-  // `text`, not `varchar(255)` — OAuth avatar URLs (Google's especially)
-  // routinely exceed 255 chars once sizing/token query params are
-  // included; same overflow class already fixed for `accounts`'
-  // password/token columns and `verifications.value`.
-  image: text("image"),
+    name: varchar("name").notNull(),
+    // `.unique()` already creates a unique B-tree index covering this column
+    // — every lookup by email (sign-in, sign-up dupe-check, forgot-password)
+    // uses it. Don't add a second explicit index on the same column: it'd be
+    // pure waste, extra disk space and extra work on every insert/update for
+    // an index that duplicates this one exactly.
+    email: varchar("email").unique().notNull(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    // `text`, not `varchar(255)` — OAuth avatar URLs (Google's especially)
+    // routinely exceed 255 chars once sizing/token query params are
+    // included; same overflow class already fixed for `accounts`'
+    // password/token columns and `verifications.value`.
+    image: text("image"),
 
-  role: userRoleEnum("role").notNull().default("bussiness_owner"),
-  status: userStatusEnum("status").notNull().default("pending"),
+    role: userRoleEnum("role").notNull().default("business_owner"),
+    status: userStatusEnum("status").notNull().default("pending"),
 
-  // Auto-generated on create (see the `user.create` databaseHook in
-  // `lib/auth/auth.ts`) so every account always has one to be linked/shared
-  // by — user-editable afterward from the Edit Profile page.
-  username: varchar("username").unique().notNull(),
-  bio: text("bio"),
+    // Auto-generated on create (see the `user.create` databaseHook in
+    // `lib/auth/auth.ts`) so every account always has one to be linked/shared
+    // by — user-editable afterward from the Edit Profile page.
+    username: varchar("username").unique().notNull(),
+    bio: text("bio"),
 
-  // Cooldown bookkeeping for the two "resend the link" actions — see
-  // `lib/auth/actions/verify-email.ts` and `forgot-password.ts`. Better
-  // Auth's own verification store has no notion of a per-user send
-  // cooldown, so we track it here instead of reinventing its schema.
-  lastVerificationEmailSentAt: timestamp("last_verification_email_sent_at"),
-  lastPasswordResetEmailSentAt: timestamp("last_password_reset_email_sent_at"),
-});
+    // Cooldown bookkeeping for the two "resend the link" actions — see
+    // `lib/auth/actions/verify-email.ts` and `forgot-password.ts`. Better
+    // Auth's own verification store has no notion of a per-user send
+    // cooldown, so we track it here instead of reinventing its schema.
+    lastVerificationEmailSentAt: timestamp("last_verification_email_sent_at"),
+    lastPasswordResetEmailSentAt: timestamp(
+      "last_password_reset_email_sent_at",
+    ),
+
+    // A "business profile" is just another row in this same table —
+    // reusing it wholesale (same columns, same threads/follows/search
+    // infra) is what makes it "exactly like the user profile in
+    // everything" without a parallel schema. `ownerId` set = this row is
+    // a business profile controlled by that real account, never logged
+    // into directly (no `accounts` row is ever created for it — that's
+    // what actually prevents signing in as one, not this column). `null`
+    // = an ordinary, directly-authable account. No separate `isBusiness`
+    // flag — `ownerId IS NOT NULL` already means exactly that, and a
+    // second column saying the same thing could only ever drift out of
+    // sync with it, never add information.
+    ownerId: uuid("owner_id").references((): AnyPgColumn => users.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (t) => [index("user__owner_id__idx").on(t.ownerId)],
+);
 
 export type User = typeof users.$inferSelect;
 export type UserRole = (typeof USER_ROLES)[number];

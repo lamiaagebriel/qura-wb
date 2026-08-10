@@ -67,7 +67,7 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      role: { type: "string", input: false, defaultValue: "bussiness_owner" },
+      role: { type: "string", input: false, defaultValue: "business_owner" },
       status: { type: "string", input: false, defaultValue: "pending" },
       lastVerificationEmailSentAt: {
         type: "date",
@@ -148,7 +148,7 @@ export const auth = betterAuth({
         before: async (user) => ({
           data: {
             ...user,
-            role: "bussiness_owner",
+            role: "business_owner",
             status: user.emailVerified ? "active" : "pending",
             username: await generateUniqueUsername(user.name),
           },

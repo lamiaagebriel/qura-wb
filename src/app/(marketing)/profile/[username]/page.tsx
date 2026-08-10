@@ -78,6 +78,11 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
           userId={profileUser.id}
           initialIsFollowing={alreadyFollowing}
           isSignedIn={!!viewer}
+          ownerBusinessId={
+            profileUser.ownerId && profileUser.ownerId === viewer?.id
+              ? profileUser.id
+              : undefined
+          }
           shareButton={
             <CopyLinkButton
               value={shareUrl}

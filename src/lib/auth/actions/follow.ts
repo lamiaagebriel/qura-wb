@@ -20,6 +20,14 @@ export async function followAction(targetUserId: string): Promise<ActionResult> 
     return fail(messageError(t("You can't follow yourself.")));
   }
 
+  const target = await db.query.users.findFirst({
+    where: eq(schema.users.id, targetUserId),
+    columns: { ownerId: true },
+  });
+  if (target?.ownerId === user.id) {
+    return fail(messageError(t("You can't follow your own business profile.")));
+  }
+
   await db
     .insert(schema.follows)
     .values({ followerId: user.id, followingId: targetUserId })

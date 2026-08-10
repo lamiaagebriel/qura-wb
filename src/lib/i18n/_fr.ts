@@ -212,7 +212,7 @@ export const fr = {
   "No threads yet. Be the first to post.": "Pas encore de threads. Sois le premier à publier.",
   "No threads yet.": "Pas encore de threads.",
   "Search": "Rechercher",
-  "Search people": "Rechercher des personnes",
+  "Search businesses": "Rechercher des entreprises",
   "No people found.": "Aucune personne trouvée.",
   "Enter a valid image URL.": "Entre une URL d'image valide.",
   "Must be at most 500 characters.": "Doit contenir au plus 500 caractères.",
@@ -251,4 +251,30 @@ export const fr = {
   "Up to 4 images.": "Jusqu'à 4 images.",
   "Add another image": "Ajouter une autre image",
   "Remove this image": "Supprimer cette image",
+  "Please enter a business name.": "Entre un nom d'entreprise.",
+  "You can only edit your own business profiles.":
+    "Tu ne peux modifier que tes propres profils professionnels.",
+  "Business profiles": "Profils professionnels",
+  "Business name": "Nom de l'entreprise",
+  "Create business profile": "Créer un profil professionnel",
+  "No business profiles yet.": "Aucun profil professionnel pour le moment.",
+  "Add a business profile": "Ajouter un profil professionnel",
+  "Manage the pages you post as — a business profile works exactly like your own, with its own posts, followers, and profile page.":
+    "Gère les pages sous lesquelles tu publies — un profil professionnel fonctionne exactement comme le tien, avec ses propres publications, abonnés et page de profil.",
+  "Business profile created.": "Profil professionnel créé.",
+  "Business profile updated.": "Profil professionnel mis à jour.",
+  "Business profile deleted.": "Profil professionnel supprimé.",
+  "Delete business profile": "Supprimer le profil professionnel",
+  "Delete this business profile?": "Supprimer ce profil professionnel ?",
+  "This will permanently delete this business profile and everything it posted.":
+    "Cela supprimera définitivement ce profil professionnel et tout ce qu'il a publié.",
+  "You can't follow your own business profile.":
+    "Tu ne peux pas suivre ton propre profil professionnel.",
+  "Post as": "Publier en tant que",
+  "You": "Toi",
+  "Business profiles can only post — not reply, follow, or like.":
+    "Les profils professionnels peuvent seulement publier — ni répondre, ni suivre, ni aimer.",
+  "Switch profile": "Changer de profil",
+  "Business profile": "Profil professionnel",
+  "No businesses found.": "Aucune entreprise trouvée.",
 };
