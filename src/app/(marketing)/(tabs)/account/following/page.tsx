@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
@@ -18,7 +18,10 @@ export default async function FollowingPage() {
   const user = await getGuardedUser();
   if (!user) redirect("/login");
 
-  const [{ t }, identity] = await Promise.all([getLocale(), getActiveIdentity()]);
+  const [{ t }, identity] = await Promise.all([
+    getLocale(),
+    getActiveIdentity(),
+  ]);
   // A business identity always follows nobody (see `followAction`'s
   // ownership check), so this naturally comes back empty when viewing
   // one — expected, not a bug.
@@ -26,7 +29,7 @@ export default async function FollowingPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title={t("Following")} />
+      <AppHeader title={t("Following")} />
       <div className="container px-4">
         <FollowList
           // Every row here is, by definition, someone this account already

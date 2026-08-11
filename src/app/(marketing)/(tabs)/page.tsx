@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 
+import { AppHeader } from "@/components/app-header";
 import { ThreadList } from "@/components/thread-list";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
 import { loadMoreFeedAction } from "@/lib/threads/actions/load-more";
 import { getFeedThreads } from "@/lib/threads/queries";
-
-import { FeedHeader } from "./feed-header";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getLocale();
@@ -22,7 +21,10 @@ export default async function FeedPage() {
 
   return (
     <div className="flex flex-col">
-      <FeedHeader title={t("Search businesses")} />
+      {/* The feed is a root tab — nothing to go back to — so `showBack`
+          is off and the title starts flush start instead of centered
+          (see `AppHeader`'s own comment on why those two go together). */}
+      <AppHeader title={t("Feed")} showBack={false} className="sm:hidden" />
 
       <div className="flex flex-col gap-2 py-4">
         <ThreadList

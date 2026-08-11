@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CopyLinkButton } from "@/components/copy-link-button";
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
 import {
@@ -51,7 +51,11 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={`@${profileUser.username}`} />
+      {/* Reachable from lots of places (search, a thread's author link,
+          a followers list, ...) with no single real "parent" — `/` is a
+          safe, always-meaningful fallback rather than trusting browser
+          history, which a fresh tab or a shared link has none of. */}
+      <AppHeader title={`@${profileUser.username}`} backHref="/" />
 
       <div className="container flex flex-col gap-2 px-4">
         <div className="flex items-start justify-between gap-4">

@@ -14,7 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { ModeSwitcher } from "@/components/mode-switcher";
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { SettingsControlRow } from "@/components/settings-control-row";
 import { signOutAction } from "@/lib/auth/actions/sign-out";
 import { getGuardedUser } from "@/lib/auth/guard";
@@ -36,7 +36,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t("Settings")} />
+      <AppHeader title={t("Settings")} />
 
       <div className="container flex flex-col px-4">
         <SettingsRow

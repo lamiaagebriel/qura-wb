@@ -9,7 +9,7 @@ type ExploreLayoutProps = React.PropsWithChildren;
 /**
  * App-shell for `/`. On mobile it deliberately has no top-level
  * header — each page brings its own top bar (search bar on the home page,
- * `PageHeader` with a back button on sub-pages) so it reads like native app
+ * `AppHeader` with a back button on sub-pages) so it reads like native app
  * screens, and `BottomNav` (mobile-only) covers site-wide navigation
  * instead. `DesktopTopBar` fills that same role once the bottom nav is
  * hidden at `sm` and up. `pb-24` clears the floating bottom nav (it no

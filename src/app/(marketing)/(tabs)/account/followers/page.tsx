@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
@@ -18,7 +18,10 @@ export default async function FollowersPage() {
   const user = await getGuardedUser();
   if (!user) redirect("/login");
 
-  const [{ t }, identity] = await Promise.all([getLocale(), getActiveIdentity()]);
+  const [{ t }, identity] = await Promise.all([
+    getLocale(),
+    getActiveIdentity(),
+  ]);
   // Whose followers this list is — the active identity's, business or
   // not. "Follow back" is checked against the *real* account, though:
   // that's who'd actually do the following (a business never can), same
@@ -30,10 +33,13 @@ export default async function FollowersPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title={t("Followers")} />
+      <AppHeader title={t("Followers")} />
       <div className="container px-4">
         <FollowList
-          users={followers.map((f, i) => ({ ...f, isFollowedByMe: followingBack[i] }))}
+          users={followers.map((f, i) => ({
+            ...f,
+            isFollowedByMe: followingBack[i],
+          }))}
           emptyLabel={t("No followers yet.")}
         />
       </div>

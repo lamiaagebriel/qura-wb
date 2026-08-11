@@ -14,7 +14,7 @@ export async function ProfileTabs({
   currentUserId,
   // Distance from the viewport top the tab bar sticks at — 0 for
   // `account/page.tsx` (its own header isn't sticky, so the tabs are the
-  // first thing pinned), or the height of `PageHeader` (`h-12.5` = 50px)
+  // first thing pinned), or the height of `AppHeader` (`h-12.5` = 50px)
   // for `profile/[username]/page.tsx`, which already has one sticky above
   // this — without the offset the two would stack on top of each other.
   stickyTop = 0,
@@ -42,7 +42,7 @@ export async function ProfileTabs({
       <TabsList
         variant="line"
         style={{ top: stickyTop }}
-        className="bg-background/95 sticky z-30 container grid h-9 w-full grid-cols-2 border-b px-4 backdrop-blur-md"
+        className="bg-background/95 sticky z-30 container grid h-11! w-full grid-cols-2 border-b px-4 backdrop-blur-md"
       >
         <TabsTrigger value="threads">{t("Threads")}</TabsTrigger>
         <TabsTrigger value="replies">{t("Replies")}</TabsTrigger>

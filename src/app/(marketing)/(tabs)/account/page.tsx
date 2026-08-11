@@ -4,7 +4,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Settings01Icon, User } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { ProfileSwitcher } from "@/components/profile-switcher";
 import { SettingsSheet } from "@/components/settings-sheet";
@@ -17,6 +17,7 @@ import { getLocale } from "@/lib/i18n/actions";
 import { getFollowCounts } from "@/lib/profile/queries";
 
 import { ProfileTabs } from "../profile-tabs";
+import { AppHeader } from "@/components/app-header";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getLocale();
@@ -78,19 +79,23 @@ export default async function AccountPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="container flex items-center justify-between px-4 pt-5">
-        <ProfileSwitcher identities={identities} activeId={identity.id} />
-        <Button
-          asChild
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t("Settings")}
-        >
-          <Link href="/account/settings">
+      <AppHeader
+        title={
+          <ProfileSwitcher identities={identities} activeId={identity.id} />
+        }
+        showBack={false}
+        action={
+          <Link
+            href="/account/settings"
+            className={buttonVariants({
+              variant: "ghost",
+              size: "icon-sm",
+            })}
+          >
             <HugeiconsIcon icon={Settings01Icon} />
           </Link>
-        </Button>
-      </div>
+        }
+      />
 
       <div className="container flex flex-col gap-2 px-4">
         <div className="flex items-start justify-between gap-4">
@@ -144,7 +149,11 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <ProfileTabs userId={identity.id} currentUserId={user.id} />
+      <ProfileTabs
+        userId={identity.id}
+        currentUserId={user.id}
+        stickyTop={50}
+      />
     </div>
   );
 }

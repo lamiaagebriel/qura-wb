@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getLocale } from "@/lib/i18n/actions";
 
 import { SearchView } from "./search-view";
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getLocale();
@@ -15,7 +15,9 @@ export default async function SearchPage() {
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      <PageHeader title={t("Search")} />
+      {/* A bottom-nav root tab, same as Feed/Favorites — no back button,
+          since there's no single "parent" screen to return to. */}
+      <AppHeader title={t("Search")} showBack={false} />
 
       <SearchView />
     </div>

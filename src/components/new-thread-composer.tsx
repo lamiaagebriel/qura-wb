@@ -8,7 +8,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import {
   Select,
@@ -34,6 +34,7 @@ import {
 } from "@/lib/validations/thread";
 import { createZodResolver } from "@/lib/validations/resolver";
 import { useAuthPrompt } from "./auth-prompt";
+import { cn } from "@/lib/utils";
 
 const DRAFT_STORAGE_KEY = "qura:new-thread-draft";
 
@@ -353,7 +354,10 @@ function ComposerSheet({
                   <AvatarFallback>{activeIdentity.name}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="text-foreground text-[13.5px] font-semibold">
+                  <p
+                    dir="ltr"
+                    className="text-foreground text-[13.5px] font-semibold"
+                  >
                     {activeIdentity.username}
                   </p>
                   <FieldGroup className="mt-1">
@@ -423,7 +427,9 @@ function ComposerSheet({
                               variant="ghost"
                               size="sm"
                               className="w-fit"
-                              onClick={() => field.onChange([...field.value, ""])}
+                              onClick={() =>
+                                field.onChange([...field.value, ""])
+                              }
                             >
                               {field.value.length === 0
                                 ? t("Add image")
@@ -482,11 +488,13 @@ export function NewThreadButton({
   user,
   businesses = [],
   defaultPostAsId,
+  className,
+  ...props
 }: {
   user?: { username: string; name: string; image?: string | null } | null;
   businesses?: ComposerBusiness[];
   defaultPostAsId?: string;
-}) {
+} & ButtonProps) {
   const { t } = useLocale();
   const { promptSignIn } = useAuthPrompt();
   const { openCreate } = useThreadComposer();
@@ -505,7 +513,8 @@ export function NewThreadButton({
       aria-label={t("New thread")}
       onClick={handleClick}
       size="icon-lg"
-      className="scale-200 cursor-pointer rounded-full"
+      className={cn("cursor-pointer rounded-full", className)}
+      {...props}
     >
       <HugeiconsIcon icon={Add01Icon} strokeWidth={2.5} className="size-4" />
     </Button>

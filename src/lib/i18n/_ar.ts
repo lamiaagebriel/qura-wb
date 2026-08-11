@@ -277,4 +277,6 @@ export const ar = {
   "Switch profile": "تبديل الملف الشخصي",
   "Business profile": "الملف التجاري",
   "No businesses found.": "لم يتم العثور على أنشطة تجارية.",
+  "Favorites": "المفضلة",
+  "Threads you like will show up here.": "ستظهر هنا المنشورات التي أعجبتك.",
 };

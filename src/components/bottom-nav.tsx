@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Add01Icon,
+  FavouriteIcon,
   Home01Icon,
   Search01Icon,
   User,
@@ -21,13 +23,6 @@ const SCROLL_DELTA_THRESHOLD = 12;
 // Always full-size this close to the top, regardless of scroll direction.
 const SCROLL_TOP_GUARD = 48;
 
-// Per-tab hit area — the only thing that determines the pill's overall
-// width (it's `w-fit`, sized to its content, not a fraction of the
-// screen). Add/remove a `TABS` entry below and the pill resizes on its
-// own; tweak spacing for every tab at once by changing these two.
-const TAB_PADDING_X = "px-4 mx-1!";
-const TAB_GAP = "gap-1";
-
 /**
  * Fixed app-style tab bar, mobile only (`sm:hidden`) — the app-shell feel
  * this UI is going for only makes sense at phone width; `DesktopTopBar`
@@ -38,6 +33,13 @@ const TAB_GAP = "gap-1";
  * overlay chrome, not page content), and shrinks on scroll-down / grows
  * back on scroll-up so it stays out of the way of reading but is never
  * more than one upward flick away.
+ *
+ * The bar spans the full width (inset a bit from each screen edge, see
+ * `inset-x-4` below — that's the "space at the end"), and every slot
+ * inside it — real tabs and the "+" action alike — gets an equal
+ * `flex-1` share of whatever's left, rather than being sized to its own
+ * content. Add or remove a `TABS` entry and the row just redistributes;
+ * nothing here is tuned to a fixed count.
  */
 export function BottomNav({
   user,
@@ -102,46 +104,64 @@ export function BottomNav({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Add/remove/reorder freely — each entry is just another `flex-1` slot
+  // in the row. `action: "compose"` marks the one non-destination entry
+  // (the "+"); everything else is a plain `href`.
   const TABS: {
     href: string;
     label: string;
     icon: typeof Home01Icon;
     exact?: boolean;
+    action?: "compose";
   }[] = [
     { href: "/", label: t("Feed"), icon: Home01Icon, exact: true },
-    // { href: "/search", label: t("Search"), icon: Search01Icon },
-    { href: "/create-thread", label: t("Search"), icon: Search01Icon },
+    { href: "/search", label: t("Search"), icon: Search01Icon },
+    {
+      href: "/create-thread",
+      label: t("New thread"),
+      icon: Add01Icon,
+      action: "compose",
+    },
+    { href: "/favs", label: t("Favorites"), icon: FavouriteIcon },
     { href: "/account", label: t("Profile"), icon: UserCircleIcon },
   ];
 
   const activeIndex = TABS.findIndex((tab) =>
-    tab.exact ? pathname === tab.href : pathname.startsWith(tab.href),
+    tab.action
+      ? false
+      : tab.exact
+        ? pathname === tab.href
+        : pathname.startsWith(tab.href),
   );
 
-  const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const tabRefs = useRef<(HTMLElement | null)[]>([]);
   const [indicator, setIndicator] = useState<{
     left: number;
     width: number;
   } | null>(null);
 
-  // Measures the active tab's actual rendered box (not a guessed 1/3
+  // Measures the active tab's actual rendered box (not a guessed 1/N
   // split) so the indicator lands correctly regardless of writing
   // direction (`offsetLeft` is relative to the row's own layout either
-  // way) or unequal tab widths. `useLayoutEffect` so it's positioned
-  // before paint — no frame of it sitting in the wrong spot first.
+  // way), unequal tab widths, or however many `TABS` there are right
+  // now. `useLayoutEffect` so it's positioned before paint — no frame of
+  // it sitting in the wrong spot first.
   useLayoutEffect(() => {
     const el = tabRefs.current[activeIndex];
-    if (!el) return;
+    if (!el) {
+      setIndicator(null);
+      return;
+    }
     setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
   }, [activeIndex]);
 
   return (
     <nav
       className={cn(
-        // `w-fit` + centered via `left-1/2 -translate-x-1/2` — width comes
-        // purely from its content (`TABS` below), not a screen-relative
-        // inset. Add/remove a tab and this resizes on its own.
-        "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-50 w-fit origin-bottom -translate-x-1/2 rounded-full transition-transform duration-300 ease-out md:hidden",
+        // Full width, inset from each screen edge rather than sized to
+        // its own content — `TABS` can grow or shrink and the bar just
+        // keeps spanning the same space.
+        "fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 origin-bottom rounded-full transition-transform duration-300 ease-out md:hidden",
         // Frosted glass, always — this is overlay chrome sitting on top of
         // whatever's behind it (a photo, the feed, ...), not page content,
         // so it doesn't switch with the site's own light/dark theme the
@@ -155,7 +175,7 @@ export function BottomNav({
         shrunk ? "scale-90" : "scale-100",
       )}
     >
-      <div className={cn("relative flex items-center px-2 py-1", TAB_GAP)}>
+      <div className="relative flex items-center px-1.5 py-1">
         {indicator && (
           <span
             aria-hidden
@@ -169,18 +189,15 @@ export function BottomNav({
 
         {TABS.map((tab, index) => {
           const active = index === activeIndex;
-          if (tab.href === "/create-thread")
-            //   Not part of `TABS` — it's an action, not a destination, so it
-            // never participates in the sliding active-tab indicator above.
-            // Sits after Profile since it's appended after `TABS.map` renders
-            // (still visually last in the pill, same idea as Threads' "+").
+
+          if (tab.action === "compose") {
             return (
               <div
-                key={tab.href}
-                className={cn(
-                  "relative flex items-center justify-center py-1",
-                  TAB_PADDING_X,
-                )}
+                key={index}
+                ref={(el) => {
+                  tabRefs.current[index] = el;
+                }}
+                className="relative z-10 flex flex-1 items-center justify-center py-1"
               >
                 <NewThreadButton
                   user={user}
@@ -191,20 +208,19 @@ export function BottomNav({
                 />
               </div>
             );
+          }
+
           return (
             <Link
-              key={tab.href}
+              key={index}
               ref={(el) => {
                 tabRefs.current[index] = el;
               }}
               href={tab.href}
               aria-label={tab.label}
-              className={cn(
-                "relative flex items-center justify-center py-1",
-                TAB_PADDING_X,
-              )}
+              className="relative z-10 flex flex-1 items-center justify-center py-1"
             >
-              <span className="flex items-center justify-center rounded-full p-2.5 text-neutral-900">
+              <span className="flex items-center justify-center rounded-full p-2 text-neutral-900">
                 {tab.href === "/account" && (activeIdentity ?? user) ? (
                   <Avatar>
                     {(activeIdentity ?? user)!.image && (

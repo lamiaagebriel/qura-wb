@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
@@ -33,7 +33,7 @@ export default async function BusinessProfilePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
+      <AppHeader
         title={isEdit ? identity!.name : t("Create business profile")}
       />
       <div className="container px-4">

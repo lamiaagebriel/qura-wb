@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
@@ -20,10 +20,12 @@ export default async function InviteFriendsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t("Invite friends")} />
+      <AppHeader title={t("Invite friends")} />
       <div className="container flex flex-col gap-4 px-4">
         <p className="text-muted-foreground text-[13px] leading-relaxed">
-          {t("Share your invite link — anyone who signs up through it joins your city's feed.")}
+          {t(
+            "Share your invite link — anyone who signs up through it joins your city's feed.",
+          )}
         </p>
         <div className="border-border/60 bg-muted/40 truncate rounded-md border px-3 py-2 text-[13px]">
           {inviteUrl}

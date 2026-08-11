@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
 
@@ -20,7 +20,7 @@ export default async function ReportProblemPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t("Report a problem")} />
+      <AppHeader title={t("Report a problem")} />
       <div className="container px-4">
         <ReportProblemForm />
       </div>

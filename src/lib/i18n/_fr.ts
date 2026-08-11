@@ -277,4 +277,6 @@ export const fr = {
   "Switch profile": "Changer de profil",
   "Business profile": "Profil professionnel",
   "No businesses found.": "Aucune entreprise trouvée.",
+  "Favorites": "Favoris",
+  "Threads you like will show up here.": "Les threads que tu aimes apparaîtront ici.",
 };

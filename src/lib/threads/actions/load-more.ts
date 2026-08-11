@@ -3,6 +3,7 @@
 import { getCurrentUser } from "@/lib/auth/guard";
 import {
   getFeedThreads,
+  getLikedThreads,
   getThreadReplies,
   getUserReplies,
   getUserThreads,
@@ -38,4 +39,14 @@ export async function loadMoreUserThreadsAction(userId: string, cursor: number) 
 export async function loadMoreUserRepliesAction(userId: string, cursor: number) {
   const user = await getCurrentUser();
   return getUserReplies(userId, user?.id, cursor);
+}
+
+/** No `userId` param, unlike the others — favorites are always "yours",
+ * never someone else's, so there's nothing to pass but the cursor. Signed
+ * out (shouldn't happen — the page itself redirects to `/login`) just
+ * comes back empty rather than erroring. */
+export async function loadMoreLikedThreadsAction(cursor: number) {
+  const user = await getCurrentUser();
+  if (!user) return { items: [], nextCursor: null };
+  return getLikedThreads(user.id, cursor);
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { getLocale } from "@/lib/i18n/actions";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,7 +13,7 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t("Privacy Policy")} />
+      <AppHeader title={t("Privacy Policy")} />
       <div className="container flex flex-col gap-4 px-4 pb-8 text-[13.5px] leading-relaxed">
         <p className="text-muted-foreground">
           {t(

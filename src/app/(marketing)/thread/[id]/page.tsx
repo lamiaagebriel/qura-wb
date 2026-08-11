@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { ThreadCard } from "@/components/thread-card";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
@@ -37,18 +37,22 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   // `authorFollowedByViewer` as always `false` while the replies below
   // them (which do pass it) show the real state, an inconsistency that's
   // invisible until you're signed in and looking at your own likes/follows.
-  const [thread, ancestors, { items: replies, nextCursor }] =
-    await Promise.all([
+  const [thread, ancestors, { items: replies, nextCursor }] = await Promise.all(
+    [
       getThread(id, user?.id),
       getThreadAncestors(id, user?.id),
       getThreadReplies(id, { viewerId: user?.id }),
-    ]);
+    ],
+  );
 
   if (!thread) notFound();
 
   return (
     <div className={cn("container flex flex-col gap-2 pb-20")}>
-      <PageHeader title={t("Thread")} />
+      {/* Same reasoning as `/profile/[username]`'s header — reachable
+          from many places (feed, a profile's threads tab, a reply
+          chain, ...), so a fixed fallback beats trusting history. */}
+      <AppHeader title={t("Thread")} />
 
       {/* The chain this thread is a reply to — connected down into the
           thread being viewed, not into its own replies below. That's the

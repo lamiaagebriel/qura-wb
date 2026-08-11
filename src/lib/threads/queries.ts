@@ -9,6 +9,7 @@ import { getFollowingIds } from "@/lib/profile/queries";
 const FEED_PAGE_SIZE = 20;
 const REPLIES_PAGE_SIZE = 20;
 const PROFILE_TAB_PAGE_SIZE = 20;
+const LIKED_PAGE_SIZE = 20;
 
 export type ReplySort = "top" | "recent";
 
@@ -259,4 +260,39 @@ export async function getUserReplies(
     ),
     { cursor, pageSize: PROFILE_TAB_PAGE_SIZE, viewerId },
   );
+}
+
+/**
+ * The favorites page — every thread `viewerId` has liked, most recently
+ * liked first. Ordered by `threadLikes.createdAt`, not the thread's own
+ * `createdAt`, so it can't reuse `paginatedThreads` (that orders by a
+ * column on `threads` itself) — same "rank first, fetch full rows after"
+ * shape as `getThreadReplies`' "top" branch, just ranking by like time
+ * instead of like count.
+ */
+export async function getLikedThreads(viewerId: string, cursor = 0) {
+  const likedRows = await db.query.threadLikes.findMany({
+    where: eq(schema.threadLikes.userId, viewerId),
+    orderBy: (threadLikes, { desc }) => [desc(threadLikes.createdAt)],
+    columns: { threadId: true },
+    limit: LIKED_PAGE_SIZE + 1,
+    offset: cursor,
+  });
+
+  const hasMore = likedRows.length > LIKED_PAGE_SIZE;
+  const orderedIds = likedRows.slice(0, LIKED_PAGE_SIZE).map((r) => r.threadId);
+  if (orderedIds.length === 0) return { items: [], nextCursor: null };
+
+  const rows = await db.query.threads.findMany({
+    where: inArray(schema.threads.id, orderedIds),
+    with: { author: true },
+  });
+  // `inArray` doesn't preserve order — re-sort to match `orderedIds`.
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const ordered = orderedIds
+    .map((id) => byId.get(id))
+    .filter((r) => r !== undefined);
+
+  const items = await withCounts(ordered, viewerId);
+  return { items, nextCursor: hasMore ? cursor + LIKED_PAGE_SIZE : null };
 }
