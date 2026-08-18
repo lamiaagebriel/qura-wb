@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { AppHeader } from "@/components/app-header";
+import { getBusinessBlock } from "@/lib/business/queries";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
 import {
@@ -42,10 +43,15 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
     redirect("/account");
   }
 
-  const [{ followers, following }, alreadyFollowing] = await Promise.all([
-    getFollowCounts(profileUser.id),
-    viewer ? isFollowing(viewer.id, profileUser.id) : Promise.resolve(false),
-  ]);
+  const [{ followers, following }, alreadyFollowing, block] = await Promise.all(
+    [
+      getFollowCounts(profileUser.id),
+      viewer ? isFollowing(viewer.id, profileUser.id) : Promise.resolve(false),
+      profileUser.ownerId
+        ? getBusinessBlock(profileUser.id)
+        : Promise.resolve(null),
+    ],
+  );
 
   const shareUrl = `${process.env.APP_URL ?? ""}/profile/${profileUser.username}`;
 
@@ -55,7 +61,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
           a followers list, ...) with no single real "parent" — `/` is a
           safe, always-meaningful fallback rather than trusting browser
           history, which a fresh tab or a shared link has none of. */}
-      <AppHeader title={`@${profileUser.username}`} backHref="/" />
+      <AppHeader title={`@${profileUser.username}`} />
 
       <div className="container flex flex-col gap-2 px-4">
         <div className="flex items-start justify-between gap-4">
@@ -104,6 +110,17 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
         userId={profileUser.id}
         currentUserId={viewer?.id}
         stickyTop={50}
+        isBusiness={!!profileUser.ownerId}
+        canReview={!!viewer && profileUser.ownerId !== viewer.id}
+        viewer={viewer}
+        block={
+          block
+            ? {
+                category: block.category,
+                data: block.data as Record<string, unknown>,
+              }
+            : null
+        }
       />
     </div>
   );

@@ -3,8 +3,11 @@ import { redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import { getGuardedUser } from "@/lib/auth/guard";
+import { getBusinessBlock } from "@/lib/business/queries";
 import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
+import { toLocationFormValues, type Location } from "@/lib/location";
+import { EMPTY_WORKING_HOURS, type WorkingHours } from "@/lib/working-hours";
 
 import { BusinessProfileForm } from "./business-profile-form";
 
@@ -30,11 +33,14 @@ export default async function BusinessProfilePage() {
     getActiveIdentity(),
   ]);
   const isEdit = !!identity?.isBusiness;
+  const block = isEdit ? await getBusinessBlock(identity!.id) : null;
+  const blockData = (block?.data ?? {}) as Record<string, unknown>;
 
   return (
     <div className="flex flex-col gap-6">
       <AppHeader
         title={isEdit ? identity!.name : t("Create business profile")}
+        backHref="/account"
       />
       <div className="container px-4">
         <BusinessProfileForm
@@ -49,6 +55,35 @@ export default async function BusinessProfilePage() {
                 }
               : { name: "", username: "", bio: "" }
           }
+          initialCategory={block?.category}
+          initialBlockValues={{
+            cuisine: (blockData.cuisine as string) ?? "",
+            priceRange:
+              (blockData.priceRange as
+                | "$"
+                | "$$"
+                | "$$$"
+                | "$$$$"
+                | undefined) ?? "",
+            workingHours:
+              (blockData.workingHours as WorkingHours | undefined) ??
+              EMPTY_WORKING_HOURS,
+            deliveryAvailable:
+              (blockData.deliveryAvailable as boolean) ?? false,
+            reservationsAvailable:
+              (blockData.reservationsAvailable as boolean) ?? false,
+            menuUrl: (blockData.menuUrl as string) ?? "",
+            specialty: (blockData.specialty as string) ?? "",
+            clinicAddress: (blockData.clinicAddress as string) ?? "",
+            acceptsInsurance: (blockData.acceptsInsurance as boolean) ?? false,
+            appointmentPhone: (blockData.appointmentPhone as string) ?? "",
+            consultationFee: (blockData.consultationFee as string) ?? "",
+            location: toLocationFormValues(
+              blockData.location as Location | undefined,
+            ),
+            phones: (blockData.phones as string[] | undefined) ?? [],
+            socialLinks: (blockData.socialLinks as string[] | undefined) ?? [],
+          }}
         />
       </div>
     </div>

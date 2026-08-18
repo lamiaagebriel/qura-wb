@@ -3,11 +3,16 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading03FreeIcons, Search01Icon } from "@hugeicons/core-free-icons";
+import {
+  Clock01Icon,
+  Loading03FreeIcons,
+  Search01Icon,
+} from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { useInfiniteList } from "@/hooks/use-infinite-list";
+import { useSearchHistory } from "@/hooks/use-search-history";
 import { searchUsersAction } from "@/lib/profile/actions/search-users";
 import { useLocale } from "@/lib/i18n/client";
 
@@ -23,6 +28,11 @@ const DEBOUNCE_MS = 300;
 
 export function SearchView() {
   const { t } = useLocale();
+  const {
+    entries: history,
+    record: recordVisit,
+    clear: clearHistory,
+  } = useSearchHistory();
   const [query, setQuery] = useState("");
   // The query the results on screen actually came from — not `query`
   // itself, which updates on every keystroke ahead of the debounce.
@@ -78,6 +88,49 @@ export function SearchView() {
         </div>
       </div>
 
+      {!searchedEnough && history.length > 0 && (
+        <>
+          <div className="container flex items-center justify-end pt-4">
+            <span className="text-muted-foreground sr-only text-[12.5px] font-medium">
+              {t("Recent searches")}
+            </span>
+            <button
+              type="button"
+              onClick={clearHistory}
+              className="text-muted-foreground hover:text-foreground text-[12.5px] font-medium"
+            >
+              {t("Clear")}
+            </button>
+          </div>
+          <ul className="flex flex-col">
+            {history.map((user) => (
+              <li key={user.id} className="border-border/60 border-b px-4 py-3">
+                <Link
+                  href={`/profile/${user.username}`}
+                  onClick={() => recordVisit(user)}
+                  className="flex items-center gap-3"
+                >
+                  <Avatar>
+                    {user.image && (
+                      <AvatarImage src={user.image} alt={user.name} />
+                    )}
+                    <AvatarFallback>{user.name}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-1 flex-col leading-tight">
+                    <span className="text-foreground text-[13.5px] font-medium">
+                      {user.name}
+                    </span>
+                    <span className="text-muted-foreground text-xs">
+                      @{user.username}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
       {searchedEnough && !isSearching && visibleItems.length === 0 && (
         <p className="text-muted-foreground py-8 text-center text-[13px]">
           {t("No businesses found.")}
@@ -89,6 +142,14 @@ export function SearchView() {
           <li key={user.id} className="border-border/60 border-b px-4 py-3">
             <Link
               href={`/profile/${user.username}`}
+              onClick={() =>
+                recordVisit({
+                  id: user.id,
+                  name: user.name,
+                  username: user.username,
+                  image: user.image,
+                })
+              }
               className="flex items-center gap-3"
             >
               <Avatar>
@@ -99,7 +160,7 @@ export function SearchView() {
                 <span className="text-foreground text-[13.5px] font-medium">
                   {user.name}
                 </span>
-                <span dir="ltr" className="text-muted-foreground text-xs">
+                <span className="text-muted-foreground text-xs">
                   @{user.username}
                 </span>
               </div>

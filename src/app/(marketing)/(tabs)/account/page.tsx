@@ -9,6 +9,7 @@ import { CopyLinkButton } from "@/components/copy-link-button";
 import { ProfileSwitcher } from "@/components/profile-switcher";
 import { SettingsSheet } from "@/components/settings-sheet";
 import { getCurrentUser } from "@/lib/auth/guard";
+import { getBusinessBlock } from "@/lib/business/queries";
 import {
   getActiveIdentity,
   getSwitchableIdentities,
@@ -73,7 +74,10 @@ export default async function AccountPage() {
   // signed out, for callers that haven't already gated on that).
   if (!identity) return null;
 
-  const { followers, following } = await getFollowCounts(identity.id);
+  const [{ followers, following }, block] = await Promise.all([
+    getFollowCounts(identity.id),
+    identity.isBusiness ? getBusinessBlock(identity.id) : Promise.resolve(null),
+  ]);
   const shareUrl = `${process.env.APP_URL ?? ""}/profile/${identity.username}`;
   const editHref = identity.isBusiness ? "/account/business" : "/account/edit";
 
@@ -153,6 +157,12 @@ export default async function AccountPage() {
         userId={identity.id}
         currentUserId={user.id}
         stickyTop={50}
+        isBusiness={identity.isBusiness}
+        block={
+          block
+            ? { category: block.category, data: block.data as Record<string, unknown> }
+            : null
+        }
       />
     </div>
   );

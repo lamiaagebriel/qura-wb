@@ -75,7 +75,7 @@ export function FollowList({
             <span className="text-foreground text-[13.5px] font-medium">
               {user.name}
             </span>
-            <span dir="ltr" className="text-muted-foreground text-xs">
+            <span className="text-muted-foreground text-xs">
               @{user.username}
             </span>
           </div>

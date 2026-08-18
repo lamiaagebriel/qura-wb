@@ -69,7 +69,7 @@ export function AppHeader({
         className,
       )}
     >
-      <div className="relative flex h-12.5 items-center px-4">
+      <div className="relative container flex h-12.5 items-center gap-2">
         {showBack && (
           <div className="z-10 flex w-7 shrink-0 items-center">
             {backHref ? (

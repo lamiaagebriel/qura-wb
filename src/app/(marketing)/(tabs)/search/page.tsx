@@ -15,7 +15,7 @@ export default async function SearchPage() {
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      {/* A bottom-nav root tab, same as Feed/Favorites — no back button,
+      {/* A bottom-nav root tab, same as Feed/Categories — no back button,
           since there's no single "parent" screen to return to. */}
       <AppHeader title={t("Search")} showBack={false} />
 

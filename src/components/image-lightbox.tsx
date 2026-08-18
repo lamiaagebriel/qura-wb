@@ -65,13 +65,13 @@ export function ImageLightbox({
 
           {images.length > 1 && (
             <div
-              // `dir="ltr"` pins the reading order of "1 / 3" itself —
+              // `` pins the reading order of "1 / 3" itself —
               // without it, the Unicode Bidi Algorithm treats the digits
               // around the neutral "/" as weak characters free to
               // reorder inside an RTL ancestor, and under `dir="rtl"`
               // this rendered as "3 / 1" instead. Same fix any counter,
               // timestamp, or phone number needs in an RTL layout.
-              dir="ltr"
+
               className="absolute top-[calc(env(safe-area-inset-top)+0.9rem)] left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/40 px-2.5 py-1 text-xs font-medium text-white"
             >
               {current + 1} / {images.length}

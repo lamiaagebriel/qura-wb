@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
-  FavouriteIcon,
+  GridViewIcon,
   Home01Icon,
   Search01Icon,
   User,
@@ -122,7 +122,7 @@ export function BottomNav({
       icon: Add01Icon,
       action: "compose",
     },
-    { href: "/favs", label: t("Favorites"), icon: FavouriteIcon },
+    { href: "/categories", label: t("Categories"), icon: GridViewIcon },
     { href: "/account", label: t("Profile"), icon: UserCircleIcon },
   ];
 

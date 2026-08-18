@@ -354,10 +354,7 @@ function ComposerSheet({
                   <AvatarFallback>{activeIdentity.name}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p
-                    dir="ltr"
-                    className="text-foreground text-[13.5px] font-semibold"
-                  >
+                  <p className="text-foreground text-[13.5px] font-semibold">
                     {activeIdentity.username}
                   </p>
                   <FieldGroup className="mt-1">

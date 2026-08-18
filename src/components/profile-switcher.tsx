@@ -74,7 +74,6 @@ export function ProfileSwitcher({
   return (
     <>
       <button
-        dir="ltr"
         type="button"
         onClick={() => setOpen(true)}
         className="text-foreground flex items-center gap-1 text-[15px] font-semibold"
@@ -110,7 +109,7 @@ export function ProfileSwitcher({
                   <span className="text-foreground text-[13.5px] font-medium">
                     {identity.name}
                   </span>
-                  <span dir="ltr" className="text-muted-foreground text-xs">
+                  <span className="text-muted-foreground text-xs">
                     @{identity.username}
                   </span>
                 </div>

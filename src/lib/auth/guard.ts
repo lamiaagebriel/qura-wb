@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getSessionCookie } from "better-auth/cookies";
 
 import { auth } from "./auth";
 
@@ -14,9 +15,28 @@ export type SafeUser = AuthSession["user"];
  * from any number of server components/actions in the same request tree
  * without repeat db round-trips (Better Auth's `getSession` does its own
  * internal caching too, but this keeps the call site the same as before).
+ *
+ * Also where a *stale* cookie gets caught: `proxy.ts` only checks that a
+ * session cookie is present and well-formed (it can't afford a DB round
+ * trip from the edge runtime it runs in), so a browser can hold a cookie
+ * that no longer resolves to a real session — the row expired/was
+ * revoked, or the DB was reset out from under it (wiping every session,
+ * as re-seeding this project's dev DB does). Left alone, that's a dead
+ * end: `/account` renders signed-out, but `/login` immediately bounces
+ * back to `/account` because `proxy.ts` still sees a cookie — stuck
+ * either way, no path back to actually signing in. Catching it here
+ * (cookie present, `getSession` came back empty) and routing through
+ * `/api/auth/force-signout` clears that cookie in the one place Next.js
+ * actually allows it (a Route Handler, not a Server Component render),
+ * which is what lets `proxy.ts` finally agree the browser is signed out.
  */
 export const getCurrentSession = cache(async () => {
-  return auth.api.getSession({ headers: await headers() });
+  const headerList = await headers();
+  const result = await auth.api.getSession({ headers: headerList });
+  if (!result && getSessionCookie(headerList)) {
+    redirect("/api/auth/force-signout?error=session_expired");
+  }
+  return result;
 });
 
 export async function getCurrentUser(): Promise<SafeUser | null> {

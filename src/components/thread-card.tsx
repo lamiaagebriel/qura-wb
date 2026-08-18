@@ -265,7 +265,6 @@ export function ThreadCard({
             <Link
               href={`/profile/${thread.author.username}`}
               onClick={(e) => e.stopPropagation()}
-              dir="ltr"
               className="text-foreground text-[13.5px] font-semibold hover:underline"
             >
               {thread.author.username}

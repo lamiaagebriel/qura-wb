@@ -33,6 +33,7 @@ const LOGIN_ERROR_KEYS = {
   oauth_unavailable: "Google sign-in isn't available right now.",
   oauth_failed: "Something went wrong signing in with Google. Please try again.",
   account_suspended: "Your account has been suspended. Contact support for help.",
+  session_expired: "Your session expired. Please sign in again.",
 } as const;
 
 export function LoginForm({
