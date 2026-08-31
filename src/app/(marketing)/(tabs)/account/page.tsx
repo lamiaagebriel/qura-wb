@@ -122,20 +122,23 @@ export default async function AccountPage() {
         </div>
 
         <div className="flex items-center gap-4 text-[13px]">
-          <Link
-            href="/account/followers"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <span className="text-foreground font-semibold">{followers}</span>{" "}
-            {t("followers")}
-          </Link>
-          <Link
-            href="/account/following"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <span className="text-foreground font-semibold">{following}</span>{" "}
-            {t("following")}
-          </Link>
+          {identity.isBusiness ? (
+            <Link
+              href="/account/followers"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <span className="text-foreground font-semibold">{followers}</span>{" "}
+              {t("followers")}
+            </Link>
+          ) : (
+            <Link
+              href="/account/following"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <span className="text-foreground font-semibold">{following}</span>{" "}
+              {t("following")}
+            </Link>
+          )}
         </div>
 
         <div className="flex gap-2">

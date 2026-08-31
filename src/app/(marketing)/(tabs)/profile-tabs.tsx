@@ -69,7 +69,69 @@ export async function ProfileTabs({
         : Promise.resolve(null),
     ]);
 
-  const tabCount = 2 + (block ? 1 : 0);
+  // Each entry is one tab — add/remove/reorder tabs here without touching
+  // the `TabsList`/`TabsContent` wiring below. `condition` lets a tab drop
+  // itself out entirely (e.g. "Info" only when there's a block to show).
+  const tabs = [
+    block && {
+      value: "info",
+      label: t("Info"),
+      content: (
+        <BusinessBlockCard category={block.category} data={block.data} />
+      ),
+    },
+    {
+      value: "threads",
+      label: t("Threads"),
+      content: (
+        <ThreadList
+          initialItems={threads.items}
+          initialCursor={threads.nextCursor}
+          fetchMore={loadMoreUserThreadsAction.bind(null, userId)}
+          currentUserId={currentUserId}
+          emptyLabel={t("No threads yet.")}
+        />
+      ),
+    },
+    isBusiness
+      ? {
+          value: "reviews",
+          label: t("Reviews"),
+          content: (
+            <BusinessReviews
+              businessId={userId}
+              initialItems={reviews.items}
+              initialCursor={reviews.nextCursor}
+              summary={ratingSummary}
+              myReview={myReview}
+              canReview={canReview}
+              viewer={viewer}
+            />
+          ),
+        }
+      : {
+          value: "replies",
+          label: t("Replies"),
+          content: (
+            <ThreadList
+              initialItems={replies.items}
+              initialCursor={replies.nextCursor}
+              fetchMore={loadMoreUserRepliesAction.bind(null, userId)}
+              currentUserId={currentUserId}
+              emptyLabel={t("No replies yet.")}
+            />
+          ),
+        },
+  ].filter((tab): tab is Exclude<typeof tab, false | null | undefined> => !!tab);
+
+  const gridColsClass =
+    {
+      1: "grid-cols-1",
+      2: "grid-cols-2",
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+    }[tabs.length] ?? "grid-cols-2";
 
   return (
     // Keyed on `userId` — `ThreadList`'s `useInfiniteList` merges a fresh
@@ -80,68 +142,26 @@ export async function ProfileTabs({
     // `router.refresh()`, no navigation, so nothing else would reset the
     // old list's leftover client state). Changing `key` forces React to
     // remount instead of reconcile, which is the actual fix.
-    <Tabs
-      key={userId}
-      defaultValue={block ? "info" : "threads"}
-      className="w-full gap-0"
-    >
+    <Tabs key={userId} defaultValue={tabs[0].value} className="w-full gap-0">
       <TabsList
         variant="line"
         style={{ top: stickyTop }}
         className={cn(
           "bg-background/95 sticky z-30 container grid h-11! w-full border-b px-4 backdrop-blur-md",
-          tabCount === 3 ? "grid-cols-3" : "grid-cols-2",
+          gridColsClass,
         )}
       >
-        {block && <TabsTrigger value="info">{t("Info")}</TabsTrigger>}
-        <TabsTrigger value="threads">{t("Threads")}</TabsTrigger>
-        {isBusiness ? (
-          <TabsTrigger value="reviews">{t("Reviews")}</TabsTrigger>
-        ) : (
-          <TabsTrigger value="replies">{t("Replies")}</TabsTrigger>
-        )}
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.value} value={tab.value}>
+            {tab.label}
+          </TabsTrigger>
+        ))}
       </TabsList>
-      {block && (
-        <TabsContent value="info">
-          <BusinessBlockCard
-            category={block.category}
-            data={block.data}
-            t={t}
-          />
+      {tabs.map((tab) => (
+        <TabsContent key={tab.value} value={tab.value}>
+          {tab.content}
         </TabsContent>
-      )}
-      <TabsContent value="threads">
-        <ThreadList
-          initialItems={threads.items}
-          initialCursor={threads.nextCursor}
-          fetchMore={loadMoreUserThreadsAction.bind(null, userId)}
-          currentUserId={currentUserId}
-          emptyLabel={t("No threads yet.")}
-        />
-      </TabsContent>
-      {isBusiness ? (
-        <TabsContent value="reviews" className="container px-4 py-3">
-          <BusinessReviews
-            businessId={userId}
-            initialItems={reviews.items}
-            initialCursor={reviews.nextCursor}
-            summary={ratingSummary}
-            myReview={myReview}
-            canReview={canReview}
-            viewer={viewer}
-          />
-        </TabsContent>
-      ) : (
-        <TabsContent value="replies">
-          <ThreadList
-            initialItems={replies.items}
-            initialCursor={replies.nextCursor}
-            fetchMore={loadMoreUserRepliesAction.bind(null, userId)}
-            currentUserId={currentUserId}
-            emptyLabel={t("No replies yet.")}
-          />
-        </TabsContent>
-      )}
+      ))}
     </Tabs>
   );
 }

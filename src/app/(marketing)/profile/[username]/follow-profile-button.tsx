@@ -66,6 +66,7 @@ export function FollowProfileButton({
 export function ProfileFollowStats({
   initialFollowerCount,
   followingCount,
+  isBusiness,
   shareButton,
   // Set only when this profile is a business the viewer owns — you can't
   // follow your own business (see `followAction`'s matching check), so
@@ -80,6 +81,7 @@ export function ProfileFollowStats({
 }: {
   initialFollowerCount: number;
   followingCount: number;
+  isBusiness: boolean;
   shareButton: React.ReactNode;
   ownerBusinessId?: string;
 } & React.ComponentProps<typeof FollowProfileButton>) {
@@ -98,18 +100,21 @@ export function ProfileFollowStats({
   return (
     <>
       <div className="flex items-center gap-4 text-[13px]">
-        <span className="text-muted-foreground">
-          <span className="text-foreground font-semibold">
-            {followerCount}
-          </span>{" "}
-          {t("followers")}
-        </span>
-        <span className="text-muted-foreground">
-          <span className="text-foreground font-semibold">
-            {followingCount}
-          </span>{" "}
-          {t("following")}
-        </span>
+        {isBusiness ? (
+          <span className="text-muted-foreground">
+            <span className="text-foreground font-semibold">
+              {followerCount}
+            </span>{" "}
+            {t("followers")}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">
+            <span className="text-foreground font-semibold">
+              {followingCount}
+            </span>{" "}
+            {t("following")}
+          </span>
+        )}
       </div>
 
       <div className="flex gap-2">

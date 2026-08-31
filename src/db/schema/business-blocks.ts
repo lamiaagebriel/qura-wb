@@ -1,6 +1,7 @@
 import { createdAt, id, pgTable, references, updatedAt } from "@/db/helpers";
-import { jsonb, pgEnum } from "drizzle-orm/pg-core";
+import { index, jsonb, pgEnum } from "drizzle-orm/pg-core";
 
+import { cityEnum } from "./cities";
 import { users } from "./users";
 
 // The 18 main categories from the product's category tree (see
@@ -46,21 +47,32 @@ export type BusinessCategory = (typeof BUSINESS_CATEGORIES)[number];
  * on what's inside `data`, only whatever the zod schema for that
  * category enforced at write time.
  */
-export const businessBlocks = pgTable("business_blocks", {
-  ...id,
-  ...createdAt,
-  ...updatedAt,
+export const businessBlocks = pgTable(
+  "business_blocks",
+  {
+    ...id,
+    ...createdAt,
+    ...updatedAt,
 
-  businessId: references({
-    k: "business_id",
-    ref: users.id,
-    actions: { onDelete: "cascade" },
-  })
-    .notNull()
-    .unique(),
+    businessId: references({
+      k: "business_id",
+      ref: users.id,
+      actions: { onDelete: "cascade" },
+    })
+      .notNull()
+      .unique(),
 
-  category: businessCategoryEnum("category").notNull(),
-  data: jsonb("data").notNull(),
-});
+    category: businessCategoryEnum("category").notNull(),
+    data: jsonb("data").notNull(),
+    // Which city this business shows up under (`getBusinessesByCategory`,
+    // eventually search) — set once at creation from whichever city was
+    // active, same as `threads.city`. Never touched by a later block edit
+    // (see `upsertBusinessBlockAction`'s `onConflictDoUpdate`, which
+    // deliberately excludes it from the update set): saving your menu
+    // shouldn't silently relocate your business.
+    city: cityEnum("city").notNull().default("aswan"),
+  },
+  (t) => [index("business_block__city__idx").on(t.city)],
+);
 
 export type BusinessBlock = typeof businessBlocks.$inferSelect;

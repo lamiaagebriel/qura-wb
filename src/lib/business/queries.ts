@@ -3,7 +3,7 @@ import "server-only";
 import { and, avg, count, eq } from "drizzle-orm";
 
 import { db, schema } from "@/db";
-import type { BusinessCategory } from "@/db/schema";
+import type { BusinessCategory, CityId } from "@/db/schema";
 
 /** Every business profile a real account controls, newest first — the
  * settings list and the composer's "post as" picker both need exactly
@@ -45,13 +45,19 @@ export async function getBusinessBlock(businessId: string) {
   });
 }
 
-/** Every business that's set the given category, newest first — the
- * `/categories/[category]` browse page. Joins through `business_blocks`
- * rather than `users` since "has this category" only exists on the
- * block row. */
-export async function getBusinessesByCategory(category: BusinessCategory) {
+/** Every business that's set the given category in the given city,
+ * newest first — the `/categories/[category]` browse page. Joins through
+ * `business_blocks` rather than `users` since "has this category" (and
+ * "is in this city") only exist on the block row. */
+export async function getBusinessesByCategory(
+  category: BusinessCategory,
+  city: CityId,
+) {
   return db.query.businessBlocks.findMany({
-    where: eq(schema.businessBlocks.category, category),
+    where: and(
+      eq(schema.businessBlocks.category, category),
+      eq(schema.businessBlocks.city, city),
+    ),
     with: { business: true },
     orderBy: (blocks, { desc }) => [desc(blocks.createdAt)],
   });

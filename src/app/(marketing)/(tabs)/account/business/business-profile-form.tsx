@@ -122,7 +122,10 @@ function toLocationPayload(value: LocationFormValues): Location | undefined {
   const lat = Number(value.lat);
   const lng = Number(value.lng);
   const hasCoords =
-    value.lat !== "" && value.lng !== "" && !Number.isNaN(lat) && !Number.isNaN(lng);
+    value.lat !== "" &&
+    value.lng !== "" &&
+    !Number.isNaN(lat) &&
+    !Number.isNaN(lng);
 
   return {
     description,
@@ -309,7 +312,9 @@ export function BusinessProfileForm({
                   id={field.name}
                   aria-invalid={fieldState.invalid}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -326,7 +331,9 @@ export function BusinessProfileForm({
                   autoCorrect="off"
                   aria-invalid={fieldState.invalid}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -384,14 +391,17 @@ export function BusinessProfileForm({
                 name="location"
                 control={blockForm.control}
                 render={({ field }) => (
-                  <LocationEditor value={field.value} onChange={field.onChange} t={t} />
+                  <LocationEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
               <Controller
                 name="phones"
                 control={blockForm.control}
                 render={({ field }) => (
-                  <PhonesEditor value={field.value} onChange={field.onChange} t={t} />
+                  <PhonesEditor value={field.value} onChange={field.onChange} />
                 )}
               />
               <Controller
@@ -401,7 +411,6 @@ export function BusinessProfileForm({
                   <SocialLinksEditor
                     value={field.value}
                     onChange={field.onChange}
-                    t={t}
                   />
                 )}
               />
@@ -465,7 +474,6 @@ export function BusinessProfileForm({
                     <WorkingHoursEditor
                       value={field.value}
                       onChange={field.onChange}
-                      t={t}
                     />
                   </Field>
                 )}
@@ -566,7 +574,6 @@ export function BusinessProfileForm({
                     <WorkingHoursEditor
                       value={field.value}
                       onChange={field.onChange}
-                      t={t}
                     />
                   </Field>
                 )}
@@ -614,21 +621,23 @@ export function BusinessProfileForm({
             </>
           )}
 
-          {!!category && category !== "food-drinks" && category !== "health" && (
-            <Controller
-              name="details"
-              control={blockForm.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>{t("Details")}</FieldLabel>
-                  <Textarea {...field} id={field.name} maxLength={300} />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          )}
+          {!!category &&
+            category !== "food-drinks" &&
+            category !== "health" && (
+              <Controller
+                name="details"
+                control={blockForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>{t("Details")}</FieldLabel>
+                    <Textarea {...field} id={field.name} maxLength={300} />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            )}
 
           <Field>
             <Button type="submit" disabled={form.formState.isSubmitting}>

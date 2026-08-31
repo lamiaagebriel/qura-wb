@@ -21,9 +21,9 @@ const SORTS: ReplySort[] = ["recent", "top"];
 const SORT_LABEL = { recent: "Recent", top: "Top" } as const;
 
 /** The reply list on `/thread/[id]` — its own component (not the plain
- * `ThreadList` the feed and profile tabs use) because it also owns the
- * Top/Recent sort control, which has to reset the list to a fresh first
- * page rather than just append. */
+ * `ThreadList` profile tabs use) because it also owns the Top/Recent
+ * sort control, which has to reset the list to a fresh first page rather
+ * than just append. */
 export function ThreadReplies({
   threadId,
   initialItems,

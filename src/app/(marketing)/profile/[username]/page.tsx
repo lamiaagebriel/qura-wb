@@ -85,6 +85,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
         <ProfileFollowStats
           initialFollowerCount={followers}
           followingCount={following}
+          isBusiness={!!profileUser.ownerId}
           userId={profileUser.id}
           initialIsFollowing={alreadyFollowing}
           isSignedIn={!!viewer}

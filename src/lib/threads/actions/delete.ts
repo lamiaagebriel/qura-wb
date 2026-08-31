@@ -9,6 +9,7 @@ import { getOwnedAuthorIds } from "@/lib/business/queries";
 import { fail, messageError, ok, type ActionResult } from "@/lib/errors";
 import { isValidId } from "@/lib/id";
 import { getLocale } from "@/lib/i18n/actions";
+import { deleteThreadImages } from "@/lib/storage/cleanup";
 
 export async function deleteThreadAction(threadId: string): Promise<ActionResult> {
   const [user, { t }] = await Promise.all([getGuardedUser(), getLocale()]);
@@ -22,6 +23,20 @@ export async function deleteThreadAction(threadId: string): Promise<ActionResult
   // silently a no-op, which is the right behavior either way. Covers
   // threads authored by one of the signer's own business profiles too.
   const ownedAuthorIds = await getOwnedAuthorIds(user.id);
+
+  // Collected *before* the delete — a top-level thread's replies cascade
+  // away with it (`threads.parentId`'s `ON DELETE CASCADE`), and their
+  // images need cleaning up from S3 exactly the same as the thread's own,
+  // not just the one row this query targets directly.
+  const doomed = await db.query.threads.findMany({
+    where: and(
+      eq(schema.threads.id, threadId),
+      inArray(schema.threads.authorId, ownedAuthorIds),
+    ),
+    columns: { images: true },
+    with: { replies: { columns: { images: true } } },
+  });
+
   await db
     .delete(schema.threads)
     .where(
@@ -30,6 +45,12 @@ export async function deleteThreadAction(threadId: string): Promise<ActionResult
         inArray(schema.threads.authorId, ownedAuthorIds),
       ),
     );
+
+  const allImages = doomed.flatMap((thread) => [
+    ...thread.images,
+    ...thread.replies.flatMap((reply) => reply.images),
+  ]);
+  await deleteThreadImages(allImages);
 
   revalidatePath("/");
   revalidatePath("/account");

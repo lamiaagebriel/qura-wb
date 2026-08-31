@@ -15,10 +15,10 @@ export type ActiveIdentity = {
   bio: string | null;
   isBusiness: boolean;
   // The real signed-in account's id, always — regardless of which
-  // identity is active. Actions a business can't do (follow, like,
-  // reply) act as this instead; see `followAction`/`likeThreadAction`/
-  // `ComposeBox`, none of which ever take an identity, only ever the
-  // session user.
+  // identity is active. Actions a business can't do (follow, save,
+  // vote, reply) act as this instead; see `followAction`/
+  // `saveThreadAction`/`ComposeBox`, none of which ever take an
+  // identity, only ever the session user.
   realUserId: string;
 };
 

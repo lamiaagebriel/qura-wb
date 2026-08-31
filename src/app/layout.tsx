@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("Qura — Your city, one feed"),
     description: t(
-      "Discover restaurants, events, jobs, apartments, and more — all in one local feed. Launching in Sousse and Hammamet.",
+      "Discover restaurants, events, jobs, apartments, and more — all in one local feed. Launching in Aswan, expanding worldwide.",
     ),
     manifest: "/manifest.json",
     icons: {

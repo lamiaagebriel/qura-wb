@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 
-import { threadLikes } from "./threads.likes";
+import { threadSaves } from "./threads.saves";
+import { threadVotes } from "./threads.votes";
 import { threads } from "./threads";
 import { users } from "./users";
 
@@ -15,16 +16,28 @@ export const threadsRelations = relations(threads, ({ one, many }) => ({
     relationName: "replies",
   }),
   replies: many(threads, { relationName: "replies" }),
-  likes: many(threadLikes),
+  saves: many(threadSaves),
+  votes: many(threadVotes),
 }));
 
-export const threadLikesRelations = relations(threadLikes, ({ one }) => ({
+export const threadSavesRelations = relations(threadSaves, ({ one }) => ({
   thread: one(threads, {
-    fields: [threadLikes.threadId],
+    fields: [threadSaves.threadId],
     references: [threads.id],
   }),
   user: one(users, {
-    fields: [threadLikes.userId],
+    fields: [threadSaves.userId],
+    references: [users.id],
+  }),
+}));
+
+export const threadVotesRelations = relations(threadVotes, ({ one }) => ({
+  thread: one(threads, {
+    fields: [threadVotes.threadId],
+    references: [threads.id],
+  }),
+  user: one(users, {
+    fields: [threadVotes.userId],
     references: [users.id],
   }),
 }));

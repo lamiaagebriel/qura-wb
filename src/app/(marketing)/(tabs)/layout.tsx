@@ -1,5 +1,4 @@
 import { BottomNav } from "@/components/bottom-nav";
-import { DesktopTopBar } from "@/components/desktop-topbar";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { getMyBusinesses } from "@/lib/business/queries";
 import { getActiveIdentity } from "@/lib/identity/active";
@@ -26,9 +25,12 @@ export default async function ExploreLayout({ children }: ExploreLayoutProps) {
 
   return (
     <div className="bg-background min-h-svh">
-      <DesktopTopBar />
       <div className="pb-24 sm:pb-8">{children}</div>
-      <BottomNav user={user} businesses={businesses} activeIdentity={identity} />
+      <BottomNav
+        user={user}
+        businesses={businesses}
+        activeIdentity={identity}
+      />
     </div>
   );
 }

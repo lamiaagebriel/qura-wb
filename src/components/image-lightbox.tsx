@@ -9,6 +9,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
 
@@ -50,7 +52,7 @@ export function ImageLightbox({
         <DialogPrimitive.Content
           onOpenAutoFocus={(e) => e.preventDefault()}
           onClick={(e) => e.stopPropagation()}
-          className="fixed inset-0 z-50 flex flex-col outline-none"
+          className="fixed inset-0 z-50 container flex flex-col px-0! outline-none"
         >
           <DialogPrimitive.Title className="sr-only">
             Image
@@ -98,6 +100,16 @@ export function ImageLightbox({
                 </CarouselItem>
               ))}
             </CarouselContent>
+            {/* `disabled:pointer-events-auto` override: at the first/last
+                slide (loop:false) the button is `disabled`, and the shared
+                Button's default `disabled:pointer-events-none` removes it
+                from hit-testing entirely — so the click falls through to
+                the fullscreen Overlay underneath and Radix treats it as an
+                outside click, closing the lightbox. Keeping it hit-testable
+                lets the (still inert, since `disabled` blocks the click
+                event itself) button swallow the click instead. */}
+            <CarouselNext className="bg-foreground! text-background! -translate-x-[250%] disabled:pointer-events-auto" />
+            <CarouselPrevious className="bg-foreground! text-background! translate-x-[250%] disabled:pointer-events-auto" />
           </Carousel>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

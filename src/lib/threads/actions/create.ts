@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db, schema } from "@/db";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getMyBusinessById } from "@/lib/business/queries";
+import { getActiveCity } from "@/lib/city/actions";
 import {
   fail,
   messageError,
@@ -43,6 +44,8 @@ export async function createThreadAction(
     authorId = business.id;
   }
 
+  const city = await getActiveCity();
+
   const [row] = await db
     .insert(schema.threads)
     .values({
@@ -50,6 +53,11 @@ export async function createThreadAction(
       body: parsed.data.body,
       images: parsed.data.images,
       parentId: parsed.data.parentId ?? null,
+      city,
+      // A reply's category is never shown, so it's not worth trusting
+      // whatever the client sent for one — always `"general"` (the
+      // column default) unless this is a genuine new top-level thread.
+      category: parsed.data.parentId ? "general" : parsed.data.category,
     })
     .returning({ id: schema.threads.id });
 

@@ -1,26 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Delete02Icon,
-  ImageAdd01Icon,
-  SentIcon,
-  User,
-} from "@hugeicons/core-free-icons";
+import { ImageAdd01Icon, SentIcon, User } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
+import { ImageUploadField } from "@/components/image-upload-field";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { Textarea } from "@/components/ui/textarea";
 import { createThreadAction } from "@/lib/threads/actions/create";
 import { handleAppError } from "@/lib/errors-client";
 import { useLocale } from "@/lib/i18n/client";
@@ -30,8 +24,6 @@ import {
 } from "@/lib/validations/thread";
 import { createZodResolver } from "@/lib/validations/resolver";
 import { useAuthPrompt } from "./auth-prompt";
-
-const MAX_IMAGES = 4;
 
 export function ComposeBox({
   user,
@@ -57,6 +49,13 @@ export function ComposeBox({
   const { promptSignIn } = useAuthPrompt();
   const [showImages, setShowImages] = useState(false);
   const schema = useMemo(() => createThreadSchema(t), [t]);
+  // Same role as `new-thread-composer.tsx`'s own — every image URL this
+  // reply box has uploaded, so `ImageUploadField.removeImage` knows
+  // they're safe to delete immediately if backed out of. This box has
+  // no explicit "cancel" (it's always visible, not a modal), so anything
+  // left uploaded-but-never-posted here relies on the cron sweep
+  // (`sweepOrphanedThreadImages`) rather than an on-close cleanup call.
+  const sessionUploadsRef = useRef<Set<string>>(new Set());
 
   const form = useForm<ThreadValues>({
     resolver: createZodResolver(schema),
@@ -74,6 +73,7 @@ export function ComposeBox({
       handleAppError(result.error, form);
       return;
     }
+    sessionUploadsRef.current.clear();
     form.reset({ body: "", images: [], parentId });
     setShowImages(false);
     router.refresh();
@@ -82,6 +82,11 @@ export function ComposeBox({
 
   return (
     <form
+      // `onSubmit` only ever reads `sessionUploadsRef.current` from
+      // inside the real submit handler `handleSubmit` invokes on
+      // `submit`, never during render; the rule can't see through
+      // `react-hook-form`'s own wrapper to confirm that statically.
+      // eslint-disable-next-line react-hooks/refs
       onSubmit={form.handleSubmit(onSubmit)}
       noValidate
       className="flex gap-2"
@@ -131,15 +136,7 @@ export function ComposeBox({
                     size="icon-xs"
                     aria-label={showImages ? t("Remove image") : t("Add image")}
                     aria-pressed={showImages}
-                    onClick={() =>
-                      setShowImages((v) => {
-                        const next = !v;
-                        if (next && form.getValues("images").length === 0) {
-                          form.setValue("images", [""]);
-                        }
-                        return next;
-                      })
-                    }
+                    onClick={() => setShowImages((v) => !v)}
                     className={showImages ? "text-primary" : undefined}
                   >
                     <HugeiconsIcon icon={ImageAdd01Icon} className="size-4" />
@@ -164,49 +161,15 @@ export function ComposeBox({
             name="images"
             control={form.control}
             render={({ field, fieldState }) => (
-              <FieldGroup>
-                {field.value.map((url, index) => (
-                  <Field key={index}>
-                    <div className="flex items-center gap-1.5">
-                      <Textarea
-                        rows={1}
-                        value={url}
-                        onChange={(e) => {
-                          const next = [...field.value];
-                          next[index] = e.target.value;
-                          field.onChange(next);
-                        }}
-                        placeholder={t("Image URL (optional)")}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t("Remove this image")}
-                        onClick={() => {
-                          const next = field.value.filter((_, i) => i !== index);
-                          field.onChange(next);
-                          if (next.length === 0) setShowImages(false);
-                        }}
-                      >
-                        <HugeiconsIcon icon={Delete02Icon} className="size-4" />
-                      </Button>
-                    </div>
-                  </Field>
-                ))}
+              <Field data-invalid={fieldState.invalid}>
+                <ImageUploadField
+                  images={field.value}
+                  onChange={field.onChange}
+                  sessionUploadsRef={sessionUploadsRef}
+                  disabled={form.formState.isSubmitting}
+                />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                {field.value.length < MAX_IMAGES && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="w-fit"
-                    onClick={() => field.onChange([...field.value, ""])}
-                  >
-                    {t("Add another image")}
-                  </Button>
-                )}
-              </FieldGroup>
+              </Field>
             )}
           />
         )}

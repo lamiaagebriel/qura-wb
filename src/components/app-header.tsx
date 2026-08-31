@@ -99,9 +99,10 @@ export function AppHeader({
 
         <div
           className={cn(
-            "text-foreground absolute inset-x-4 truncate text-[15px] font-semibold transition-[inset-inline-start,inset-inline-end,text-align] duration-200 ease-out",
+            // "text-foreground absolute inset-x-4 truncate text-[15px] font-semibold transition-[inset-inline-start,inset-inline-end,text-align] duration-200 ease-out",
+            "text-foreground truncate text-[15px] font-semibold duration-200 ease-out",
             showBack ? "text-center" : "text-start",
-            collapsed && "start-11 end-11 text-start",
+            collapsed && "inset-s-11 inset-e-11 text-start",
           )}
         >
           {typeof title === "string" ? <h1> {title}</h1> : title}

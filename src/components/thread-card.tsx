@@ -7,12 +7,15 @@ import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
+  Alert02Icon,
+  BookmarkIcon,
   Comment01Icon,
   Delete02Icon,
   Edit02Icon,
-  FavouriteIcon,
   MoreHorizontal,
   Share01Icon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
 } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,13 +29,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ThreadImageCarousel } from "@/components/thread-image-carousel";
+import type { ThreadCategory } from "@/db/schema";
 import { followAction } from "@/lib/auth/actions/follow";
 import { copyToClipboard } from "@/lib/clipboard";
 import { deleteThreadAction } from "@/lib/threads/actions/delete";
 import {
-  likeThreadAction,
-  unlikeThreadAction,
-} from "@/lib/threads/actions/like";
+  saveThreadAction,
+  unsaveThreadAction,
+} from "@/lib/threads/actions/save";
+import { THREAD_CATEGORY_META } from "@/lib/threads/categories";
+import { voteThreadAction } from "@/lib/threads/actions/vote";
 import { handleAppError } from "@/lib/errors-client";
 import { useLocale } from "@/lib/i18n/client";
 import { cn, formatCompactRelativeTime } from "@/lib/utils";
@@ -42,15 +48,31 @@ export type ThreadCardData = {
   body: string;
   images: string[];
   createdAt: Date;
+  // Only meaningful (and only ever shown) on a top-level thread — see
+  // `THREAD_CATEGORY_META`. A reply always reports `"general"`, but the
+  // `variant === "default"` check below is what actually keeps it off
+  // reply/ancestor cards, not this value.
+  category: ThreadCategory;
   author: { id: string; name: string; username: string; image: string | null };
-  likeCount: number;
   replyCount: number;
-  likedByViewer: boolean;
+  // A private bookmark — never shown as a count, only ever "did *I* save
+  // this," the same way it only ever means something to the viewer who
+  // set it.
+  savedByViewer: boolean;
   authorFollowedByViewer: boolean;
   // True when the author is a business profile owned by the viewer —
   // "owns this thread" the same way `currentUserId === thread.author.id`
   // does for a thread posted directly as yourself.
   authorOwnedByViewer: boolean;
+  // "Is this post actually useful to the city" — separate from `saved`.
+  // `markedUnhelpful` is the community-flag threshold from
+  // `lib/threads/queries.ts` having been crossed; the post still shows
+  // in full either way, just with a "Not helpful" label next to its
+  // timestamp — a visible community signal, not a takedown.
+  upvoteCount: number;
+  downvoteCount: number;
+  viewerVote: 1 | -1 | null;
+  markedUnhelpful: boolean;
 };
 
 // Matches `Avatar`'s own `size-8`/`size-6` (32px/24px) — used to size the
@@ -83,8 +105,10 @@ export function ThreadCard({
   const router = useRouter();
   const { promptSignIn } = useAuthPrompt();
   const { openEdit } = useThreadComposer();
-  const [liked, setLiked] = useState(thread.likedByViewer);
-  const [likeCount, setLikeCount] = useState(thread.likeCount);
+  const [saved, setSaved] = useState(thread.savedByViewer);
+  const [viewerVote, setViewerVote] = useState(thread.viewerVote);
+  const [upvoteCount, setUpvoteCount] = useState(thread.upvoteCount);
+  const [downvoteCount, setDownvoteCount] = useState(thread.downvoteCount);
   const [deleted, setDeleted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -110,21 +134,46 @@ export function ThreadCard({
     setImages(thread.images);
   }
 
-  function toggleLike() {
+  function toggleSave() {
     if (!currentUserId) {
       promptSignIn();
       return;
     }
-    const next = !liked;
-    setLiked(next);
-    setLikeCount((c) => c + (next ? 1 : -1));
+    const next = !saved;
+    setSaved(next);
     startTransition(async () => {
       const result = next
-        ? await likeThreadAction(thread.id)
-        : await unlikeThreadAction(thread.id);
+        ? await saveThreadAction(thread.id)
+        : await unsaveThreadAction(thread.id);
       if (!result.success) {
-        setLiked(!next);
-        setLikeCount((c) => c + (next ? -1 : 1));
+        setSaved(!next);
+        handleAppError(result.error);
+      }
+    });
+  }
+
+  // Voting the same way again takes the vote back (matches
+  // `voteThreadAction`'s own toggle behavior) — otherwise it either adds
+  // a fresh vote or flips an opposite one, moving both counts at once.
+  function castVote(value: 1 | -1) {
+    if (!currentUserId) {
+      promptSignIn();
+      return;
+    }
+    const prevVote = viewerVote;
+    const nextVote = prevVote === value ? null : value;
+    setViewerVote(nextVote);
+    if (prevVote === 1) setUpvoteCount((c) => c - 1);
+    if (prevVote === -1) setDownvoteCount((c) => c - 1);
+    if (nextVote === 1) setUpvoteCount((c) => c + 1);
+    if (nextVote === -1) setDownvoteCount((c) => c + 1);
+
+    startTransition(async () => {
+      const result = await voteThreadAction(thread.id, value);
+      if (!result.success) {
+        setViewerVote(prevVote);
+        setUpvoteCount(thread.upvoteCount);
+        setDownvoteCount(thread.downvoteCount);
         handleAppError(result.error);
       }
     });
@@ -272,6 +321,12 @@ export function ThreadCard({
             <span className="text-muted-foreground text-xs">
               {formatCompactRelativeTime(thread.createdAt, locale)}
             </span>
+            {thread.markedUnhelpful && (
+              <span className="text-muted-foreground flex items-center gap-1 text-[11px]">
+                <HugeiconsIcon icon={Alert02Icon} className="size-3" />
+                {t("Not helpful")}
+              </span>
+            )}
             {isOwner && (
               <button
                 type="button"
@@ -286,6 +341,24 @@ export function ThreadCard({
               </button>
             )}
           </div>
+
+          {/* Only on a real top-level post, and only when it's actually
+              worth calling out — "general" (the default/catch-all) would
+              just be visual noise on most of the feed. */}
+          {variant === "default" && thread.category !== "general" && (
+            <span
+              className={cn(
+                "mb-0.5 flex w-fit items-center gap-1 text-[11px] font-medium",
+                THREAD_CATEGORY_META[thread.category].color.text,
+              )}
+            >
+              <HugeiconsIcon
+                icon={THREAD_CATEGORY_META[thread.category].icon}
+                className="size-3"
+              />
+              {t(THREAD_CATEGORY_META[thread.category].label)}
+            </span>
+          )}
 
           <p
             className={cn(
@@ -307,21 +380,41 @@ export function ThreadCard({
         >
           <button
             type="button"
-            aria-label={liked ? t("Unlike") : t("Like")}
+            aria-label={t("This is helpful")}
             onClick={(e) => {
               e.stopPropagation();
-              toggleLike();
+              castVote(1);
             }}
             className="flex items-center gap-1"
           >
             <HugeiconsIcon
-              icon={FavouriteIcon}
+              icon={ThumbsUpIcon}
               className={cn(
                 "size-4",
-                liked && "fill-destructive text-destructive",
+                viewerVote === 1 && "fill-primary text-primary",
               )}
             />
-            {likeCount > 0 && <span className="text-xs">{likeCount}</span>}
+            {upvoteCount > 0 && <span className="text-xs">{upvoteCount}</span>}
+          </button>
+          <button
+            type="button"
+            aria-label={t("This is not helpful")}
+            onClick={(e) => {
+              e.stopPropagation();
+              castVote(-1);
+            }}
+            className="flex items-center gap-1"
+          >
+            <HugeiconsIcon
+              icon={ThumbsDownIcon}
+              className={cn(
+                "size-4",
+                viewerVote === -1 && "fill-destructive text-destructive",
+              )}
+            />
+            {downvoteCount > 0 && (
+              <span className="text-xs">{downvoteCount}</span>
+            )}
           </button>
           <span className="flex items-center gap-1">
             <HugeiconsIcon icon={Comment01Icon} className="size-4" />
@@ -329,6 +422,20 @@ export function ThreadCard({
               <span className="text-xs">{thread.replyCount}</span>
             )}
           </span>
+          <button
+            type="button"
+            aria-label={saved ? t("Unsave") : t("Save")}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSave();
+            }}
+            className="flex items-center gap-1"
+          >
+            <HugeiconsIcon
+              icon={BookmarkIcon}
+              className={cn("size-4", saved && "fill-primary text-primary")}
+            />
+          </button>
           <button
             type="button"
             aria-label={t("Share")}

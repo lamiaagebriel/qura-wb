@@ -33,10 +33,11 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   const [user, { t }] = await Promise.all([getCurrentUser(), getLocale()]);
 
   // `viewerId` has to reach every one of these — otherwise the focused
-  // thread and its ancestor chain would silently report `likedByViewer`/
-  // `authorFollowedByViewer` as always `false` while the replies below
-  // them (which do pass it) show the real state, an inconsistency that's
-  // invisible until you're signed in and looking at your own likes/follows.
+  // thread and its ancestor chain would silently report `savedByViewer`/
+  // `viewerVote`/`authorFollowedByViewer` as always `false`/`null` while
+  // the replies below them (which do pass it) show the real state, an
+  // inconsistency that's invisible until you're signed in and looking at
+  // your own saves/votes/follows.
   const [thread, ancestors, { items: replies, nextCursor }] = await Promise.all(
     [
       getThread(id, user?.id),

@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { getGuardedUser } from "@/lib/auth/guard";
 import { getMyBusinessById } from "@/lib/business/queries";
+import { getActiveCity } from "@/lib/city/actions";
 import {
   fail,
   messageError,
@@ -53,9 +54,15 @@ export async function upsertBusinessBlockAction(
 
   const { category, ...data } = parsed.data;
 
+  // `city` is only ever set on first insert (deliberately excluded from
+  // `set` below) — re-saving your category/details on a later edit
+  // shouldn't silently relocate an existing business to whatever city
+  // happens to be active in the editor's browser that day.
+  const city = await getActiveCity();
+
   await db
     .insert(schema.businessBlocks)
-    .values({ businessId, category, data })
+    .values({ businessId, category, data, city })
     .onConflictDoUpdate({
       target: schema.businessBlocks.businessId,
       set: { category, data },

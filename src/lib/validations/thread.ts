@@ -1,11 +1,15 @@
 import * as z from "zod";
 
+import { THREAD_CATEGORIES } from "@/db/schema";
 import type { Dict } from "@/lib/i18n/config";
 
 type Translate = (key: keyof Dict) => string;
 
 const URL_RE = /^https?:\/\/.+/i;
-const MAX_IMAGES = 4;
+// Shared with `ImageUploadField`, which is what actually enforces this
+// in the UI (disabling "Add photos" once full) — this is the schema's
+// own backstop, not the primary UX.
+export const MAX_IMAGES = 4;
 
 export function createThreadSchema(t: Translate) {
   return z.object({
@@ -25,6 +29,11 @@ export function createThreadSchema(t: Translate) {
       .refine((urls) => urls.every((url) => URL_RE.test(url)), {
         message: t("Enter a valid image URL."),
       }),
+    // Only meaningful for a new top-level thread — a reply's category is
+    // never shown or chosen, so the composer never renders this field in
+    // reply mode and `createThreadAction` just defaults it to `"general"`
+    // for replies rather than trusting a client-supplied value.
+    category: z.enum(THREAD_CATEGORIES).default("general"),
     parentId: z.string().uuid().optional(),
     // Set only when creating a brand-new top-level thread "as" one of
     // the signer's own business profiles — a business can post but never

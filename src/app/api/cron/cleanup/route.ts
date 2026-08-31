@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { cleanupExpiredAuthRows } from "@/lib/db/cleanup";
+import { sweepOrphanedThreadImages } from "@/lib/storage/cleanup";
 
 // Vercel Cron calls this on the schedule in `vercel.json`, sending
 // `Authorization: Bearer ${CRON_SECRET}` automatically as long as
@@ -16,6 +17,12 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const result = await cleanupExpiredAuthRows();
-  return NextResponse.json({ ok: true, ...result });
+  // `sweepOrphanedThreadImages` no-ops (returns zeros) if image storage
+  // isn't configured yet — safe to always run alongside the auth-row
+  // sweep rather than needing its own separate cron entry.
+  const [authRows, threadImages] = await Promise.all([
+    cleanupExpiredAuthRows(),
+    sweepOrphanedThreadImages(),
+  ]);
+  return NextResponse.json({ ok: true, ...authRows, threadImages });
 }

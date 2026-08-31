@@ -21,7 +21,12 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useInfiniteList } from "@/hooks/use-infinite-list";
 import { loadMoreBusinessReviewsAction } from "@/lib/business/actions/load-more";
 import {
@@ -121,13 +126,18 @@ function ReviewComposer({
   }
 
   return (
-    <div className="flex gap-3 py-3">
-      <Avatar>
-        {user?.image && <AvatarImage src={user.image} alt={user.name} />}
-        <AvatarFallback>{user?.name}</AvatarFallback>
-      </Avatar>
+    <div className="container flex flex-col gap-3 py-3">
+      <div className="flex gap-3">
+        <Avatar>
+          <AvatarImage src={user?.image!} alt={user?.name} />
+          <AvatarFallback>{user?.name}</AvatarFallback>
+        </Avatar>{" "}
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium">{user?.name}</p>
+          <StarRating value={rating} onChange={setRating} />
+        </div>
+      </div>
       <div className="flex flex-1 flex-col gap-1.5">
-        <StarRating value={rating} onChange={setRating} />
         <InputGroup className="h-9 rounded-full">
           <InputGroupTextarea
             value={body}
@@ -189,113 +199,115 @@ function ReviewRow({
   }
 
   return (
-    <div className="border-border/60 flex gap-3 border-b py-3">
-      <Avatar>
-        {review.author.image && (
-          <AvatarImage src={review.author.image} alt={review.author.name} />
-        )}
-        <AvatarFallback>{review.author.name}</AvatarFallback>
-      </Avatar>
-      <div className="flex flex-1 flex-col gap-0.5">
-        <div className="flex items-center gap-1.5">
-          <span className="text-foreground text-[13.5px] font-semibold">
-            {review.author.username}
-          </span>
-          <StarRating value={review.rating} size="sm" />
-          <span className="text-muted-foreground text-xs">
-            {formatCompactRelativeTime(review.createdAt, locale)}
-          </span>
-          {isOwn && (
-            <button
-              type="button"
-              aria-label={t("More options")}
-              onClick={() => setMenuOpen(true)}
-              className="text-muted-foreground hover:text-foreground ms-auto"
-            >
-              <HugeiconsIcon icon={MoreHorizontal} className="size-4" />
-            </button>
+    <div>
+      <div className="container flex gap-3 py-3">
+        <Avatar>
+          {review.author.image && (
+            <AvatarImage src={review.author.image} alt={review.author.name} />
+          )}
+          <AvatarFallback>{review.author.name}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-1 flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <span className="text-foreground text-[13.5px] font-semibold">
+              {review.author.username}
+            </span>
+            <StarRating value={review.rating} size="sm" />
+            <span className="text-muted-foreground text-xs">
+              {formatCompactRelativeTime(review.createdAt, locale)}
+            </span>
+            {isOwn && (
+              <button
+                type="button"
+                aria-label={t("More options")}
+                onClick={() => setMenuOpen(true)}
+                className="text-muted-foreground hover:text-foreground ms-auto"
+              >
+                <HugeiconsIcon icon={MoreHorizontal} className="size-4" />
+              </button>
+            )}
+          </div>
+          {review.body && (
+            <p className="text-foreground text-[14px] leading-relaxed whitespace-pre-line">
+              {review.body}
+            </p>
           )}
         </div>
-        {review.body && (
-          <p className="text-foreground text-[14px] leading-relaxed whitespace-pre-line">
-            {review.body}
-          </p>
+
+        {isOwn && (
+          <>
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetContent side="bottom" className="rounded-t-2xl">
+                <SheetHeader>
+                  <SheetTitle>{t("Review options")}</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col px-4 pb-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEdit();
+                    }}
+                    className="border-border/60 flex items-center gap-3 border-b py-3.5"
+                  >
+                    <HugeiconsIcon
+                      icon={Edit02Icon}
+                      className="text-foreground size-5 shrink-0"
+                    />
+                    <span className="text-foreground text-[14.5px] font-medium">
+                      {t("Edit")}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setConfirmDelete(true);
+                    }}
+                    className="flex items-center gap-3 py-3.5"
+                  >
+                    <HugeiconsIcon
+                      icon={Delete02Icon}
+                      className="text-destructive size-5 shrink-0"
+                    />
+                    <span className="text-destructive text-[14.5px] font-medium">
+                      {t("Delete")}
+                    </span>
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <Sheet open={confirmDelete} onOpenChange={setConfirmDelete}>
+              <SheetContent side="bottom" className="rounded-t-2xl">
+                <SheetHeader>
+                  <SheetTitle>{t("Delete this review?")}</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 px-4 pb-6">
+                  <p className="text-muted-foreground -mt-2 mb-1 text-[13px] leading-relaxed">
+                    {t("This can't be undone.")}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    disabled={isDeleting}
+                    onClick={handleDelete}
+                  >
+                    {t("Delete")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setConfirmDelete(false)}
+                  >
+                    {t("Cancel")}
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </>
         )}
       </div>
-
-      {isOwn && (
-        <>
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetContent side="bottom" className="rounded-t-2xl">
-              <SheetHeader>
-                <SheetTitle>{t("Review options")}</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col px-4 pb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onEdit();
-                  }}
-                  className="border-border/60 flex items-center gap-3 border-b py-3.5"
-                >
-                  <HugeiconsIcon
-                    icon={Edit02Icon}
-                    className="text-foreground size-5 shrink-0"
-                  />
-                  <span className="text-foreground text-[14.5px] font-medium">
-                    {t("Edit")}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setConfirmDelete(true);
-                  }}
-                  className="flex items-center gap-3 py-3.5"
-                >
-                  <HugeiconsIcon
-                    icon={Delete02Icon}
-                    className="text-destructive size-5 shrink-0"
-                  />
-                  <span className="text-destructive text-[14.5px] font-medium">
-                    {t("Delete")}
-                  </span>
-                </button>
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          <Sheet open={confirmDelete} onOpenChange={setConfirmDelete}>
-            <SheetContent side="bottom" className="rounded-t-2xl">
-              <SheetHeader>
-                <SheetTitle>{t("Delete this review?")}</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col gap-2 px-4 pb-6">
-                <p className="text-muted-foreground -mt-2 mb-1 text-[13px] leading-relaxed">
-                  {t("This can't be undone.")}
-                </p>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={isDeleting}
-                  onClick={handleDelete}
-                >
-                  {t("Delete")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setConfirmDelete(false)}
-                >
-                  {t("Cancel")}
-                </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </>
-      )}
     </div>
   );
 }
@@ -331,7 +343,7 @@ export function BusinessReviews({
   return (
     <div className="flex flex-col">
       {summary.count > 0 && (
-        <div className="flex items-center gap-2 pb-3">
+        <div className="container flex items-center justify-center gap-2 py-3">
           <StarRating value={Math.round(summary.average ?? 0)} />
           <span className="text-foreground text-[13px] font-semibold">
             {summary.average?.toFixed(1)}
@@ -360,15 +372,18 @@ export function BusinessReviews({
           {t("No reviews yet.")}
         </p>
       ) : (
-        !editing &&
-        items.map((review) => (
-          <ReviewRow
-            key={review.id}
-            review={review}
-            isOwn={myReview?.id === review.id}
-            onEdit={() => setEditing(true)}
-          />
-        ))
+        !editing && (
+          <div className="divide-border/50 flex flex-col divide-y">
+            {items.map((review, i) => (
+              <ReviewRow
+                key={i}
+                review={review}
+                isOwn={myReview?.id === review.id}
+                onEdit={() => setEditing(true)}
+              />
+            ))}
+          </div>
+        )
       )}
 
       {!editing && hasMore && (

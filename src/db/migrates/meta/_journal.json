@@ -50,6 +50,34 @@
       "when": 1786630242787,
       "tag": "0006_lazy_titania",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787998331299,
+      "tag": "0007_uneven_jackpot",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788002809031,
+      "tag": "0008_freezing_stellaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788005955089,
+      "tag": "0009_bouncy_maggott",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788007942736,
+      "tag": "0010_robust_shockwave",
+      "breakpoints": true
     }
   ]
 }

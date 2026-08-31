@@ -9,7 +9,7 @@ import { fail, messageError, ok, type ActionResult } from "@/lib/errors";
 import { isValidId } from "@/lib/id";
 import { getLocale } from "@/lib/i18n/actions";
 
-export async function likeThreadAction(threadId: string): Promise<ActionResult> {
+export async function saveThreadAction(threadId: string): Promise<ActionResult> {
   const [user, { t }] = await Promise.all([getGuardedUser(), getLocale()]);
   if (!user) return fail(messageError(t("You need to sign in to do that.")));
   if (!isValidId(threadId)) {
@@ -17,7 +17,7 @@ export async function likeThreadAction(threadId: string): Promise<ActionResult> 
   }
 
   await db
-    .insert(schema.threadLikes)
+    .insert(schema.threadSaves)
     .values({ userId: user.id, threadId })
     .onConflictDoNothing();
 
@@ -26,7 +26,7 @@ export async function likeThreadAction(threadId: string): Promise<ActionResult> 
   return ok(undefined);
 }
 
-export async function unlikeThreadAction(threadId: string): Promise<ActionResult> {
+export async function unsaveThreadAction(threadId: string): Promise<ActionResult> {
   const [user, { t }] = await Promise.all([getGuardedUser(), getLocale()]);
   if (!user) return fail(messageError(t("You need to sign in to do that.")));
   if (!isValidId(threadId)) {
@@ -34,11 +34,11 @@ export async function unlikeThreadAction(threadId: string): Promise<ActionResult
   }
 
   await db
-    .delete(schema.threadLikes)
+    .delete(schema.threadSaves)
     .where(
       and(
-        eq(schema.threadLikes.userId, user.id),
-        eq(schema.threadLikes.threadId, threadId),
+        eq(schema.threadSaves.userId, user.id),
+        eq(schema.threadSaves.threadId, threadId),
       ),
     );
 

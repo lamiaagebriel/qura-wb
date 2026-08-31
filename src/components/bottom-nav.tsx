@@ -161,7 +161,7 @@ export function BottomNav({
         // Full width, inset from each screen edge rather than sized to
         // its own content — `TABS` can grow or shrink and the bar just
         // keeps spanning the same space.
-        "fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 origin-bottom rounded-full transition-transform duration-300 ease-out md:hidden",
+        "fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 mx-auto max-w-sm origin-bottom rounded-full transition-transform duration-300 ease-out",
         // Frosted glass, always — this is overlay chrome sitting on top of
         // whatever's behind it (a photo, the feed, ...), not page content,
         // so it doesn't switch with the site's own light/dark theme the

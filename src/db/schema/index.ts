@@ -1,3 +1,4 @@
+export * from "./cities";
 export * from "./users";
 export * from "./auth.sessions";
 export * from "./auth.accounts";
@@ -11,5 +12,6 @@ export * from "./users.follows";
 export * from "./users.reports";
 export * from "./users.relations";
 export * from "./threads";
-export * from "./threads.likes";
+export * from "./threads.saves";
+export * from "./threads.votes";
 export * from "./threads.relations";

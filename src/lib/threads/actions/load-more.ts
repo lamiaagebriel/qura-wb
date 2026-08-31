@@ -1,11 +1,14 @@
 "use server";
 
+import type { ThreadCategory } from "@/db/schema";
+import { getActiveCity } from "@/lib/city/actions";
 import { getCurrentUser } from "@/lib/auth/guard";
 import {
   getFeedThreads,
   getThreadReplies,
   getUserReplies,
   getUserThreads,
+  type FeedSort,
   type ReplySort,
 } from "@/lib/threads/queries";
 
@@ -16,9 +19,13 @@ import {
  * than trusting a client-supplied id, same as every other action in this
  * app that needs "who's asking".
  */
-export async function loadMoreFeedAction(cursor: number) {
-  const user = await getCurrentUser();
-  return getFeedThreads(user?.id, cursor);
+export async function loadMoreFeedAction(
+  cursor: number,
+  sort: FeedSort,
+  category?: ThreadCategory,
+) {
+  const [user, city] = await Promise.all([getCurrentUser(), getActiveCity()]);
+  return getFeedThreads(city, user?.id, cursor, sort, category);
 }
 
 export async function loadMoreThreadRepliesAction(

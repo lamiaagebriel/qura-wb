@@ -15,6 +15,7 @@ import {
 } from "@/lib/errors";
 import { isValidId } from "@/lib/id";
 import { getLocale } from "@/lib/i18n/actions";
+import { deleteThreadImages } from "@/lib/storage/cleanup";
 import {
   createThreadSchema,
   type ThreadValues,
@@ -42,6 +43,23 @@ export async function updateThreadAction(
   // threads" — a business-authored row's `authorId` is the business's
   // own id, not yours.
   const ownedAuthorIds = await getOwnedAuthorIds(user.id);
+
+  // Read before the update, not after — `UPDATE ... RETURNING` only ever
+  // hands back the *new* row, and diffing against the old `images` is
+  // the whole point: anything dropped from the array is deleted from S3
+  // right below, so a thread's images in storage never outlive their
+  // last reference in `images` itself.
+  const existing = await db.query.threads.findFirst({
+    where: and(
+      eq(schema.threads.id, threadId),
+      inArray(schema.threads.authorId, ownedAuthorIds),
+    ),
+    columns: { images: true },
+  });
+  if (!existing) {
+    return fail(messageError(t("You can only edit your own threads.")));
+  }
+
   const [row] = await db
     .update(schema.threads)
     .set({ body: parsed.data.body, images: parsed.data.images })
@@ -54,6 +72,11 @@ export async function updateThreadAction(
     .returning({ id: schema.threads.id, parentId: schema.threads.parentId });
 
   if (!row) return fail(messageError(t("You can only edit your own threads.")));
+
+  const removedImages = existing.images.filter(
+    (url) => !parsed.data.images.includes(url),
+  );
+  await deleteThreadImages(removedImages);
 
   revalidatePath("/");
   revalidatePath("/account");

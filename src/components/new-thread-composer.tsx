@@ -1,15 +1,16 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { ImageUploadField } from "@/components/image-upload-field";
 import {
   Select,
   SelectContent,
@@ -24,8 +25,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import type { ThreadCategory } from "@/db/schema";
 import { createThreadAction } from "@/lib/threads/actions/create";
 import { updateThreadAction } from "@/lib/threads/actions/update";
+import { discardThreadImagesAction } from "@/lib/storage/actions";
+import {
+  THREAD_CATEGORY_META,
+  THREAD_CATEGORY_ORDER,
+} from "@/lib/threads/categories";
 import { handleAppError } from "@/lib/errors-client";
 import { useLocale } from "@/lib/i18n/client";
 import {
@@ -38,7 +45,7 @@ import { cn } from "@/lib/utils";
 
 const DRAFT_STORAGE_KEY = "qura:new-thread-draft";
 
-type Draft = { body: string; images: string[] };
+type Draft = { body: string; images: string[]; category?: ThreadCategory };
 
 function readDraft(): Draft | null {
   try {
@@ -186,6 +193,11 @@ function ComposerSheet({
     request.mode === "create" ? (request.defaultPostAsId ?? "self") : "self",
   );
   const schema = useMemo(() => createThreadSchema(t), [t]);
+  // Every image URL `ImageUploadField` has uploaded during *this* sheet's
+  // lifetime, minus any the user already removed inside it — see that
+  // component's own comment on why edit mode's pre-existing images are
+  // deliberately never added here.
+  const sessionUploadsRef = useRef<Set<string>>(new Set());
 
   const form = useForm<ThreadValues>({
     resolver: createZodResolver(schema),
@@ -193,7 +205,11 @@ function ComposerSheet({
       ? { body: request.body, images: request.images }
       : (() => {
           const draft = readDraft();
-          return { body: draft?.body ?? "", images: draft?.images ?? [] };
+          return {
+            body: draft?.body ?? "",
+            images: draft?.images ?? [],
+            category: draft?.category ?? "general",
+          };
         })(),
   });
 
@@ -230,15 +246,32 @@ function ComposerSheet({
   }
 
   function saveDraft() {
-    const { body, images } = form.getValues();
-    writeDraft({ body, images });
+    const { body, images, category } = form.getValues();
+    writeDraft({ body, images, category });
     toast.success(t("Draft saved."));
     reallyClose();
   }
 
+  // Cleans up whatever `ImageUploadField` uploaded this session that
+  // never actually got published — the thing that makes `discardDraft`
+  // and canceling an edit both safe to just walk away from without
+  // leaving orphaned objects in S3 (see `ImageUploadField`'s own
+  // comment on `sessionUploadsRef`).
+  function discardSessionUploads() {
+    const urls = [...sessionUploadsRef.current];
+    sessionUploadsRef.current.clear();
+    if (urls.length > 0) void discardThreadImagesAction(urls);
+  }
+
   function discardDraft() {
+    discardSessionUploads();
     clearDraft();
     toast.success(t("Thread discarded."));
+    reallyClose();
+  }
+
+  function discardEdit() {
+    discardSessionUploads();
     reallyClose();
   }
 
@@ -343,6 +376,45 @@ function ComposerSheet({
                 </Field>
               )}
 
+              {/* Only ever set at creation — see `ThreadValues.category`'s
+                  own comment — so this never renders in edit mode. */}
+              {!isEdit && (
+                <Controller
+                  name="category"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Field>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger size="sm" className="w-fit">
+                          <span className="text-muted-foreground text-xs">
+                            {t("Category")}
+                          </span>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent align="start">
+                          {THREAD_CATEGORY_ORDER.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              <span
+                                className={cn(
+                                  "flex items-center gap-1.5",
+                                  THREAD_CATEGORY_META[option].color.text,
+                                )}
+                              >
+                                <HugeiconsIcon
+                                  icon={THREAD_CATEGORY_META[option].icon}
+                                  className="size-3.5"
+                                />
+                                {t(THREAD_CATEGORY_META[option].label)}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                />
+              )}
+
               <div className="flex gap-3">
                 <Avatar>
                   {activeIdentity.image && (
@@ -382,58 +454,17 @@ function ComposerSheet({
                       name="images"
                       control={form.control}
                       render={({ field, fieldState }) => (
-                        <>
-                          {field.value.map((url, index) => (
-                            <Field key={index}>
-                              <div className="flex items-center gap-1.5">
-                                <Textarea
-                                  rows={1}
-                                  value={url}
-                                  onChange={(e) => {
-                                    const next = [...field.value];
-                                    next[index] = e.target.value;
-                                    field.onChange(next);
-                                  }}
-                                  placeholder={t("Image URL (optional)")}
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  aria-label={t("Remove this image")}
-                                  onClick={() =>
-                                    field.onChange(
-                                      field.value.filter((_, i) => i !== index),
-                                    )
-                                  }
-                                >
-                                  <HugeiconsIcon
-                                    icon={Delete02Icon}
-                                    className="size-4"
-                                  />
-                                </Button>
-                              </div>
-                            </Field>
-                          ))}
+                        <Field data-invalid={fieldState.invalid}>
+                          <ImageUploadField
+                            images={field.value}
+                            onChange={field.onChange}
+                            sessionUploadsRef={sessionUploadsRef}
+                            disabled={form.formState.isSubmitting}
+                          />
                           {fieldState.invalid && (
                             <FieldError errors={[fieldState.error]} />
                           )}
-                          {field.value.length < 4 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="w-fit"
-                              onClick={() =>
-                                field.onChange([...field.value, ""])
-                              }
-                            >
-                              {field.value.length === 0
-                                ? t("Add image")
-                                : t("Add another image")}
-                            </Button>
-                          )}
-                        </>
+                        </Field>
                       )}
                     />
                   </FieldGroup>
@@ -460,7 +491,7 @@ function ComposerSheet({
             <Button
               type="button"
               variant="destructive"
-              onClick={isEdit ? reallyClose : discardDraft}
+              onClick={isEdit ? discardEdit : discardDraft}
             >
               {t("Discard")}
             </Button>

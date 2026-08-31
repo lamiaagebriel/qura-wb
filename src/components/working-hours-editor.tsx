@@ -1,7 +1,11 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import {
+  Add01Icon,
+  Copy01Icon,
+  Delete02Icon,
+} from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +18,7 @@ import {
   type WorkingHours,
 } from "@/lib/working-hours";
 import type { Dict } from "@/lib/i18n/config";
+import { useLocale } from "@/lib/i18n/client";
 
 type Translate = (key: keyof Dict) => string;
 
@@ -31,12 +36,11 @@ const DEFAULT_RANGE: TimeRange = { open: "09:00", close: "17:00" };
 export function WorkingHoursEditor({
   value,
   onChange,
-  t,
 }: {
   value: WorkingHours;
   onChange: (next: WorkingHours) => void;
-  t: Translate;
 }) {
+  const { t } = useLocale();
   function setDay(day: DayKey, ranges: TimeRange[]) {
     onChange({ ...value, [day]: ranges });
   }
@@ -123,7 +127,10 @@ export function WorkingHoursEditor({
                           )
                         }
                       >
-                        <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+                        <HugeiconsIcon
+                          icon={Delete02Icon}
+                          className="size-3.5"
+                        />
                       </Button>
                     )}
                   </div>
