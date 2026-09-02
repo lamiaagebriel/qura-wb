@@ -274,6 +274,15 @@ export const fr = {
   "Couldn't upload that image.": "Impossible de téléverser cette image.",
   "Images must be under 8MB.": "Les images doivent faire moins de 8 Mo.",
   "Please enter a business name.": "Entre un nom d'entreprise.",
+  "Choose a category.": "Choisis une catégorie.",
+  "Choose a city.": "Choisis une ville.",
+  "Add to Qura": "Ajouter à Qura",
+  "This creates a new Qura profile connected to this Google Place. It doesn't verify that you own or manage the real business.":
+    "Cela crée un nouveau profil Qura connecté à ce lieu Google. Cela ne vérifie pas que tu possèdes ou gères réellement cette entreprise.",
+  "Your Qura profile is connected to this Google Place.":
+    "Ton profil Qura est connecté à ce lieu Google.",
+  "Continue": "Continuer",
+  "City": "Ville",
   "You can only edit your own business profiles.":
     "Tu ne peux modifier que tes propres profils professionnels.",
   "Business profiles": "Profils professionnels",
@@ -299,6 +308,64 @@ export const fr = {
   "Switch profile": "Changer de profil",
   "Business profile": "Profil professionnel",
   "No businesses found.": "Aucune entreprise trouvée.",
+  "Enter a valid Google place id.": "Entrez un identifiant de lieu Google valide.",
+  "This Google place is already connected to another Qura business profile.":
+    "Ce lieu Google est déjà connecté à un autre profil professionnel Qura.",
+  "This business is already connected to a different Google place. Disconnect it first.":
+    "Cette entreprise est déjà connectée à un autre lieu Google. Déconnectez-le d'abord.",
+  "Set up your business profile before connecting a Google place.":
+    "Configurez votre profil professionnel avant de connecter un lieu Google.",
+  "Places powered by Google": "Lieux fournis par Google",
+  "Enter a valid Google place.": "Sélectionnez un lieu Google valide.",
+  "Couldn't search Google right now. Try again shortly.":
+    "Impossible de rechercher sur Google pour le moment. Réessayez sous peu.",
+  "Connected to Google": "Connecté à Google",
+  "View Google Place": "Voir le lieu sur Google",
+  "Disconnect": "Déconnecter",
+  "Disconnect Google Place?": "Déconnecter le lieu Google ?",
+  "Your Qura profile, reviews, posts, followers, and other data will not be deleted — only this branch's connection to this Google Place is removed.":
+    "Votre profil Qura, vos avis, publications, abonnés et autres données ne seront pas supprimés — seule la connexion de cette branche à ce lieu Google sera retirée.",
+  "Add a Google Place": "Ajouter un lieu Google",
+  "Start from a Google Place": "Commencer à partir d'un lieu Google",
+  "Find your business on Google": "Trouve ton entreprise sur Google",
+  "Pick your listing to fill in your name, address, and a suggested category — you can still edit everything before saving.":
+    "Choisis ta fiche pour remplir le nom, l'adresse et une catégorie suggérée — tu peux tout modifier avant d'enregistrer.",
+  "You already have a business connected to this Google Place.":
+    "Tu as déjà une entreprise connectée à ce lieu Google.",
+  "Google Places": "Lieux Google",
+  "Connect Google Place": "Connecter un lieu Google",
+  "Connect your Google Place": "Connectez votre lieu Google",
+  "Search for your business on Google to link it to this Qura profile.":
+    "Recherchez votre entreprise sur Google pour la relier à ce profil Qura.",
+  "Search for your business...": "Recherchez votre entreprise...",
+  "No places found.": "Aucun lieu trouvé.",
+  "Is this your business? This links your Qura profile to this Google Place — it doesn't verify or transfer ownership of the Google listing.":
+    "Est-ce votre entreprise ? Cela relie votre profil Qura à ce lieu Google — cela ne vérifie ni ne transfère la propriété de la fiche Google.",
+  "Connect": "Connecter",
+  "Back": "Retour",
+  "Google Place connected": "Lieu Google connecté",
+  "This Google Place is also connected to another Qura business profile. Our team has been notified for review.":
+    "Ce lieu Google est également connecté à un autre profil professionnel Qura. Notre équipe a été notifiée pour examen.",
+  "This connection lets Qura show Google information alongside your profile.":
+    "Cette connexion permet à Qura d'afficher les informations Google à côté de votre profil.",
+  "Done": "Terminé",
+  "Google Place": "Lieu Google",
+  "Google reviews": "avis Google",
+  "Rating": "Note",
+  "Show hours": "Afficher les horaires",
+  "Temporarily closed": "Fermé temporairement",
+  "Permanently closed": "Fermé définitivement",
+  "Google information isn't available right now.":
+    "Les informations Google ne sont pas disponibles pour le moment.",
+  "This Google information may be out of date.":
+    "Ces informations Google sont peut-être obsolètes.",
+  "Related via Google": "En rapport via Google",
+  "Google Place Conflicts": "Conflits de lieux Google",
+  "Every event where a Qura business connected to a Google Place that another business already connects to. Connecting is always allowed — this list is for review, not enforcement.":
+    "Chaque événement où une entreprise Qura s'est connectée à un lieu Google déjà connecté à une autre entreprise. La connexion est toujours autorisée — cette liste sert à l'examen, pas au blocage.",
+  "No conflicts recorded.": "Aucun conflit enregistré.",
+  "Unknown business": "Entreprise inconnue",
+  "Load more": "Charger plus",
   "Favorites": "Favoris",
   "Threads you like will show up here.": "Les threads que tu aimes apparaîtront ici.",
   "Please enter a cuisine type.": "Veuillez indiquer un type de cuisine.",

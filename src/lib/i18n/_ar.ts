@@ -315,6 +315,15 @@ export const ar = {
   "Couldn't upload that image.": "تعذّر رفع هذه الصورة.",
   "Images must be under 8MB.": "يجب ألا يتجاوز حجم الصورة 8 ميغابايت.",
   "Please enter a business name.": "يرجى إدخال اسم النشاط التجاري.",
+  "Choose a category.": "اختر تصنيفًا.",
+  "Choose a city.": "اختر مدينة.",
+  "Add to Qura": "أضِف إلى Qura",
+  "This creates a new Qura profile connected to this Google Place. It doesn't verify that you own or manage the real business.":
+    "سيؤدي هذا إلى إنشاء ملف Qura جديد متصل بهذا المكان على Google. هذا لا يثبت أنك تملك أو تدير هذا النشاط التجاري فعليًا.",
+  "Your Qura profile is connected to this Google Place.":
+    "تم ربط ملفك التجاري على Qura بهذا المكان على Google.",
+  Continue: "متابعة",
+  City: "المدينة",
   "You can only edit your own business profiles.":
     "يمكنك فقط تعديل ملفات أعمالك التجارية.",
   "Business profiles": "الملفات التجارية",
@@ -340,6 +349,64 @@ export const ar = {
   "Switch profile": "تبديل الملف الشخصي",
   "Business profile": "الملف التجاري",
   "No businesses found.": "لم يتم العثور على أنشطة تجارية.",
+  "Enter a valid Google place id.": "أدخل معرّف مكان صالح من Google.",
+  "This Google place is already connected to another Qura business profile.":
+    "هذا المكان على Google متصل بالفعل بملف تجاري آخر على Qura.",
+  "This business is already connected to a different Google place. Disconnect it first.":
+    "هذا النشاط التجاري متصل بالفعل بمكان مختلف على Google. قم بفصله أولاً.",
+  "Set up your business profile before connecting a Google place.":
+    "أكمل إعداد ملفك التجاري قبل ربط مكان من Google.",
+  "Places powered by Google": "الأماكن مقدَّمة من Google",
+  "Enter a valid Google place.": "يرجى اختيار مكان صالح من Google.",
+  "Couldn't search Google right now. Try again shortly.":
+    "تعذّر البحث في Google حالياً. حاول مرة أخرى بعد قليل.",
+  "Connected to Google": "متصل بـ Google",
+  "View Google Place": "عرض المكان على Google",
+  Disconnect: "قطع الاتصال",
+  "Disconnect Google Place?": "قطع الاتصال بمكان Google؟",
+  "Your Qura profile, reviews, posts, followers, and other data will not be deleted — only this branch's connection to this Google Place is removed.":
+    "لن يتم حذف ملفك التجاري على Qura أو تقييماتك أو منشوراتك أو متابعيك أو أي بيانات أخرى — سيُزال فقط اتصال هذا الفرع بهذا المكان على Google.",
+  "Add a Google Place": "إضافة مكان Google",
+  "Start from a Google Place": "ابدأ من مكان على Google",
+  "Find your business on Google": "ابحث عن نشاطك التجاري على Google",
+  "Pick your listing to fill in your name, address, and a suggested category — you can still edit everything before saving.":
+    "اختر ملفك لملء الاسم والعنوان وتصنيف مقترح — يمكنك تعديل كل شيء قبل الحفظ.",
+  "You already have a business connected to this Google Place.":
+    "لديك بالفعل نشاط تجاري متصل بهذا المكان على Google.",
+  "Google Places": "أماكن Google",
+  "Connect Google Place": "ربط مكان من Google",
+  "Connect your Google Place": "اربط مكانك على Google",
+  "Search for your business on Google to link it to this Qura profile.":
+    "ابحث عن نشاطك التجاري على Google لربطه بهذا الملف على Qura.",
+  "Search for your business...": "ابحث عن نشاطك التجاري...",
+  "No places found.": "لم يتم العثور على أماكن.",
+  "Is this your business? This links your Qura profile to this Google Place — it doesn't verify or transfer ownership of the Google listing.":
+    "هل هذا نشاطك التجاري؟ سيؤدي هذا إلى ربط ملفك على Qura بهذا المكان على Google — لا يُثبت هذا ولا ينقل ملكية القائمة على Google.",
+  Connect: "ربط",
+  Back: "رجوع",
+  "Google Place connected": "تم ربط مكان Google",
+  "This Google Place is also connected to another Qura business profile. Our team has been notified for review.":
+    "هذا المكان على Google متصل أيضاً بملف تجاري آخر على Qura. تم إبلاغ فريقنا للمراجعة.",
+  "This connection lets Qura show Google information alongside your profile.":
+    "يتيح هذا الاتصال لـ Qura عرض معلومات Google بجانب ملفك التجاري.",
+  Done: "تم",
+  "Google Place": "مكان Google",
+  "Google reviews": "تقييم على Google",
+  Rating: "التقييم",
+  "Show hours": "عرض المواعيد",
+  "Temporarily closed": "مغلق مؤقتاً",
+  "Permanently closed": "مغلق نهائياً",
+  "Google information isn't available right now.":
+    "معلومات Google غير متاحة حالياً.",
+  "This Google information may be out of date.":
+    "قد تكون معلومات Google هذه قديمة.",
+  "Related via Google": "ذو صلة عبر Google",
+  "Google Place Conflicts": "تعارضات أماكن Google",
+  "Every event where a Qura business connected to a Google Place that another business already connects to. Connecting is always allowed — this list is for review, not enforcement.":
+    "كل حدث اتصل فيه نشاط تجاري على Qura بمكان على Google متصل به نشاط آخر بالفعل. الاتصال مسموح به دائماً — هذه القائمة للمراجعة فقط وليست للمنع.",
+  "No conflicts recorded.": "لا توجد تعارضات مسجّلة.",
+  "Unknown business": "نشاط تجاري غير معروف",
+  "Load more": "تحميل المزيد",
   Favorites: "المفضلة",
   "Threads you like will show up here.": "ستظهر هنا المنشورات التي أعجبتك.",
   "Please enter a cuisine type.": "يرجى إدخال نوع المطبخ.",

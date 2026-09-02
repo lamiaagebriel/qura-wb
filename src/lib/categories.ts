@@ -20,8 +20,14 @@ import {
   Wrench01Icon,
 } from "@hugeicons/core-free-icons";
 
-import type { BusinessCategory } from "@/db/schema";
+import { BUSINESS_CATEGORIES, type BusinessCategory } from "@/db/schema";
 import type { Dict } from "@/lib/i18n/config";
+
+/** Shared by the category page and its "load more" server action — both
+ * need to validate an untrusted `category` string the same way. */
+export function isBusinessCategory(value: string): value is BusinessCategory {
+  return (BUSINESS_CATEGORIES as readonly string[]).includes(value);
+}
 
 // One subcategory level deep, and only where the source hierarchy
 // actually nests one (Restaurants, under Food & Drinks) — everything

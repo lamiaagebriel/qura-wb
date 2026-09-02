@@ -109,6 +109,12 @@ const SEED_USERS = [
     email: "salma@qura.dev",
     bio: null,
   },
+  {
+    name: "Fady Nabil",
+    username: "fady",
+    email: "fady@qura.dev",
+    bio: "Second-generation felucca captain working the Philae dock. Ask about the sunset run.",
+  },
 ] as const;
 
 // Luxor's own set of accounts — kept separate from `SEED_USERS` (Aswan)
@@ -160,6 +166,20 @@ const SEED_USERS_LUXOR = [
   },
 ] as const;
 
+// Google Places integration (Phases 1–23) — fake but plausible place ids,
+// never validated against the real Google API (this seed never calls it;
+// see `SEED_GOOGLE_PLACES` below, which is what actually backs these with
+// display data). `PLACE_PHILAE_DOCK` is deliberately shared by two
+// businesses (`adeltours` + `philaeboats`, added below) to seed a real
+// example of Phase 5's "multiple Qura businesses may connect to one
+// Google Place" grouping, plus the admin-visible conflict record that
+// creates (`SEED_GOOGLE_PLACE_CONFLICTS`).
+const PLACE_INES_KITCHEN = "ChIJqura_ines_kitchen_aswan";
+const PLACE_NADIA_DENTAL = "ChIJqura_nadia_dental_aswan";
+const PLACE_PHILAE_DOCK = "ChIJqura_philae_dock_aswan";
+const PLACE_LUXOR_VALLEY_TOURS = "ChIJqura_luxor_valley_tours";
+const PLACE_NILE_SKY_BALLOONS = "ChIJqura_nile_sky_balloons";
+
 // Business rows are `users` rows with `ownerId` set — never logged into
 // directly, same as `lib/business/actions/create.ts`. `owner` here is a
 // username from `SEED_USERS`, resolved to an id after users are inserted.
@@ -171,6 +191,7 @@ const SEED_BUSINESSES = [
     bio: "Home-cooked Nubian & Egyptian classics, delivered across Aswan. Family recipes, no shortcuts.",
     block: {
       category: "food-drinks" as const,
+      googlePlaceId: PLACE_INES_KITCHEN,
       data: {
         cuisine: "Nubian & Egyptian home cooking",
         priceRange: "$$",
@@ -256,6 +277,7 @@ const SEED_BUSINESSES = [
     bio: "General and cosmetic dentistry. Gentle with nervous patients — promise.",
     block: {
       category: "health" as const,
+      googlePlaceId: PLACE_NADIA_DENTAL,
       data: {
         specialty: "General & Cosmetic Dentistry",
         clinicAddress: "12 Corniche El Nil, Aswan",
@@ -296,6 +318,7 @@ const SEED_BUSINESSES = [
     bio: "Felucca rides, Abu Simbel day trips, and Nubian village tours.",
     block: {
       category: "tourism" as const,
+      googlePlaceId: PLACE_PHILAE_DOCK,
       data: {
         details:
           "Custom multi-day itineraries, Abu Simbel and Philae Temple day trips, felucca sailing on the Nile, and Nubian village visits. Small groups only, Arabic/English/French guiding.",
@@ -305,6 +328,26 @@ const SEED_BUSINESSES = [
           lng: 32.883,
         },
         phones: ["+20 10 1122 2444", "+20 10 1022 2444"],
+      },
+    },
+  },
+  {
+    owner: "fady",
+    name: "Philae Docks Boat Co.",
+    username: "philaeboats",
+    bio: "Second boat operator at the same public dock as Adel Nile Tours — different crew, same great sunset run.",
+    block: {
+      category: "tourism" as const,
+      googlePlaceId: PLACE_PHILAE_DOCK,
+      data: {
+        details:
+          "Felucca and motorboat rides to Philae Temple and around Elephantine Island. Walk-up bookings welcome at the dock, or reserve ahead for sunset.",
+        location: {
+          description: "Philae Temple public dock, Nile Corniche, Aswan.",
+          lat: 24.0863,
+          lng: 32.8828,
+        },
+        phones: ["+20 10 4455 6677"],
       },
     },
   },
@@ -340,6 +383,7 @@ const SEED_BUSINESSES_LUXOR = [
     block: {
       category: "tourism" as const,
       city: "luxor" as const,
+      googlePlaceId: PLACE_LUXOR_VALLEY_TOURS,
       data: {
         details:
           "جولات خاصة ونصف خاصة لوادي الملوك، معبد حتشبسوت، ووادي الملكات. الحجز قبل يوم على الأقل، والانطلاق من الفندق بيتم ترتيبه.",
@@ -360,6 +404,7 @@ const SEED_BUSINESSES_LUXOR = [
     block: {
       category: "tourism" as const,
       city: "luxor" as const,
+      googlePlaceId: PLACE_NILE_SKY_BALLOONS,
       data: {
         details:
           "45-minute sunrise flights over the Valley of the Kings and Hatshepsut's temple. Hotel pickup included, weather-dependent — we call the night before to confirm.",
@@ -641,6 +686,9 @@ const SEED_FOLLOWS: [string, string][] = [
   ["salma", "nadia"],
   ["walid", "nadia"],
   ["sami", "marwa"],
+  ["fady", "adel"],
+  ["adel", "fady"],
+  ["rania", "fady"],
 ];
 
 const SEED_FOLLOWS_LUXOR: [string, string][] = [
@@ -726,6 +774,147 @@ const SEED_REVIEWS: [string, string, number, string][] = [
   ["adeltours", "sami", 5, "The Abu Simbel and felucca trip was unforgettable, incredibly well organized."],
   ["adeltours", "walid", 4, "Great trip overall, would've liked a bit more free time on day two."],
   ["aswanmarket", "nadia", 4, "Good produce, reliably fresh. Delivery window could be tighter."],
+  ["philaeboats", "rania", 5, "Flagged them down right at the dock, no booking needed. Sunset run was gorgeous."],
+  ["philaeboats", "marwa", 4, "Good ride, boat was a little crowded on a Friday evening."],
+];
+
+// Google Places integration — pre-populated `google_places` cache rows so
+// every connected business above renders real-looking Google info
+// (rating, phone, opening hours) without this seed ever calling the live
+// API (`GOOGLE_PLACES_API_KEY` isn't required to run this script, same as
+// every `evaluate-*.ts` harness's stubbed approach — this just persists
+// the equivalent data instead of stubbing `fetch`). `fetchedAt`/
+// `updatedAt` are set to "now" at insert time (see `seed()` below), so
+// `getCachedGooglePlace` serves these as `"fresh"` immediately — no
+// Google Details call happens just from browsing a freshly seeded app.
+const SEED_GOOGLE_PLACES: {
+  placeId: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  types: string[];
+  rating: number;
+  userRatingCount: number;
+  businessStatus: string;
+  phone: string | null;
+  website: string | null;
+  openingHours: { openNow?: boolean; weekdayDescriptions?: string[] } | null;
+}[] = [
+  {
+    placeId: PLACE_INES_KITCHEN,
+    name: "Ines' Nubian Kitchen",
+    address: "Nubian Museum Road, Aswan, Egypt",
+    latitude: 24.0838,
+    longitude: 32.8998,
+    types: ["restaurant", "food", "point_of_interest"],
+    rating: 4.6,
+    userRatingCount: 214,
+    businessStatus: "OPERATIONAL",
+    phone: "+20 10 1112 2223",
+    website: "https://ineskitchen.example.com",
+    openingHours: {
+      openNow: true,
+      weekdayDescriptions: [
+        "Monday: 9:00 AM – 3:00 PM, 6:00 PM – 11:00 PM",
+        "Tuesday: 9:00 AM – 3:00 PM, 6:00 PM – 11:00 PM",
+        "Wednesday: 9:00 AM – 3:00 PM, 6:00 PM – 11:00 PM",
+        "Thursday: 9:00 AM – 3:00 PM, 6:00 PM – 11:00 PM",
+        "Friday: 9:00 AM – 3:00 PM, 6:00 PM – 11:00 PM",
+        "Saturday: 9:00 AM – 3:00 PM, 6:00 PM – 11:00 PM",
+        "Sunday: Closed",
+      ],
+    },
+  },
+  {
+    placeId: PLACE_NADIA_DENTAL,
+    name: "Dr. Nadia Kamal — Dental Clinic",
+    address: "12 Corniche El Nil, Aswan, Egypt",
+    latitude: 24.0865,
+    longitude: 32.892,
+    types: ["dentist", "health", "point_of_interest"],
+    rating: 4.9,
+    userRatingCount: 87,
+    businessStatus: "OPERATIONAL",
+    phone: "+20 97 231 0145",
+    website: null,
+    openingHours: {
+      openNow: false,
+      weekdayDescriptions: [
+        "Monday: 9:00 AM – 5:00 PM",
+        "Tuesday: 9:00 AM – 5:00 PM",
+        "Wednesday: 9:00 AM – 5:00 PM",
+        "Thursday: 9:00 AM – 5:00 PM",
+        "Friday: 9:00 AM – 5:00 PM",
+        "Saturday: 9:00 AM – 1:00 PM",
+        "Sunday: Closed",
+      ],
+    },
+  },
+  {
+    placeId: PLACE_PHILAE_DOCK,
+    name: "Philae Temple Public Dock",
+    address: "Nile Corniche, near Philae Temple boarding point, Aswan, Egypt",
+    latitude: 24.0863,
+    longitude: 32.8828,
+    types: ["tourist_attraction", "travel_agency", "point_of_interest"],
+    rating: 4.7,
+    userRatingCount: 340,
+    businessStatus: "OPERATIONAL",
+    phone: null,
+    website: null,
+    openingHours: null,
+  },
+  {
+    placeId: PLACE_LUXOR_VALLEY_TOURS,
+    name: "Luxor Valley Tours",
+    address: "West Bank, Valley of the Kings Road, Luxor, Egypt",
+    latitude: 25.7402,
+    longitude: 32.6014,
+    types: ["travel_agency", "tourist_attraction", "point_of_interest"],
+    rating: 4.8,
+    userRatingCount: 156,
+    businessStatus: "OPERATIONAL",
+    phone: "+20 10 5566 7788",
+    website: null,
+    openingHours: {
+      openNow: true,
+      weekdayDescriptions: [
+        "Monday: 6:00 AM – 8:00 PM",
+        "Tuesday: 6:00 AM – 8:00 PM",
+        "Wednesday: 6:00 AM – 8:00 PM",
+        "Thursday: 6:00 AM – 8:00 PM",
+        "Friday: 6:00 AM – 8:00 PM",
+        "Saturday: 6:00 AM – 8:00 PM",
+        "Sunday: 6:00 AM – 8:00 PM",
+      ],
+    },
+  },
+  {
+    placeId: PLACE_NILE_SKY_BALLOONS,
+    name: "Nile Sky Balloons",
+    address: "West Bank Launch Site, Luxor, Egypt",
+    latitude: 25.7188,
+    longitude: 32.6089,
+    types: ["tourist_attraction", "travel_agency", "point_of_interest"],
+    rating: 4.9,
+    userRatingCount: 502,
+    businessStatus: "OPERATIONAL",
+    phone: "+20 10 2233 4455",
+    website: "https://nileskyballoons.example.com",
+    openingHours: {
+      openNow: false,
+      weekdayDescriptions: [
+        "Monday: 4:30 AM – 8:00 AM",
+        "Tuesday: 4:30 AM – 8:00 AM",
+        "Wednesday: 4:30 AM – 8:00 AM",
+        "Thursday: 4:30 AM – 8:00 AM",
+        "Friday: 4:30 AM – 8:00 AM",
+        "Saturday: 4:30 AM – 8:00 AM",
+        "Sunday: 4:30 AM – 8:00 AM",
+      ],
+    },
+  },
 ];
 
 const SEED_REVIEWS_LUXOR: [string, string, number, string][] = [
@@ -752,6 +941,11 @@ async function seed() {
     schema.follows,
     schema.businessReviews,
     schema.businessBlocks,
+    // Independent of `users`/`business_blocks` (keyed by Google's own
+    // `placeId`, not a FK — see its schema comment), so a `users` TRUNCATE
+    // CASCADE never reaches it. Must be cleared explicitly, or a second
+    // `db:seed` run collides on `SEED_GOOGLE_PLACES`' fixed place ids.
+    schema.googlePlacesCache,
     schema.sessions,
     schema.accounts,
     schema.verifications,
@@ -835,6 +1029,31 @@ async function seed() {
     })),
   );
 
+  console.log("Seeding Google Place connections…");
+  const googlePlaceConnections = allBusinesses
+    .map((b, i) => ({
+      businessId: businesses[i].id,
+      googlePlaceId: "googlePlaceId" in b.block ? b.block.googlePlaceId : null,
+    }))
+    .filter((row) => row.googlePlaceId !== null)
+    .map((row) => ({ businessId: row.businessId, googlePlaceId: row.googlePlaceId as string }));
+  await db.insert(schema.businessGooglePlaces).values(googlePlaceConnections);
+
+  console.log("Seeding Google Places cache…");
+  const now = new Date();
+  await db.insert(schema.googlePlacesCache).values(
+    SEED_GOOGLE_PLACES.map((p) => ({ ...p, fetchedAt: now, updatedAt: now })),
+  );
+
+  console.log("Seeding Google place claim conflicts…");
+  await db.insert(schema.googlePlaceClaimConflicts).values({
+    googlePlaceId: PLACE_PHILAE_DOCK,
+    attemptingBusinessId: businessByUsername.get("philaeboats")!.id,
+    attemptingOwnerId: userByUsername.get("fady")!.id,
+    existingBusinessId: businessByUsername.get("adeltours")!.id,
+    existingOwnerId: userByUsername.get("adel")!.id,
+  });
+
   console.log("Seeding business reviews…");
   await db.insert(schema.businessReviews).values(
     allReviews.map(([businessUsername, reviewerUsername, rating, body]) => ({
@@ -896,9 +1115,12 @@ async function seed() {
   );
 
   console.log(
-    `\nDone. ${users.length} users, ${businesses.length} businesses, ${allThreads.length} threads, and ${allReviews.length} reviews seeded across Aswan and Luxor. User password: ${SEED_PASSWORD}`,
+    `\nDone. ${users.length} users, ${businesses.length} businesses (${SEED_GOOGLE_PLACES.length} connected to a cached Google Place), ${allThreads.length} threads, and ${allReviews.length} reviews seeded across Aswan and Luxor. User password: ${SEED_PASSWORD}`,
   );
   console.log("Sign in with any seeded email, e.g. yasmine@qura.dev or mostafa@qura.dev.");
+  console.log(
+    "@adeltours and @philaeboats both connect to the same Google Place (Philae dock) — visit /profile/adeltours or search 'Philae' in a category page to see the grouped result.",
+  );
 }
 
 seed()

@@ -1,5 +1,6 @@
 import { BusinessBlockCard } from "@/components/business-block-card";
 import { BusinessReviews } from "@/components/business-reviews";
+import { GooglePlaceInfo } from "@/components/google-place-info";
 import { ThreadList } from "@/components/thread-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,7 @@ import {
   getBusinessReviews,
   getMyReview,
 } from "@/lib/business/queries";
+import type { GooglePlaceCacheResult } from "@/lib/business/google-place-cache";
 import { getLocale } from "@/lib/i18n/actions";
 import {
   loadMoreUserRepliesAction,
@@ -30,6 +32,16 @@ export async function ProfileTabs({
   // Only businesses that have set a category get an "Info" tab — a
   // regular user's profile stays Threads/Replies, unchanged.
   block,
+  // Google-owned enrichment for each of this business's connected
+  // branches (Phase 24: possibly several), already resolved by the
+  // caller (`getBusinessGooglePlaceResults`) — `[]` for "not connected at
+  // all"; each entry's `result` is always one of `fresh`/`stale`/
+  // `unavailable` (Phase 7's cache), never collapsed to `null` just
+  // because Google failed for that one branch. Rendered inside the same
+  // "Info" tab as `block`, right below it, one card per branch — never
+  // its own tab, since it's enrichment for the business's info, not a
+  // separate concern.
+  googlePlaceResults = [],
   // Business profiles can only post — never reply — so a "Replies" tab on
   // one would always be empty. `isBusiness` drops that tab and swaps in
   // "Reviews" instead (any signed-in account can leave one, not just
@@ -46,7 +58,11 @@ export async function ProfileTabs({
   userId: string;
   currentUserId?: string;
   stickyTop?: number;
-  block?: { category: BusinessCategory; data: Record<string, unknown> } | null;
+  block?: {
+    category: BusinessCategory;
+    data: Record<string, unknown>;
+  } | null;
+  googlePlaceResults?: { googlePlaceId: string; result: GooglePlaceCacheResult }[];
   isBusiness?: boolean;
   canReview?: boolean;
   viewer?: { name: string; image?: string | null } | null;
@@ -77,7 +93,30 @@ export async function ProfileTabs({
       value: "info",
       label: t("Info"),
       content: (
-        <BusinessBlockCard category={block.category} data={block.data} />
+        // Deliberately no gap between the business's own block and its
+        // Google branches — both use identical row/divider styling, so
+        // flush against each other they read as one continuous profile,
+        // not "Qura info, then a separate imported Google box" (Phase
+        // 25). `googlePlaceResults` is already in connection order —
+        // Qura's own data first, then each branch in the order it was
+        // connected, oldest first (`getBusinessGooglePlaceResults`).
+        <div className="flex flex-col gap-0">
+          <BusinessBlockCard category={block.category} data={block.data} />
+          {googlePlaceResults.length > 0 && (
+            <div className="divide-border/50 flex flex-col divide-y overflow-hidden">
+              {googlePlaceResults.map(({ googlePlaceId, result }) => (
+                <GooglePlaceInfo key={googlePlaceId} placeId={googlePlaceId} result={result} />
+              ))}
+              {googlePlaceResults.some((r) => r.result.status !== "unavailable") && (
+                <div className="container py-2">
+                  <span className="text-muted-foreground text-[11px]">
+                    {t("Places powered by Google")}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       ),
     },
     {

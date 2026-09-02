@@ -71,6 +71,21 @@ export async function getGuardedUser(): Promise<SafeUser | null> {
 }
 
 /**
+ * `null` for anyone who isn't a signed-in `super_admin` — every admin
+ * page/action calls this first and treats `null` as "not found"/"sign in
+ * required" rather than distinguishing "not signed in" from "signed in but
+ * not an admin", the same way `getMyBusinessById` collapses "doesn't
+ * exist" and "not yours" into one `null`. This is the ONLY thing that
+ * gates `/admin/*` and its server actions — there is no client-side role
+ * check anywhere, since a business owner could otherwise call an admin
+ * action directly by invoking it, bypassing hidden UI entirely.
+ */
+export async function getGuardedAdmin(): Promise<SafeUser | null> {
+  const user = await getGuardedUser();
+  return user?.role === "super_admin" ? user : null;
+}
+
+/**
  * Single source of truth for "where does a signed-in, non-suspended user
  * belong right now" — used by sign-in, sign-up, the OAuth callback, and
  * every guest-only auth page (so a logged-in user hitting `/login` lands

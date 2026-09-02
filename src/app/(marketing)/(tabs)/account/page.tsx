@@ -9,7 +9,10 @@ import { CopyLinkButton } from "@/components/copy-link-button";
 import { ProfileSwitcher } from "@/components/profile-switcher";
 import { SettingsSheet } from "@/components/settings-sheet";
 import { getCurrentUser } from "@/lib/auth/guard";
-import { getBusinessBlock } from "@/lib/business/queries";
+import {
+  getBusinessBlock,
+  getBusinessGooglePlaceResults,
+} from "@/lib/business/queries";
 import {
   getActiveIdentity,
   getSwitchableIdentities,
@@ -26,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AccountPage() {
-  const [user, { t }] = await Promise.all([getCurrentUser(), getLocale()]);
+  const [user, { t, locale }] = await Promise.all([getCurrentUser(), getLocale()]);
 
   const settingsLabels = {
     settings: t("Settings"),
@@ -78,6 +81,9 @@ export default async function AccountPage() {
     getFollowCounts(identity.id),
     identity.isBusiness ? getBusinessBlock(identity.id) : Promise.resolve(null),
   ]);
+  const googlePlaceResults = identity.isBusiness
+    ? await getBusinessGooglePlaceResults(identity.id, locale)
+    : [];
   const shareUrl = `${process.env.APP_URL ?? ""}/profile/${identity.username}`;
   const editHref = identity.isBusiness ? "/account/business" : "/account/edit";
 
@@ -161,9 +167,13 @@ export default async function AccountPage() {
         currentUserId={user.id}
         stickyTop={50}
         isBusiness={identity.isBusiness}
+        googlePlaceResults={googlePlaceResults}
         block={
           block
-            ? { category: block.category, data: block.data as Record<string, unknown> }
+            ? {
+                category: block.category,
+                data: block.data as Record<string, unknown>,
+              }
             : null
         }
       />

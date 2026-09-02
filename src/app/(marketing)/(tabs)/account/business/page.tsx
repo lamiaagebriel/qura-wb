@@ -3,13 +3,18 @@ import { redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import { getGuardedUser } from "@/lib/auth/guard";
-import { getBusinessBlock } from "@/lib/business/queries";
+import {
+  getBusinessBlock,
+  getBusinessGooglePlaceResults,
+} from "@/lib/business/queries";
+import { getActiveCity } from "@/lib/city/actions";
 import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
 import { toLocationFormValues, type Location } from "@/lib/location";
 import { EMPTY_WORKING_HOURS, type WorkingHours } from "@/lib/working-hours";
 
 import { BusinessProfileForm } from "./business-profile-form";
+import { GooglePlaceConnection } from "./google-place-connection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getLocale();
@@ -28,13 +33,20 @@ export default async function BusinessProfilePage() {
   const user = await getGuardedUser();
   if (!user) redirect("/login");
 
-  const [{ t }, identity] = await Promise.all([
+  const [{ t, locale }, identity, activeCity] = await Promise.all([
     getLocale(),
     getActiveIdentity(),
+    getActiveCity(),
   ]);
   const isEdit = !!identity?.isBusiness;
   const block = isEdit ? await getBusinessBlock(identity!.id) : null;
   const blockData = (block?.data ?? {}) as Record<string, unknown>;
+  const connectedPlaces = isEdit
+    ? (await getBusinessGooglePlaceResults(identity!.id, locale)).map((r) => ({
+        googlePlaceId: r.googlePlaceId,
+        place: r.result,
+      }))
+    : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,6 +68,7 @@ export default async function BusinessProfilePage() {
               : { name: "", username: "", bio: "" }
           }
           initialCategory={block?.category}
+          activeCity={activeCity}
           initialBlockValues={{
             cuisine: (blockData.cuisine as string) ?? "",
             priceRange:
@@ -85,6 +98,18 @@ export default async function BusinessProfilePage() {
             socialLinks: (blockData.socialLinks as string[] | undefined) ?? [],
           }}
         />
+
+        {isEdit && block && (
+          <div className="mt-6 flex flex-col gap-2">
+            <span className="text-foreground text-[13px] font-medium">
+              {t("Google Places")}
+            </span>
+            <GooglePlaceConnection
+              businessId={identity!.id}
+              connectedPlaces={connectedPlaces}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

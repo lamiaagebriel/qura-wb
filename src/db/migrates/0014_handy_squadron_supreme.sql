@@ -1,0 +1,1 @@
+ALTER TABLE "google_places" ADD COLUMN "refresh_locked_until" timestamp with time zone;

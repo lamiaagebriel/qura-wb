@@ -33,7 +33,7 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Translate = (key: keyof Dict) => string;
-type Fact = { label: string; value: ReactNode };
+export type Fact = { label: string; value: ReactNode };
 
 function formatRange(range: TimeRange): string {
   return `${range.open} – ${range.close}`;
@@ -51,8 +51,14 @@ function getTodaySummary(hours: WorkingHours, t: Translate): string {
 }
 
 // ─── Call Button ──────────────────────────────────────────────────────────────
+//
+// Exported (along with `WorkingHoursAccordion`, `LocationSection`, and
+// `FactRow` below) so `google-place-info.tsx` can render a connected
+// Google Place's info as more rows in the exact same visual language,
+// rather than a second, visibly distinct "Google" card — see that
+// file's own comment for why.
 
-function CallButton({ phones }: { phones: string[] }) {
+export function CallButton({ phones }: { phones: string[] }) {
   const { t } = useLocale();
   if (phones.length === 1) {
     return (
@@ -98,7 +104,7 @@ function CallButton({ phones }: { phones: string[] }) {
 
 // ─── Working Hours Accordion ──────────────────────────────────────────────────
 
-function WorkingHoursAccordion({ hours }: { hours: WorkingHours }) {
+export function WorkingHoursAccordion({ hours }: { hours: WorkingHours }) {
   const { t } = useLocale();
   const todaySummary = getTodaySummary(hours, t);
   const isOpenToday = todaySummary !== t("Closed");
@@ -181,7 +187,7 @@ function WorkingHoursAccordion({ hours }: { hours: WorkingHours }) {
 
 // ─── Fact Row ─────────────────────────────────────────────────────────────────
 
-function FactRow({ fact }: { fact: Fact }) {
+export function FactRow({ fact }: { fact: Fact }) {
   return (
     <div>
       <div className="container flex items-center justify-between gap-4 py-2 text-[12.5px]">
@@ -194,7 +200,7 @@ function FactRow({ fact }: { fact: Fact }) {
 
 // ─── Location Section ─────────────────────────────────────────────────────────
 
-function LocationSection({
+export function LocationSection({
   location,
   mapsUrl,
   mapsEmbedUrl,

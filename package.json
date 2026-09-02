@@ -12,7 +12,13 @@
     "db:push": "drizzle-kit push --config=./src/db/config.ts",
     "db:migrate": "drizzle-kit migrate --config=./src/db/config.ts",
     "db:studio": "drizzle-kit studio --config=./src/db/config.ts",
-    "db:seed": "tsx --env-file=.env src/db/seed.ts"
+    "db:seed": "tsx --env-file=.env src/db/seed.ts",
+    "db:evaluate-discovery": "tsx --conditions=react-server --env-file=.env src/db/evaluate-discovery.ts",
+    "db:evaluate-unified-search": "tsx --conditions=react-server --env-file=.env src/db/evaluate-unified-search.ts",
+    "db:evaluate-search-ranking-proposal": "tsx --conditions=react-server --env-file=.env src/db/evaluate-search-ranking-proposal.ts",
+    "db:evaluate-google-place-conversion": "tsx --conditions=react-server --env-file=.env src/db/evaluate-google-place-conversion.ts",
+    "db:evaluate-category-city-scope": "tsx --conditions=react-server --env-file=.env src/db/evaluate-category-city-scope.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1120.0",
@@ -48,6 +54,7 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/google.maps": "^3.65.5",
     "@types/node": "^20",

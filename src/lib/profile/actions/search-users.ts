@@ -1,37 +1,34 @@
 "use server";
 
-import { and, or, ilike, isNotNull } from "drizzle-orm";
-
-import { db, schema } from "@/db";
-
-const SEARCH_RESULTS_PAGE_SIZE = 20;
+import { getActiveCity } from "@/lib/city/actions";
+import { searchUnified } from "@/lib/search/unified-search";
+import { INITIAL_SEARCH_CURSOR } from "@/lib/search/types";
+import type { UnifiedSearchCursor, UnifiedSearchResult } from "@/lib/search/types";
 
 /** Not a form-submit action (no `ActionResult` wrapper) — a plain read
  * called straight from the search page's client component, both for the
  * initial query and for "load more" as the user scrolls the results.
- * Fetches `pageSize + 1` rows to answer "is there another page?" without
- * a separate COUNT query, same pattern as the thread list queries.
  *
- * Business profiles only, not personal accounts — search is meant for
- * finding businesses to follow, not looking up other people. */
-export async function searchUsersAction(query: string, cursor = 0) {
+ * As of Phase 4 this is a thin transport boundary over
+ * `lib/search/unified-search.ts` — the query-length guard is the only
+ * thing still living here; everything about *how* Qura and Google get
+ * searched, merged, and paginated lives in that module (and is testable
+ * without this action, Next.js, or auth — see `lib/search/merge.ts`).
+ * As of Phase 16, this is also where `getActiveCity()` (Next's
+ * `cookies()`, request-scoped) is read — `searchUnified` itself takes
+ * `city` as a plain parameter, so it can be called from a real request
+ * (here) or an evaluation harness identically.
+ *
+ * Still business profiles-oriented, not personal accounts — same as
+ * before Phase 4, `unifiedSearch`'s Qura side only ever matches
+ * `ownerId IS NOT NULL` rows. */
+export async function searchUsersAction(
+  query: string,
+  cursor: UnifiedSearchCursor | null = null,
+): Promise<{ items: UnifiedSearchResult[]; nextCursor: UnifiedSearchCursor | null }> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return { items: [], nextCursor: null };
 
-  const pattern = `%${trimmed}%`;
-  const rows = await db.query.users.findMany({
-    where: and(
-      isNotNull(schema.users.ownerId),
-      or(ilike(schema.users.username, pattern), ilike(schema.users.name, pattern)),
-    ),
-    orderBy: (users, { asc }) => [asc(users.username)],
-    limit: SEARCH_RESULTS_PAGE_SIZE + 1,
-    offset: cursor,
-  });
-
-  const hasMore = rows.length > SEARCH_RESULTS_PAGE_SIZE;
-  return {
-    items: rows.slice(0, SEARCH_RESULTS_PAGE_SIZE),
-    nextCursor: hasMore ? cursor + SEARCH_RESULTS_PAGE_SIZE : null,
-  };
+  const city = await getActiveCity();
+  return searchUnified({ query: trimmed, cursor: cursor ?? INITIAL_SEARCH_CURSOR, city });
 }

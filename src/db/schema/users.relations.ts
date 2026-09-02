@@ -1,6 +1,8 @@
 import { relations } from "drizzle-orm";
 
 import { accounts } from "./auth.accounts";
+import { businessBlocks } from "./business-blocks";
+import { businessGooglePlaces } from "./business-google-places";
 import { sessions } from "./auth.sessions";
 import { follows } from "./users.follows";
 import { reports } from "./users.reports";
@@ -33,6 +35,15 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     relationName: "businesses",
   }),
   businesses: many(users, { relationName: "businesses" }),
+  // A business row's own category block (one-to-one — `businessId` is
+  // unique on `business_blocks`). `undefined`/missing for a real account
+  // (`ownerId === null`) or a business that hasn't set a category yet.
+  block: one(businessBlocks, {
+    fields: [users.id],
+    references: [businessBlocks.businessId],
+  }),
+  // Phase 24 — every Google Place branch this business is connected to.
+  googlePlaces: many(businessGooglePlaces),
 }));
 
 export const followsRelations = relations(follows, ({ one }) => ({

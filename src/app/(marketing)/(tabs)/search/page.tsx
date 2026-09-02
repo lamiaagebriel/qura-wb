@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getActiveCity } from "@/lib/city/actions";
 import { getLocale } from "@/lib/i18n/actions";
 
 import { SearchView } from "./search-view";
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SearchPage() {
-  const { t } = await getLocale();
+  const [{ t }, activeCity] = await Promise.all([getLocale(), getActiveCity()]);
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -19,7 +20,7 @@ export default async function SearchPage() {
           since there's no single "parent" screen to return to. */}
       <AppHeader title={t("Search")} showBack={false} />
 
-      <SearchView />
+      <SearchView activeCity={activeCity} />
     </div>
   );
 }

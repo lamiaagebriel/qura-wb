@@ -4,7 +4,10 @@ import { notFound, redirect } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { AppHeader } from "@/components/app-header";
-import { getBusinessBlock } from "@/lib/business/queries";
+import {
+  getBusinessBlock,
+  getBusinessGooglePlaceResults,
+} from "@/lib/business/queries";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { getLocale } from "@/lib/i18n/actions";
 import {
@@ -28,7 +31,7 @@ export async function generateMetadata({
 
 export default async function PublicProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
-  const [viewer, { t }, profileUser] = await Promise.all([
+  const [viewer, { t, locale }, profileUser] = await Promise.all([
     getCurrentUser(),
     getLocale(),
     getUserByUsername(username),
@@ -52,6 +55,12 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
         : Promise.resolve(null),
     ],
   );
+  // Zero Google requests for a non-business profile or a business with no
+  // connections — `getBusinessGooglePlaceResults` returns `[]` cheaply
+  // before ever touching `lib/google-places/`.
+  const googlePlaceResults = profileUser.ownerId
+    ? await getBusinessGooglePlaceResults(profileUser.id, locale)
+    : [];
 
   const shareUrl = `${process.env.APP_URL ?? ""}/profile/${profileUser.username}`;
 
@@ -114,6 +123,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
         isBusiness={!!profileUser.ownerId}
         canReview={!!viewer && profileUser.ownerId !== viewer.id}
         viewer={viewer}
+        googlePlaceResults={googlePlaceResults}
         block={
           block
             ? {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Delete02Icon } from "@hugeicons/core-free-icons";
+import { Delete02Icon, Location01Icon } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,14 +39,17 @@ import {
 } from "@/components/location-editor";
 import { WorkingHoursEditor } from "@/components/working-hours-editor";
 import { createBusinessAction } from "@/lib/business/actions/create";
+import { createBusinessFromGooglePlaceAction } from "@/lib/business/actions/create-from-google-place";
 import { deleteBusinessAction } from "@/lib/business/actions/delete";
 import { updateBusinessAction } from "@/lib/business/actions/update";
 import {
   clearBusinessBlockAction,
   upsertBusinessBlockAction,
 } from "@/lib/business/actions/upsert-block";
-import { BUSINESS_CATEGORIES, type BusinessCategory } from "@/db/schema";
+import { mapGoogleTypesToQuraCategories } from "@/lib/business/google-category-mapping";
+import { BUSINESS_CATEGORIES, type BusinessCategory, type CityId } from "@/db/schema";
 import { CATEGORY_META } from "@/lib/categories";
+import { CITY_LABEL, CITY_ORDER } from "@/lib/city/cities";
 import { handleAppError } from "@/lib/errors-client";
 import {
   EMPTY_LOCATION,
@@ -55,6 +58,9 @@ import {
 } from "@/lib/location";
 import { setActiveProfile } from "@/lib/identity/actions";
 import { useLocale } from "@/lib/i18n/client";
+import type { GooglePlaceSearchResult } from "@/lib/google-places/types";
+
+import { GooglePlacePicker } from "./google-place-picker";
 import {
   createBusinessSchema,
   type BusinessValues,
@@ -158,12 +164,18 @@ export function BusinessProfileForm({
   defaultValues,
   initialCategory,
   initialBlockValues,
+  activeCity = "aswan",
 }: {
   mode: "create" | "edit";
   businessId?: string;
   defaultValues: BusinessValues;
   initialCategory?: BusinessCategory | null;
   initialBlockValues?: Partial<BlockFormValues>;
+  // Only meaningful in "create" mode — the city a business created FROM
+  // a picked Google Place is saved under (see `createBusinessFromGooglePlaceAction`).
+  // The plain blank-form path has no city concept at all (unchanged —
+  // `createBusinessAction` still leaves it at the column default).
+  activeCity?: CityId;
 }) {
   const { t } = useLocale();
   const router = useRouter();
@@ -172,6 +184,10 @@ export function BusinessProfileForm({
   const [category, setCategory] = useState<BusinessCategory | "">(
     initialCategory ?? "",
   );
+  const [selectedPlace, setSelectedPlace] = useState<GooglePlaceSearchResult | null>(
+    null,
+  );
+  const [city, setCity] = useState<CityId>(activeCity);
   const schema = useMemo(() => createBusinessSchema(t), [t]);
 
   const form = useForm<BusinessValues>({
@@ -242,14 +258,68 @@ export function BusinessProfileForm({
     return true;
   }
 
+  function handleGooglePlaceSelect(place: GooglePlaceSearchResult) {
+    setSelectedPlace(place);
+    form.setValue("name", place.name || form.getValues("name"), {
+      shouldDirty: true,
+    });
+    if (place.address) {
+      blockForm.setValue(
+        "location",
+        {
+          description: place.address,
+          lat: place.location ? String(place.location.latitude) : "",
+          lng: place.location ? String(place.location.longitude) : "",
+        },
+        { shouldDirty: true },
+      );
+    }
+    // Suggestion only, never authoritative — the Select stays fully
+    // editable, same rule as the Google-only search-result conversion
+    // flow (`add-to-qura-sheet.tsx`).
+    const suggested = mapGoogleTypesToQuraCategories(place.types)[0];
+    if (suggested) setCategory(suggested);
+  }
+
   async function onSubmit(values: BusinessValues) {
-    // Kept as two full branches (not one shared `result` from a ternary)
+    // Kept as separate branches (not one shared `result` from a ternary)
     // so TS narrows each action's return type on its own —
-    // `createBusinessAction`'s `data` is `{id, username}`,
-    // `updateBusinessAction`'s is always `undefined`; a shared variable
-    // would union the two and lose that.
+    // `createBusinessAction`'s/`createBusinessFromGooglePlaceAction`'s
+    // `data` shapes differ, and `updateBusinessAction`'s is always
+    // `undefined`; a shared variable would union them and lose that.
     let id: string;
-    if (mode === "create") {
+    if (mode === "create" && selectedPlace) {
+      if (!category) {
+        toast.error(t("Choose a category."));
+        return;
+      }
+      const result = await createBusinessFromGooglePlaceAction({
+        googlePlace: {
+          placeId: selectedPlace.placeId,
+          name: selectedPlace.name,
+          address: selectedPlace.address,
+          location: selectedPlace.location,
+          types: selectedPlace.types,
+        },
+        name: values.name,
+        username: values.username,
+        bio: values.bio,
+        category,
+        city,
+      });
+      if (!result.success) {
+        handleAppError(result.error, form);
+        return;
+      }
+      if (result.data.status === "already_connected") {
+        toast.info(
+          t("You already have a business connected to this Google Place."),
+        );
+        router.push(`/profile/${result.data.username}`);
+        return;
+      }
+      id = result.data.id;
+    } else if (mode === "create") {
       const result = await createBusinessAction(values);
       if (!result.success) {
         handleAppError(result.error, form);
@@ -299,6 +369,65 @@ export function BusinessProfileForm({
     <>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <FieldGroup>
+          {mode === "create" && (
+            <Field>
+              {selectedPlace ? (
+                <div className="border-border flex flex-col gap-2 rounded-lg border p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <HugeiconsIcon
+                        icon={Location01Icon}
+                        className="text-muted-foreground size-4 shrink-0"
+                      />
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-foreground text-[13px] font-medium">
+                          {selectedPlace.name}
+                        </span>
+                        {selectedPlace.address && (
+                          <span className="text-muted-foreground text-xs">
+                            {selectedPlace.address}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedPlace(null)}
+                    >
+                      {t("Remove")}
+                    </Button>
+                  </div>
+                  <p className="text-muted-foreground text-[11px]">
+                    {t(
+                      "This creates a new Qura profile connected to this Google Place. It doesn't verify that you own or manage the real business.",
+                    )}
+                  </p>
+                  <Field>
+                    <FieldLabel htmlFor="create-city">{t("City")}</FieldLabel>
+                    <Select value={city} onValueChange={(v) => setCity(v as CityId)}>
+                      <SelectTrigger id="create-city">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CITY_ORDER.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {t(CITY_LABEL[c])}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              ) : (
+                <GooglePlacePicker
+                  onSelect={handleGooglePlaceSelect}
+                  label={t("Start from a Google Place")}
+                />
+              )}
+            </Field>
+          )}
           <Controller
             name="name"
             control={form.control}
