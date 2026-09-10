@@ -3,7 +3,12 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { GlobalIcon, StarIcon } from "@hugeicons/core-free-icons";
 
-import { CallButton, FactRow, LocationSection } from "@/components/business-block-card";
+import {
+  CallButton,
+  FactRow,
+  LocationSection,
+  WorkingHoursAccordionFromDescriptions,
+} from "@/components/business-block-card";
 import type { GooglePlaceCacheResult } from "@/lib/business/google-place-cache";
 import { useLocale } from "@/lib/i18n/client";
 import type { Dict } from "@/lib/i18n/config";
@@ -13,10 +18,18 @@ const NOT_OPERATIONAL_LABEL: Partial<Record<string, keyof Dict>> = {
   CLOSED_PERMANENTLY: "Permanently closed",
 };
 
-// Google Maps' public "look up by place id" deep link — no API key
-// needed, works for any place id regardless of how Qura learned about it.
-function googleMapsPlaceUrl(placeId: string): string {
-  return `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(placeId)}`;
+// Google's documented "Search" deep-link format — `query_place_id`
+// alongside `query` pins the map on this EXACT place rather than
+// re-running a text search. No API key needed. Kept local, same as
+// every other place this pattern already lives in this codebase
+// (`search-view.tsx`, `category-results.tsx`, `profile/[username]/page.tsx`).
+function googleMapsPlaceUrl(placeId: string, name: string): string {
+  const params = new URLSearchParams({
+    api: "1",
+    query: name,
+    query_place_id: placeId,
+  });
+  return `https://www.google.com/maps/search/?${params.toString()}`;
 }
 
 /**
@@ -108,10 +121,15 @@ export function GooglePlaceInfo({
               href={details.websiteUri}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-[12.5px] font-medium"
+              className="bg-muted flex flex-1 flex-col items-center gap-1.5 rounded-xl py-2.5"
             >
-              <HugeiconsIcon icon={GlobalIcon} className="size-3.5" />
-              {t("Website")}
+              <HugeiconsIcon
+                icon={GlobalIcon}
+                className="text-foreground size-4.5"
+              />
+              <span className="text-foreground text-[10.5px] font-semibold">
+                {t("Website")}
+              </span>
             </a>
           )}
         </div>
@@ -124,38 +142,10 @@ export function GooglePlaceInfo({
       {location && (
         <LocationSection
           location={location}
-          mapsUrl={googleMapsPlaceUrl(placeId)}
+          mapsUrl={googleMapsPlaceUrl(placeId, details.name)}
           mapsEmbedUrl={null}
         />
       )}
     </>
-  );
-}
-
-// Google's opening hours only ever come back as pre-localized display
-// strings (`weekdayDescriptions`), never the structured per-day ranges
-// `WorkingHoursAccordion` expects (that shape is Qura's own
-// `WorkingHours` type, filled in by a business itself) — this renders
-// Google's lines directly instead of forcing them through that
-// component, but keeps the identical accordion row styling so it still
-// reads as one more row in the same block, not a different widget.
-function WorkingHoursAccordionFromDescriptions({ lines }: { lines: string[] }) {
-  const { t } = useLocale();
-  return (
-    <details className="group">
-      <summary className="container flex list-none items-center justify-between gap-4 py-2 text-[12.5px] [&::-webkit-details-marker]:hidden">
-        <span className="text-muted-foreground">{t("Working hours")}</span>
-        <span className="text-muted-foreground text-[11px] group-open:hidden">
-          {t("Show hours")}
-        </span>
-      </summary>
-      <div className="divide-border/50 flex flex-col divide-y">
-        {lines.map((line, index) => (
-          <div key={index} className="container py-2 text-[12.5px] text-foreground">
-            {line}
-          </div>
-        ))}
-      </div>
-    </details>
   );
 }

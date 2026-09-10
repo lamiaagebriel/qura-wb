@@ -84,7 +84,7 @@ export function FeedThreadList({
   return (
     <div className="grid grid-cols-1">
       <div className="container flex items-center justify-between py-2">
-        <h2 className="text-[15px] font-semibold">{t("For you")}</h2>
+        <h2 className="text-[15px] font-semibold">{t("What's around you…")}</h2>
 
         {/* {items.length > 0 && (
           <Select
@@ -135,7 +135,7 @@ export function FeedThreadList({
                   : meta.color.chipInactive,
               )}
             >
-              <HugeiconsIcon icon={meta.icon} className="size-3.5" />
+              <HugeiconsIcon icon={meta.icon} className="size-3" />
               {t(meta.label)}
             </button>
           );

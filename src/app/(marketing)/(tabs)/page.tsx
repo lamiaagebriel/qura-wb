@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 
 import { ComingSoon } from "@/components/coming-soon";
+import { FeedComposeTrigger } from "@/components/feed-compose-trigger";
 import { FeedThreadList } from "@/components/feed-thread-list";
 import { HomeHeader } from "@/components/home-header";
 import { getActiveCity } from "@/lib/city/actions";
 import { CITY_LABEL, isCityAvailable } from "@/lib/city/cities";
 import { getCurrentUser } from "@/lib/auth/guard";
+import { getMyBusinesses } from "@/lib/business/queries";
+import { getActiveIdentity } from "@/lib/identity/active";
 import { getLocale } from "@/lib/i18n/actions";
 import { getFeedThreads } from "@/lib/threads/queries";
 
@@ -23,6 +26,13 @@ export default async function FeedPage() {
     getLocale(),
     getActiveCity(),
   ]);
+  // Same "post as" data `BottomNav`'s `NewThreadButton` gets — the feed's
+  // own compose row is a second entry point into the exact same sheet,
+  // not a separate flow, so it needs the same inputs.
+  const [businesses, identity] = await Promise.all([
+    user ? getMyBusinesses(user.id) : Promise.resolve([]),
+    user ? getActiveIdentity() : Promise.resolve(null),
+  ]);
   const available = isCityAvailable(city);
   // Skip the query entirely when the city has no content yet — an empty
   // result would render the same generic "no threads yet" the feed shows
@@ -38,6 +48,14 @@ export default async function FeedPage() {
       <HomeHeader name={user?.name} activeCity={city} />
 
       <div className="flex flex-col gap-2 py-2">
+        {available && (
+          <FeedComposeTrigger
+            user={user}
+            businesses={businesses}
+            defaultPostAsId={identity?.isBusiness ? identity.id : undefined}
+          />
+        )}
+
         {available ? (
           // Keyed on `city` — switching cities has to drop whatever this
           // list already loaded via scrolling (`useInfiniteList` would

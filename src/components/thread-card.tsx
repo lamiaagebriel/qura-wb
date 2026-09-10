@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -118,6 +118,16 @@ export function ThreadCard({
   const [body, setBody] = useState(thread.body);
   const [images, setImages] = useState(thread.images);
   const [isPending, startTransition] = useTransition();
+
+  // A swipe through the image carousel (or a text selection drag) starts
+  // and ends inside the card, so it still reaches this `onClick` as a
+  // plain click once the pointer settles — `stopPropagation` on the
+  // carousel/buttons only covers *their own* clicks, not a drag that
+  // began on them and released elsewhere. Tracking the pointer's start
+  // position and only navigating when it never moved distinguishes an
+  // actual tap from a swipe/selection, regardless of what it started on.
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const DRAG_THRESHOLD_PX = 8;
 
   // Picks up a fresher `body`/`images` when the server re-fetches this
   // thread (e.g. `router.refresh()` after the edit above, or someone else's
@@ -348,13 +358,17 @@ export function ThreadCard({
           {variant === "default" && thread.category !== "general" && (
             <span
               className={cn(
-                "mb-0.5 flex w-fit items-center gap-1 text-[11px] font-medium",
-                THREAD_CATEGORY_META[thread.category].color.text,
+                "flex w-fit shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[12.5px] font-medium disabled:opacity-50",
+                THREAD_CATEGORY_META[thread.category].color.chipInactive,
               )}
+              // className={cn(
+              //   "mb-0.5 flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
+              //   THREAD_CATEGORY_META[thread.category].color.chipActive,
+              // )}
             >
               <HugeiconsIcon
                 icon={THREAD_CATEGORY_META[thread.category].icon}
-                className="size-3"
+                className="size-4"
               />
               {t(THREAD_CATEGORY_META[thread.category].label)}
             </span>
@@ -460,7 +474,26 @@ export function ThreadCard({
     <div
       role="link"
       tabIndex={0}
-      onClick={() => router.push(`/thread/${thread.id}`)}
+      onPointerDown={(e) => {
+        pointerDownPos.current = { x: e.clientX, y: e.clientY };
+      }}
+      onClick={(e) => {
+        // Interactive descendants (vote/save/share buttons, the follow
+        // badge, the image carousel and its lightbox) already
+        // `stopPropagation` on their own clicks — this is the fallback
+        // for the case that doesn't: a swipe/drag that started on one of
+        // them but released back over the card as a plain click.
+        const start = pointerDownPos.current;
+        pointerDownPos.current = null;
+        if (
+          start &&
+          (Math.abs(e.clientX - start.x) > DRAG_THRESHOLD_PX ||
+            Math.abs(e.clientY - start.y) > DRAG_THRESHOLD_PX)
+        ) {
+          return;
+        }
+        router.push(`/thread/${thread.id}`);
+      }}
       onKeyDown={(e) => {
         if (e.key === "Enter") router.push(`/thread/${thread.id}`);
       }}

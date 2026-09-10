@@ -70,7 +70,7 @@ type ComposerUser = { name: string; username: string; image?: string | null };
 // A business you own — same shape as `ComposerUser` plus the `id`
 // actually needed to post "as" it (`ComposerUser` never needed one: the
 // only identity it ever represented was "you", implicit in the session).
-type ComposerBusiness = {
+export type ComposerBusiness = {
   id: string;
   name: string;
   username: string;

@@ -1,4 +1,4 @@
-import { BusinessBlockCard } from "@/components/business-block-card";
+import { BusinessBlockCard, type GoogleFallback } from "@/components/business-block-card";
 import { BusinessReviews } from "@/components/business-reviews";
 import { GooglePlaceInfo } from "@/components/google-place-info";
 import { ThreadList } from "@/components/thread-list";
@@ -10,6 +10,7 @@ import {
   getMyReview,
 } from "@/lib/business/queries";
 import type { GooglePlaceCacheResult } from "@/lib/business/google-place-cache";
+import { mergeRatingSummary } from "@/lib/business/rating";
 import { getLocale } from "@/lib/i18n/actions";
 import {
   loadMoreUserRepliesAction,
@@ -85,35 +86,78 @@ export async function ProfileTabs({
         : Promise.resolve(null),
     ]);
 
+  // One connected Google place is folded straight into `BusinessBlockCard`
+  // as a fallback source (Qura's own fields always win — see that
+  // component's `google` prop doc), so its info never renders as its own
+  // second section. The FIRST connected branch that actually has data is
+  // the one merged in; any additional branches (a business with more than
+  // one physical location) are genuinely different places, not
+  // duplicates, so they keep rendering as their own `GooglePlaceInfo`
+  // blocks below.
+  const primaryGoogleIndex = googlePlaceResults.findIndex(
+    (r) => r.result.status !== "unavailable",
+  );
+  const primaryGoogleResult =
+    primaryGoogleIndex >= 0 ? googlePlaceResults[primaryGoogleIndex] : undefined;
+  const primaryGoogleDetails =
+    primaryGoogleResult && primaryGoogleResult.result.status !== "unavailable"
+      ? primaryGoogleResult.result.details
+      : undefined;
+  const googleFallback: GoogleFallback | null = primaryGoogleDetails
+    ? {
+        placeId: primaryGoogleDetails.placeId,
+        name: primaryGoogleDetails.name,
+        rating: primaryGoogleDetails.rating,
+        userRatingCount: primaryGoogleDetails.userRatingCount,
+        businessStatus: primaryGoogleDetails.businessStatus,
+        phoneNumber: primaryGoogleDetails.phoneNumber,
+        websiteUri: primaryGoogleDetails.websiteUri,
+        openingHoursDescriptions: primaryGoogleDetails.openingHours?.weekdayDescriptions,
+        address: primaryGoogleDetails.address,
+        location: primaryGoogleDetails.location,
+      }
+    : null;
+  const otherGoogleResults = googlePlaceResults.filter(
+    (_, index) => index !== primaryGoogleIndex,
+  );
+
+  // One rating indicator, not two — Qura's own reviews blended with
+  // Google's public rating (see `mergeRatingSummary`'s doc comment).
+  // `profile/[username]/page.tsx`'s header computes the exact same
+  // number from the exact same two inputs, so the header and this tab
+  // never disagree.
+  const combinedRating = mergeRatingSummary(ratingSummary, googleFallback);
+
   // Each entry is one tab — add/remove/reorder tabs here without touching
   // the `TabsList`/`TabsContent` wiring below. `condition` lets a tab drop
   // itself out entirely (e.g. "Info" only when there's a block to show).
   const tabs = [
     block && {
       value: "info",
-      label: t("Info"),
+      label: isBusiness ? t("Overview") : t("Info"),
       content: (
-        // Deliberately no gap between the business's own block and its
-        // Google branches — both use identical row/divider styling, so
-        // flush against each other they read as one continuous profile,
-        // not "Qura info, then a separate imported Google box" (Phase
-        // 25). `googlePlaceResults` is already in connection order —
-        // Qura's own data first, then each branch in the order it was
-        // connected, oldest first (`getBusinessGooglePlaceResults`).
+        // Deliberately no gap between the business's own (now
+        // Google-merged) block and any additional branches — all use
+        // identical row/divider styling, so flush against each other
+        // they read as one continuous profile.
         <div className="flex flex-col gap-0">
-          <BusinessBlockCard category={block.category} data={block.data} />
-          {googlePlaceResults.length > 0 && (
+          <BusinessBlockCard
+            category={block.category}
+            data={block.data}
+            google={googleFallback}
+          />
+          {otherGoogleResults.length > 0 && (
             <div className="divide-border/50 flex flex-col divide-y overflow-hidden">
-              {googlePlaceResults.map(({ googlePlaceId, result }) => (
+              {otherGoogleResults.map(({ googlePlaceId, result }) => (
                 <GooglePlaceInfo key={googlePlaceId} placeId={googlePlaceId} result={result} />
               ))}
-              {googlePlaceResults.some((r) => r.result.status !== "unavailable") && (
-                <div className="container py-2">
-                  <span className="text-muted-foreground text-[11px]">
-                    {t("Places powered by Google")}
-                  </span>
-                </div>
-              )}
+            </div>
+          )}
+          {googlePlaceResults.some((r) => r.result.status !== "unavailable") && (
+            <div className="container py-2">
+              <span className="text-muted-foreground text-[11px]">
+                {t("Places powered by Google")}
+              </span>
             </div>
           )}
         </div>
@@ -121,14 +165,14 @@ export async function ProfileTabs({
     },
     {
       value: "threads",
-      label: t("Threads"),
+      label: isBusiness ? t("Posts") : t("Threads"),
       content: (
         <ThreadList
           initialItems={threads.items}
           initialCursor={threads.nextCursor}
           fetchMore={loadMoreUserThreadsAction.bind(null, userId)}
           currentUserId={currentUserId}
-          emptyLabel={t("No threads yet.")}
+          emptyLabel={isBusiness ? t("No posts yet.") : t("No threads yet.")}
         />
       ),
     },
@@ -141,7 +185,9 @@ export async function ProfileTabs({
               businessId={userId}
               initialItems={reviews.items}
               initialCursor={reviews.nextCursor}
-              summary={ratingSummary}
+              summary={combinedRating}
+              googleCount={combinedRating.googleCount}
+              googleReviews={primaryGoogleDetails?.reviews ?? []}
               myReview={myReview}
               canReview={canReview}
               viewer={viewer}

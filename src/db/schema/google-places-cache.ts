@@ -60,6 +60,12 @@ export const googlePlacesCache = pgTable("google_places", {
   // as-is rather than split into columns since it's never queried on,
   // only ever read back whole.
   openingHours: jsonb("opening_hours"),
+  // `GooglePlaceReview[]` (`lib/google-places/types.ts`), up to Google's
+  // own cap of 5 per place — cached and re-displayed live on every read,
+  // same freshness/TTL rules as every other column here, never copied
+  // into any Qura-owned review table (`business_reviews` stays Qura's
+  // own reviews only).
+  reviews: jsonb("reviews"),
 
   fetchedAt: timestamp("fetched_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),

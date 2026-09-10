@@ -39,13 +39,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="flex flex-col gap-2 py-4">
-      <AppHeader
-        title={t(CATEGORY_META[category].label)}
-        backHref="/categories"
-      />
+      <AppHeader title={t(CATEGORY_META[category].label)} />
 
       {!available && (
-        <ComingSoon title={t(CITY_LABEL[city])} description={t("Coming soon")} />
+        <ComingSoon
+          title={t(CITY_LABEL[city])}
+          description={t("Coming soon")}
+        />
       )}
 
       {available && (

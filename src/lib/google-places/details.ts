@@ -2,16 +2,18 @@ import "server-only";
 
 import { googlePlacesRequest } from "./client";
 import { GooglePlacesError } from "./errors";
-import type { GooglePlaceDetails } from "./types";
+import type { GooglePlaceDetails, GooglePlaceReview } from "./types";
 
 // A separate, explicit field set from `search.ts` — Place Details is a
 // deliberate, one-off call per place (a claim attempt, a profile view),
 // not run per search result, so a broader mask here doesn't multiply into
 // N calls the way it would if this ran once per search hit. Still
-// deliberately excludes photos and review text/authors: this phase never
-// stores or displays either, and Google's review content specifically
-// carries its own attribution/display requirements that belong in a later
-// phase that actually renders them, not this one.
+// deliberately excludes photos: Google's Places API has no per-review
+// photo field at all (see `GooglePlaceReview`'s comment), and place-level
+// photos carry their own separate Photo Media request/attribution
+// requirements this phase doesn't take on. `reviews` IS requested — up to
+// Google's own cap of 5 most-relevant reviews per place, always displayed
+// live (`GooglePlaceDetails`'s comment), never stored into any Qura table.
 const DETAILS_FIELD_MASK = [
   "id",
   "displayName",
@@ -24,6 +26,7 @@ const DETAILS_FIELD_MASK = [
   "internationalPhoneNumber",
   "websiteUri",
   "regularOpeningHours",
+  "reviews",
 ].join(",");
 
 type GoogleDetailsResponse = {
@@ -41,6 +44,13 @@ type GoogleDetailsResponse = {
     openNow?: boolean;
     weekdayDescriptions?: string[];
   };
+  reviews?: {
+    rating?: number;
+    text?: { text?: string };
+    authorAttribution?: { displayName?: string; photoUri?: string };
+    relativePublishTimeDescription?: string;
+    publishTime?: string;
+  }[];
 };
 
 /**
@@ -91,6 +101,23 @@ export async function getGooglePlaceDetails(
 
   const { latitude, longitude } = response.location ?? {};
 
+  // Skips a review that comes back with no rating or author name at all
+  // (never observed in practice, but the response is Google's, not
+  // ours to assume shaped) rather than rendering a broken-looking row.
+  const reviews: GooglePlaceReview[] | undefined = response.reviews
+    ?.filter(
+      (r): r is typeof r & { rating: number; authorAttribution: { displayName: string } } =>
+        r.rating !== undefined && !!r.authorAttribution?.displayName,
+    )
+    .map((r) => ({
+      rating: r.rating,
+      text: r.text?.text,
+      authorName: r.authorAttribution.displayName,
+      authorPhotoUri: r.authorAttribution.photoUri,
+      relativePublishTimeDescription: r.relativePublishTimeDescription ?? "",
+      publishTime: r.publishTime ?? "",
+    }));
+
   return {
     placeId: response.id,
     name: response.displayName?.text ?? "",
@@ -111,5 +138,6 @@ export async function getGooglePlaceDetails(
           weekdayDescriptions: response.regularOpeningHours.weekdayDescriptions,
         }
       : undefined,
+    reviews,
   };
 }

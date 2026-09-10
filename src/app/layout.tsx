@@ -11,6 +11,7 @@ import { AuthPromptProvider } from "@/components/auth-prompt";
 import { ThreadComposerProvider } from "@/components/new-thread-composer";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/mode-switcher";
+import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 
 const sourceSans3 = Source_Sans_3({subsets:['latin'],variable:'--font-sans'});
 
@@ -52,6 +53,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           <ThemeProvider>
             <AuthPromptProvider>
               <ThreadComposerProvider>
+                <PwaInstallPrompt />
+
                 {children}
 
                 <Toaster />

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, isNull, lt, or } from "drizzle-orm";
+import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import * as z from "zod";
 
 import { db, schema } from "@/db";
@@ -9,6 +9,7 @@ import { GooglePlacesError, type GooglePlacesErrorCode } from "@/lib/google-plac
 import type {
   GooglePlaceDetails,
   GooglePlaceOpeningHours,
+  GooglePlaceReview,
 } from "@/lib/google-places/types";
 import { logEvent, logWarning, withTiming } from "@/lib/observability/log";
 import type { GooglePlaceCacheRow } from "@/db/schema/google-places-cache";
@@ -69,6 +70,34 @@ function parseOpeningHours(value: unknown): GooglePlaceOpeningHours | undefined 
   return result.data;
 }
 
+// Same "validate on read" rule as `openingHoursRowSchema` above.
+const reviewsRowSchema = z
+  .array(
+    z.object({
+      rating: z.number(),
+      // `.nullish()`, not `.optional()` — jsonb round-trips a JS
+      // `undefined` field as an absent key (fine for `.optional()`), but
+      // an explicit SQL `null` value for a present key parses back as
+      // `null`, which `.optional()` alone rejects.
+      text: z.string().nullish(),
+      authorName: z.string(),
+      authorPhotoUri: z.string().nullish(),
+      relativePublishTimeDescription: z.string(),
+      publishTime: z.string(),
+    }),
+  )
+  .nullable();
+
+function parseReviews(value: unknown): GooglePlaceReview[] | undefined {
+  const result = reviewsRowSchema.safeParse(value);
+  if (!result.success || !result.data) return undefined;
+  return result.data.map((review) => ({
+    ...review,
+    text: review.text ?? undefined,
+    authorPhotoUri: review.authorPhotoUri ?? undefined,
+  }));
+}
+
 function rowToDetails(row: GooglePlaceCacheRow): GooglePlaceDetails {
   return {
     placeId: row.placeId,
@@ -85,6 +114,7 @@ function rowToDetails(row: GooglePlaceCacheRow): GooglePlaceDetails {
     phoneNumber: row.phone ?? undefined,
     websiteUri: row.website ?? undefined,
     openingHours: parseOpeningHours(row.openingHours),
+    reviews: parseReviews(row.reviews),
   };
 }
 
@@ -109,6 +139,7 @@ async function upsertCache(details: GooglePlaceDetails, now: Date): Promise<void
     phone: details.phoneNumber ?? null,
     website: details.websiteUri ?? null,
     openingHours: details.openingHours ?? null,
+    reviews: details.reviews ?? null,
     fetchedAt: now,
     updatedAt: now,
     refreshLockedUntil: null,
@@ -242,4 +273,37 @@ export async function getCachedGooglePlace(
     }
     return { status: "unavailable", reason: error.code };
   }
+}
+
+/**
+ * A plain cache read — no Google call, no TTL/freshness check, no
+ * refresh attempt, unlike `getCachedGooglePlace` above. For a caller
+ * that only wants "the last coordinate we ever saved for this place, if
+ * any" as a fallback source, not full place details kept fresh: search
+ * result pins (`search-view.tsx`) fall back to this when a search
+ * response didn't happen to include a given connected place's live
+ * location on this page (or Google's Text Search itself failed/was
+ * rate-limited) — a stale pin position is far better than none, and this
+ * never costs a quota-limited API call to get it.
+ */
+export async function getCachedLocations(
+  placeIds: string[],
+): Promise<Map<string, { latitude: number; longitude: number }>> {
+  if (placeIds.length === 0) return new Map();
+
+  const rows = await db
+    .select({
+      placeId: schema.googlePlacesCache.placeId,
+      latitude: schema.googlePlacesCache.latitude,
+      longitude: schema.googlePlacesCache.longitude,
+    })
+    .from(schema.googlePlacesCache)
+    .where(inArray(schema.googlePlacesCache.placeId, placeIds));
+
+  const result = new Map<string, { latitude: number; longitude: number }>();
+  for (const row of rows) {
+    if (row.latitude === null || row.longitude === null) continue;
+    result.set(row.placeId, { latitude: row.latitude, longitude: row.longitude });
+  }
+  return result;
 }

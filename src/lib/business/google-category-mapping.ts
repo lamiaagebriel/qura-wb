@@ -58,10 +58,22 @@ const GOOGLE_TYPE_TO_QURA_CATEGORIES: Record<string, BusinessCategory[]> = {
   hospital: ["health", "emergency"],
   doctor: ["health"],
   dentist: ["health"],
+  dental_clinic: ["health"],
   pharmacy: ["health"],
   drugstore: ["health"],
   physiotherapist: ["health"],
   medical_lab: ["health"],
+  // Confirmed via a live Text Search against Aswan: Google routinely
+  // types an ordinary clinic as just `medical_clinic`/`medical_center`
+  // with no `hospital`/`doctor` alongside it — without these two, real
+  // clinics (e.g. a dermatology or physiotherapy clinic) were silently
+  // invisible to the `health` category despite being exactly what it's
+  // for.
+  medical_clinic: ["health"],
+  medical_center: ["health"],
+  chiropractor: ["health"],
+  skin_care_clinic: ["health"],
+  wellness_center: ["health"],
 
   // beauty
   beauty_salon: ["beauty"],

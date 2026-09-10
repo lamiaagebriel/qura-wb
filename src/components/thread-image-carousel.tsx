@@ -45,10 +45,19 @@ export function ThreadImageCarousel({ images }: { images: string[] }) {
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <Carousel setApi={setApi} opts={{ loop: false }}>
-        <CarouselContent className="ms-0">
+      <Carousel setApi={setApi} opts={{ loop: false, dragFree: images.length > 1 }}>
+        <CarouselContent className={cn("ms-0", images.length > 1 && "gap-2")}>
           {images.map((url, index) => (
-            <CarouselItem key={index} className="ps-0">
+            <CarouselItem
+              key={index}
+              className={cn(
+                "ps-0",
+                // Peek the edge of the next image, Threads-style, instead
+                // of each slide filling the full width — the sliver makes
+                // "there's more" visible without needing the dots.
+                images.length > 1 && "basis-[88%]",
+              )}
+            >
               <button
                 type="button"
                 className="block w-full"
@@ -60,7 +69,7 @@ export function ThreadImageCarousel({ images }: { images: string[] }) {
                   src={url}
                   alt=""
                   className={cn(
-                    "border-border/50 w-full rounded-lg border object-cover",
+                    "border-border/50 w-full rounded-xl border object-cover",
                     images.length === 1 ? "max-h-96" : "aspect-square",
                   )}
                 />
@@ -76,8 +85,8 @@ export function ThreadImageCarousel({ images }: { images: string[] }) {
             <span
               key={index}
               className={cn(
-                "size-1.5 rounded-full transition-colors",
-                index === current ? "bg-white" : "bg-white/50",
+                "h-1.5 rounded-full transition-all",
+                index === current ? "w-4 bg-white" : "w-1.5 bg-white/50",
               )}
             />
           ))}

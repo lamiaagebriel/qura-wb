@@ -17,20 +17,23 @@ export default async function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-2 py-4">
-      <AppHeader title={t("Categories")} showBack={false} />
+      <AppHeader title={t("Categories")} backHref="/search" />
 
-      <div className="container grid grid-cols-2 gap-3 px-4">
+      <div className="container grid grid-cols-3 gap-2.5 px-4">
         {BUSINESS_CATEGORIES.map((category) => (
           <Link
             key={category}
             href={`/categories/${category}`}
-            className="border-border/60 bg-muted/20 hover:bg-muted/40 flex flex-col items-start gap-2 rounded-lg border p-4 transition-colors"
+            className="bg-muted flex flex-col items-center gap-1.5 rounded-2xl px-1.5 py-3.5"
           >
-            <HugeiconsIcon
-              icon={CATEGORY_META[category].icon}
-              className="text-primary size-6"
-            />
-            <span className="text-foreground text-[14px] font-semibold">
+            <span className="bg-background flex size-9.5 items-center justify-center rounded-full shadow-xs">
+              <HugeiconsIcon
+                icon={CATEGORY_META[category].icon}
+                className="text-primary size-4.5"
+                strokeWidth={1.7}
+              />
+            </span>
+            <span className="text-center text-[11px] leading-tight font-semibold">
               {t(CATEGORY_META[category].label)}
             </span>
           </Link>

@@ -74,7 +74,23 @@ export type UnifiedSearchResult = {
     location: { latitude: number; longitude: number } | null;
     types: string[];
   } | null;
+  // A last-known coordinate for `googlePlaceId`, read from the local
+  // Google Places cache (`google-places-cache.ts`) rather than this
+  // page's live Text Search response — populated whenever `googlePlaceId`
+  // is set but `googlePlace`/`googlePlace.location` above came back empty
+  // (Google's search didn't happen to return this place's full details on
+  // this page, or the live call failed/was rate-limited entirely). Never
+  // itself triggers a Google API call; `null` just means nothing was ever
+  // cached for this place. A map pin should prefer `googlePlace?.location`
+  // when present and fall back to this.
+  cachedLocation: { latitude: number; longitude: number } | null;
 };
+
+// `merge.ts` builds everything BUT `cachedLocation` — that field is
+// filled in by `searchUnified` afterward from a batched cache read
+// keyed on every result's `googlePlaceId` at once, which `merge.ts`
+// itself has no reason to know about.
+export type MergedSearchResult = Omit<UnifiedSearchResult, "cachedLocation">;
 
 /**
  * Opaque to the frontend — `useInfiniteList` only ever stores whatever

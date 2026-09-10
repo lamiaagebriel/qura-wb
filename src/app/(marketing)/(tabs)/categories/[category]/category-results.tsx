@@ -1,21 +1,32 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Location01Icon } from "@hugeicons/core-free-icons";
-
-import { AddToQuraSheet } from "@/components/add-to-qura-sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { CATEGORY_META } from "@/lib/categories";
+import { PlaceResultCard } from "@/components/place-result-card";
 import { loadMoreCategoryDiscoveryAction } from "@/lib/search/actions/load-more-category";
 import type {
   CategoryDiscoveryBusiness,
   CategoryDiscoveryCursor,
   CategoryDiscoveryResult,
 } from "@/lib/search/category-discovery";
+import type { GooglePlaceSearchResult } from "@/lib/google-places/types";
 import { useLocale } from "@/lib/i18n/client";
 import type { BusinessCategory, CityId } from "@/db/schema";
+
+// Google's own documented deep-link format (see search-view.tsx's copy of
+// this same helper) — `query_place_id` pins the exact place rather than
+// re-running a text search that could resolve to a similarly-named place
+// nearby. Kept local rather than shared, same as every other place this
+// pattern already lives in this codebase.
+function googleMapsPlaceUrl(placeId: string, name: string): string {
+  const params = new URLSearchParams({
+    api: "1",
+    query: name,
+    query_place_id: placeId,
+  });
+  return `https://www.google.com/maps/search/?${params.toString()}`;
+}
 
 // The field each category's card previews under the business name —
 // only `food-drinks`/`health` have a bespoke field to show; every other
@@ -26,11 +37,14 @@ const PREVIEW_FIELD: Partial<Record<BusinessCategory, string>> = {
   health: "specialty",
 };
 
-function quraPreview(business: CategoryDiscoveryBusiness, category: BusinessCategory): string {
+function quraPreview(
+  business: CategoryDiscoveryBusiness,
+  category: BusinessCategory,
+): string | null {
   const field = PREVIEW_FIELD[category];
   const data = business.previewData;
   const preview = data ? (field ? data[field] : data.details) : undefined;
-  return typeof preview === "string" && preview ? preview : `@${business.username}`;
+  return typeof preview === "string" && preview ? preview : null;
 }
 
 function resultKey(result: CategoryDiscoveryResult): string {
@@ -50,6 +64,11 @@ function resultKey(result: CategoryDiscoveryResult): string {
  * `cursor` never touches the URL or any client-visible query string —
  * Google's opaque `pageToken` inside it is only ever round-tripped
  * through this component's state and the one server action call.
+ *
+ * Card visuals match `search-view.tsx`'s `SearchResultCard` — a
+ * category-icon avatar, a Qura/Google source tag, a meta line, and a
+ * matching action row — so a place reads the same whether it was found
+ * by name in Search or by browsing a category here.
  */
 export function CategoryResults({
   category,
@@ -90,16 +109,16 @@ export function CategoryResults({
 
   return (
     <div className="flex flex-col gap-2">
-      <ul className="divide-border/60 flex flex-col divide-y">
+      <div className="container flex flex-col gap-3 px-4">
         {items.map((result) => (
-          <CategoryResultRow
+          <CategoryResultCard
             key={resultKey(result)}
             result={result}
             category={category}
             activeCity={activeCity}
           />
         ))}
-      </ul>
+      </div>
 
       {items.some((r) => r.kind !== "qura") && (
         <p className="text-muted-foreground container px-4 text-[11px]">
@@ -125,15 +144,13 @@ export function CategoryResults({
 }
 
 /**
- * Three visibly different row shapes: `"qura"` looks exactly like the
- * pre-Phase-10 category row (no behavior change for the common case).
- * `"both"` links to every connected Qura profile and tags any business
- * that's here only via its Google connection (`via: "google_type"`) with
- * a small badge — never implying Qura reclassified it. `"google"` never
- * links anywhere (no Qura profile exists) and is visually distinct from
- * a real business row.
+ * Three visibly different card shapes: `"qura"` is a real business, one
+ * card. `"both"` renders every connected Qura business grouped under the
+ * one shared Google place's Directions link. `"google"` never links
+ * anywhere (no Qura profile exists) and gets the "Add to Qura" CTA
+ * instead of a "View" button.
  */
-function CategoryResultRow({
+function CategoryResultCard({
   result,
   category,
   activeCity,
@@ -144,81 +161,95 @@ function CategoryResultRow({
 }) {
   if (result.kind === "google") {
     return (
-      <li className="container flex items-center gap-3 py-3">
-        <Avatar>
-          <AvatarFallback>
-            <HugeiconsIcon icon={Location01Icon} className="size-4" />
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-1 flex-col leading-tight">
-          <span className="text-foreground text-[13.5px] font-medium">
-            {result.place.name}
-          </span>
-          {result.place.address && (
-            <span className="text-muted-foreground text-xs">
-              {result.place.address}
-            </span>
-          )}
-        </div>
-        <AddToQuraSheet googlePlace={result.place} activeCity={activeCity} />
-      </li>
+      <GooglePlaceCard
+        place={result.place}
+        category={category}
+        activeCity={activeCity}
+      />
     );
   }
 
   if (result.kind === "qura") {
-    return (
-      <li>
-        <BusinessRow business={result.business} category={category} />
-      </li>
-    );
+    return <BusinessCard business={result.business} category={category} />;
   }
 
-  // kind === "both"
+  // kind === "both" — one card per connected business, each pointed at
+  // the one Google place they all share.
   return (
-    <li className="flex flex-col">
+    <div className="flex flex-col gap-3">
       {result.businesses.map((business) => (
-        <BusinessRow key={business.id} business={business} category={category} />
+        <BusinessCard
+          key={business.id}
+          business={business}
+          category={category}
+          place={result.place}
+        />
       ))}
-    </li>
+    </div>
   );
 }
 
-function BusinessRow({
-  business,
+function GooglePlaceCard({
+  place,
   category,
+  activeCity,
 }: {
-  business: CategoryDiscoveryBusiness;
+  place: GooglePlaceSearchResult;
   category: BusinessCategory;
+  activeCity: CityId;
 }) {
   const { t } = useLocale();
   return (
-    <Link
-      href={`/profile/${business.username}`}
-      className="container flex items-center gap-3 py-3"
-    >
-      <Avatar>
-        {business.image && (
-          <AvatarImage src={business.image} alt={business.name} />
-        )}
-        <AvatarFallback>{business.name}</AvatarFallback>
-      </Avatar>
-      <div className="flex flex-1 flex-col leading-tight">
-        <span className="text-foreground text-[13.5px] font-medium">
-          {business.name}
-        </span>
-        <span className="text-muted-foreground text-xs">
-          {business.via === "category"
-            ? quraPreview(business, category)
-            : `@${business.username}`}
-        </span>
-      </div>
-      {/* Never implies Qura reclassified this business — see
-          `category-discovery.ts`'s `via` doc comment. */}
-      {business.via === "google_type" && (
-        <span className="text-muted-foreground shrink-0 text-[10px] font-medium">
-          {t("Related via Google")}
-        </span>
-      )}
-    </Link>
+    <PlaceResultCard
+      icon={CATEGORY_META[category].icon}
+      name={place.name}
+      source="google"
+      metaLine={[t(CATEGORY_META[category].label), place.address]
+        .filter(Boolean)
+        .join(" · ")}
+      directionsUrl={googleMapsPlaceUrl(place.placeId, place.name)}
+      googlePlace={place}
+      activeCity={activeCity}
+    />
+  );
+}
+
+function BusinessCard({
+  business,
+  category,
+  place,
+}: {
+  business: CategoryDiscoveryBusiness;
+  category: BusinessCategory;
+  // Only present for a `kind: "both"` group — the one Google place every
+  // business in the group shares. A standalone `kind: "qura"` business
+  // may still have its own `googlePlaceIds`, just not a fetched `place`
+  // object with a name/location on this page.
+  place?: GooglePlaceSearchResult;
+}) {
+  const { t } = useLocale();
+  const description =
+    business.via === "category" ? quraPreview(business, category) : null;
+  const directionsUrl = place
+    ? googleMapsPlaceUrl(place.placeId, business.name)
+    : business.googlePlaceIds[0]
+      ? googleMapsPlaceUrl(business.googlePlaceIds[0], business.name)
+      : null;
+
+  return (
+    <PlaceResultCard
+      icon={CATEGORY_META[category].icon}
+      name={business.name}
+      nameHref={`/profile/${business.username}`}
+      source="qura"
+      metaLine={
+        business.via === "google_type"
+          ? t("Related via Google")
+          : `@${business.username}`
+      }
+      description={description}
+      directionsUrl={directionsUrl}
+      viewHref={`/profile/${business.username}`}
+    />
   );
 }

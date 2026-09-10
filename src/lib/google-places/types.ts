@@ -28,13 +28,35 @@ export type GooglePlaceOpeningHours = {
 };
 
 /**
+ * One of up to 5 reviews Google's Place Details returns for a place —
+ * always displayed live, exactly like every other `GooglePlaceDetails`
+ * field, never copied into any Qura-owned table (see that type's own
+ * comment). `authorPhotoUri` is the REVIEWER's own profile photo, not a
+ * photo attached to the review itself — Google's Places API (New) has no
+ * separate "review photo" field, so this is the only picture Google ever
+ * gives you for a review.
+ */
+export type GooglePlaceReview = {
+  rating: number;
+  text?: string;
+  authorName: string;
+  authorPhotoUri?: string;
+  // Google's own pre-localized "3 weeks ago" string — used as-is rather
+  // than recomputed from `publishTime`, the same reasoning
+  // `formatCompactRelativeTime` would otherwise duplicate.
+  relativePublishTimeDescription: string;
+  publishTime: string;
+};
+
+/**
  * A superset of `GooglePlaceSearchResult`'s fields plus whatever's only
  * worth the extra request cost when a caller actually wants one specific
  * place — see `details.ts`'s field mask for exactly what's requested.
- * Deliberately does NOT include Google reviews or photos: this phase
- * doesn't fetch either (see the Phase 3 report), and even once it does,
- * nothing here should ever be copied into Qura's own tables — Google
- * remains the source for this data, Qura only ever displays it live.
+ * Deliberately does NOT include photos: Google review PHOTOS specifically
+ * aren't exposed by the Places API at all (see `GooglePlaceReview`'s own
+ * comment) — but `reviews` themselves are fetched. Nothing here should
+ * ever be copied into Qura's own tables — Google remains the source for
+ * this data, Qura only ever displays it live.
  */
 export type GooglePlaceDetails = {
   placeId: string;
@@ -48,6 +70,7 @@ export type GooglePlaceDetails = {
   phoneNumber?: string;
   websiteUri?: string;
   openingHours?: GooglePlaceOpeningHours;
+  reviews?: GooglePlaceReview[];
 };
 
 export type SearchGooglePlacesInput = {

@@ -8,6 +8,7 @@ import {
   Delete02Icon,
   Edit02Icon,
   Loading03FreeIcons,
+  Location01Icon,
   MoreHorizontal,
   SentIcon,
   StarIcon,
@@ -34,6 +35,7 @@ import {
   upsertReviewAction,
 } from "@/lib/business/actions/review";
 import { handleAppError } from "@/lib/errors-client";
+import type { GooglePlaceReview } from "@/lib/google-places/types";
 import { useLocale } from "@/lib/i18n/client";
 import { cn, formatCompactRelativeTime } from "@/lib/utils";
 
@@ -46,6 +48,24 @@ type Review = {
 };
 
 type MyReview = { id: string; rating: number; body: string | null };
+
+// One list, one row shape — a Qura review and a Google review render
+// through the same `divide-y` list either way; this discriminated union
+// is only what lets `ReviewListRow` below pick which fields/behavior
+// apply, never a reason to show them differently at a glance. `id` is
+// real (the review's own db id) for `"qura"`; Google's API gives reviews
+// no stable id at all, so `"google"` synthesizes one from the place id +
+// position — stable across a single page load, which is all
+// `useInfiniteList`'s keying needs.
+type ReviewListItem =
+  | ({ kind: "qura" } & Review)
+  | ({ kind: "google"; id: string } & GooglePlaceReview);
+
+// `useInfiniteList`'s cursor: a plain number while Qura's own pages still
+// have more, then the literal `"google"` for exactly one final
+// synthetic page that reveals the (already fully in hand, never
+// paginated) Google reviews — see `BusinessReviews`'s `fetchMore` below.
+type ReviewsCursor = number | "google";
 
 function StarRating({
   value,
@@ -312,11 +332,65 @@ function ReviewRow({
   );
 }
 
+// Same row markup/spacing as `ReviewRow` — a Google review reads as one
+// more review in the same list, not a visibly distinct import. The one
+// deliberate difference besides the small "Google" tag: never editable
+// (no menu, no own-review affordance — this isn't Qura's data to edit),
+// and the date is Google's own pre-localized string
+// (`relativePublishTimeDescription`, e.g. "3 weeks ago") rather than run
+// through `formatCompactRelativeTime`, since Google already localized it
+// and `publishTime`'s exact format isn't documented enough to re-parse
+// reliably.
+function GoogleReviewRow({ review }: { review: GooglePlaceReview }) {
+  const { t } = useLocale();
+  return (
+    <div>
+      <div className="container flex gap-3 py-3">
+        <Avatar>
+          {review.authorPhotoUri && (
+            <AvatarImage src={review.authorPhotoUri} alt={review.authorName} />
+          )}
+          <AvatarFallback>{review.authorName}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-1 flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <span className="text-foreground text-[13.5px] font-semibold">
+              {review.authorName}
+            </span>
+            <StarRating value={review.rating} size="sm" />
+            <span className="text-muted-foreground text-xs">
+              {review.relativePublishTimeDescription}
+            </span>
+          </div>
+          <div className="text-muted-foreground flex items-center gap-1 text-[10.5px] font-bold">
+            <HugeiconsIcon icon={Location01Icon} className="size-3" />
+            {t("Google")}
+          </div>
+          {review.text && (
+            <p className="text-foreground text-[14px] leading-relaxed whitespace-pre-line">
+              {review.text}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BusinessReviews({
   businessId,
   initialItems,
   initialCursor,
   summary,
+  // How many of `summary.count` are Google's, not Qura's own — credits
+  // Google's contribution to the combined stat above the list.
+  googleCount = 0,
+  // The actual Google review CONTENT (text/author/rating/date) for this
+  // business's primary connected place, if any — already fully fetched
+  // server-side (`profile-tabs.tsx`), never paginated on Google's side
+  // (it returns at most 5 per place), so "loading more" of these is
+  // really just revealing them, not another network round-trip.
+  googleReviews = [],
   myReview,
   canReview,
   viewer,
@@ -325,32 +399,72 @@ export function BusinessReviews({
   initialItems: Review[];
   initialCursor: number | null;
   summary: { average: number | null; count: number };
+  googleCount?: number;
+  googleReviews?: GooglePlaceReview[];
   myReview: MyReview | null;
   canReview: boolean;
   viewer?: { name: string; image?: string | null } | null;
 }) {
   const { t } = useLocale();
   const [editing, setEditing] = useState(false);
+
+  const initialListItems: ReviewListItem[] = initialItems.map((review) => ({
+    kind: "qura",
+    ...review,
+  }));
+
+  // Qura's own reviews come first, in their existing paginated order
+  // (`loadMoreBusinessReviewsAction`); Google's reviews only ever appear
+  // as one final batch AFTER Qura's are fully exhausted — never
+  // interleaved, and never before a single Qura review that exists.
   const { items, isLoading, hasMore, sentinelRef } = useInfiniteList<
-    Review,
-    number
+    ReviewListItem,
+    ReviewsCursor
   >({
-    initialItems,
-    initialCursor,
-    fetchMore: (cursor) => loadMoreBusinessReviewsAction(businessId, cursor),
+    initialItems: initialListItems,
+    initialCursor: initialCursor ?? (googleReviews.length > 0 ? "google" : null),
+    fetchMore: async (cursor) => {
+      if (cursor === "google") {
+        return {
+          items: googleReviews.map((review, index) => ({
+            kind: "google",
+            id: `google:${businessId}:${index}`,
+            ...review,
+          })),
+          nextCursor: null,
+        };
+      }
+      const result = await loadMoreBusinessReviewsAction(businessId, cursor);
+      return {
+        items: result.items.map((review) => ({ kind: "qura", ...review })),
+        nextCursor:
+          result.nextCursor ??
+          (googleReviews.length > 0 ? "google" : null),
+      };
+    },
   });
 
   return (
     <div className="flex flex-col">
       {summary.count > 0 && (
-        <div className="container flex items-center justify-center gap-2 py-3">
-          <StarRating value={Math.round(summary.average ?? 0)} />
-          <span className="text-foreground text-[13px] font-semibold">
-            {summary.average?.toFixed(1)}
-          </span>
-          <span className="text-muted-foreground text-[12.5px]">
-            ({summary.count})
-          </span>
+        <div className="flex flex-col items-center gap-1 py-3">
+          <div className="container flex items-center justify-center gap-2">
+            <StarRating value={Math.round(summary.average ?? 0)} />
+            <span className="text-foreground text-[13px] font-semibold">
+              {summary.average?.toFixed(1)}
+            </span>
+            <span className="text-muted-foreground text-[12.5px]">
+              ({summary.count})
+            </span>
+          </div>
+          {googleCount > 0 && (
+            <span className="text-muted-foreground text-[11px]">
+              {t("Includes {{count}} Google reviews").replace(
+                "{{count}}",
+                String(googleCount),
+              )}
+            </span>
+          )}
         </div>
       )}
 
@@ -374,14 +488,18 @@ export function BusinessReviews({
       ) : (
         !editing && (
           <div className="divide-border/50 flex flex-col divide-y">
-            {items.map((review, i) => (
-              <ReviewRow
-                key={i}
-                review={review}
-                isOwn={myReview?.id === review.id}
-                onEdit={() => setEditing(true)}
-              />
-            ))}
+            {items.map((item) =>
+              item.kind === "google" ? (
+                <GoogleReviewRow key={item.id} review={item} />
+              ) : (
+                <ReviewRow
+                  key={item.id}
+                  review={item}
+                  isOwn={myReview?.id === item.id}
+                  onEdit={() => setEditing(true)}
+                />
+              ),
+            )}
           </div>
         )
       )}

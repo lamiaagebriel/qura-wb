@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Add01Icon,
+  GoogleMapsIcon,
   GridViewIcon,
   Home01Icon,
   Search01Icon,
@@ -14,7 +14,6 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NewThreadButton } from "@/components/new-thread-composer";
 import { useLocale } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +42,6 @@ const SCROLL_TOP_GUARD = 48;
  */
 export function BottomNav({
   user,
-  businesses,
   activeIdentity,
 }: {
   user?: {
@@ -52,16 +50,9 @@ export function BottomNav({
     username: string;
     image?: string | null;
   } | null;
-  businesses?: {
-    id: string;
-    name: string;
-    username: string;
-    image: string | null;
-  }[];
   // The Profile tab's avatar follows whichever identity is active — a
   // business's initials/photo there, not yours, is the whole point of
-  // "the app feels switched". `NewThreadButton` gets it too, so a new
-  // top-level thread defaults to posting as it.
+  // "the app feels switched".
   activeIdentity?: {
     id: string;
     name: string;
@@ -105,33 +96,22 @@ export function BottomNav({
   }, []);
 
   // Add/remove/reorder freely — each entry is just another `flex-1` slot
-  // in the row. `action: "compose"` marks the one non-destination entry
-  // (the "+"); everything else is a plain `href`.
+  // in the row, all plain in-app `href`s.
   const TABS: {
     href: string;
     label: string;
     icon: typeof Home01Icon;
     exact?: boolean;
-    action?: "compose";
   }[] = [
     { href: "/", label: t("Feed"), icon: Home01Icon, exact: true },
     { href: "/search", label: t("Search"), icon: Search01Icon },
-    {
-      href: "/create-thread",
-      label: t("New thread"),
-      icon: Add01Icon,
-      action: "compose",
-    },
-    { href: "/categories", label: t("Categories"), icon: GridViewIcon },
+    // { href: "/maps", label: t("Maps"), icon: GoogleMapsIcon },
+    // { href: "/categories", label: t("Categories"), icon: GridViewIcon },
     { href: "/account", label: t("Profile"), icon: UserCircleIcon },
   ];
 
   const activeIndex = TABS.findIndex((tab) =>
-    tab.action
-      ? false
-      : tab.exact
-        ? pathname === tab.href
-        : pathname.startsWith(tab.href),
+    tab.exact ? pathname === tab.href : pathname.startsWith(tab.href),
   );
 
   const tabRefs = useRef<(HTMLElement | null)[]>([]);
@@ -161,7 +141,7 @@ export function BottomNav({
         // Full width, inset from each screen edge rather than sized to
         // its own content — `TABS` can grow or shrink and the bar just
         // keeps spanning the same space.
-        "fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 mx-auto max-w-sm origin-bottom rounded-full transition-transform duration-300 ease-out",
+        "fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 mx-auto max-w-3xs origin-bottom rounded-full transition-transform duration-300 ease-out",
         // Frosted glass, always — this is overlay chrome sitting on top of
         // whatever's behind it (a photo, the feed, ...), not page content,
         // so it doesn't switch with the site's own light/dark theme the
@@ -175,7 +155,7 @@ export function BottomNav({
         shrunk ? "scale-90" : "scale-100",
       )}
     >
-      <div className="relative flex items-center px-1.5 py-1">
+      <div className="relative flex items-center px-2 py-1">
         {indicator && (
           <span
             aria-hidden
@@ -189,26 +169,6 @@ export function BottomNav({
 
         {TABS.map((tab, index) => {
           const active = index === activeIndex;
-
-          if (tab.action === "compose") {
-            return (
-              <div
-                key={index}
-                ref={(el) => {
-                  tabRefs.current[index] = el;
-                }}
-                className="relative z-10 flex flex-1 items-center justify-center py-1"
-              >
-                <NewThreadButton
-                  user={user}
-                  businesses={businesses}
-                  defaultPostAsId={
-                    activeIdentity?.isBusiness ? activeIdentity.id : undefined
-                  }
-                />
-              </div>
-            );
-          }
 
           return (
             <Link

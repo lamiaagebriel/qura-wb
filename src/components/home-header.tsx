@@ -5,7 +5,6 @@ import { Search01Icon } from "@hugeicons/core-free-icons";
 import { CitySwitcher } from "@/components/city-switcher";
 import type { CityId } from "@/db/schema/cities";
 import { getLocale } from "@/lib/i18n/actions";
-import { cn } from "@/lib/utils";
 
 const GREETING_HOURS = {
   morning: [5, 12],
@@ -57,27 +56,29 @@ export async function HomeHeader({
   );
 
   return (
-    <div className="border-border/50 bg-background/85 sticky top-0 z-40 flex flex-col gap-3 border-b pt-3 pb-3 backdrop-blur-xl sm:px-6">
-      <div className="container">
-        <CitySwitcher activeCity={activeCity} />
+    <div className="border-border/50 bg-background/85 sticky top-0 z-40 flex flex-col gap-2.5 border-b pt-3 pb-3 backdrop-blur-xl sm:px-6">
+      <div className="container flex flex-col gap-2.5">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-[19px] font-extrabold tracking-tight">
+            Qura<span className="text-primary">.</span>
+          </Link>
+          <CitySwitcher activeCity={activeCity} />
+        </div>
 
-        <h1 className="text-lg font-semibold">
+        {/* <h1 className="text-lg font-bold tracking-tight">
           {t(greetingKey(hour))}
           {name ? `, ${name?.split(" ")?.[0]}` : ""}
-        </h1>
+        </h1> */}
 
-        <Link
+        {/* <Link
           href="/search"
-          className={cn(
-            "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 mb-2 flex h-7 w-full min-w-0 items-center gap-2 rounded-md border px-2 py-0.5 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-2 md:text-xs/relaxed",
-          )}
-          // className="border-border bg-muted/50 text-muted-foreground flex h-10 items-center gap-2 rounded-full border px-4 text-[14px]"
+          className="border-border bg-muted text-muted-foreground flex h-9.5 items-center gap-2 rounded-full border px-3.5 text-[13.5px]"
         >
           <HugeiconsIcon icon={Search01Icon} className="size-4 shrink-0" />
-          <span className="text-muted-foreground truncate">
-            {t("Search what's around you…")}
+          <span className="truncate">
+            {t("What's around you…")}
           </span>
-        </Link>
+        </Link> */}
       </div>
     </div>
   );

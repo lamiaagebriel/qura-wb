@@ -50,11 +50,19 @@ export function CitySwitcher({ activeCity }: { activeCity: CityId }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-muted-foreground flex items-center gap-1 text-[13px] font-medium"
+        className="border-border bg-muted flex items-center gap-1.5 rounded-full border px-2.5 py-1.5"
       >
-        <HugeiconsIcon icon={MapPinIcon} className="size-3.5" />
-        <span>{t(CITY_LABEL[activeCity])}</span>
-        <HugeiconsIcon icon={ArrowDown01Icon} className="size-3" />
+        <HugeiconsIcon
+          icon={MapPinIcon}
+          className="text-primary size-3.5 shrink-0"
+        />
+        <span className="text-foreground text-[12.5px] font-semibold">
+          {t(CITY_LABEL[activeCity])}
+        </span>
+        <HugeiconsIcon
+          icon={ArrowDown01Icon}
+          className="text-muted-foreground size-3 shrink-0"
+        />
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>

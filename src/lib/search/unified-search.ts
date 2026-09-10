@@ -10,6 +10,7 @@ import {
   getReviewSummariesForBusinesses,
 } from "@/lib/business/queries";
 import { CITY_LABEL } from "@/lib/city/cities";
+import { getCachedLocations } from "@/lib/business/google-place-cache";
 import { GooglePlacesError } from "@/lib/google-places/errors";
 import { logEvent, logWarning, withTiming } from "@/lib/observability/log";
 import { searchGooglePlaces } from "@/lib/google-places/search";
@@ -71,7 +72,19 @@ async function searchQuraCandidates(
       and(
         isNotNull(schema.users.ownerId),
         eq(schema.businessBlocks.city, city),
-        or(ilike(schema.users.username, pattern), ilike(schema.users.name, pattern)),
+        // Matching `bio` too (not just `username`/`name`) is what makes an
+        // intent-style query ("cozy cafe", "quiet place to work") able to
+        // surface a Qura business at all — a name-only match would need
+        // the business to literally be named after what someone typed,
+        // the same gap Google's own Text Search never has since it reads
+        // more than a title. Still a plain substring match, not real NLP:
+        // it only helps when the business actually wrote that word into
+        // its own bio.
+        or(
+          ilike(schema.users.username, pattern),
+          ilike(schema.users.name, pattern),
+          ilike(schema.users.bio, pattern),
+        ),
         excludeIds.length > 0 ? notInArray(schema.users.id, excludeIds) : undefined,
       ),
     )
@@ -202,7 +215,7 @@ export async function searchUnified({
       ]),
   );
 
-  const { results, mergedBusinessIds, mergedPlaceIds } = mergeSearchCandidates({
+  const { results: mergedResults, mergedBusinessIds, mergedPlaceIds } = mergeSearchCandidates({
     query,
     googleCandidates: googleOutcome.results,
     quraCandidates: quraOutcome.summaries,
@@ -211,6 +224,21 @@ export async function searchUnified({
     alreadyMergedPlaceIds: new Set(cursor.mergedPlaceIds),
     signals,
   });
+
+  // A fallback pin location for a connected place whose live Google
+  // response didn't come back with a location this page (a different
+  // page of results, or Google's Text Search failing/rate-limited
+  // entirely) — a plain cache read, never another Google call. See
+  // `UnifiedSearchResult.cachedLocation`'s doc comment.
+  const placeIdsNeedingCache = mergedResults
+    .filter((r) => r.googlePlaceId && !r.googlePlace?.location)
+    .map((r) => r.googlePlaceId!);
+  const cachedLocations = await getCachedLocations(placeIdsNeedingCache);
+  const results: UnifiedSearchResult[] = mergedResults.map((r) => ({
+    ...r,
+    cachedLocation:
+      (r.googlePlaceId && cachedLocations.get(r.googlePlaceId)) || null,
+  }));
 
   const quraExhausted = cursor.quraExhausted || !quraOutcome.hasMore;
   const googleExhausted = cursor.googleExhausted || !googleOutcome.nextPageToken;

@@ -1,7 +1,7 @@
 import type { GooglePlaceSearchResult } from "@/lib/google-places/types";
 
 import { compareByEngagement, type QuraEngagementSignals } from "./ranking";
-import type { QuraBusinessSummary, UnifiedSearchResult } from "./types";
+import type { MergedSearchResult, QuraBusinessSummary } from "./types";
 
 type Group = {
   googlePlaceId: string | null;
@@ -93,7 +93,7 @@ export function mergeSearchCandidates({
   alreadyMergedBusinessIds: Set<string>;
   alreadyMergedPlaceIds: Set<string>;
   signals: Map<string, QuraEngagementSignals>;
-}): { results: UnifiedSearchResult[]; mergedBusinessIds: string[]; mergedPlaceIds: string[] } {
+}): { results: MergedSearchResult[]; mergedBusinessIds: string[]; mergedPlaceIds: string[] } {
   const normalizedQuery = query.trim().toLowerCase();
   const groups = new Map<string, Group>();
   const addedBusinessIds = new Set<string>();
@@ -223,7 +223,7 @@ export function mergeSearchCandidates({
   };
 }
 
-function toUnifiedResult(group: Group): UnifiedSearchResult {
+function toUnifiedResult(group: Group): MergedSearchResult {
   const { googlePlaceId, googlePlace, businesses } = group;
   const source =
     googlePlaceId === null ? "qura" : businesses.length > 0 ? "both" : "google";

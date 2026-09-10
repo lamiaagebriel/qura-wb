@@ -2,14 +2,23 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Edit02Icon, UserAdd01Icon, UserCheck01Icon } from "@hugeicons/core-free-icons";
 
 import { useAuthPrompt } from "@/components/auth-prompt";
-import { Button } from "@/components/ui/button";
 import { followAction, unfollowAction } from "@/lib/auth/actions/follow";
 import { handleAppError } from "@/lib/errors-client";
 import { setActiveProfile } from "@/lib/identity/actions";
 import { useLocale } from "@/lib/i18n/client";
+import { cn } from "@/lib/utils";
 
+// Same vertical icon-over-label tile as Directions/Call/Website
+// (`profile/[username]/page.tsx`'s action row) — Follow sits beside
+// them as one more tile in that row, not a visually separate button
+// with its own shape. Filled with the brand color while unfollowed (the
+// one real call-to-action in the row) and drops to the same muted tile
+// as Call/Website once following, the same "primary vs. secondary
+// action" hierarchy Directions/the rest already use.
 export function FollowProfileButton({
   userId,
   initialIsFollowing,
@@ -47,27 +56,41 @@ export function FollowProfileButton({
   }
 
   return (
-    <Button
+    <button
       type="button"
-      variant={isFollowing ? "outline" : "default"}
-      className="flex-1"
       disabled={isPending}
       onClick={toggle}
+      className={cn(
+        "flex flex-1 flex-col items-center gap-1.5 rounded-xl py-2.5 disabled:opacity-50",
+        isFollowing ? "bg-muted text-foreground" : "bg-primary text-primary-foreground",
+      )}
     >
-      {isFollowing ? t("Following") : t("Follow")}
-    </Button>
+      <HugeiconsIcon
+        icon={isFollowing ? UserCheck01Icon : UserAdd01Icon}
+        className="size-4.5"
+      />
+      <span className="text-[10.5px] font-semibold">
+        {isFollowing ? t("Following") : t("Follow")}
+      </span>
+    </button>
   );
 }
 
 /** Follower count + follow button together — toggling follow needs to bump
  * this count in the same instant, and the count is server-rendered above
  * the button in markup but has to share state with it, so both live here
- * instead of the button updating a sibling it can't see. */
+ * instead of the button updating a sibling it can't see.
+ *
+ * `actionTiles` is the (server-rendered, static) Directions/Call/Website
+ * row from `page.tsx` — passed in as children rather than rendered by
+ * the caller alongside this component, so Follow/Edit can sit as the
+ * FIRST tile in that exact same row instead of its own separate button
+ * above it. */
 export function ProfileFollowStats({
   initialFollowerCount,
   followingCount,
   isBusiness,
-  shareButton,
+  actionTiles,
   // Set only when this profile is a business the viewer owns — you can't
   // follow your own business (see `followAction`'s matching check), so
   // this slot gets an "Edit" button instead of `FollowProfileButton`,
@@ -82,7 +105,7 @@ export function ProfileFollowStats({
   initialFollowerCount: number;
   followingCount: number;
   isBusiness: boolean;
-  shareButton: React.ReactNode;
+  actionTiles?: React.ReactNode;
   ownerBusinessId?: string;
 } & React.ComponentProps<typeof FollowProfileButton>) {
   const { t } = useLocale();
@@ -117,17 +140,17 @@ export function ProfileFollowStats({
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-1">
         {ownerBusinessId ? (
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="flex-1"
             disabled={isSwitching}
             onClick={editThisBusiness}
+            className="bg-muted text-foreground flex flex-1 flex-col items-center gap-1.5 rounded-xl py-2.5 disabled:opacity-50"
           >
-            {t("Edit")}
-          </Button>
+            <HugeiconsIcon icon={Edit02Icon} className="size-4.5" />
+            <span className="text-[10.5px] font-semibold">{t("Edit")}</span>
+          </button>
         ) : (
           <FollowProfileButton
             {...buttonProps}
@@ -136,7 +159,7 @@ export function ProfileFollowStats({
             }
           />
         )}
-        {shareButton}
+        {actionTiles}
       </div>
     </>
   );
