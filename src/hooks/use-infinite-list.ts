@@ -69,32 +69,56 @@ export function useInfiniteList<Item extends { id: string }, Cursor>({
     setCursor(nextCursor);
   }, []);
 
+  // Shared by the scroll observer below and `loadMore` (exposed for a
+  // caller that isn't showing the sentinel at all — e.g. the search
+  // page's map view, where nothing ever scrolls the off-screen list to
+  // trigger the observer, so pagination needs an explicit trigger
+  // instead). Reads `cursor` off the ref rather than a closure argument
+  // so a manual call always fetches the page cursor's-value-at-call-time,
+  // same as the observer does.
+  const cursorRef = useRef(cursor);
+  useEffect(() => {
+    cursorRef.current = cursor;
+  }, [cursor]);
+
+  const loadMore = useCallback(() => {
+    const currentCursor = cursorRef.current;
+    if (currentCursor === null || loadingRef.current) return;
+    loadingRef.current = true;
+    setIsLoading(true);
+    fetchMoreRef
+      .current(currentCursor)
+      .then((result) => {
+        setItems((prev) => [...prev, ...result.items]);
+        setCursor(result.nextCursor);
+      })
+      .finally(() => {
+        loadingRef.current = false;
+        setIsLoading(false);
+      });
+  }, []);
+
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || cursor === null) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (!entries[0].isIntersecting || loadingRef.current) return;
-        loadingRef.current = true;
-        setIsLoading(true);
-        fetchMoreRef
-          .current(cursor)
-          .then((result) => {
-            setItems((prev) => [...prev, ...result.items]);
-            setCursor(result.nextCursor);
-          })
-          .finally(() => {
-            loadingRef.current = false;
-            setIsLoading(false);
-          });
+        if (entries[0].isIntersecting) loadMore();
       },
       { rootMargin: "600px" },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [cursor]);
+  }, [cursor, loadMore]);
 
-  return { items, isLoading, hasMore: cursor !== null, sentinelRef, reset };
+  return {
+    items,
+    isLoading,
+    hasMore: cursor !== null,
+    sentinelRef,
+    reset,
+    loadMore,
+  };
 }

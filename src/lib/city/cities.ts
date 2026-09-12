@@ -29,3 +29,14 @@ export const CITY_LABEL: Record<CityId, keyof Dict> = {
   sohag: "Sohag",
   "marsa-alam": "Marsa Alam",
 };
+
+// Real city centers — used both to bias/scope a Google Places search to
+// the active city (`lib/search/unified-search.ts`) and to frame the
+// search map when there's nothing to pin yet (`SearchView`). Limited to
+// `AVAILABLE_CITIES` (the only ones with real content); nothing reads
+// this for an unavailable city. Plain data, no `"server-only"` — safe
+// to import from either side.
+export const CITY_CENTER: Partial<Record<CityId, { lat: number; lng: number }>> = {
+  aswan: { lat: 24.0889, lng: 32.8998 },
+  luxor: { lat: 25.6872, lng: 32.6396 },
+};

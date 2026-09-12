@@ -60,7 +60,7 @@ export function ThreadReplies({
 
   return (
     <div className="flex flex-col">
-      {items.length > 0 && (
+      {/* {items.length > 0 && (
         <div className="border-border/60 flex items-center justify-end border-b px-4 py-2">
           <Select
             value={sort}
@@ -79,7 +79,7 @@ export function ThreadReplies({
             </SelectContent>
           </Select>
         </div>
-      )}
+      )} */}
 
       {items.length === 0 ? (
         <p className="text-muted-foreground py-10 text-center text-[13px]">

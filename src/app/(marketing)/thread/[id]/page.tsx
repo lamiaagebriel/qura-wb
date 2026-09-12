@@ -49,7 +49,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   if (!thread) notFound();
 
   return (
-    <div className={cn("container flex flex-col gap-2 pb-20")}>
+    <div className={cn("flex flex-col gap-2 pb-20")}>
       {/* Same reasoning as `/profile/[username]`'s header — reachable
           from many places (feed, a profile's threads tab, a reply
           chain, ...), so a fixed fallback beats trusting history. */}

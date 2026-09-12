@@ -10,6 +10,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ShareButton } from "@/components/share-button";
+import { StarRating } from "@/components/star-rating";
 import { AppHeader } from "@/components/app-header";
 import {
   getBusinessBlock,
@@ -222,16 +223,18 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
                 </div>
               )}
               {block && (
-                <p className="text-muted-foreground text-[12.5px]">
-                  {[
-                    t(CATEGORY_META[block.category].label),
-                    combinedRating.count > 0
-                      ? `★ ${combinedRating.average!.toFixed(1)} (${combinedRating.count})`
-                      : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12.5px]">
+                  <span>{t(CATEGORY_META[block.category].label)}</span>
+                  {combinedRating.count > 0 && (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span className="flex items-center gap-1">
+                        <StarRating value={combinedRating.average!} size="sm" />
+                        {combinedRating.average!.toFixed(1)} ({combinedRating.count})
+                      </span>
+                    </>
+                  )}
+                </div>
               )}
               {profileUser.bio && (
                 <p className="text-foreground text-[13.5px] leading-relaxed whitespace-pre-line">

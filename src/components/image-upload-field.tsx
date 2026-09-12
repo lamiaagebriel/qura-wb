@@ -1,25 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Alert02Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   Delete02Icon,
   ImageAdd01Icon,
-  Loading03FreeIcons,
 } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
 import {
-  createThreadImageUploadUrlAction,
-  discardThreadImagesAction,
-} from "@/lib/storage/actions";
+  deletePendingImage,
+  putPendingImage,
+} from "@/lib/threads/pending-image-store";
 import { useLocale } from "@/lib/i18n/client";
 import { MAX_IMAGES } from "@/lib/validations/thread";
-import { cn } from "@/lib/utils";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
@@ -27,100 +24,63 @@ const MAX_FILE_BYTES = 8 * 1024 * 1024;
 // `crypto.randomUUID()` only exists in a secure context (HTTPS, or
 // literally `localhost`) — testing over the LAN from a phone
 // (`http://192.168.x.x:3000`, a plain-HTTP origin) doesn't qualify, so it
-// throws there. This id is purely a local React key for one in-flight
-// upload's placeholder tile; nothing about it needs to be
-// cryptographically random or unique outside this component's own state.
+// throws there. This id only ever has to be unique within this browser's
+// own `pendingImages` store and this array's own React keys — nothing
+// about it needs to be cryptographically random.
 let nextLocalId = 0;
-function localUploadId(): string {
+function localPendingId(): string {
   nextLocalId += 1;
-  return `upload-${nextLocalId}`;
+  return `pending-${Date.now()}-${nextLocalId}`;
 }
 
-type Uploading = {
-  id: string;
-  previewUrl: string;
-  error: boolean;
-};
+// One image in the composer, uploaded already (edit mode's pre-existing
+// images) or still staged locally (anything picked this session, in
+// either mode — see `image-upload-field.tsx`'s own top comment on why
+// nothing here uploads on select anymore). `new-thread-composer.tsx`
+// resolves every `pending` slot to a real URL only at Post/Save time.
+export type ImageSlot =
+  | { kind: "uploaded"; url: string }
+  | { kind: "pending"; id: string; previewUrl: string };
 
 /**
  * Multi-photo picker for the thread composer: pick from the device
- * (multi-select in one go), reorder, drop any before publishing — the
- * upload itself happens the moment a file is picked (straight to S3 via
- * a presigned URL from `createThreadImageUploadUrlAction`, never through
- * this app's own server), so by the time you hit Post every thumbnail
- * you see is already a real, live URL.
+ * (multi-select in one go), reorder, drop any before publishing.
  *
- * `sessionUploadsRef` is how the composer around this knows what to
- * clean up if the draft gets discarded instead of published — every URL
- * this component successfully uploads gets added to it, *including* ones
- * later removed here, since removing one here already deletes it (see
- * `removeImage`) and a redundant delete of an already-gone key is a
- * harmless no-op. What `sessionUploadsRef` really exists for is edit
- * mode: images the thread already had before this edit started are
- * never added to it, so canceling an edit never deletes something still
- * attached to the live thread — only `updateThreadAction`'s own diff (on
- * an actual save) is allowed to remove those.
+ * Selecting a file no longer uploads it — it validates type/size, copies
+ * the bytes into IndexedDB (`putPendingImage`, keyed by a local id) so
+ * they survive a reload or a draft reopened later even if the original
+ * file is gone from disk, and shows an in-memory object-URL preview.
+ * Nothing here ever touches the network; the actual S3 upload happens
+ * once, at Post/Save time, in `new-thread-composer.tsx`'s
+ * `resolvePendingSlots` — which is also why there's no "uploading"
+ * spinner in this component anymore (there's nothing in flight until
+ * then).
+ *
+ * The preview below mirrors `ThreadImageCarousel`'s own per-count layout
+ * (one full-width natural-ratio image, two side by side, three-plus as a
+ * peeking scroll strip) rather than a generic grid of square thumbnails
+ * — so what you see while composing is what the post will actually look
+ * like. Remove/reorder controls are overlays on top of that same
+ * preview.
  */
 export function ImageUploadField({
-  images,
+  slots,
   onChange,
-  sessionUploadsRef,
   disabled,
 }: {
-  images: string[];
-  onChange: (images: string[]) => void;
-  sessionUploadsRef: React.RefObject<Set<string>>;
+  slots: ImageSlot[];
+  onChange: (slots: ImageSlot[]) => void;
   disabled?: boolean;
 }) {
   const { t } = useLocale();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState<Uploading[]>([]);
-  // Read inside async upload loops instead of the `images` prop directly
-  // — `onChange` doesn't take effect until the parent re-renders, so a
-  // second file finishing its upload before that happens would otherwise
-  // clobber the first one's append instead of stacking on top of it.
-  const imagesRef = useRef(images);
-  useEffect(() => {
-    imagesRef.current = images;
-  }, [images]);
 
-  const remainingSlots = MAX_IMAGES - images.length - uploading.length;
-
-  async function uploadOne(file: File) {
-    const localId = localUploadId();
-    const previewUrl = URL.createObjectURL(file);
-    setUploading((prev) => [...prev, { id: localId, previewUrl, error: false }]);
-
-    try {
-      const result = await createThreadImageUploadUrlAction(file.type);
-      if (!result.success) {
-        throw new Error(result.error.kind === "message" ? result.error.message : undefined);
-      }
-
-      const res = await fetch(result.data.uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!res.ok) throw new Error();
-
-      sessionUploadsRef.current.add(result.data.publicUrl);
-      imagesRef.current = [...imagesRef.current, result.data.publicUrl];
-      onChange(imagesRef.current);
-      setUploading((prev) => prev.filter((u) => u.id !== localId));
-    } catch (err) {
-      setUploading((prev) =>
-        prev.map((u) => (u.id === localId ? { ...u, error: true } : u)),
-      );
-      toast.error(err instanceof Error && err.message ? err.message : t("Couldn't upload that image."));
-    } finally {
-      URL.revokeObjectURL(previewUrl);
-    }
-  }
+  const remainingSlots = MAX_IMAGES - slots.length;
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList) return;
     const files = Array.from(fileList).slice(0, remainingSlots);
+    const added: ImageSlot[] = [];
 
     for (const file of files) {
       if (!ALLOWED_TYPES.includes(file.type)) {
@@ -131,135 +91,147 @@ export function ImageUploadField({
         toast.error(t("Images must be under 8MB."));
         continue;
       }
-      // Sequential, not `Promise.all` — keeps `imagesRef`'s append order
-      // matching the order the user picked files in, and there's never
-      // more than `MAX_IMAGES` of these at once anyway.
-      await uploadOne(file);
+      const id = localPendingId();
+      await putPendingImage(id, file);
+      added.push({ kind: "pending", id, previewUrl: URL.createObjectURL(file) });
     }
 
+    if (added.length > 0) onChange([...slots, ...added]);
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  function removeImage(url: string) {
-    onChange(images.filter((u) => u !== url));
-    // Only ever deletes something this exact component instance
-    // uploaded — a pre-existing image (edit mode) just gets dropped from
-    // the array here; `updateThreadAction` is what actually deletes it
-    // from S3, and only once the edit is really saved.
-    if (sessionUploadsRef.current.has(url)) {
-      sessionUploadsRef.current.delete(url);
-      void discardThreadImagesAction([url]);
+  function removeSlot(index: number) {
+    const slot = slots[index];
+    if (slot.kind === "pending") {
+      URL.revokeObjectURL(slot.previewUrl);
+      void deletePendingImage(slot.id);
     }
-  }
-
-  function retryUpload(item: Uploading) {
-    setUploading((prev) => prev.filter((u) => u.id !== item.id));
+    // An `"uploaded"` slot (edit mode's pre-existing image) needs no
+    // cleanup here — dropping it from the array is enough;
+    // `updateThreadAction`'s existing diff deletes it from S3 at Save
+    // time, same as before this change.
+    onChange(slots.filter((_, i) => i !== index));
   }
 
   function move(index: number, direction: -1 | 1) {
-    const next = [...images];
     const target = index + direction;
-    if (target < 0 || target >= next.length) return;
+    if (target < 0 || target >= slots.length) return;
+    const next = [...slots];
     [next[index], next[target]] = [next[target], next[index]];
     onChange(next);
   }
 
   const canAddMore = remainingSlots > 0 && !disabled;
 
-  return (
-    <div className="flex flex-wrap gap-2">
-      {images.map((url, index) => (
-        <div
-          key={url}
-          className="group border-border/60 relative size-20 overflow-hidden rounded-lg border"
+  function slotSrc(slot: ImageSlot): string {
+    return slot.kind === "uploaded" ? slot.url : slot.previewUrl;
+  }
+
+  function renderOverlay(index: number) {
+    return (
+      <>
+        <button
+          type="button"
+          aria-label={t("Remove this image")}
+          disabled={disabled}
+          onClick={() => removeSlot(index)}
+          className="absolute end-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-black/60 text-white disabled:opacity-50"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- user-supplied external URL, no image optimizer domain configured */}
-          <img src={url} alt="" className="size-full object-cover" />
+          <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+        </button>
 
-          <button
-            type="button"
-            aria-label={t("Remove this image")}
-            disabled={disabled}
-            onClick={() => removeImage(url)}
-            className="absolute end-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white disabled:opacity-50"
-          >
-            <HugeiconsIcon icon={Delete02Icon} className="size-3" />
-          </button>
-
-          {images.length > 1 && (
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/50 px-1 py-0.5">
-              <button
-                type="button"
-                aria-label={t("Move earlier")}
-                disabled={disabled || index === 0}
-                onClick={() => move(index, -1)}
-                className="text-white disabled:opacity-30"
-              >
-                <HugeiconsIcon
-                  icon={ArrowLeft01Icon}
-                  className="size-3.5 rtl:rotate-180"
-                />
-              </button>
-              <button
-                type="button"
-                aria-label={t("Move later")}
-                disabled={disabled || index === images.length - 1}
-                onClick={() => move(index, 1)}
-                className="text-white disabled:opacity-30"
-              >
-                <HugeiconsIcon
-                  icon={ArrowRight01Icon}
-                  className="size-3.5 rtl:rotate-180"
-                />
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
-
-      {uploading.map((item) => (
-        <div
-          key={item.id}
-          className={cn(
-            "relative size-20 overflow-hidden rounded-lg border",
-            item.error ? "border-destructive" : "border-border/60",
-          )}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- local object URL preview, not an optimizable remote image */}
-          <img
-            src={item.previewUrl}
-            alt=""
-            className="size-full object-cover opacity-50"
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-            {item.error ? (
-              <button
-                type="button"
-                aria-label={t("Remove this image")}
-                onClick={() => retryUpload(item)}
-                className="flex size-7 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <HugeiconsIcon icon={Alert02Icon} className="size-4" />
-              </button>
-            ) : (
+        {slots.length > 1 && (
+          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/50 px-1.5 py-1">
+            <button
+              type="button"
+              aria-label={t("Move earlier")}
+              disabled={disabled || index === 0}
+              onClick={() => move(index, -1)}
+              className="text-white disabled:opacity-30"
+            >
               <HugeiconsIcon
-                icon={Loading03FreeIcons}
-                strokeWidth={2.5}
-                className="size-5 animate-spin text-white"
+                icon={ArrowLeft01Icon}
+                className="size-3.5 rtl:rotate-180"
               />
-            )}
+            </button>
+            <button
+              type="button"
+              aria-label={t("Move later")}
+              disabled={disabled || index === slots.length - 1}
+              onClick={() => move(index, 1)}
+              className="text-white disabled:opacity-30"
+            >
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                className="size-3.5 rtl:rotate-180"
+              />
+            </button>
           </div>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {slots.length === 1 && (
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element -- user-supplied/local-blob preview, no image optimizer domain configured */}
+          <img
+            src={slotSrc(slots[0])}
+            alt=""
+            className="border-border/50 max-h-128 w-full rounded-xl border object-cover"
+          />
+          {renderOverlay(0)}
         </div>
-      ))}
+      )}
+
+      {slots.length === 2 && (
+        <div className="grid grid-cols-2 gap-1.5">
+          {slots.map((slot, index) => (
+            <div key={slotSrc(slot)} className="relative aspect-square">
+              {/* eslint-disable-next-line @next/next/no-img-element -- user-supplied/local-blob preview, no image optimizer domain configured */}
+              <img
+                src={slotSrc(slot)}
+                alt=""
+                className="border-border/50 size-full rounded-xl border object-cover"
+              />
+              {renderOverlay(index)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {slots.length >= 3 && (
+        // No edge-bleed here (unlike `ThreadImageCarousel`'s own strip)
+        // — this column sits beside the avatar, not flush with the
+        // screen, so narrower tiles stand in for the peek instead.
+        <div className="scrollbar-none flex snap-x gap-2 overflow-x-auto">
+          {slots.map((slot, index) => (
+            <div
+              key={slotSrc(slot)}
+              className="relative aspect-square w-[55%] shrink-0 snap-start"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- user-supplied/local-blob preview, no image optimizer domain configured */}
+              <img
+                src={slotSrc(slot)}
+                alt=""
+                className="border-border/50 size-full rounded-xl border object-cover"
+              />
+              {renderOverlay(index)}
+            </div>
+          ))}
+        </div>
+      )}
 
       {canAddMore && (
         <Button
           type="button"
           variant="outline"
           onClick={() => inputRef.current?.click()}
-          className="size-20 flex-col gap-1 text-xs"
+          className="w-fit gap-1.5 text-xs"
         >
-          <HugeiconsIcon icon={ImageAdd01Icon} className="size-5" />
+          <HugeiconsIcon icon={ImageAdd01Icon} className="size-4" />
           {t("Add photos")}
         </Button>
       )}

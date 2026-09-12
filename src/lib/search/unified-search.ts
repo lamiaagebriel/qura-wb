@@ -9,13 +9,13 @@ import {
   getGooglePlaceIdsForBusinesses,
   getReviewSummariesForBusinesses,
 } from "@/lib/business/queries";
-import { CITY_LABEL } from "@/lib/city/cities";
+import { CITY_CENTER, CITY_LABEL } from "@/lib/city/cities";
 import { getCachedLocations } from "@/lib/business/google-place-cache";
 import { GooglePlacesError } from "@/lib/google-places/errors";
 import { logEvent, logWarning, withTiming } from "@/lib/observability/log";
 import { searchGooglePlaces } from "@/lib/google-places/search";
 import type { GooglePlaceSearchResult } from "@/lib/google-places/types";
-import type { CityId } from "@/db/schema";
+import type { BusinessCategory, CityId } from "@/db/schema";
 
 import { mergeSearchCandidates } from "./merge";
 import type { QuraEngagementSignals } from "./ranking";
@@ -53,6 +53,7 @@ async function searchQuraCandidates(
   offset: number,
   excludeIds: string[],
   city: CityId,
+  category?: BusinessCategory,
 ): Promise<{ summaries: QuraBusinessSummary[]; hasMore: boolean }> {
   const pattern = `%${query}%`;
 
@@ -80,10 +81,19 @@ async function searchQuraCandidates(
         // more than a title. Still a plain substring match, not real NLP:
         // it only helps when the business actually wrote that word into
         // its own bio.
+        //
+        // `category` (set when the typed/tapped query matched a known
+        // category's name — see `SearchView`) is OR'd in alongside the
+        // text match, not AND'd — a business actually filed under that
+        // category comes back even if its name/bio never spells the
+        // category out, on top of whatever the plain text match already
+        // finds. This is also what makes tapping a category chip and
+        // typing that same word by hand behave identically.
         or(
           ilike(schema.users.username, pattern),
           ilike(schema.users.name, pattern),
           ilike(schema.users.bio, pattern),
+          category ? eq(schema.businessBlocks.category, category) : undefined,
         ),
         excludeIds.length > 0 ? notInArray(schema.users.id, excludeIds) : undefined,
       ),
@@ -107,27 +117,108 @@ async function searchQuraCandidates(
   return { summaries, hasMore };
 }
 
+// Haversine, straight-line distance — good enough for "is this even in
+// the right city" (no driving-distance nuance needed, just a sanity
+// radius around the city center).
+const EARTH_RADIUS_KM = 6371;
+function distanceKm(
+  a: { lat: number; lng: number },
+  b: { latitude: number; longitude: number },
+): number {
+  const dLat = ((b.latitude - a.lat) * Math.PI) / 180;
+  const dLng = ((b.longitude - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.latitude * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
+}
+
+// Google's `locationBias` is a *preference*, not a hard filter — Text
+// Search can still return a place well outside the circle if its text
+// match is strong enough. A result search is scoped to "your selected
+// city, not elsewhere" (never a citywide-only assumption for Qura's own
+// data, and Qura's DB side already enforces this with a real `WHERE
+// city = ...`), so results outside `MAX_RESULT_DISTANCE_KM` of the
+// city's center are dropped after the fact rather than trusted to bias
+// alone. Deliberately wider than the bias radius itself — the bias
+// nudges Google toward the city, this is the actual cutoff for "did
+// that nudge work."
+const LOCATION_BIAS_RADIUS_METERS = 20_000;
+const MAX_RESULT_DISTANCE_KM = 30;
+// The area-search cutoff (see `MapArea` below) is looser than the bias
+// radius the caller asks for, same reasoning as the city one: the radius
+// nudges Google, this is what actually enforces "in the area you're
+// looking at," with enough slack that a result right at the visible
+// edge isn't dropped just for rounding.
+const AREA_RESULT_SLACK_KM = 3;
+
+/** An explicit map viewport to search instead of the whole city — what
+ * "Search this area" on the map sends once the user has panned/zoomed
+ * away from the city-wide view. Only ever narrows the Google side (see
+ * `searchGoogleCandidates`); Qura's own businesses stay city+text/
+ * category-scoped regardless; see `searchQuraCandidates`'s own city
+ * predicate — precisely bounding *those* by an arbitrary viewport would
+ * need per-business coordinates most Qura listings don't have. */
+export type MapArea = { lat: number; lng: number; radiusMeters: number };
+
 /** Never throws — a Google failure degrades to "no Google candidates this
  * page", not a broken search (Phase 4, Part 4/27). Only `GooglePlacesError`
  * (a known, typed failure mode) is caught this way; anything else is a
  * genuine bug and propagates, same as a Qura DB error already would. */
 async function searchGoogleCandidates(
   query: string,
-  cityContext: string,
+  city: CityId,
   pageToken: string | null,
+  area?: MapArea,
 ): Promise<{ results: GooglePlaceSearchResult[]; nextPageToken: string | null }> {
+  const cityContext = CITY_LABEL[city];
+  // An explicit map viewport overrides the city center entirely — both
+  // the bias Google gets and the cutoff applied after — rather than
+  // narrowing on top of it, since the two radii answer different
+  // questions ("still in the city" vs. "still in the area you're
+  // looking at right now") and only one is meaningful for a given
+  // request.
+  const center = area ?? CITY_CENTER[city];
+  const cutoffKm = area
+    ? area.radiusMeters / 1000 + AREA_RESULT_SLACK_KM
+    : MAX_RESULT_DISTANCE_KM;
+
   try {
     const { results, nextPageToken } = await searchGooglePlaces({
-      // Text context only — no fabricated coordinates. Google's Text
-      // Search already understands "<query> in <city>" as a location
-      // hint; this is the same idea as `lib/location.ts` never inventing
-      // a lat/lng for a description-only Qura location.
+      // Text context AND a real coordinate bias — the text hint alone
+      // ("<query> in <city>") only nudges Google's ranking, it doesn't
+      // stop a same-named place in a different city from coming back.
       query: `${query} in ${cityContext}`,
       regionCode: "EG",
       pageSize: GOOGLE_PAGE_SIZE,
       pageToken: pageToken ?? undefined,
+      ...(center && {
+        latitude: center.lat,
+        longitude: center.lng,
+        radiusMeters: area?.radiusMeters ?? LOCATION_BIAS_RADIUS_METERS,
+      }),
     });
-    return { results, nextPageToken };
+
+    // Bias isn't a guarantee (see above) — a center is required to
+    // actually enforce the cutoff, so a city with none on file
+    // (`CITY_CENTER`) falls back to trusting the bias-less text match
+    // alone rather than silently dropping every result. An explicit
+    // `area` always has a center (the map itself), so this only ever
+    // matters for the city-wide path.
+    const scoped = center
+      ? results.filter(
+          (result) =>
+            result.location &&
+            distanceKm(center, {
+              latitude: result.location.latitude,
+              longitude: result.location.longitude,
+            }) <= cutoffKm,
+        )
+      : results;
+
+    return { results: scoped, nextPageToken };
   } catch (error) {
     if (error instanceof GooglePlacesError) {
       // Server log only — never surfaced to the user as an error state;
@@ -162,24 +253,33 @@ export async function searchUnified({
   query,
   cursor,
   city,
+  category,
+  area,
 }: {
   query: string;
   cursor: UnifiedSearchCursor;
   city: CityId;
+  category?: BusinessCategory;
+  area?: MapArea;
 }): Promise<{ items: UnifiedSearchResult[]; nextCursor: UnifiedSearchCursor | null }> {
   const totalStart = Date.now();
-  const cityContext = CITY_LABEL[city];
 
   const [quraOutcome, googleOutcome] = await Promise.all([
     cursor.quraExhausted
       ? Promise.resolve({ summaries: [] as QuraBusinessSummary[], hasMore: false })
       : withTiming("unified_search_qura_query", { query, city }, () =>
-          searchQuraCandidates(query, cursor.quraOffset, cursor.mergedBusinessIds, city),
+          searchQuraCandidates(
+            query,
+            cursor.quraOffset,
+            cursor.mergedBusinessIds,
+            city,
+            category,
+          ),
         ),
     cursor.googleExhausted
       ? Promise.resolve({ results: [] as GooglePlaceSearchResult[], nextPageToken: null })
       : withTiming("unified_search_google_query", { query, city }, () =>
-          searchGoogleCandidates(query, cityContext, cursor.googlePageToken),
+          searchGoogleCandidates(query, city, cursor.googlePageToken, area),
         ),
   ]);
 

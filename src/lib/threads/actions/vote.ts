@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 
 import { db, schema } from "@/db";
@@ -14,7 +13,15 @@ import { getLocale } from "@/lib/i18n/actions";
  * that rolls up into `markedUnhelpful` (see `lib/threads/queries.ts`).
  * Voting the same way you already voted takes the vote back instead of
  * erroring, matching how the client toggles it — there's no separate
- * "unvote" action to keep in sync. */
+ * "unvote" action to keep in sync.
+ *
+ * No `revalidatePath` here: `ThreadCard` already applies the new vote
+ * optimistically through the shared `useThreadOverride` store (so every
+ * mounted copy of this thread's card updates immediately, no reload),
+ * and this page is fully dynamic (reads cookies for auth/city) so
+ * there's no route cache actually going stale to invalidate —
+ * `revalidatePath` here only forced an unwanted full feed refetch on
+ * every vote. */
 export async function voteThreadAction(
   threadId: string,
   value: 1 | -1,
@@ -52,7 +59,5 @@ export async function voteThreadAction(
       });
   }
 
-  revalidatePath("/");
-  revalidatePath(`/thread/${threadId}`);
   return ok(undefined);
 }

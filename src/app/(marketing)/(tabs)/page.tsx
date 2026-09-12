@@ -37,8 +37,15 @@ export default async function FeedPage() {
   // Skip the query entirely when the city has no content yet — an empty
   // result would render the same generic "no threads yet" the feed shows
   // an actual empty city, which isn't what's going on here.
+  //
+  // `"latest"` explicitly, matching `FeedThreadList`'s own client-side
+  // default — leaving this unspecified used to fall back to
+  // `getFeedThreads`'s "relevant" (vote-ranked) default, a different
+  // order than every subsequent "load more" page, which is what made a
+  // freshly posted thread (0 votes) land wherever its 0-vote rank
+  // happened to fall instead of at the very top.
   const { items, nextCursor } = available
-    ? await getFeedThreads(city, user?.id)
+    ? await getFeedThreads(city, user?.id, 0, "latest")
     : { items: [], nextCursor: null };
 
   return (

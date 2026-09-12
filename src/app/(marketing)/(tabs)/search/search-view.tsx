@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowRight01Icon,
+  ArrowLeft01Icon,
   Cancel01Icon,
   ListViewIcon,
   Loading03FreeIcons,
@@ -22,13 +22,19 @@ import { useInfiniteList } from "@/hooks/use-infinite-list";
 import { useSearchHistory } from "@/hooks/use-search-history";
 import { mapGoogleTypesToQuraCategories } from "@/lib/business/google-category-mapping";
 import { CATEGORY_META, isBusinessCategory } from "@/lib/categories";
+import { CITY_CENTER } from "@/lib/city/cities";
 import { searchUsersAction } from "@/lib/profile/actions/search-users";
+import type { MapArea } from "@/lib/search/unified-search";
 import type {
   UnifiedSearchCursor,
   UnifiedSearchResult,
 } from "@/lib/search/types";
 import { useLocale } from "@/lib/i18n/client";
-import { BUSINESS_CATEGORIES, type CityId } from "@/db/schema";
+import {
+  BUSINESS_CATEGORIES,
+  type BusinessCategory,
+  type CityId,
+} from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 const DEBOUNCE_MS = 300;
@@ -39,15 +45,6 @@ const DEBOUNCE_MS = 300;
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
-// Real city centers, used only to frame the map when there's nothing to
-// pin yet (no query, or a query with no geocoded results) — never a
-// stand-in for an actual result. Limited to the two cities with real
-// content (`AVAILABLE_CITIES`); anything else falls back to Aswan's
-// center rather than guessing coordinates for a city with none on file.
-const CITY_CENTER: Partial<Record<CityId, { lat: number; lng: number }>> = {
-  aswan: { lat: 24.0889, lng: 32.8998 },
-  luxor: { lat: 25.6872, lng: 32.6396 },
-};
 const DEFAULT_MAP_ZOOM = 13;
 
 type MapPin = {
@@ -60,16 +57,84 @@ type MapPin = {
  * whenever the pin set changes, so the map frames exactly (and only) the
  * search results it's showing. Does nothing at all with zero pins,
  * leaving the map at its default city-center view rather than fitting
- * an empty/degenerate bounds. */
-function FitBoundsToPins({ pins }: { pins: MapPin[] }) {
+ * an empty/degenerate bounds.
+ *
+ * Two refs coordinate this with `MapMoveTracker` below (both live at the
+ * `SearchView` level, shared by both children — `useMap()` only works
+ * inside the `<Map>` subtree, so neither can hold state the other reads
+ * on its own):
+ * - `skipNextFitRef`: set right before a "Search this area" re-search —
+ *   the user explicitly chose this viewport, so the fresh results from
+ *   it must NOT immediately yank the map back to fit them; consumed
+ *   (reset to `false`) the one time it's checked, not left set.
+ * - `suppressMoveRef`: set for the duration of a programmatic
+ *   `fitBounds` call (cleared on the map's next `idle`), so
+ *   `MapMoveTracker` doesn't mistake OUR pan/zoom for the user's and pop
+ *   the "Search this area" button right after results load. */
+function FitBoundsToPins({
+  pins,
+  skipNextFitRef,
+  suppressMoveRef,
+}: {
+  pins: MapPin[];
+  skipNextFitRef: React.RefObject<boolean>;
+  suppressMoveRef: React.RefObject<boolean>;
+}) {
   const map = useMap();
 
   useEffect(() => {
     if (!map || pins.length === 0) return;
+    if (skipNextFitRef.current) {
+      skipNextFitRef.current = false;
+      return;
+    }
+    suppressMoveRef.current = true;
     const bounds = new google.maps.LatLngBounds();
     for (const pin of pins) bounds.extend(pin.position);
     map.fitBounds(bounds, 64);
-  }, [map, pins]);
+    google.maps.event.addListenerOnce(map, "idle", () => {
+      suppressMoveRef.current = false;
+    });
+  }, [map, pins, skipNextFitRef, suppressMoveRef]);
+
+  return null;
+}
+
+/** No UI of its own — watches for the user actually panning or zooming
+ * the map (as opposed to `FitBoundsToPins` moving it programmatically,
+ * suppressed via `suppressMoveRef`) and reports it via `onUserMoved`, so
+ * `SearchView` can surface the Google-Maps-style "Search this area"
+ * button. `dragstart` is an unambiguous user gesture; `zoom_changed`
+ * also fires for `fitBounds`'s own zoom changes, which is exactly what
+ * `suppressMoveRef` is there to filter out. */
+function MapMoveTracker({
+  mapRef,
+  suppressMoveRef,
+  onUserMoved,
+}: {
+  // Also just the way `SearchView` gets a handle on the live map
+  // instance at all — reading `map.getCenter()`/`getZoom()` when
+  // "Search this area" is tapped needs the real thing, not a re-derived
+  // approximation.
+  mapRef: React.RefObject<google.maps.Map | null>;
+  suppressMoveRef: React.RefObject<boolean>;
+  onUserMoved: () => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+    mapRef.current = map;
+    const handleUserMove = () => {
+      if (!suppressMoveRef.current) onUserMoved();
+    };
+    const dragListener = map.addListener("dragstart", handleUserMove);
+    const zoomListener = map.addListener("zoom_changed", handleUserMove);
+    return () => {
+      dragListener.remove();
+      zoomListener.remove();
+    };
+  }, [map, mapRef, suppressMoveRef, onUserMoved]);
 
   return null;
 }
@@ -106,9 +171,15 @@ const SUGGESTED_QUERIES: Array<keyof import("@/lib/i18n/config").Dict> = [
   "Cheap places near me",
 ];
 
-// First screenful of the category grid — the rest live behind "All
-// categories" rather than dumping all 18 into the empty search state.
-const FEATURED_CATEGORY_COUNT = 15;
+// A stable reference for `useInfiniteList`'s `initialItems` — this page
+// has no server-fetched initial page (nothing to search until you type),
+// unlike the feed/profile lists that hand it real server props. An
+// inline `[]` in the hook call below would be a *new* array every
+// render, and the hook syncs its state to `initialItems` by reference
+// during render (by design, to pick up a fresh server refetch elsewhere)
+// — with a literal that's true on every single render, which is an
+// infinite render loop, not a one-time sync.
+const EMPTY_RESULTS: UnifiedSearchResult[] = [];
 
 type ViewMode = "list" | "map";
 
@@ -125,21 +196,90 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
   // "Load more" has to keep paginating *this* search, not whatever the
   // user has typed since.
   const [committedQuery, setCommittedQuery] = useState("");
+  // The category a category chip's tap resolved to (or that the typed
+  // text itself happened to match — see `matchCategory`), captured at
+  // the same commit point as `committedQuery` for the same reason:
+  // "load more" has to keep widening by *this* category, not whatever
+  // the query box currently says.
+  const [committedCategory, setCommittedCategory] = useState<
+    BusinessCategory | undefined
+  >(undefined);
+  // Set once "Search this area" narrows results to the current map
+  // viewport instead of the whole city — captured at commit time same as
+  // `committedQuery`/`committedCategory`, so "load more" keeps paginating
+  // *that* area rather than snapping back to city-wide. Cleared by a
+  // fresh text/category search (typing or a category tap always means
+  // "start over city-wide"), never by panning the map alone — the area
+  // only actually changes on the next explicit "Search this area" tap.
+  const [committedArea, setCommittedArea] = useState<MapArea | undefined>(
+    undefined,
+  );
   const [isSearching, startSearching] = useTransition();
   const [view, setView] = useState<ViewMode>("list");
   // Which pin's preview card is open at the bottom of the map, if any —
   // cleared whenever the query changes (a new search invalidates whatever
   // was selected) or the map is tapped anywhere that isn't a pin.
   const [selectedPinId, setSelectedPinId] = useState<string | null>(null);
+  // Google-Maps-style "Search this area" — shown once the user actually
+  // pans/zooms the map themselves (see `MapMoveTracker`), hidden again
+  // the moment they tap it or start a fresh text/category search.
+  const [showSearchThisArea, setShowSearchThisArea] = useState(false);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const suppressMoveRef = useRef(false);
+  const skipNextFitRef = useRef(false);
+  // The device's own position, shown as a marker — requested lazily
+  // (only once the map is actually opened, not on every visit to
+  // `/search`) and only once, not `watchPosition`'d: a live-tracking dot
+  // isn't needed here, just "where roughly am I relative to these
+  // results," the same one-shot ask `location-picker.tsx` makes for its
+  // own "use my location" button.
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const hasRequestedLocation = useRef(false);
+  useEffect(() => {
+    if (view !== "map" || hasRequestedLocation.current) return;
+    hasRequestedLocation.current = true;
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }),
+      // Denied/unavailable — no marker, no error surfaced; the map still
+      // works perfectly well without it.
+      () => {},
+      { maximumAge: 60_000, timeout: 10_000 },
+    );
+  }, [view]);
 
-  const { items, isLoading, hasMore, sentinelRef, reset } = useInfiniteList<
-    UnifiedSearchResult,
-    UnifiedSearchCursor
-  >({
-    initialItems: [],
-    initialCursor: null,
-    fetchMore: (cursor) => searchUsersAction(committedQuery, cursor),
-  });
+  const { items, isLoading, hasMore, sentinelRef, reset, loadMore } =
+    useInfiniteList<UnifiedSearchResult, UnifiedSearchCursor>({
+      initialItems: EMPTY_RESULTS,
+      initialCursor: null,
+      fetchMore: (cursor) =>
+        searchUsersAction(committedQuery, cursor, committedCategory, committedArea),
+    });
+
+  // A category chip tap is just a shortcut for typing that category's own
+  // name — same search, same results pipeline, not a separate mode or a
+  // navigation to `/categories/[id]`. So the only thing this needs to
+  // find is which (if any) category the current text names, by comparing
+  // against every category's *translated* label — done here, not on the
+  // server, since only the client reliably knows which locale the typed
+  // text is actually in. An exact match (either direction, case-
+  // insensitive) is required rather than a loose substring one — a query
+  // like "hair" shouldn't silently start widening results to the whole
+  // "Beauty" category just because "Hair Salons" contains it.
+  function matchCategory(text: string): BusinessCategory | undefined {
+    const normalized = text.trim().toLowerCase();
+    if (!normalized) return undefined;
+    return BUSINESS_CATEGORIES.find(
+      (category) => t(CATEGORY_META[category].label).toLowerCase() === normalized,
+    );
+  }
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -149,19 +289,77 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
     // state synchronously from here.
     if (trimmed.length < 2) return;
 
+    const category = matchCategory(trimmed);
     const handle = setTimeout(() => {
       startSearching(async () => {
-        const result = await searchUsersAction(trimmed, null);
+        const result = await searchUsersAction(trimmed, null, category);
         setCommittedQuery(trimmed);
+        setCommittedCategory(category);
+        // A fresh text/category search always starts city-wide again —
+        // any area narrowing from a previous "Search this area" no
+        // longer applies to a different query.
+        setCommittedArea(undefined);
         setSelectedPinId(null);
+        setShowSearchThisArea(false);
         reset(result.items, result.nextCursor);
       });
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `matchCategory` closes over `t`, which is stable in practice for the life of one search session (switching language mid-search is a rare edge case, not worth re-debouncing every render to guard against).
   }, [query, reset]);
 
   function runQuery(next: string) {
     setQuery(next);
+  }
+
+  function clearSearch() {
+    setQuery("");
+  }
+
+  // "Search this area" (Google-Maps-style): re-runs the exact same
+  // query/category, but scopes Google's side to the map's current
+  // viewport instead of the whole city (see `MapArea`) — what makes
+  // panning/zooming into a neighborhood and re-searching actually surface
+  // *that* neighborhood's places instead of the same city-wide set.
+  // `skipNextFitRef` is set first so the results this produces don't
+  // immediately trigger `FitBoundsToPins` to yank the map back to
+  // whatever framed them — the user just told it exactly where to look.
+  function handleSearchThisArea() {
+    const map = mapRef.current;
+    const center = map?.getCenter();
+    const zoom = map?.getZoom();
+    if (!center || zoom === undefined) return;
+
+    const lat = center.lat();
+    const lng = center.lng();
+    // Meters-per-pixel at this latitude/zoom (the standard Web Mercator
+    // formula) times a rough "half the visible map's shorter side" in
+    // pixels — there's no reliable way to read the map `<div>`'s actual
+    // rendered size from here, and this is a search-scoping radius, not
+    // a pixel-perfect viewport match, so an assumed mobile-sized
+    // viewport is close enough. Clamped so an extreme zoom level never
+    // asks Google for an unreasonably tiny or huge radius.
+    const metersPerPixel =
+      (156_543.03392 * Math.cos((lat * Math.PI) / 180)) / 2 ** zoom;
+    const radiusMeters = Math.min(
+      Math.max(metersPerPixel * 300, 500),
+      50_000,
+    );
+    const area: MapArea = { lat, lng, radiusMeters };
+
+    setShowSearchThisArea(false);
+    skipNextFitRef.current = true;
+    startSearching(async () => {
+      const result = await searchUsersAction(
+        committedQuery,
+        null,
+        committedCategory,
+        area,
+      );
+      setCommittedArea(area);
+      setSelectedPinId(null);
+      reset(result.items, result.nextCursor);
+    });
   }
 
   const searchedEnough = query.trim().length >= 2;
@@ -204,16 +402,51 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
   );
   const selectedPin = pins.find((pin) => pin.id === selectedPinId) ?? null;
   const mapCenter = CITY_CENTER[activeCity] ?? CITY_CENTER.aswan!;
-  const resultCountLabel = isSearching
+  // Covers the debounce window too, not just the in-flight request —
+  // `isSearching` alone only goes true once the transition actually
+  // starts, so relying on it by itself would show the *previous*
+  // search's "done" state (the back arrow) for the ~300ms between a
+  // keystroke and the debounced request firing.
+  const resultsPending = searchedEnough && committedQuery !== query.trim();
+  const isLoadingResults = isSearching || resultsPending;
+  const resultCountLabel = isLoadingResults
     ? t("Searching…")
     : `${visibleItems.length}${hasMore ? "+" : ""} ${t("results")}`;
 
+  // The leading icon in the search box tracks exactly where the search
+  // is at, Threads/Instagram-search-style: a magnifying glass at rest,
+  // a spinner in its place the moment there's a query being resolved
+  // (typed or debouncing), and once real results are on screen it
+  // becomes a back arrow — tapping it both leaves the results view and
+  // clears the query, the one action "go back" actually means here
+  // (there's no separate results *page* to navigate back from, so
+  // "back" and "clear" are the same thing).
   const searchInput = (
     <div className="relative flex-1">
-      <HugeiconsIcon
-        icon={Search01Icon}
-        className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2"
-      />
+      {isLoadingResults ? (
+        <HugeiconsIcon
+          icon={Loading03FreeIcons}
+          strokeWidth={2.5}
+          className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 animate-spin"
+        />
+      ) : searchedEnough ? (
+        <button
+          type="button"
+          aria-label={t("Back")}
+          onClick={clearSearch}
+          className="text-foreground absolute start-2.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center"
+        >
+          <HugeiconsIcon
+            icon={ArrowLeft01Icon}
+            className="size-4 rtl:rotate-180"
+          />
+        </button>
+      ) : (
+        <HugeiconsIcon
+          icon={Search01Icon}
+          className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2"
+        />
+      )}
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -272,16 +505,27 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
   // results underneath it change.
   if (searchedEnough) {
     return (
-      <div className="fixed inset-0 z-40 flex flex-col">
-        <div className="bg-background flex items-center gap-2 p-4 pb-2">
-          {searchInput}
-          {viewToggle}
-        </div>
-        <div className="text-muted-foreground bg-background px-4 pb-2 text-[13px] font-medium">
-          {resultCountLabel}
+      <div className="fixed inset-0 z-40">
+        {/* Floating over the content instead of pushing it down — in map
+            mode this is what makes the map itself go edge-to-edge under
+            the controls rather than living in a boxed-in area below a
+            solid header bar. Each control keeps its own pill
+            background/shadow (no full-width bar behind them) so the map
+            stays visible right up to their edges. List mode reuses the
+            exact same floating header for consistency; the list's own
+            content just gets top padding (`HEADER_CLEARANCE`) so cards
+            start below it instead of being covered. */}
+        <div className="absolute inset-x-0 top-0 z-30 flex flex-col gap-2 p-4 pb-0">
+          <div className="flex items-center gap-2">
+            {searchInput}
+            {viewToggle}
+          </div>
+          <span className="bg-background/90 text-muted-foreground w-fit rounded-full px-3 py-1 text-[13px] font-medium shadow-xs backdrop-blur-sm">
+            {resultCountLabel}
+          </span>
         </div>
 
-        <div className="relative flex-1 overflow-hidden">
+        <div className="relative h-full overflow-hidden">
           <div
             className={cn(
               "absolute inset-0 transition-opacity duration-200",
@@ -317,7 +561,28 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
                       />
                     </AdvancedMarker>
                   ))}
-                  <FitBoundsToPins pins={pins} />
+                  {/* The classic Google-Maps "blue dot" — deliberately
+                      not a `Pin` (those read as a *result*, a place you
+                      could tap into; this is just "you are here," not
+                      interactive). */}
+                  {userLocation && (
+                    <AdvancedMarker position={userLocation} title={t("Your location")}>
+                      <div className="relative flex size-4 items-center justify-center">
+                        <div className="absolute size-4 animate-ping rounded-full bg-[#4285F4]/30" />
+                        <div className="relative size-3 rounded-full bg-[#4285F4] ring-2 ring-white shadow-md" />
+                      </div>
+                    </AdvancedMarker>
+                  )}
+                  <FitBoundsToPins
+                    pins={pins}
+                    skipNextFitRef={skipNextFitRef}
+                    suppressMoveRef={suppressMoveRef}
+                  />
+                  <MapMoveTracker
+                    mapRef={mapRef}
+                    suppressMoveRef={suppressMoveRef}
+                    onUserMoved={() => setShowSearchThisArea(true)}
+                  />
                 </Map>
               </APIProvider>
             ) : (
@@ -325,6 +590,28 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
                 <p className="text-muted-foreground text-[13px]">
                   {t("Map unavailable")}
                 </p>
+              </div>
+            )}
+
+            {/* Google-Maps-style "Search this area" — appears once the
+                user pans/zooms away from the auto-fitted view, floating
+                below the header rather than replacing it. */}
+            {showSearchThisArea && (
+              <div className="absolute inset-x-0 top-28 z-20 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleSearchThisArea}
+                  disabled={isSearching}
+                  className="bg-background text-foreground flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold shadow-lg disabled:opacity-60"
+                >
+                  <HugeiconsIcon
+                    icon={
+                      isSearching ? Loading03FreeIcons : Search01Icon
+                    }
+                    className={cn("size-4", isSearching && "animate-spin")}
+                  />
+                  {t("Search this area")}
+                </button>
               </div>
             )}
 
@@ -352,6 +639,35 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
                 </div>
               </div>
             )}
+
+            {/* Pagination on the map is scroll-triggered on the LIST
+                layer's sentinel — which never scrolls while it's the
+                hidden layer behind the map, so `hasMore` pages would
+                otherwise only ever load by switching to list and
+                scrolling down there first. This is the map's own
+                explicit trigger for the exact same `loadMore` (see
+                `useInfiniteList`), so every matching pin is reachable
+                without leaving map view. Hidden while a pin's preview is
+                open — same bottom-anchored spot, only one at a time. */}
+            {!selectedPin && hasMore && (
+              <div className="absolute inset-x-0 bottom-24 z-20 flex justify-center">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={isLoading}
+                  className="bg-background text-foreground flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold shadow-lg disabled:opacity-60"
+                >
+                  {isLoading && (
+                    <HugeiconsIcon
+                      icon={Loading03FreeIcons}
+                      strokeWidth={2.5}
+                      className="size-4 animate-spin"
+                    />
+                  )}
+                  {t("Load more")}
+                </button>
+              </div>
+            )}
           </div>
 
           <div
@@ -362,13 +678,16 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
                 : "pointer-events-none z-0 opacity-0",
             )}
           >
+            {/* pt-24 clears the floating header (search row + toggle +
+                count pill) so the first card/empty-state message doesn't
+                start underneath it. */}
             {!isSearching && visibleItems.length === 0 && (
-              <p className="text-muted-foreground py-8 text-center text-[13px]">
+              <p className="text-muted-foreground pt-24 pb-8 text-center text-[13px]">
                 {t("No businesses found.")}
               </p>
             )}
 
-            <div className="container flex flex-col gap-3 px-4">
+            <div className="container flex flex-col gap-3 px-4 pt-24">
               {visibleItems.map((result) => (
                 <SearchResultCard
                   key={result.id}
@@ -473,54 +792,38 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
             ))}
           </div>
 
-          <div className="container flex items-center justify-between pt-4">
+          <div className="container pt-4">
             <p className="text-muted-foreground text-[12px] font-bold tracking-wide uppercase">
               {t("Browse by category")}
             </p>
-            <Link
-              href="/categories"
-              className="text-primary flex items-center gap-0.5 text-[12px] font-bold"
-            >
-              {t("All categories")}
-              <HugeiconsIcon icon={ArrowRight01Icon} className="size-3.5" />
-            </Link>
           </div>
           <div className="container grid grid-cols-3 gap-2.5">
-            {BUSINESS_CATEGORIES.slice(0, FEATURED_CATEGORY_COUNT).map(
-              (category) => (
-                <Link
-                  key={category}
-                  href={`/categories/${category}`}
-                  className="bg-muted flex flex-col items-center gap-1.5 rounded-2xl px-1.5 py-3.5"
-                >
-                  <span className="bg-background flex size-9.5 items-center justify-center rounded-full shadow-xs">
-                    <HugeiconsIcon
-                      icon={CATEGORY_META[category].icon}
-                      className="text-primary size-4.5"
-                      strokeWidth={1.7}
-                    />
-                  </span>
-                  <span className="text-center text-[11px] leading-tight font-semibold">
-                    {t(CATEGORY_META[category].label)}
-                  </span>
-                </Link>
-              ),
-            )}
-            {/* <Link
-              href="/categories"
-              className="bg-foreground flex flex-col items-center gap-1.5 rounded-2xl px-1.5 py-3.5"
-            >
-              <span className="bg-background/15 flex size-9.5 items-center justify-center rounded-full">
-                <HugeiconsIcon
-                  icon={MoreHorizontalCircle01Icon}
-                  className="text-background size-4.5"
-                  strokeWidth={1.7}
-                />
-              </span>
-              <span className="text-background text-center text-[11px] leading-tight font-semibold">
-                {t("Show all")}
-              </span>
-            </Link> */}
+            {BUSINESS_CATEGORIES.map((category) => (
+              // A shortcut for typing the category's own name, not a
+              // navigation to a separate category page — see
+              // `matchCategory`. Tapping it runs the exact same search a
+              // business's name or bio mentioning this category already
+              // goes through, just widened to also include everything
+              // actually filed under it. There's no "All categories" page
+              // anymore, so every category is listed here directly.
+              <button
+                key={category}
+                type="button"
+                onClick={() => runQuery(t(CATEGORY_META[category].label))}
+                className="bg-muted flex flex-col items-center gap-1.5 rounded-2xl px-1.5 py-3.5"
+              >
+                <span className="bg-background flex size-9.5 items-center justify-center rounded-full shadow-xs">
+                  <HugeiconsIcon
+                    icon={CATEGORY_META[category].icon}
+                    className="text-primary size-4.5"
+                    strokeWidth={1.7}
+                  />
+                </span>
+                <span className="text-center text-[11px] leading-tight font-semibold">
+                  {t(CATEGORY_META[category].label)}
+                </span>
+              </button>
+            ))}
           </div>
         </>
       )}

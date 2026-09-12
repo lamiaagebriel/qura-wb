@@ -213,7 +213,23 @@ export async function getCachedGooglePlace(
     where: eq(schema.googlePlacesCache.placeId, placeId),
   });
 
-  if (row && Date.now() - row.fetchedAt.getTime() < CACHE_TTL_MS) {
+  // A row written before `reviews` was part of what this cache stores
+  // (or from a request where Google's response happened to omit review
+  // objects) still counts as "fresh" by `fetchedAt` alone, but would
+  // silently keep serving `reviews: null` under a real rating/count for
+  // up to a full `CACHE_TTL_MS` — the aggregate shows correctly while
+  // the review list stays empty, for as long as a day. Only overridden
+  // when `userRatingCount` says reviews should actually exist; a place
+  // Google genuinely has no reviews for keeps its normal TTL instead of
+  // re-fetching on every read forever.
+  const missingReviewsData =
+    row && row.reviews === null && (row.userRatingCount ?? 0) > 0;
+
+  if (
+    row &&
+    !missingReviewsData &&
+    Date.now() - row.fetchedAt.getTime() < CACHE_TTL_MS
+  ) {
     logEvent("google_place_cache_read", { placeId, status: "fresh" });
     return { status: "fresh", details: rowToDetails(row), fetchedAt: row.fetchedAt };
   }

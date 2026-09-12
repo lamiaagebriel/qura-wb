@@ -1,7 +1,8 @@
 "use server";
 
+import type { BusinessCategory } from "@/db/schema";
 import { getActiveCity } from "@/lib/city/actions";
-import { searchUnified } from "@/lib/search/unified-search";
+import { searchUnified, type MapArea } from "@/lib/search/unified-search";
 import { INITIAL_SEARCH_CURSOR } from "@/lib/search/types";
 import type { UnifiedSearchCursor, UnifiedSearchResult } from "@/lib/search/types";
 
@@ -21,14 +22,39 @@ import type { UnifiedSearchCursor, UnifiedSearchResult } from "@/lib/search/type
  *
  * Still business profiles-oriented, not personal accounts — same as
  * before Phase 4, `unifiedSearch`'s Qura side only ever matches
- * `ownerId IS NOT NULL` rows. */
+ * `ownerId IS NOT NULL` rows.
+ *
+ * `category`, when given, is a business whose declared category matches
+ * — never a replacement for the text match, a widening of it: a result
+ * shows up if it matches the text OR the category, same "union, not
+ * intersection" logic as the rest of `searchUnified`'s OR-based
+ * matching. This is what lets a category chip on the search page just
+ * set the query text to that category's name and run the exact same
+ * search, rather than navigating to a separate category browse page —
+ * businesses that mention the category in passing (text match) and
+ * businesses actually filed under it (category match) both come back
+ * together.
+ *
+ * `area`, when given, is an explicit map viewport ("Search this area" on
+ * the map, after the user pans/zooms away from the city-wide view) — it
+ * REPLACES the city-wide scoping for Google's side of the search with
+ * that viewport instead of narrowing further; see `MapArea`'s own doc
+ * comment for why Qura's own businesses aren't affected by it. */
 export async function searchUsersAction(
   query: string,
   cursor: UnifiedSearchCursor | null = null,
+  category?: BusinessCategory,
+  area?: MapArea,
 ): Promise<{ items: UnifiedSearchResult[]; nextCursor: UnifiedSearchCursor | null }> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return { items: [], nextCursor: null };
 
   const city = await getActiveCity();
-  return searchUnified({ query: trimmed, cursor: cursor ?? INITIAL_SEARCH_CURSOR, city });
+  return searchUnified({
+    query: trimmed,
+    cursor: cursor ?? INITIAL_SEARCH_CURSOR,
+    city,
+    category,
+    area,
+  });
 }

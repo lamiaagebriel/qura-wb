@@ -3,6 +3,13 @@
 import { useState, useTransition } from "react";
 
 import { ThreadCard, type ThreadCardData } from "@/components/thread-card";
+import { clearDraft } from "@/lib/threads/draft-store";
+import { deletePendingImage } from "@/lib/threads/pending-image-store";
+import {
+  removeOptimisticPost,
+  useOptimisticPosts,
+  type OptimisticPost,
+} from "@/lib/threads/optimistic-posts";
 import {
   Select,
   SelectContent,
@@ -31,6 +38,35 @@ const SORT_LABEL = { relevant: "Relevant", latest: "Latest" } as const;
 // `ThreadCategory` a post can actually have.
 type CategoryFilter = ThreadCategory | undefined;
 
+// An `OptimisticPost` reshaped into `ThreadCardData` so it can render
+// through the exact same `ThreadCard` a real thread does (see
+// `ThreadCard`'s own `uploading` prop) — not a look-alike component.
+// Every count/flag below is a harmless placeholder: `uploading` disables
+// every interaction that would otherwise read them.
+function toThreadCardData(post: OptimisticPost): ThreadCardData {
+  return {
+    id: post.tempId,
+    body: post.body,
+    images: post.previewUrls,
+    createdAt: new Date(),
+    category: post.category,
+    author: {
+      id: "optimistic",
+      name: post.identity.name,
+      username: post.identity.username,
+      image: post.identity.image,
+    },
+    replyCount: 0,
+    savedByViewer: false,
+    authorFollowedByViewer: false,
+    authorOwnedByViewer: false,
+    upvoteCount: 0,
+    downvoteCount: 0,
+    viewerVote: null,
+    markedUnhelpful: false,
+  };
+}
+
 /**
  * The home feed's "For you" section — a Top/Recent-style sort control
  * (same pattern as `ThreadReplies`) plus a row of category filter chips
@@ -51,6 +87,13 @@ export function FeedThreadList({
   emptyLabel: string;
 }) {
   const { t } = useLocale();
+  // A thread just posted from this browser, still uploading its images
+  // in the background — see `new-thread-composer.tsx` and
+  // `optimistic-posts.ts`. Only shown while browsing "All categories":
+  // it's confusing to see your own post appear inside a category filter
+  // it may not even match (nothing here re-checks it against `category`,
+  // since it isn't a real thread yet to check).
+  const optimisticPosts = useOptimisticPosts();
   const [sort, setSort] = useState<FeedSort>("latest");
   const [category, setCategory] = useState<CategoryFilter>(undefined);
   const [isFiltering, startFiltering] = useTransition();
@@ -142,11 +185,43 @@ export function FeedThreadList({
         })}
       </div>
 
-      <div className="container flex flex-col">
+      <div className="container flex flex-col px-0!">
+        {category === undefined &&
+          optimisticPosts.map((post) => (
+            <ThreadCard
+              key={post.tempId}
+              thread={toThreadCardData(post)}
+              uploading={{
+                failed: post.failed,
+                onDelete: () => {
+                  // Unlike "Keep as draft", this has to actually undo
+                  // the local staging too — nothing in S3 to clean up (a
+                  // failed attempt already discarded whatever it managed
+                  // to upload), but the draft entry and its IndexedDB
+                  // blobs are still sitting there.
+                  clearDraft();
+                  for (const id of post.pendingImageIds) {
+                    void deletePendingImage(id);
+                  }
+                  removeOptimisticPost(post.tempId);
+                },
+                // The draft (and its still-locally-staged images) was
+                // never touched by the failed attempt — this just
+                // dismisses the placeholder so the composer's own
+                // "reopen draft" entry point is what picks it back up.
+                onKeepDraft: () => removeOptimisticPost(post.tempId),
+              }}
+            />
+          ))}
+
         {items.length === 0 ? (
-          <p className="text-muted-foreground py-16 text-center text-[13px]">
-            {emptyLabel}
-          </p>
+          optimisticPosts.length === 0 && (
+            <div className="container">
+              <p className="text-muted-foreground py-16 text-center text-[13px]">
+                {emptyLabel}
+              </p>
+            </div>
+          )
         ) : (
           items.map((thread) => (
             <ThreadCard
@@ -158,7 +233,7 @@ export function FeedThreadList({
         )}
 
         {hasMore && (
-          <div ref={sentinelRef} className="flex justify-center py-6">
+          <div ref={sentinelRef} className="container flex justify-center py-6">
             {isLoading && (
               <HugeiconsIcon
                 icon={Loading03FreeIcons}

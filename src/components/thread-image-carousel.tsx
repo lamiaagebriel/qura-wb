@@ -12,13 +12,22 @@ import { ImageLightbox } from "@/components/image-lightbox";
 import { cn } from "@/lib/utils";
 
 /**
- * A thread's images, inline in the card — a single image renders full
- * width same as before; more than one becomes a swipeable strip (one
- * full-width slide at a time, dot indicator underneath) rather than the
- * old static 2-col grid, since a grid doesn't tell you there's more to
- * see past what's visible. Tapping any image opens `ImageLightbox`
- * fullscreen, starting on whichever one was tapped, where the same swipe
- * continues to work between the rest.
+ * A thread's images, inline in the card, handled per count the way
+ * Threads does — each count reads differently, so one layout for all of
+ * them doesn't fit:
+ * - One image sits full width at its own natural aspect ratio (capped so
+ *   an extreme portrait doesn't take over the feed) — never force-cropped
+ *   to a square, since a single photo *is* the post.
+ * - Two sit side by side, both visible at once — nothing to swipe
+ *   through, so a carousel would just hide half the post behind a swipe
+ *   for no reason.
+ * - Three or more become a swipeable strip, one image mostly filling the
+ *   view with the next peeking in at the edge — the sliver is what says
+ *   "there's more" without needing to rely on the dot indicator alone.
+ *
+ * Tapping any image opens `ImageLightbox` fullscreen, starting on
+ * whichever one was tapped, where the same swipe continues to work
+ * between the rest.
  *
  * `onClick={stopPropagation}` throughout: `ThreadCard` wraps the whole
  * card in a click-to-open-thread handler, and every tap in here (swiping,
@@ -45,17 +54,17 @@ export function ThreadImageCarousel({ images }: { images: string[] }) {
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <Carousel setApi={setApi} opts={{ loop: false, dragFree: images.length > 1 }}>
-        <CarouselContent className={cn("ms-0", images.length > 1 && "gap-2")}>
+      <Carousel setApi={setApi} opts={{ loop: false, dragFree: true }}>
+        <CarouselContent className="ms-0 gap-0.5">
           {images.map((url, index) => (
             <CarouselItem
               key={index}
               className={cn(
-                "ps-0",
+                "basis-full ps-0 first:ml-20 first:rtl:mx-0 first:rtl:mr-20",
                 // Peek the edge of the next image, Threads-style, instead
                 // of each slide filling the full width — the sliver makes
                 // "there's more" visible without needing the dots.
-                images.length > 1 && "basis-[88%]",
+                images.length > 1 && "basis-1/2",
               )}
             >
               <button
@@ -69,8 +78,8 @@ export function ThreadImageCarousel({ images }: { images: string[] }) {
                   src={url}
                   alt=""
                   className={cn(
-                    "border-border/50 w-full rounded-xl border object-cover",
-                    images.length === 1 ? "max-h-96" : "aspect-square",
+                    "border-border/50 aspect-square max-h-60 w-full rounded-sm border object-cover",
+                    images.length === 1 && "w-[78%]",
                   )}
                 />
               </button>

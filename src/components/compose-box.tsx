@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -8,7 +8,7 @@ import { ImageAdd01Icon, SentIcon, User } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Field, FieldError } from "@/components/ui/field";
-import { ImageUploadField } from "@/components/image-upload-field";
+import { ImageUploadField, type ImageSlot } from "@/components/image-upload-field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -16,6 +16,9 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group";
 import { createThreadAction } from "@/lib/threads/actions/create";
+import { discardThreadImagesAction } from "@/lib/storage/actions";
+import { resolvePendingSlots } from "@/lib/threads/resolve-pending-slots";
+import { deletePendingImage } from "@/lib/threads/pending-image-store";
 import { handleAppError } from "@/lib/errors-client";
 import { useLocale } from "@/lib/i18n/client";
 import {
@@ -48,33 +51,56 @@ export function ComposeBox({
   const router = useRouter();
   const { promptSignIn } = useAuthPrompt();
   const [showImages, setShowImages] = useState(false);
+  // Staged locally, not uploaded, until this box's own submit — same
+  // deferred-upload staging `new-thread-composer.tsx` uses (see
+  // `image-upload-field.tsx` and `resolvePendingSlots`). This box has no
+  // explicit "cancel" (it's always visible, not a modal); a pending
+  // image never posted just sits in IndexedDB until the tab closes or
+  // it's manually removed here — nothing was ever uploaded to S3 for it
+  // to orphan there in the meantime.
+  const [imageSlots, setImageSlots] = useState<ImageSlot[]>([]);
   const schema = useMemo(() => createThreadSchema(t), [t]);
-  // Same role as `new-thread-composer.tsx`'s own — every image URL this
-  // reply box has uploaded, so `ImageUploadField.removeImage` knows
-  // they're safe to delete immediately if backed out of. This box has
-  // no explicit "cancel" (it's always visible, not a modal), so anything
-  // left uploaded-but-never-posted here relies on the cron sweep
-  // (`sweepOrphanedThreadImages`) rather than an on-close cleanup call.
-  const sessionUploadsRef = useRef<Set<string>>(new Set());
 
-  const form = useForm<ThreadValues>({
-    resolver: createZodResolver(schema),
-    defaultValues: { body: "", images: [], parentId },
+  const form = useForm<Pick<ThreadValues, "body">>({
+    resolver: createZodResolver(schema.pick({ body: true })),
+    defaultValues: { body: "" },
   });
 
-  async function onSubmit(values: ThreadValues) {
+  async function onSubmit(values: { body: string }) {
     if (!user?.id) {
       promptSignIn();
       return;
     }
 
-    const result = await createThreadAction(values);
+    const resolved = await resolvePendingSlots(imageSlots);
+    if (!resolved.ok) {
+      if (resolved.uploadedUrls.length > 0) {
+        void discardThreadImagesAction(resolved.uploadedUrls);
+      }
+      handleAppError({
+        kind: "message",
+        message: t("Couldn't upload one of your images. Please try again."),
+      });
+      return;
+    }
+
+    const result = await createThreadAction({
+      body: values.body,
+      images: resolved.urls,
+      category: "general",
+      parentId,
+    });
     if (!result.success) {
+      if (resolved.urls.length > 0) void discardThreadImagesAction(resolved.urls);
       handleAppError(result.error, form);
       return;
     }
-    sessionUploadsRef.current.clear();
-    form.reset({ body: "", images: [], parentId });
+
+    for (const slot of imageSlots) {
+      if (slot.kind === "pending") void deletePendingImage(slot.id);
+    }
+    form.reset({ body: "" });
+    setImageSlots([]);
     setShowImages(false);
     router.refresh();
     onPosted?.();
@@ -82,11 +108,6 @@ export function ComposeBox({
 
   return (
     <form
-      // `onSubmit` only ever reads `sessionUploadsRef.current` from
-      // inside the real submit handler `handleSubmit` invokes on
-      // `submit`, never during render; the rule can't see through
-      // `react-hook-form`'s own wrapper to confirm that statically.
-      // eslint-disable-next-line react-hooks/refs
       onSubmit={form.handleSubmit(onSubmit)}
       noValidate
       className="flex gap-2"
@@ -157,21 +178,13 @@ export function ComposeBox({
         />
 
         {showImages && (
-          <Controller
-            name="images"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <ImageUploadField
-                  images={field.value}
-                  onChange={field.onChange}
-                  sessionUploadsRef={sessionUploadsRef}
-                  disabled={form.formState.isSubmitting}
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
+          <Field>
+            <ImageUploadField
+              slots={imageSlots}
+              onChange={setImageSlots}
+              disabled={form.formState.isSubmitting}
+            />
+          </Field>
         )}
       </div>
     </form>

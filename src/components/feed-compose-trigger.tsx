@@ -5,7 +5,10 @@ import { User } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthPrompt } from "@/components/auth-prompt";
-import { useThreadComposer, type ComposerBusiness } from "@/components/new-thread-composer";
+import {
+  useThreadComposer,
+  type ComposerBusiness,
+} from "@/components/new-thread-composer";
 import { useLocale } from "@/lib/i18n/client";
 
 /**
@@ -41,7 +44,7 @@ export function FeedComposeTrigger({
     <button
       type="button"
       onClick={handleClick}
-      className="border-border/60 container flex items-center gap-3 border-b py-3 text-start"
+      className="container flex items-center gap-3 py-3 text-start"
     >
       <Avatar>
         {user?.image && <AvatarImage src={user.image} alt={user.name} />}
@@ -56,7 +59,7 @@ export function FeedComposeTrigger({
           )}
         </AvatarFallback>
       </Avatar>
-      <span className="text-muted-foreground flex-1 text-[14px]">
+      <span className="text-muted-foreground bg-muted flex-1 rounded-sm px-2 py-1.5 text-[14px]">
         {t("What's new?")}
       </span>
     </button>

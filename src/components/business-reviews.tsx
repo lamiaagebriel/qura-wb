@@ -11,10 +11,10 @@ import {
   Location01Icon,
   MoreHorizontal,
   SentIcon,
-  StarIcon,
 } from "@hugeicons/core-free-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { StarRating } from "@/components/star-rating";
 import {
   InputGroup,
   InputGroupAddon,
@@ -66,45 +66,6 @@ type ReviewListItem =
 // synthetic page that reveals the (already fully in hand, never
 // paginated) Google reviews — see `BusinessReviews`'s `fetchMore` below.
 type ReviewsCursor = number | "google";
-
-function StarRating({
-  value,
-  onChange,
-  size = "md",
-}: {
-  value: number;
-  onChange?: (v: number) => void;
-  size?: "sm" | "md";
-}) {
-  const [hover, setHover] = useState(0);
-  const interactive = !!onChange;
-  const shown = interactive && hover > 0 ? hover : value;
-
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          disabled={!interactive}
-          onClick={() => onChange?.(n)}
-          onMouseEnter={() => interactive && setHover(n)}
-          onMouseLeave={() => interactive && setHover(0)}
-          className={cn(!interactive && "cursor-default")}
-        >
-          <HugeiconsIcon
-            icon={StarIcon}
-            className={cn(
-              size === "sm" ? "size-3.5" : "size-4",
-              n <= shown ? "text-amber-400" : "text-muted-foreground/25",
-            )}
-            fill={n <= shown ? "currentColor" : "none"}
-          />
-        </button>
-      ))}
-    </div>
-  );
-}
 
 /** Styled after `ComposeBox` — avatar + rounded pill input + inline send
  * button, so writing a review reads as the same "leave a comment"
