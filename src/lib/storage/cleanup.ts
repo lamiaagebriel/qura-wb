@@ -59,6 +59,57 @@ export async function deleteThreadImages(urls: string[]): Promise<void> {
   }
 }
 
+/**
+ * Deletes every S3 object nested under `thread-images/{imagePath}/` —
+ * the entire delete-thread cleanup story for a thread that has a
+ * reserved `imagePath` (see `threads.imagePath`'s schema comment and
+ * `lib/threads/actions/delete.ts`), in one list+delete pass with no
+ * recursive walk of the reply tree: any nested reply's images, however
+ * many levels deep, live under a key that's already prefixed by this
+ * thread's own path, so listing that one prefix finds all of them
+ * regardless of depth. The `do`/`while` here is S3's own pagination
+ * (bounded by object count, 1000/page) — not a stand-in for the DB-tree
+ * recursion this replaces.
+ */
+export async function deleteThreadImagesByPrefix(
+  imagePath: string,
+): Promise<void> {
+  if (!isStorageConfigured()) return;
+  const client = getS3Client();
+  const bucket = getBucket();
+  const prefix = `${THREAD_IMAGES_PREFIX}/${imagePath}/`;
+
+  const keys: string[] = [];
+  let continuationToken: string | undefined;
+
+  try {
+    do {
+      const page = await client.send(
+        new ListObjectsV2Command({
+          Bucket: bucket,
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+        }),
+      );
+      for (const obj of page.Contents ?? []) {
+        if (obj.Key) keys.push(obj.Key);
+      }
+      continuationToken = page.IsTruncated
+        ? page.NextContinuationToken
+        : undefined;
+    } while (continuationToken);
+
+    await deleteKeys(keys);
+  } catch (err) {
+    // Same "never break the user-facing action" rule as
+    // `deleteThreadImages` — the thread row itself is either already
+    // gone or about to be regardless; a storage hiccup here is
+    // `sweepOrphanedThreadImages`'s problem to catch later, not a
+    // reason to fail the delete.
+    console.error("Failed to delete thread image subtree from S3:", err);
+  }
+}
+
 // An upload only counts as orphaned once it's had time to actually be
 // attached to a thread — otherwise a slow upload mid-compose could get
 // swept out from under a post that's about to reference it.

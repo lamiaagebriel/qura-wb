@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 import type { ThreadCategory } from "@/db/schema";
+import type { ThreadCardData } from "@/components/thread-card";
 
 /**
  * A thread that's been "posted" from the user's point of view — the
@@ -14,16 +15,22 @@ import type { ThreadCategory } from "@/db/schema";
  * Same module-level-store-outside-React shape as `overrides.ts` (and for
  * the same reason: survives regardless of which components are
  * currently mounted, e.g. navigating away from the feed and back while
- * an upload is still running). Only `FeedThreadList` reads this — the
- * composer this feeds is create-only for top-level threads (replies go
- * through the separate `compose-box.tsx`), so the feed is the only place
- * a new post can ever land.
+ * an upload is still running). Holds BOTH top-level threads
+ * (`new-thread-composer.tsx`, `parentId` unset — read by `FeedThreadList`,
+ * filtered to just these) and replies (`compose-box.tsx`, `parentId` set
+ * to the thread being replied to — read by `ThreadReplies`, filtered to
+ * the matching thread); one store rather than two since the shape and
+ * every operation on it (add/update/remove by `tempId`) is identical
+ * either way.
  */
 export type OptimisticPost = {
   tempId: string;
   identity: { name: string; username: string; image: string | null };
   body: string;
   category: ThreadCategory;
+  // Unset for a top-level thread; the thread being replied to for a
+  // reply — see the store's own top comment.
+  parentId?: string;
   // Local blob preview URLs, in post order — never a real S3 URL; the
   // card renders straight from these until the real thread replaces it.
   previewUrls: string[];
@@ -72,4 +79,35 @@ export function useOptimisticPosts(): OptimisticPost[] {
     () => posts,
     () => EMPTY,
   );
+}
+
+/** Reshapes an `OptimisticPost` into `ThreadCardData` so it can render
+ * through the exact same `ThreadCard` a real thread/reply does (see
+ * `ThreadCard`'s own `uploading` prop) — not a look-alike component.
+ * Every count/flag below is a harmless placeholder: `uploading` disables
+ * every interaction that would otherwise read them. Shared by
+ * `FeedThreadList` (top-level posts) and `ThreadReplies` (replies) —
+ * identical either way, only which posts each one filters to differs. */
+export function optimisticPostToThreadCardData(post: OptimisticPost): ThreadCardData {
+  return {
+    id: post.tempId,
+    body: post.body,
+    images: post.previewUrls,
+    createdAt: new Date(),
+    category: post.category,
+    author: {
+      id: "optimistic",
+      name: post.identity.name,
+      username: post.identity.username,
+      image: post.identity.image,
+    },
+    replyCount: 0,
+    savedByViewer: false,
+    authorFollowedByViewer: false,
+    authorOwnedByViewer: false,
+    upvoteCount: 0,
+    downvoteCount: 0,
+    viewerVote: null,
+    markedUnhelpful: false,
+  };
 }

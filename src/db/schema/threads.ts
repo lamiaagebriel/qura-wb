@@ -58,6 +58,19 @@ export const threads = pgTable(
     // nothing a join buys here that an array doesn't already give for
     // free.
     images: text("images").array().notNull().default([]),
+    // This thread's own S3 image-key ancestry: its own `id` for a
+    // top-level thread, or `{parent's imagePath}/{this thread's id}` for
+    // a reply — reserved (`lib/threads/image-path.ts`) BEFORE the row
+    // exists, since it has to be known while generating presigned upload
+    // URLs, not just at insert time. Every nested reply's images end up
+    // stored under a key that's literally prefixed by this value, which
+    // is the whole point: deleting a thread's entire subtree of images
+    // (however deep) is one S3 prefix list+delete keyed on THIS column
+    // (`lib/threads/actions/delete.ts`), never a recursive walk of the
+    // reply tree. `NOT NULL` — every insert site (`createThreadAction`,
+    // `db/seed.ts`) reserves/computes a real value; there's no path that
+    // creates a thread without one.
+    imagePath: text("image_path").notNull(),
     // Which city's feed this shows up in — set once, at creation, from
     // whichever city was active (`getActiveCity`) at the time. Only
     // top-level threads are ever filtered by it (`getFeedThreads`); a

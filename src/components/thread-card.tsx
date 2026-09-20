@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthPrompt } from "@/components/auth-prompt";
 import { Button } from "@/components/ui/button";
+import { ComposeBox } from "@/components/compose-box";
 import { useThreadComposer } from "@/components/new-thread-composer";
 import {
   Sheet,
@@ -113,7 +114,11 @@ export function ThreadCard({
   linkToDetail?: boolean;
   variant?: "default" | "reply" | "ancestor";
   showConnector?: boolean;
-  uploading?: { failed: boolean; onDelete: () => void; onKeepDraft: () => void };
+  uploading?: {
+    failed: boolean;
+    onDelete: () => void;
+    onKeepDraft: () => void;
+  };
 }) {
   const { t, locale } = useLocale();
   const router = useRouter();
@@ -138,6 +143,11 @@ export function ThreadCard({
   const [deleted, setDeleted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // A reply edits in place — the same `ComposeBox` it was written with,
+  // pre-filled — instead of opening the full-screen "Edit thread"
+  // composer (see `ComposeBoxEditing`). Only ever meaningful for
+  // `variant === "reply"`; every other variant still uses `openEdit`.
+  const [inlineEditing, setInlineEditing] = useState(false);
   const [body, setBody] = useState(thread.body);
   const [images, setImages] = useState(thread.images);
   const [isPending, startTransition] = useTransition();
@@ -282,6 +292,40 @@ export function ThreadCard({
   }
 
   if (deleted) return null;
+
+  // Bypasses the entire normal card layout below — the box itself
+  // already renders its own avatar/input row, matching how this reply
+  // looked while it was being written, not a variant of the read-only
+  // card layout. `key={thread.id}` on `ComposeBox` isn't needed here:
+  // this whole branch only mounts once `inlineEditing` flips true, by
+  // which point `thread.id` is already fixed for this card's lifetime.
+  if (inlineEditing) {
+    return (
+      <div
+        className={cn(
+          "border-border/60 relative border-b px-4 py-3",
+          className,
+        )}
+      >
+        <div className="container">
+          <ComposeBox
+            user={thread.author}
+            editing={{
+              threadId: thread.id,
+              initialBody: body,
+              initialImages: images,
+              onSaved: (values) => {
+                setBody(values.body);
+                setImages(values.images);
+                setInlineEditing(false);
+              },
+              onCancel: () => setInlineEditing(false),
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const isUploading = !!uploading;
   // No owner-only chrome (edit/delete menu, follow badge) for a thread
@@ -623,6 +667,14 @@ export function ThreadCard({
                 type="button"
                 onClick={() => {
                   setMenuOpen(false);
+                  // A reply edits inline, in the same box it was written
+                  // with — everything else still gets the full-screen
+                  // composer (it has the category picker, "post as", etc.
+                  // that a reply never had to begin with).
+                  if (variant === "reply") {
+                    setInlineEditing(true);
+                    return;
+                  }
                   openEdit({
                     threadId: thread.id,
                     body,

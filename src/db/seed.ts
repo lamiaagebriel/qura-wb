@@ -800,6 +800,22 @@ const SEED_GOOGLE_PLACES: {
   phone: string | null;
   website: string | null;
   openingHours: { openNow?: boolean; weekdayDescriptions?: string[] } | null;
+  // A real Google Details response always carries reviews alongside a
+  // nonzero `userRatingCount` — `getCachedGooglePlace` treats a cached
+  // row with `reviews: null` but `userRatingCount > 0` as incomplete and
+  // worth refreshing (see its own comment). These `placeId`s are
+  // fabricated demo data, not real Google places, so that "refresh"
+  // would call the live API with an id Google has never heard of and
+  // 400 forever — never self-healing the way it does for a real place.
+  // Seeding a plausible `reviews` array here is what keeps this cached
+  // row looking complete, the same way a real fetch's response would.
+  reviews: {
+    rating: number;
+    text?: string;
+    authorName: string;
+    relativePublishTimeDescription: string;
+    publishTime: string;
+  }[];
 }[] = [
   {
     placeId: PLACE_INES_KITCHEN,
@@ -813,6 +829,29 @@ const SEED_GOOGLE_PLACES: {
     businessStatus: "OPERATIONAL",
     phone: "+20 10 1112 2223",
     website: "https://ineskitchen.example.com",
+    reviews: [
+      {
+        rating: 5,
+        text: "Best molokhia I've had in Aswan, and the Nubian coffee after was the perfect finish.",
+        authorName: "Marc D.",
+        relativePublishTimeDescription: "2 weeks ago",
+        publishTime: "2026-08-20T18:00:00.000Z",
+      },
+      {
+        rating: 4,
+        text: "Lovely rooftop seating with a Nile view. Service was a bit slow on a busy night.",
+        authorName: "Priya S.",
+        relativePublishTimeDescription: "a month ago",
+        publishTime: "2026-08-06T18:00:00.000Z",
+      },
+      {
+        rating: 5,
+        text: "Ines herself came out to say hi. Felt like eating at a friend's house.",
+        authorName: "Hassan A.",
+        relativePublishTimeDescription: "2 months ago",
+        publishTime: "2026-07-10T18:00:00.000Z",
+      },
+    ],
     openingHours: {
       openNow: true,
       weekdayDescriptions: [
@@ -838,6 +877,22 @@ const SEED_GOOGLE_PLACES: {
     businessStatus: "OPERATIONAL",
     phone: "+20 97 231 0145",
     website: null,
+    reviews: [
+      {
+        rating: 5,
+        text: "Painless cleaning, very modern equipment for a clinic this size.",
+        authorName: "Sara M.",
+        relativePublishTimeDescription: "3 weeks ago",
+        publishTime: "2026-08-13T18:00:00.000Z",
+      },
+      {
+        rating: 5,
+        text: "Dr. Nadia explained everything clearly and the front desk got me in same-day.",
+        authorName: "Omar K.",
+        relativePublishTimeDescription: "a month ago",
+        publishTime: "2026-08-06T18:00:00.000Z",
+      },
+    ],
     openingHours: {
       openNow: false,
       weekdayDescriptions: [
@@ -863,6 +918,22 @@ const SEED_GOOGLE_PLACES: {
     businessStatus: "OPERATIONAL",
     phone: null,
     website: null,
+    reviews: [
+      {
+        rating: 5,
+        text: "Well organized boarding for the Philae boats, staff kept the line moving.",
+        authorName: "Elena R.",
+        relativePublishTimeDescription: "2 weeks ago",
+        publishTime: "2026-08-20T18:00:00.000Z",
+      },
+      {
+        rating: 4,
+        text: "Great view of the temple from the water. Bring cash for the boat fare.",
+        authorName: "Tarek H.",
+        relativePublishTimeDescription: "a month ago",
+        publishTime: "2026-08-06T18:00:00.000Z",
+      },
+    ],
     openingHours: null,
   },
   {
@@ -877,6 +948,22 @@ const SEED_GOOGLE_PLACES: {
     businessStatus: "OPERATIONAL",
     phone: "+20 10 5566 7788",
     website: null,
+    reviews: [
+      {
+        rating: 5,
+        text: "Our guide knew the Valley of the Kings inside out, worth every pound.",
+        authorName: "Nadine F.",
+        relativePublishTimeDescription: "2 weeks ago",
+        publishTime: "2026-08-20T18:00:00.000Z",
+      },
+      {
+        rating: 5,
+        text: "Air-conditioned van, cold water, and a guide who spoke great English. Smooth day trip.",
+        authorName: "James L.",
+        relativePublishTimeDescription: "a month ago",
+        publishTime: "2026-08-06T18:00:00.000Z",
+      },
+    ],
     openingHours: {
       openNow: true,
       weekdayDescriptions: [
@@ -902,6 +989,22 @@ const SEED_GOOGLE_PLACES: {
     businessStatus: "OPERATIONAL",
     phone: "+20 10 2233 4455",
     website: "https://nileskyballoons.example.com",
+    reviews: [
+      {
+        rating: 5,
+        text: "Sunrise over the Nile from a balloon — unforgettable. Pickup was right on time.",
+        authorName: "Chloe B.",
+        relativePublishTimeDescription: "3 weeks ago",
+        publishTime: "2026-08-13T18:00:00.000Z",
+      },
+      {
+        rating: 5,
+        text: "Pilot was excellent, very smooth landing. Book the early slot before the crowds.",
+        authorName: "Ahmed S.",
+        relativePublishTimeDescription: "a month ago",
+        publishTime: "2026-08-06T18:00:00.000Z",
+      },
+    ],
     openingHours: {
       openNow: false,
       weekdayDescriptions: [
@@ -1075,9 +1178,19 @@ async function seed() {
   console.log("Seeding threads and replies…");
   const flatThreads: { id: string }[] = [];
   for (const t of allThreads) {
+    // Same id/`imagePath` scheme the real app reserves before uploading
+    // images (`lib/threads/image-path.ts`) — a top-level thread's own
+    // path is just its own id. Generated here (not left to the column's
+    // `defaultRandom()`) purely so `imagePath` can reference it; nothing
+    // about these seeded threads actually has images to key by it, but
+    // seeding a `null` here would leave every seeded thread on the
+    // legacy delete path that no longer exists in the app.
+    const threadId = randomUUID();
     const [thread] = await db
       .insert(schema.threads)
       .values({
+        id: threadId,
+        imagePath: threadId,
         authorId: userByUsername.get(t.author)!.id,
         body: t.body,
         images: t.images ?? [],
@@ -1088,7 +1201,10 @@ async function seed() {
     flatThreads.push(thread);
 
     for (const reply of t.replies ?? []) {
+      const replyId = randomUUID();
       await db.insert(schema.threads).values({
+        id: replyId,
+        imagePath: `${thread.imagePath}/${replyId}`,
         authorId: userByUsername.get(reply.author)!.id,
         parentId: thread.id,
         body: reply.body,

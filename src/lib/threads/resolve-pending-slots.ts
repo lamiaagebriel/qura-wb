@@ -13,6 +13,12 @@ import { getPendingImage } from "@/lib/threads/pending-image-store";
  * (`compose-box.tsx`) — both stage images the same way and both only
  * ever resolve them at their own submit time.
  *
+ * `imagePath` is the target thread's own reserved S3 ancestry (see
+ * `lib/threads/image-path.ts`) — a fresh one for a new thread/reply
+ * (`reserveThreadIdAction`), or the existing thread's own for an edit
+ * (`getThreadImagePathAction`). Every image resolved in one call shares
+ * the same `imagePath`, since they all belong to the same thread.
+ *
  * On any failure partway through, returns whatever *did* finish
  * uploading THIS call (never includes already-`uploaded` slots — those
  * belong to a live thread either way and are never this function's to
@@ -21,6 +27,7 @@ import { getPendingImage } from "@/lib/threads/pending-image-store";
  */
 export async function resolvePendingSlots(
   slots: ImageSlot[],
+  imagePath: string,
 ): Promise<{ ok: true; urls: string[] } | { ok: false; uploadedUrls: string[] }> {
   const urls: string[] = [];
   const uploadedThisCall: string[] = [];
@@ -34,7 +41,7 @@ export async function resolvePendingSlots(
     const blob = await getPendingImage(slot.id);
     if (!blob) return { ok: false, uploadedUrls: uploadedThisCall };
 
-    const result = await createThreadImageUploadUrlAction(blob.type);
+    const result = await createThreadImageUploadUrlAction(blob.type, imagePath);
     if (!result.success) return { ok: false, uploadedUrls: uploadedThisCall };
 
     const res = await fetch(result.data.uploadUrl, {

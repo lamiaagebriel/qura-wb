@@ -3,7 +3,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "qura:search-history";
-const MAX_ENTRIES = 10;
+export const MAX_ENTRIES = 3;
 
 export type SearchHistoryEntry = {
   id: string;

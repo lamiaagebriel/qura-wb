@@ -16,8 +16,17 @@ import {
 import { getLocale } from "@/lib/i18n/actions";
 import { createThreadSchema, type ThreadValues } from "@/lib/validations/thread";
 
+/** `reserved` is the id/S3-image-ancestry pair the caller got from
+ * `reserveThreadIdAction` BEFORE uploading any images for this thread
+ * (see `lib/threads/image-path.ts`) — this is what actually writes them
+ * into the row, rather than letting Postgres generate a fresh `id` here
+ * that would no longer match whatever prefix the images already
+ * uploaded under. Not part of `ThreadValues`/its zod schema on purpose:
+ * it's call-site bookkeeping produced by this app's own flow, not
+ * user-supplied content to validate. */
 export async function createThreadAction(
   values: ThreadValues,
+  reserved: { id: string; imagePath: string },
 ): Promise<ActionResult<{ id: string }>> {
   const [user, { t }] = await Promise.all([getGuardedUser(), getLocale()]);
   if (!user) return fail(messageError(t("You need to sign in to do that.")));
@@ -49,6 +58,8 @@ export async function createThreadAction(
   const [row] = await db
     .insert(schema.threads)
     .values({
+      id: reserved.id,
+      imagePath: reserved.imagePath,
       authorId,
       body: parsed.data.body,
       images: parsed.data.images,

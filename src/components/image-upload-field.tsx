@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -42,6 +42,11 @@ export type ImageSlot =
   | { kind: "uploaded"; url: string }
   | { kind: "pending"; id: string; previewUrl: string };
 
+/** Lets a caller trigger the native file picker itself — `ComposeBox`'s
+ * own image icon opens it directly on one tap, rather than the icon
+ * revealing this component's "Add photos" button as a second tap. */
+export type ImageUploadFieldHandle = { openPicker: () => void };
+
 /**
  * Multi-photo picker for the thread composer: pick from the device
  * (multi-select in one go), reorder, drop any before publishing.
@@ -63,17 +68,29 @@ export type ImageSlot =
  * like. Remove/reorder controls are overlays on top of that same
  * preview.
  */
-export function ImageUploadField({
-  slots,
-  onChange,
-  disabled,
-}: {
-  slots: ImageSlot[];
-  onChange: (slots: ImageSlot[]) => void;
-  disabled?: boolean;
-}) {
+export const ImageUploadField = forwardRef<
+  ImageUploadFieldHandle,
+  {
+    slots: ImageSlot[];
+    onChange: (slots: ImageSlot[]) => void;
+    disabled?: boolean;
+    // `compose-box.tsx` drives the file picker from its own icon button
+    // (via the `ref` above) and has nowhere sensible to put a second,
+    // separate "Add photos" button once images already have a preview —
+    // `new-thread-composer.tsx` has no such icon, so its own default
+    // (`false`) keeps the button as the one and only way to add photos
+    // there.
+    hideAddButton?: boolean;
+  }
+>(function ImageUploadField(
+  { slots, onChange, disabled, hideAddButton = false },
+  ref,
+) {
   const { t } = useLocale();
   const inputRef = useRef<HTMLInputElement>(null);
+  useImperativeHandle(ref, () => ({
+    openPicker: () => inputRef.current?.click(),
+  }));
 
   const remainingSlots = MAX_IMAGES - slots.length;
 
@@ -224,7 +241,7 @@ export function ImageUploadField({
         </div>
       )}
 
-      {canAddMore && (
+      {canAddMore && !hideAddButton && (
         <Button
           type="button"
           variant="outline"
@@ -246,4 +263,4 @@ export function ImageUploadField({
       />
     </div>
   );
-}
+});

@@ -14,6 +14,12 @@ import { useInfiniteList } from "@/hooks/use-infinite-list";
 import { useLocale } from "@/lib/i18n/client";
 import { loadMoreThreadRepliesAction } from "@/lib/threads/actions/load-more";
 import type { ReplySort } from "@/lib/threads/queries";
+import { deletePendingImage } from "@/lib/threads/pending-image-store";
+import {
+  optimisticPostToThreadCardData,
+  removeOptimisticPost,
+  useOptimisticPosts,
+} from "@/lib/threads/optimistic-posts";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Loading03FreeIcons } from "@hugeicons/core-free-icons";
 
@@ -38,6 +44,13 @@ export function ThreadReplies({
   emptyLabel: string;
 }) {
   const { t } = useLocale();
+  // A reply just posted from this browser, still uploading its images in
+  // the background — see `compose-box.tsx` and `optimistic-posts.ts`.
+  // Filtered to this thread's own replies; the same store also holds
+  // in-flight top-level posts, which `FeedThreadList` reads instead.
+  const optimisticReplies = useOptimisticPosts().filter(
+    (post) => post.parentId === threadId,
+  );
   const [sort, setSort] = useState<ReplySort>("recent");
   const [isSorting, startSorting] = useTransition();
   const { items, isLoading, hasMore, sentinelRef, reset } = useInfiniteList<
@@ -81,10 +94,39 @@ export function ThreadReplies({
         </div>
       )} */}
 
+      {optimisticReplies.map((post) => (
+        <ThreadCard
+          key={post.tempId}
+          thread={optimisticPostToThreadCardData(post)}
+          variant="reply"
+          uploading={{
+            failed: post.failed,
+            onDelete: () => {
+              // No draft to clear here (unlike a top-level post's
+              // "Delete") — `compose-box.tsx` has no draft concept for
+              // replies, so there's only the local IndexedDB staging to
+              // undo. A failed attempt already discarded whatever it
+              // managed to upload to S3.
+              for (const id of post.pendingImageIds) {
+                void deletePendingImage(id);
+              }
+              removeOptimisticPost(post.tempId);
+            },
+            // Dismisses the failed placeholder without touching the
+            // staged blobs — there's no "reopen" entry point for a
+            // reply draft yet, so this just leaves them in IndexedDB
+            // rather than deleting them outright.
+            onKeepDraft: () => removeOptimisticPost(post.tempId),
+          }}
+        />
+      ))}
+
       {items.length === 0 ? (
-        <p className="text-muted-foreground py-10 text-center text-[13px]">
-          {emptyLabel}
-        </p>
+        optimisticReplies.length === 0 && (
+          <p className="text-muted-foreground py-10 text-center text-[13px]">
+            {emptyLabel}
+          </p>
+        )
       ) : (
         items.map((reply) => (
           <ThreadCard

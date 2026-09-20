@@ -3,11 +3,15 @@ import "server-only";
 import { S3Client } from "@aws-sdk/client-s3";
 
 // Every thread-image object lives under this one prefix in the bucket,
-// namespaced by uploader id below it (`thread-images/{userId}/{uuid}.ext`)
-// — lets `sweepOrphanedThreadImages` (`./cleanup.ts`) list just these
-// objects without scanning the whole bucket, and keeps this feature's
+// then nested by each thread's own reserved image ancestry, then the
+// uploader's id (`thread-images/{imagePath}/{userId}/{uuid}.ext` — see
+// `lib/threads/image-path.ts` and `storage/actions.ts`'s own comments).
+// Lets `sweepOrphanedThreadImages` (`./cleanup.ts`) list just these
+// objects without scanning the whole bucket, keeps this feature's
 // objects clearly separated from anything else that might ever share
-// the bucket.
+// the bucket, and — the main reason for the nesting — lets deleting a
+// thread's entire reply subtree's images be one S3 prefix list+delete
+// keyed on `{imagePath}` instead of a recursive DB walk.
 export const THREAD_IMAGES_PREFIX = "thread-images";
 
 type StorageConfig = {

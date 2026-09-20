@@ -13,13 +13,19 @@ import {
   Search01Icon,
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
-import { APIProvider, AdvancedMarker, Map, Pin, useMap } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  AdvancedMarker,
+  Map,
+  Pin,
+  useMap,
+} from "@vis.gl/react-google-maps";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { PlaceResultCard } from "@/components/place-result-card";
 import { useInfiniteList } from "@/hooks/use-infinite-list";
-import { useSearchHistory } from "@/hooks/use-search-history";
+import { MAX_ENTRIES, useSearchHistory } from "@/hooks/use-search-history";
 import { mapGoogleTypesToQuraCategories } from "@/lib/business/google-category-mapping";
 import { CATEGORY_META, isBusinessCategory } from "@/lib/categories";
 import { CITY_CENTER } from "@/lib/city/cities";
@@ -260,7 +266,12 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
       initialItems: EMPTY_RESULTS,
       initialCursor: null,
       fetchMore: (cursor) =>
-        searchUsersAction(committedQuery, cursor, committedCategory, committedArea),
+        searchUsersAction(
+          committedQuery,
+          cursor,
+          committedCategory,
+          committedArea,
+        ),
     });
 
   // A category chip tap is just a shortcut for typing that category's own
@@ -277,7 +288,8 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
     const normalized = text.trim().toLowerCase();
     if (!normalized) return undefined;
     return BUSINESS_CATEGORIES.find(
-      (category) => t(CATEGORY_META[category].label).toLowerCase() === normalized,
+      (category) =>
+        t(CATEGORY_META[category].label).toLowerCase() === normalized,
     );
   }
 
@@ -341,10 +353,7 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
     // asks Google for an unreasonably tiny or huge radius.
     const metersPerPixel =
       (156_543.03392 * Math.cos((lat * Math.PI) / 180)) / 2 ** zoom;
-    const radiusMeters = Math.min(
-      Math.max(metersPerPixel * 300, 500),
-      50_000,
-    );
+    const radiusMeters = Math.min(Math.max(metersPerPixel * 300, 500), 50_000);
     const area: MapArea = { lat, lng, radiusMeters };
 
     setShowSearchThisArea(false);
@@ -503,10 +512,10 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
   // it feel smooth rather than a reload. Changing the query text never
   // touches `view`, so whichever mode you were in stays selected as the
   // results underneath it change.
-  if (searchedEnough) {
-    return (
-      <div className="fixed inset-0 z-40">
-        {/* Floating over the content instead of pushing it down — in map
+
+  return (
+    <div className="fixed inset-0 z-40 container px-0!">
+      {/* Floating over the content instead of pushing it down — in map
             mode this is what makes the map itself go edge-to-edge under
             the controls rather than living in a boxed-in area below a
             solid header bar. Each control keeps its own pill
@@ -515,218 +524,20 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
             exact same floating header for consistency; the list's own
             content just gets top padding (`HEADER_CLEARANCE`) so cards
             start below it instead of being covered. */}
-        <div className="absolute inset-x-0 top-0 z-30 flex flex-col gap-2 p-4 pb-0">
-          <div className="flex items-center gap-2">
-            {searchInput}
-            {viewToggle}
-          </div>
+      <div className="absolute inset-x-0 top-0 z-30 flex flex-col gap-2 p-4 pb-0">
+        <div className="flex items-center gap-2">
+          {searchInput}
+          {viewToggle}
+        </div>
+        {!!searchedEnough && (
           <span className="bg-background/90 text-muted-foreground w-fit rounded-full px-3 py-1 text-[13px] font-medium shadow-xs backdrop-blur-sm">
             {resultCountLabel}
           </span>
-        </div>
-
-        <div className="relative h-full overflow-hidden">
-          <div
-            className={cn(
-              "absolute inset-0 transition-opacity duration-200",
-              view === "map"
-                ? "z-10 opacity-100"
-                : "pointer-events-none z-0 opacity-0",
-            )}
-          >
-            {GOOGLE_MAPS_API_KEY ? (
-              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-                <Map
-                  mapId={GOOGLE_MAPS_MAP_ID}
-                  defaultCenter={mapCenter}
-                  defaultZoom={DEFAULT_MAP_ZOOM}
-                  disableDefaultUI
-                  zoomControl
-                  gestureHandling="greedy"
-                  className="h-full w-full"
-                  onClick={() => setSelectedPinId(null)}
-                >
-                  {pins.map((pin) => (
-                    <AdvancedMarker
-                      key={pin.id}
-                      position={pin.position}
-                      title={pin.result.name}
-                      onClick={() => setSelectedPinId(pin.id)}
-                    >
-                      <Pin
-                        background="var(--primary)"
-                        borderColor="var(--primary)"
-                        glyphColor="#fff"
-                        scale={pin.id === selectedPinId ? 1.25 : 1}
-                      />
-                    </AdvancedMarker>
-                  ))}
-                  {/* The classic Google-Maps "blue dot" — deliberately
-                      not a `Pin` (those read as a *result*, a place you
-                      could tap into; this is just "you are here," not
-                      interactive). */}
-                  {userLocation && (
-                    <AdvancedMarker position={userLocation} title={t("Your location")}>
-                      <div className="relative flex size-4 items-center justify-center">
-                        <div className="absolute size-4 animate-ping rounded-full bg-[#4285F4]/30" />
-                        <div className="relative size-3 rounded-full bg-[#4285F4] ring-2 ring-white shadow-md" />
-                      </div>
-                    </AdvancedMarker>
-                  )}
-                  <FitBoundsToPins
-                    pins={pins}
-                    skipNextFitRef={skipNextFitRef}
-                    suppressMoveRef={suppressMoveRef}
-                  />
-                  <MapMoveTracker
-                    mapRef={mapRef}
-                    suppressMoveRef={suppressMoveRef}
-                    onUserMoved={() => setShowSearchThisArea(true)}
-                  />
-                </Map>
-              </APIProvider>
-            ) : (
-              <div className="bg-muted flex h-full w-full items-center justify-center px-8 text-center">
-                <p className="text-muted-foreground text-[13px]">
-                  {t("Map unavailable")}
-                </p>
-              </div>
-            )}
-
-            {/* Google-Maps-style "Search this area" — appears once the
-                user pans/zooms away from the auto-fitted view, floating
-                below the header rather than replacing it. */}
-            {showSearchThisArea && (
-              <div className="absolute inset-x-0 top-28 z-20 flex justify-center">
-                <button
-                  type="button"
-                  onClick={handleSearchThisArea}
-                  disabled={isSearching}
-                  className="bg-background text-foreground flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold shadow-lg disabled:opacity-60"
-                >
-                  <HugeiconsIcon
-                    icon={
-                      isSearching ? Loading03FreeIcons : Search01Icon
-                    }
-                    className={cn("size-4", isSearching && "animate-spin")}
-                  />
-                  {t("Search this area")}
-                </button>
-              </div>
-            )}
-
-            {/* The tapped pin's preview — floats at the bottom of the map,
-                same idea as the mockup's bottom sheet. Reuses the exact
-                same card as the list view (`SearchResultCard`) rather than
-                a separate compact design, so a place reads identically
-                whichever way you found it. */}
-            {selectedPin && (
-              <div className="absolute inset-x-4 bottom-24 z-20 max-h-[65%] overflow-y-auto">
-                <div className="bg-background relative rounded-2xl shadow-lg">
-                  <button
-                    type="button"
-                    aria-label={t("Close")}
-                    onClick={() => setSelectedPinId(null)}
-                    className="bg-background text-foreground absolute -top-3 -right-3 flex size-7 items-center justify-center rounded-full shadow-md"
-                  >
-                    <HugeiconsIcon icon={Cancel01Icon} className="size-3.5" />
-                  </button>
-                  <SearchResultCard
-                    result={selectedPin.result}
-                    onNavigate={recordVisit}
-                    activeCity={activeCity}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Pagination on the map is scroll-triggered on the LIST
-                layer's sentinel — which never scrolls while it's the
-                hidden layer behind the map, so `hasMore` pages would
-                otherwise only ever load by switching to list and
-                scrolling down there first. This is the map's own
-                explicit trigger for the exact same `loadMore` (see
-                `useInfiniteList`), so every matching pin is reachable
-                without leaving map view. Hidden while a pin's preview is
-                open — same bottom-anchored spot, only one at a time. */}
-            {!selectedPin && hasMore && (
-              <div className="absolute inset-x-0 bottom-24 z-20 flex justify-center">
-                <button
-                  type="button"
-                  onClick={loadMore}
-                  disabled={isLoading}
-                  className="bg-background text-foreground flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold shadow-lg disabled:opacity-60"
-                >
-                  {isLoading && (
-                    <HugeiconsIcon
-                      icon={Loading03FreeIcons}
-                      strokeWidth={2.5}
-                      className="size-4 animate-spin"
-                    />
-                  )}
-                  {t("Load more")}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div
-            className={cn(
-              "bg-background absolute inset-0 overflow-y-auto transition-opacity duration-200",
-              view === "list"
-                ? "z-10 opacity-100"
-                : "pointer-events-none z-0 opacity-0",
-            )}
-          >
-            {/* pt-24 clears the floating header (search row + toggle +
-                count pill) so the first card/empty-state message doesn't
-                start underneath it. */}
-            {!isSearching && visibleItems.length === 0 && (
-              <p className="text-muted-foreground pt-24 pb-8 text-center text-[13px]">
-                {t("No businesses found.")}
-              </p>
-            )}
-
-            <div className="container flex flex-col gap-3 px-4 pt-24">
-              {visibleItems.map((result) => (
-                <SearchResultCard
-                  key={result.id}
-                  result={result}
-                  onNavigate={recordVisit}
-                  activeCity={activeCity}
-                />
-              ))}
-            </div>
-
-            {hasGoogleSourcedResult && (
-              <p className="text-muted-foreground container px-4 pt-1 text-[11px]">
-                {t("Places powered by Google")}
-              </p>
-            )}
-
-            {hasMore && (
-              <div ref={sentinelRef} className="flex justify-center py-6">
-                {isLoading && (
-                  <HugeiconsIcon
-                    icon={Loading03FreeIcons}
-                    strokeWidth={2.5}
-                    className="size-4"
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
-    );
-  }
 
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="container px-4">{searchInput}</div>
-
-      {!searchedEnough && (
-        <>
+      {!searchedEnough ? (
+        <div className="pt-16">
           {history.length > 0 && (
             <>
               <div className="container flex items-center justify-between pt-2">
@@ -742,7 +553,7 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
                 </button>
               </div>
               <ul className="divide-border/60 flex flex-col divide-y">
-                {history.map((user) => (
+                {history.splice(0, MAX_ENTRIES).map((user) => (
                   <li key={user.id} className="py-3">
                     <Link
                       href={`/profile/${user.username}`}
@@ -825,10 +636,213 @@ export function SearchView({ activeCity }: { activeCity: CityId }) {
               </button>
             ))}
           </div>
-        </>
+        </div>
+      ) : (
+        <div className="relative h-full overflow-hidden">
+          {/* Map View */}
+          <div
+            className={cn(
+              "absolute inset-0 transition-opacity duration-200",
+              view === "map"
+                ? "z-10 opacity-100"
+                : "pointer-events-none z-0 opacity-0",
+            )}
+          >
+            {GOOGLE_MAPS_API_KEY ? (
+              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                <Map
+                  mapId={GOOGLE_MAPS_MAP_ID}
+                  defaultCenter={mapCenter}
+                  defaultZoom={DEFAULT_MAP_ZOOM}
+                  disableDefaultUI
+                  zoomControl
+                  gestureHandling="greedy"
+                  className="h-full w-full"
+                  onClick={() => setSelectedPinId(null)}
+                >
+                  {pins.map((pin) => (
+                    <AdvancedMarker
+                      key={pin.id}
+                      position={pin.position}
+                      title={pin.result.name}
+                      onClick={() => setSelectedPinId(pin.id)}
+                    >
+                      <Pin
+                        background="var(--primary)"
+                        borderColor="var(--primary)"
+                        glyphColor="#fff"
+                        scale={pin.id === selectedPinId ? 1.25 : 1}
+                      />
+                    </AdvancedMarker>
+                  ))}
+                  {/* The classic Google-Maps "blue dot" — deliberately
+                   not a `Pin` (those read as a *result*, a place you
+                   could tap into; this is just "you are here," not
+                   interactive). */}
+                  {userLocation && (
+                    <AdvancedMarker
+                      position={userLocation}
+                      title={t("Your location")}
+                    >
+                      <div className="relative flex size-4 items-center justify-center">
+                        <div className="absolute size-4 animate-ping rounded-full bg-[#4285F4]/30" />
+                        <div className="relative size-3 rounded-full bg-[#4285F4] shadow-md ring-2 ring-white" />
+                      </div>
+                    </AdvancedMarker>
+                  )}
+                  <FitBoundsToPins
+                    pins={pins}
+                    skipNextFitRef={skipNextFitRef}
+                    suppressMoveRef={suppressMoveRef}
+                  />
+                  <MapMoveTracker
+                    mapRef={mapRef}
+                    suppressMoveRef={suppressMoveRef}
+                    onUserMoved={() => setShowSearchThisArea(true)}
+                  />
+                </Map>
+              </APIProvider>
+            ) : (
+              <div className="bg-muted flex h-full w-full items-center justify-center px-8 text-center">
+                <p className="text-muted-foreground text-[13px]">
+                  {t("Map unavailable")}
+                </p>
+              </div>
+            )}
+
+            {/* Google-Maps-style "Search this area" — appears once the
+             user pans/zooms away from the auto-fitted view, floating
+             below the header rather than replacing it. */}
+            {showSearchThisArea && (
+              <div className="absolute inset-x-0 top-28 z-20 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleSearchThisArea}
+                  disabled={isSearching}
+                  className="bg-background text-foreground flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold shadow-lg disabled:opacity-60"
+                >
+                  <HugeiconsIcon
+                    icon={isSearching ? Loading03FreeIcons : Search01Icon}
+                    className={cn("size-4", isSearching && "animate-spin")}
+                  />
+                  {t("Search this area")}
+                </button>
+              </div>
+            )}
+
+            {/* The tapped pin's preview — floats at the bottom of the map,
+             same idea as the mockup's bottom sheet. Reuses the exact
+             same card as the list view (`SearchResultCard`) rather than
+             a separate compact design, so a place reads identically
+             whichever way you found it. */}
+            {selectedPin && (
+              <div className="absolute inset-x-4 bottom-24 z-20 max-h-[65%] overflow-y-auto">
+                <div className="bg-background relative rounded-2xl shadow-lg">
+                  <button
+                    type="button"
+                    aria-label={t("Close")}
+                    onClick={() => setSelectedPinId(null)}
+                    className="bg-background text-foreground absolute -top-3 -right-3 flex size-7 items-center justify-center rounded-full shadow-md"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} className="size-3.5" />
+                  </button>
+                  <SearchResultCard
+                    result={selectedPin.result}
+                    onNavigate={recordVisit}
+                    activeCity={activeCity}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Pagination on the map is scroll-triggered on the LIST
+             layer's sentinel — which never scrolls while it's the
+             hidden layer behind the map, so `hasMore` pages would
+             otherwise only ever load by switching to list and
+             scrolling down there first. This is the map's own
+             explicit trigger for the exact same `loadMore` (see
+             `useInfiniteList`), so every matching pin is reachable
+             without leaving map view. Hidden while a pin's preview is
+             open — same bottom-anchored spot, only one at a time. */}
+            {!selectedPin && hasMore && (
+              <div className="absolute inset-x-0 bottom-24 z-20 flex justify-center">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={isLoading}
+                  className="bg-background text-foreground flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold shadow-lg disabled:opacity-60"
+                >
+                  {isLoading && (
+                    <HugeiconsIcon
+                      icon={Loading03FreeIcons}
+                      strokeWidth={2.5}
+                      className="size-4 animate-spin"
+                    />
+                  )}
+                  {t("Load more")}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* List View */}
+          <div
+            className={cn(
+              "bg-background absolute inset-0 overflow-y-auto transition-opacity duration-200",
+              view === "list"
+                ? "z-10 opacity-100"
+                : "pointer-events-none z-0 opacity-0",
+            )}
+          >
+            {/* pt-24 clears the floating header (search row + toggle +
+             count pill) so the first card/empty-state message doesn't
+             start underneath it. */}
+            {!isSearching && visibleItems.length === 0 && (
+              <p className="text-muted-foreground pt-24 pb-8 text-center text-[13px]">
+                {t("No businesses found.")}
+              </p>
+            )}
+
+            <div className="container flex flex-col gap-3 px-4 pt-24">
+              {visibleItems.map((result) => (
+                <SearchResultCard
+                  key={result.id}
+                  result={result}
+                  onNavigate={recordVisit}
+                  activeCity={activeCity}
+                />
+              ))}
+            </div>
+
+            {hasGoogleSourcedResult && (
+              <p className="text-muted-foreground container px-4 pt-1 text-[11px]">
+                {t("Places powered by Google")}
+              </p>
+            )}
+
+            {hasMore && (
+              <div ref={sentinelRef} className="flex justify-center py-6">
+                {isLoading && (
+                  <HugeiconsIcon
+                    icon={Loading03FreeIcons}
+                    strokeWidth={2.5}
+                    className="size-4"
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
+
+  // return (
+  //   <div className="flex flex-col gap-2">
+  //     <div className="container px-4">{searchInput}</div>
+
+  //   </div>
+  // );
 }
 
 /**
@@ -906,7 +920,9 @@ function SearchResultCard({
         .join(" · ")}
       description={primary?.bio}
       directionsUrl={directionsUrl}
-      viewHref={!isGoogleOnly && primary ? `/profile/${primary.username}` : undefined}
+      viewHref={
+        !isGoogleOnly && primary ? `/profile/${primary.username}` : undefined
+      }
       onViewClick={
         primary
           ? () =>

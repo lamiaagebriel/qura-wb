@@ -78,7 +78,7 @@ export function ThreadImageCarousel({ images }: { images: string[] }) {
                   src={url}
                   alt=""
                   className={cn(
-                    "border-border/50 aspect-square max-h-60 w-full rounded-sm border object-cover",
+                    "border-border/50 bg-muted aspect-square max-h-60 w-full rounded-sm border object-cover",
                     images.length === 1 && "w-[78%]",
                   )}
                 />

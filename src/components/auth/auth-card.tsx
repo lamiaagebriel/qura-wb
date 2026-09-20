@@ -2,12 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function AuthCard({ className, children }: React.ComponentProps<"div">) {
   return (
-    <div
-      className={cn(
-        "border-border bg-card rounded-[20px] border p-7 shadow-sm sm:p-8",
-        className,
-      )}
-    >
+    <div className={cn("bg-card container rounded-xl p-7", className)}>
       {children}
     </div>
   );

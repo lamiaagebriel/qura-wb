@@ -26,6 +26,10 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ThreadCategory } from "@/db/schema";
 import { createThreadAction } from "@/lib/threads/actions/create";
 import { updateThreadAction } from "@/lib/threads/actions/update";
+import {
+  getThreadImagePathAction,
+  reserveThreadIdAction,
+} from "@/lib/threads/actions/image-path";
 import { discardThreadImagesAction } from "@/lib/storage/actions";
 import { clearDraft, readDraft, writeDraft } from "@/lib/threads/draft-store";
 import {
@@ -332,7 +336,17 @@ function ComposerSheet({
 
   async function onSubmitEdit(values: { body: string; category: string }) {
     if (request.mode !== "edit") return;
-    const resolved = await resolvePendingSlots(imageSlots);
+
+    // The thread already has a reserved path — reused here so a newly
+    // added image lands exactly where a future subtree delete would
+    // look for it.
+    const imagePath = await getThreadImagePathAction(request.threadId);
+    if (!imagePath) {
+      toast.error(t("Something went wrong. Please try again."));
+      return;
+    }
+
+    const resolved = await resolvePendingSlots(imageSlots, imagePath);
     if (!resolved.ok) {
       if (resolved.uploadedUrls.length > 0) {
         void discardThreadImagesAction(resolved.uploadedUrls);
@@ -379,7 +393,17 @@ function ComposerSheet({
       .map((slot) => slot.id);
 
     void (async () => {
-      const resolved = await resolvePendingSlots(slots);
+      // Reserved here, not at sheet-open time — this thread doesn't
+      // need a real id (or its images a real S3 destination) until it's
+      // actually about to publish; the optimistic card already renders
+      // straight from the local blob previews until then.
+      const reserved = await reserveThreadIdAction();
+      if (!reserved) {
+        updateOptimisticPost(tempId, { failed: true });
+        return;
+      }
+
+      const resolved = await resolvePendingSlots(slots, reserved.imagePath);
       if (!resolved.ok) {
         if (resolved.uploadedUrls.length > 0) {
           void discardThreadImagesAction(resolved.uploadedUrls);
@@ -388,12 +412,15 @@ function ComposerSheet({
         return;
       }
 
-      const result = await createThreadAction({
-        body,
-        images: resolved.urls,
-        category,
-        asBusinessId,
-      });
+      const result = await createThreadAction(
+        {
+          body,
+          images: resolved.urls,
+          category,
+          asBusinessId,
+        },
+        reserved,
+      );
       if (!result.success) {
         if (resolved.urls.length > 0) void discardThreadImagesAction(resolved.urls);
         updateOptimisticPost(tempId, { failed: true });

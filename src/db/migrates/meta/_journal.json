@@ -120,6 +120,20 @@
       "when": 1788782965166,
       "tag": "0016_dark_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1789427972810,
+      "tag": "0017_cynical_celestials",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1789429323318,
+      "tag": "0018_small_spirit",
+      "breakpoints": true
     }
   ]
 }

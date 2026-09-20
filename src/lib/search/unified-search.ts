@@ -29,6 +29,14 @@ import type {
 // "how much per scroll" feel for an all-Qura result set.
 const QURA_PAGE_SIZE = 20;
 
+// Temporary: search results are Qura profiles/businesses only for now —
+// Google's side of `searchUnified` is skipped entirely rather than
+// removed, so re-enabling it later is just flipping this back to `true`.
+// Everything downstream (merge, connected-business enrichment, pins)
+// already degrades correctly with zero Google candidates, the same way
+// it already does on a live Google failure.
+const GOOGLE_SEARCH_ENABLED = false;
+
 // Deliberately smaller than Google's own per-request max (20). This is
 // candidates for THIS page's merge, not a hard cap on how many Google
 // results a user can ever reach — pagination keeps fetching more pages.
@@ -276,7 +284,7 @@ export async function searchUnified({
             category,
           ),
         ),
-    cursor.googleExhausted
+    cursor.googleExhausted || !GOOGLE_SEARCH_ENABLED
       ? Promise.resolve({ results: [] as GooglePlaceSearchResult[], nextPageToken: null })
       : withTiming("unified_search_google_query", { query, city }, () =>
           searchGoogleCandidates(query, city, cursor.googlePageToken, area),

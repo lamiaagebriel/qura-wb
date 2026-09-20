@@ -36,8 +36,7 @@ export function ThreadDetail({
         currentUserId={currentUserId}
         linkToDetail={false}
       />
-
-      <div className="border-border/60 bg-background/95 fixed inset-x-0 bottom-0 z-40 border-t py-3 backdrop-blur-md">
+      <div className="border-border/60 bg-background/95 border-b py-3 backdrop-blur-md">
         <div className="container">
           <ComposeBox
             user={user}

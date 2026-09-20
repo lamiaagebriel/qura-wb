@@ -6,9 +6,9 @@ import { ThreadCard, type ThreadCardData } from "@/components/thread-card";
 import { clearDraft } from "@/lib/threads/draft-store";
 import { deletePendingImage } from "@/lib/threads/pending-image-store";
 import {
+  optimisticPostToThreadCardData,
   removeOptimisticPost,
   useOptimisticPosts,
-  type OptimisticPost,
 } from "@/lib/threads/optimistic-posts";
 import {
   Select,
@@ -38,35 +38,6 @@ const SORT_LABEL = { relevant: "Relevant", latest: "Latest" } as const;
 // `ThreadCategory` a post can actually have.
 type CategoryFilter = ThreadCategory | undefined;
 
-// An `OptimisticPost` reshaped into `ThreadCardData` so it can render
-// through the exact same `ThreadCard` a real thread does (see
-// `ThreadCard`'s own `uploading` prop) — not a look-alike component.
-// Every count/flag below is a harmless placeholder: `uploading` disables
-// every interaction that would otherwise read them.
-function toThreadCardData(post: OptimisticPost): ThreadCardData {
-  return {
-    id: post.tempId,
-    body: post.body,
-    images: post.previewUrls,
-    createdAt: new Date(),
-    category: post.category,
-    author: {
-      id: "optimistic",
-      name: post.identity.name,
-      username: post.identity.username,
-      image: post.identity.image,
-    },
-    replyCount: 0,
-    savedByViewer: false,
-    authorFollowedByViewer: false,
-    authorOwnedByViewer: false,
-    upvoteCount: 0,
-    downvoteCount: 0,
-    viewerVote: null,
-    markedUnhelpful: false,
-  };
-}
-
 /**
  * The home feed's "For you" section — a Top/Recent-style sort control
  * (same pattern as `ThreadReplies`) plus a row of category filter chips
@@ -89,11 +60,13 @@ export function FeedThreadList({
   const { t } = useLocale();
   // A thread just posted from this browser, still uploading its images
   // in the background — see `new-thread-composer.tsx` and
-  // `optimistic-posts.ts`. Only shown while browsing "All categories":
-  // it's confusing to see your own post appear inside a category filter
-  // it may not even match (nothing here re-checks it against `category`,
-  // since it isn't a real thread yet to check).
-  const optimisticPosts = useOptimisticPosts();
+  // `optimistic-posts.ts`. Filtered to top-level posts only — the same
+  // store also holds in-flight replies, which `ThreadReplies` reads
+  // instead. Only shown while browsing "All categories": it's confusing
+  // to see your own post appear inside a category filter it may not even
+  // match (nothing here re-checks it against `category`, since it isn't
+  // a real thread yet to check).
+  const optimisticPosts = useOptimisticPosts().filter((post) => !post.parentId);
   const [sort, setSort] = useState<FeedSort>("latest");
   const [category, setCategory] = useState<CategoryFilter>(undefined);
   const [isFiltering, startFiltering] = useTransition();
@@ -190,7 +163,7 @@ export function FeedThreadList({
           optimisticPosts.map((post) => (
             <ThreadCard
               key={post.tempId}
-              thread={toThreadCardData(post)}
+              thread={optimisticPostToThreadCardData(post)}
               uploading={{
                 failed: post.failed,
                 onDelete: () => {
