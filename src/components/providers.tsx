@@ -30,6 +30,13 @@ export function Providers({
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      // The theme script only needs to run from the server HTML (before paint).
+      // Marking it non-executable on the client silences React 19's
+      // "script tag while rendering" warning; next-themes already suppresses
+      // the hydration mismatch on this tag.
+      scriptProps={{
+        type: typeof window === "undefined" ? undefined : "application/json",
+      }}
     >
       <LocaleProvider locale={locale} messages={messages}>
         <TooltipProvider>
