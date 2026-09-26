@@ -7,3 +7,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Project conventions
+
+- **UI**: use shadcn/ui for everything it covers (`pnpm dlx shadcn@latest add <name>`). Preset `b1D3lmam` (`base-mira`), Base UI, RTL on.
+- **shadcn files stay as generated.** Any edit to a generated file (even one class) gets a comment right above it starting with `// Updated:` describing the change.
+- **Icons**: Hugeicons only, imported from `@/components/icons` — never from `@hugeicons/*` directly. Add new icons to that file. After `shadcn add`, repoint the component's icon imports there (with an `// Updated:` comment).
+- **i18n**: `src/lib/i18n` — `getTranslations()` on the server, `useLocale()` on the client. Keys are the English text; add translations to `messages/ar.ts` and `messages/fr.ts`. Use logical classes (`ms-`, `pe-`, `start-`, `text-start`) so RTL works.
+- **Font**: Cairo for all locales.

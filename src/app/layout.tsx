@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Cairo, Geist_Mono } from "next/font/google";
+import { Cairo } from "next/font/google";
 import "./globals.css";
-import { LocaleProvider } from "@/lib/i18n/provider";
+import { Providers } from "@/components/providers";
 import { getTranslations } from "@/lib/i18n/server";
+import { cn } from "@/lib/utils";
 
 // One font for every locale: Cairo covers both Latin and Arabic.
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["latin", "arabic"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,12 +28,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang={locale}
       dir={dir}
-      className={`${cairo.variable} ${geistMono.variable} h-full font-sans antialiased`}
+      // next-themes sets the theme class before hydration.
+      suppressHydrationWarning
+      className={cn("h-full font-sans antialiased", cairo.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <LocaleProvider locale={locale} messages={messages}>
+        <Providers locale={locale} messages={messages}>
           {children}
-        </LocaleProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -5,6 +5,12 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Generated shadcn files are kept untouched; this upstream pattern
+  // (setState in an effect) is intentional there. Scoped to these files only.
+  {
+    files: ["src/components/ui/carousel.tsx", "src/hooks/use-mobile.ts"],
+    rules: { "react-hooks/set-state-in-effect": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

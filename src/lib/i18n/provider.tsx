@@ -2,6 +2,8 @@
 
 import { createContext, use, useTransition, type ReactNode } from "react";
 
+import { DirectionProvider } from "@/components/ui/direction";
+
 import { setLocale } from "./actions";
 import { LOCALE_META, type Locale } from "./config";
 import { createTranslator } from "./translate";
@@ -42,7 +44,11 @@ export function LocaleProvider({
     isPending,
   };
 
-  return <LocaleContext value={value}>{children}</LocaleContext>;
+  return (
+    <LocaleContext value={value}>
+      <DirectionProvider direction={value.dir}>{children}</DirectionProvider>
+    </LocaleContext>
+  );
 }
 
 /** Client-side equivalent of `getTranslations()`. */

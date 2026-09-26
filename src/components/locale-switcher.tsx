@@ -1,31 +1,39 @@
 "use client";
 
-import { LOCALE_META, LOCALES } from "@/lib/i18n/config";
+import { HugeiconsIcon, TranslateIcon } from "@/components/icons";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { isLocale, LOCALE_META, LOCALES } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/provider";
+
+const items = LOCALES.map((l) => ({ value: l, label: LOCALE_META[l].label }));
 
 export function LocaleSwitcher() {
   const { locale, setLocale, isPending, t } = useLocale();
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={t("Select language")}
-      aria-busy={isPending}
-      className="inline-flex gap-1 rounded-full border border-foreground/10 p-1 aria-busy:opacity-60"
+    <Select
+      items={items}
+      value={locale}
+      onValueChange={(value) => isLocale(value) && setLocale(value)}
+      disabled={isPending}
     >
-      {LOCALES.map((l) => (
-        <button
-          key={l}
-          type="button"
-          role="radio"
-          aria-checked={l === locale}
-          disabled={isPending}
-          onClick={() => l !== locale && setLocale(l)}
-          className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-foreground/5 aria-checked:bg-foreground aria-checked:text-background"
-        >
-          {LOCALE_META[l].label}
-        </button>
-      ))}
-    </div>
+      <SelectTrigger aria-label={t("Select language")}>
+        <HugeiconsIcon icon={TranslateIcon} strokeWidth={2} />
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {items.map((item) => (
+          <SelectItem key={item.value} value={item.value}>
+            {item.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
