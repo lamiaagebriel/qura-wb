@@ -3,6 +3,7 @@
 // Arrows that point along the reading direction need `rtl:rotate-180`.
 
 export { HugeiconsIcon } from "@hugeicons/react";
+export type { IconSvgElement } from "@hugeicons/react";
 
 export {
   // Arrows & chevrons
@@ -29,6 +30,14 @@ export {
   MultiplicationSignCircleIcon,
   // Layout
   SidebarLeftIcon,
+  // Status screens
+  FileNotFoundIcon,
+  RefreshIcon,
+  Home01Icon,
+  // Auth
+  GoogleIcon,
+  Logout03Icon,
+  AlertCircleIcon,
   // Locale & theme
   TranslateIcon,
   Sun03Icon,

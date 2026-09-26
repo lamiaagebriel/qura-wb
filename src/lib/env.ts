@@ -34,6 +34,19 @@ const schema = z.object({
     (v) => (v === "" ? undefined : v),
     z.coerce.number().int().positive().default(1),
   ),
+
+  // App & auth
+  APP_URL: z.url().transform((url) => url.replace(/\/+$/, "")),
+  BETTER_AUTH_SECRET: z
+    .string()
+    .min(32, "must be at least 32 characters (openssl rand -base64 32)"),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  TRUSTED_ORIGINS: optional(
+    z
+      .string()
+      .transform((v) => v.split(",").map((o) => o.trim()).filter(Boolean)),
+  ),
 });
 
 const parsed = schema.safeParse(process.env);
