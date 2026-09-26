@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate --config=src/db/config.ts",
     "db:push": "drizzle-kit push --config=src/db/config.ts",
     "db:studio": "drizzle-kit studio --config=src/db/config.ts",
-    "db:seed": "tsx --conditions=react-server src/db/seed.ts"
+    "db:seed": "tsx --conditions=react-server src/db/seed.ts",
+    "db:reset": "tsx src/db/reset.ts && pnpm db:migrate"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
