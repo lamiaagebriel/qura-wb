@@ -2,16 +2,15 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import {
-  addTransitionType,
   createContext,
-  startTransition,
   use,
   useEffect,
   useRef,
   type ReactNode,
 } from "react";
 
-import { NAV_BACK, TABS, tabOf, type Tab } from "@/lib/navigation";
+import { useLocale } from "@/lib/i18n/provider";
+import { navType, TABS, tabOf, type Tab } from "@/lib/navigation";
 import { href } from "@/lib/routes";
 
 type NavigationContextValue = {
@@ -45,6 +44,7 @@ const scrollTop = () =>
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { dir } = useLocale();
 
   const stacks = useRef<Record<Tab, string[]>>(
     Object.fromEntries(TABS.map((tab) => [tab, []])) as unknown as Record<
@@ -116,14 +116,18 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     restoreNext.current = true;
   };
 
-  /** Navigate with the backward slide. */
+  /** Navigate back with the backward slide. */
   const pushBack = (path: string, replace = false) => {
     beginNavigation();
-    startTransition(() => {
-      addTransitionType(NAV_BACK);
-      if (replace) router.replace(path, { scroll: false });
-      else router.push(path, { scroll: false });
-    });
+    // The router carries `transitionTypes` through the whole (async)
+    // navigation; tagging a surrounding startTransition instead loses the
+    // type when the screen has to be fetched first.
+    const options = {
+      scroll: false,
+      transitionTypes: [navType("back", dir)],
+    };
+    if (replace) router.replace(path, options);
+    else router.push(path, options);
   };
 
   const value: NavigationContextValue = {

@@ -22,8 +22,8 @@ const loaders: Record<Locale, () => Promise<Partial<Messages>>> = {
 };
 
 /**
- * Priority: `x-locale` header (sent by mobile clients, or set by `proxy.ts`
- * from `?lang=`) → saved cookie → browser language → default.
+ * Priority: `x-locale` header (sent by mobile clients) → saved cookie (also
+ * set from `?lang=` links by `proxy.ts`) → browser language → default.
  */
 export const getLocale = cache(async (): Promise<Locale> => {
   const headerList = await headers();

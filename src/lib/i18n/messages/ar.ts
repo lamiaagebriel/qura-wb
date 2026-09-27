@@ -39,6 +39,17 @@ const ar = {
   "Sign in to see your profile.": "سجّل الدخول لعرض ملفك الشخصي.",
   "Main navigation": "التنقل الرئيسي",
   Back: "رجوع",
+  "Link copied": "تم نسخ الرابط",
+  "Couldn't share this link": "تعذّرت مشاركة هذا الرابط",
+  "Install Qura": "ثبّت قُري",
+  "Add Qura to your home screen for a faster, full-screen experience.": "أضف قُري إلى شاشتك الرئيسية لتجربة أسرع بملء الشاشة.",
+  "Tap the Share button in the browser bar": "اضغط زر المشاركة في شريط المتصفح",
+  "Choose “Add to Home Screen”": "اختر «إضافة إلى الشاشة الرئيسية»",
+  Install: "تثبيت",
+  "Got it": "حسنًا",
+  "Not now": "ليس الآن",
+  "Share Qura": "شارك قُري",
+  "Your city, one feed.": "مدينتك، في تدفق واحد.",
 } as const;
 
 export default ar;

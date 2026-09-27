@@ -4,7 +4,9 @@ import type { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 
 import { AuthSheetProvider } from "@/components/auth/auth-sheet";
+import { InstallPromptProvider } from "@/components/install-prompt";
 import { NavigationProvider } from "@/components/navigation/navigation-provider";
+import { ThemeColor } from "@/components/theme-color";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Locale } from "@/lib/i18n/config";
@@ -45,7 +47,10 @@ export function Providers({
         <TooltipProvider>
           <Toaster>
             <NavigationProvider>
-              <AuthSheetProvider>{children}</AuthSheetProvider>
+              <InstallPromptProvider>
+                <AuthSheetProvider>{children}</AuthSheetProvider>
+              </InstallPromptProvider>
+              <ThemeColor />
             </NavigationProvider>
           </Toaster>
         </TooltipProvider>

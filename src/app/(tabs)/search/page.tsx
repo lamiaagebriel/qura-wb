@@ -10,10 +10,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { getTranslations } from "@/lib/i18n/server";
+import { href } from "@/lib/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getTranslations();
-  return { title: t("Search") };
+  return { title: t("Search"), alternates: { canonical: href("search") } };
 }
 
 export default async function SearchPage() {

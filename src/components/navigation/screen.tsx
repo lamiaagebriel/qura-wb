@@ -1,10 +1,10 @@
 import { ViewTransition, type ReactNode } from "react";
 
-import { NAV_BACK, NAV_FORWARD } from "@/lib/navigation";
+import { NAV_TYPES } from "@/lib/navigation";
 
+// Each navigation type animates with the CSS class of the same name.
 const directional = {
-  [NAV_FORWARD]: NAV_FORWARD,
-  [NAV_BACK]: NAV_BACK,
+  ...Object.fromEntries(NAV_TYPES.map((type) => [type, type])),
   default: "none",
 };
 
@@ -18,7 +18,12 @@ const directional = {
 export function Screen({ children }: { children: ReactNode }) {
   return (
     <ViewTransition enter={directional} exit={directional} default="none">
-      <div className="flex flex-1 flex-col">{children}</div>
+      {/* Opaque and full-height: during a slide the screen is a solid sheet,
+          so the screen underneath never shows through its gaps or its
+          (transparent-at-top) header. */}
+      <div className="flex flex-1 flex-col bg-background">
+        {children}
+      </div>
     </ViewTransition>
   );
 }

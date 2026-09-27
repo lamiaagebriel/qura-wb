@@ -39,6 +39,17 @@ const fr = {
   "Sign in to see your profile.": "Connecte-toi pour voir ton profil.",
   "Main navigation": "Navigation principale",
   Back: "Retour",
+  "Link copied": "Lien copié",
+  "Couldn't share this link": "Impossible de partager ce lien",
+  "Install Qura": "Installer Qura",
+  "Add Qura to your home screen for a faster, full-screen experience.": "Ajoute Qura à ton écran d'accueil pour une expérience plus rapide, en plein écran.",
+  "Tap the Share button in the browser bar": "Touche le bouton Partager dans la barre du navigateur",
+  "Choose “Add to Home Screen”": "Choisis « Sur l'écran d'accueil »",
+  Install: "Installer",
+  "Got it": "Compris",
+  "Not now": "Pas maintenant",
+  "Share Qura": "Partager Qura",
+  "Your city, one feed.": "Ta ville, un seul fil.",
 } satisfies Messages;
 
 export default fr;

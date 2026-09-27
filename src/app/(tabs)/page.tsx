@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
+
 import { AppHeader } from "@/components/app-header";
 import { Home01Icon } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
 import { StatusScreen } from "@/components/status-screen";
 import { getTranslations } from "@/lib/i18n/server";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const { t } = await getTranslations();

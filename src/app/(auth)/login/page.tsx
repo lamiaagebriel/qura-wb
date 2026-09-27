@@ -9,7 +9,8 @@ import { GoogleSignIn } from "@/components/auth/google-sign-in";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getTranslations();
-  return { title: t("Sign in") };
+  // Personal / auth screen: keep it out of search results.
+  return { title: t("Sign in"), robots: { index: false, follow: true } };
 }
 
 export default async function LoginPage({

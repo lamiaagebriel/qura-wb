@@ -38,6 +38,11 @@ export {
   FileNotFoundIcon,
   RefreshIcon,
   Home01Icon,
+  // Share & install
+  Share08Icon,
+  SquareArrowUp02Icon,
+  AddSquareIcon,
+  Download04Icon,
   // Auth
   GoogleIcon,
   Logout03Icon,

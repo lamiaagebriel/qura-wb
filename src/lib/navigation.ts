@@ -22,6 +22,22 @@ export function tabOf(pathname: string): Tab | null {
   return match;
 }
 
-/** Transition types used by `<ViewTransition>` (see `components/screen.tsx`). */
-export const NAV_FORWARD = "nav-forward";
-export const NAV_BACK = "nav-back";
+/**
+ * Transition types used by `<ViewTransition>` (see `navigation/screen.tsx`).
+ * RTL gets its own types (mirrored slides) instead of CSS `[dir]` overrides,
+ * which iOS Safari applies inconsistently to view-transition layers.
+ */
+export const NAV_TYPES = [
+  "nav-forward",
+  "nav-back",
+  "nav-forward-rtl",
+  "nav-back-rtl",
+] as const;
+export type NavType = (typeof NAV_TYPES)[number];
+
+export function navType(
+  direction: "forward" | "back",
+  dir: "ltr" | "rtl",
+): NavType {
+  return `nav-${direction}${dir === "rtl" ? "-rtl" : ""}`;
+}

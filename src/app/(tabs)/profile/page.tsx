@@ -18,7 +18,8 @@ import { href } from "@/lib/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getTranslations();
-  return { title: t("Profile") };
+  // Personal / auth screen: keep it out of search results.
+  return { title: t("Profile"), robots: { index: false, follow: true } };
 }
 
 /** Works signed in (profile) and signed out (sign-in prompt). */

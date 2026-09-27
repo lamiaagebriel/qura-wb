@@ -1,40 +1,79 @@
 "use client";
 
-import { HugeiconsIcon, TranslateIcon } from "@/components/icons";
+import { useState } from "react";
+
+import { TranslateIcon } from "@/components/icons";
+import { SettingsRow } from "@/components/settings-row";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { isLocale, LOCALE_META, LOCALES } from "@/lib/i18n/config";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { isLocale, LOCALE_META, LOCALES, type Locale } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/provider";
 
-const items = LOCALES.map((l) => ({ value: l, label: LOCALE_META[l].label }));
-
+/**
+ * Settings row "Language" (same look as the other rows). Tapping it opens a
+ * bottom sheet to pick the language; choosing one switches and closes it.
+ */
 export function LocaleSwitcher() {
   const { locale, setLocale, isPending, t } = useLocale();
+  const [open, setOpen] = useState(false);
+
+  const choose = (next: Locale) => {
+    setOpen(false);
+    if (next !== locale) setLocale(next);
+  };
 
   return (
-    <Select
-      items={items}
-      value={locale}
-      onValueChange={(value) => isLocale(value) && setLocale(value)}
-      disabled={isPending}
-    >
-      {/* 44px touch target. */}
-      <SelectTrigger aria-label={t("Select language")} className="h-11">
-        <HugeiconsIcon icon={TranslateIcon} strokeWidth={2} />
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {items.map((item) => (
-          <SelectItem key={item.value} value={item.value}>
-            {item.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <>
+      <SettingsRow
+        label={t("Language")}
+        last={
+          <span className=" text-muted-foreground text-sm">
+            {LOCALE_META[locale].label}
+          </span>
+        }
+        icon={TranslateIcon}
+        onClick={() => setOpen(true)}
+        disabled={isPending}
+        aria-haspopup="dialog"
+      />
+
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{t("Select language")}</DrawerTitle>
+          </DrawerHeader>
+          <RadioGroup
+            value={locale}
+            onValueChange={(value) => isLocale(value) && choose(value)}
+            aria-label={t("Language")}
+            className="mx-4 w-auto gap-0 divide-y divide-border/60 overflow-hidden "
+          >
+            {LOCALES.map((l) => (
+              // The whole row is the label, so tapping anywhere selects it.
+              <Label
+                key={l}
+                className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 px-4 py-2"
+              >
+                {/* Each name in its own language and direction. */}
+                <span
+                  lang={l}
+                  dir={LOCALE_META[l].dir}
+                  className="text-sm font-medium"
+                >
+                  {LOCALE_META[l].label}
+                </span>
+                <RadioGroupItem value={l} />
+              </Label>
+            ))}
+          </RadioGroup>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }
