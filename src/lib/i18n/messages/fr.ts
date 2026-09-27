@@ -38,6 +38,7 @@ const fr = {
   "Sign in to Qura": "Se connecter à Qura",
   "Sign in to see your profile.": "Connecte-toi pour voir ton profil.",
   "Main navigation": "Navigation principale",
+  Back: "Retour",
 } satisfies Messages;
 
 export default fr;

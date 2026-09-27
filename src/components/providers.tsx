@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 
 import { AuthSheetProvider } from "@/components/auth/auth-sheet";
+import { NavigationProvider } from "@/components/navigation/navigation-provider";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Locale } from "@/lib/i18n/config";
@@ -43,7 +44,9 @@ export function Providers({
       <LocaleProvider locale={locale} messages={messages}>
         <TooltipProvider>
           <Toaster>
-            <AuthSheetProvider>{children}</AuthSheetProvider>
+            <NavigationProvider>
+              <AuthSheetProvider>{children}</AuthSheetProvider>
+            </NavigationProvider>
           </Toaster>
         </TooltipProvider>
       </LocaleProvider>

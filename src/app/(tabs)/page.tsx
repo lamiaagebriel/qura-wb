@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/app-header";
 import { Home01Icon } from "@/components/icons";
+import { Screen } from "@/components/navigation/screen";
 import { StatusScreen } from "@/components/status-screen";
 import { getTranslations } from "@/lib/i18n/server";
 
@@ -7,8 +8,8 @@ export default async function HomePage() {
   const { t } = await getTranslations();
 
   return (
-    <>
-      <AppHeader title={t("Qura")} />
+    <Screen>
+      <AppHeader title={t("Qura")} large />
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4">
         <StatusScreen
           icon={Home01Icon}
@@ -19,6 +20,6 @@ export default async function HomePage() {
           inline
         />
       </main>
-    </>
+    </Screen>
   );
 }

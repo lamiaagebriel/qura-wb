@@ -206,3 +206,88 @@ a {
     height: 100lvh;
   }
 }
+
+/* Stack transitions (React <ViewTransition>, see components/navigation).
+ * Forward: the new screen pushes in from the end edge; back: the reverse.
+ * Both screens move together (no overlap), mirrored in RTL via --nav-dir.
+ * Tab switches carry no type, so they're instant. */
+:root {
+  --nav-dir: 1;
+  --nav-duration: 280ms;
+  --nav-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+:root[dir="rtl"] {
+  --nav-dir: -1;
+}
+@keyframes nav-slide {
+  from {
+    translate: var(--nav-from) 0;
+  }
+  to {
+    translate: var(--nav-to) 0;
+  }
+}
+::view-transition-new(.nav-forward) {
+  --nav-from: calc(100% * var(--nav-dir));
+  --nav-to: 0;
+}
+::view-transition-old(.nav-forward) {
+  --nav-from: 0;
+  --nav-to: calc(-100% * var(--nav-dir));
+}
+::view-transition-new(.nav-back) {
+  --nav-from: calc(-100% * var(--nav-dir));
+  --nav-to: 0;
+}
+::view-transition-old(.nav-back) {
+  --nav-from: 0;
+  --nav-to: calc(100% * var(--nav-dir));
+}
+::view-transition-new(.nav-forward),
+::view-transition-old(.nav-forward),
+::view-transition-new(.nav-back),
+::view-transition-old(.nav-back) {
+  animation: var(--nav-duration) var(--nav-ease) both nav-slide;
+}
+
+/* Only the screens move: no page-wide crossfade, and the tab bar stays put
+ * above them. Taps pass through to the live page during the animation. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-group(bottom-nav) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(bottom-nav) {
+  display: none;
+}
+::view-transition-new(bottom-nav) {
+  animation: none;
+}
+
+/* Reduced motion: a short crossfade instead of a slide. */
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes nav-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(.nav-forward),
+  ::view-transition-new(.nav-back) {
+    animation: 200ms ease both nav-fade-in;
+  }
+  ::view-transition-old(.nav-forward),
+  ::view-transition-old(.nav-back) {
+    animation: 150ms ease both nav-fade-out;
+  }
+}

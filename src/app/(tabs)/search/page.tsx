@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AppHeader } from "@/components/app-header";
 import { HugeiconsIcon, Search01Icon } from "@/components/icons";
+import { Screen } from "@/components/navigation/screen";
 import { StatusScreen } from "@/components/status-screen";
 import {
   InputGroup,
@@ -19,8 +20,8 @@ export default async function SearchPage() {
   const { t } = await getTranslations();
 
   return (
-    <>
-      <AppHeader title={t("Search")}>
+    <Screen>
+      <AppHeader title={t("Search")} large>
         <InputGroup className="h-11 rounded-xl">
           <InputGroupAddon>
             <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
@@ -42,6 +43,6 @@ export default async function SearchPage() {
           inline
         />
       </main>
-    </>
+    </Screen>
   );
 }

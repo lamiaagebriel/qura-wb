@@ -14,6 +14,7 @@ export const routes = {
   home: "/",
   search: "/search",
   profile: "/profile",
+  settings: "/profile/settings",
   login: "/login",
 } as const;
 

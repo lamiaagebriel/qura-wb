@@ -38,6 +38,7 @@ const ar = {
   "Sign in to Qura": "سجّل الدخول إلى قُري",
   "Sign in to see your profile.": "سجّل الدخول لعرض ملفك الشخصي.",
   "Main navigation": "التنقل الرئيسي",
+  Back: "رجوع",
 } as const;
 
 export default ar;

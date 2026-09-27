@@ -32,6 +32,7 @@ export {
   SidebarLeftIcon,
   // Navigation
   Search01Icon,
+  Settings01Icon,
   UserCircleIcon,
   // Status screens
   FileNotFoundIcon,
