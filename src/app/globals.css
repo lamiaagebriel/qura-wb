@@ -128,3 +128,81 @@
     @apply font-sans;
   }
 }
+/* -------------------------------------------------------------------------
+ * Native-app touch & scroll behavior (see AGENTS.md → mobile).
+ * Kept outside `@layer` on purpose: unlayered rules win over Tailwind
+ * utilities, so these hold even where a component sets its own classes.
+ * `hover:` utilities already only apply on devices that can hover.
+ * ---------------------------------------------------------------------- */
+
+html {
+  /* No grey flash on tap, no double-tap-to-zoom delay, no font inflation. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  /* The page itself never rubber-bands or shows white behind the app;
+     inner scroll areas keep their natural bounce. */
+  overscroll-behavior: none;
+}
+
+/* UI chrome isn't selectable text, and long-press shows no callout. */
+button,
+[role="button"],
+[role="tab"],
+[role="radio"],
+nav,
+label,
+img {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+a {
+  -webkit-touch-callout: none;
+}
+
+/* Instant pressed feedback on touch (hover-less devices only). */
+@media (hover: none) {
+  :where(button, a, [role="button"], [role="tab"], [role="radio"], summary):active:not(:disabled, [aria-disabled="true"]) {
+    opacity: 0.6;
+    transition: opacity 0s;
+  }
+}
+
+/* Inputs under 16px make iOS zoom the page on focus. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select,
+  [contenteditable="true"] {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Safe areas and app height, corrected for iOS installed apps.
+ * Use these instead of env()/dvh directly: `pt-[var(--safe-top)]`,
+ * `pb-[var(--safe-bottom)]`, `min-h-(--app-height)`.
+ * Installed on iPhone (standalone + black-translucent status bar), iOS
+ * reports an inflated bottom inset and a too-short page height at launch
+ * until something forces a relayout — leaving a gap under the tab bar and
+ * cutting off sheets. `100lvh` is the only unit that reports the full
+ * screen there, and the home indicator is never taller than 34px. */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-height: 100dvh;
+}
+@media (display-mode: standalone) {
+  :root {
+    --safe-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
+    --app-height: 100lvh;
+  }
+  html {
+    height: 100lvh;
+  }
+}

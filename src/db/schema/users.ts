@@ -9,9 +9,12 @@ export const USER_STATUSES = ["active", "suspended"] as const;
 export const userStatus = pgEnum("user_status", USER_STATUSES);
 
 /**
- * Better Auth's "user" model (the signed-in person). What posts and gets
- * followed is a `profiles` row, not this. `role`, `status`, `username` and
- * `bio` are ours, declared as `additionalFields` in `lib/auth/auth.ts`.
+ * The person who signs in — private account data (Better Auth's "user"
+ * model). Has many `sessions` and `accounts`, and one personal `profiles`
+ * row. What posts and gets followed is the profile, not this: one person
+ * can act as several identities (their own + businesses they manage).
+ * `role` (admin?), `status` (suspended?), `username` and `bio` are ours,
+ * declared as `additionalFields` in `lib/auth/auth.ts`.
  */
 export const users = pgTable("users", {
   ...id,

@@ -36,7 +36,13 @@ export function ModeSwitcher() {
       onValueChange={([next]) => next && setTheme(next)}
     >
       {MODES.map(({ value, label, icon }) => (
-        <ToggleGroupItem key={value} value={value} aria-label={t(label)}>
+        <ToggleGroupItem
+          key={value}
+          value={value}
+          aria-label={t(label)}
+          // 44px touch target.
+          className="size-11"
+        >
           <HugeiconsIcon icon={icon} strokeWidth={2} />
         </ToggleGroupItem>
       ))}

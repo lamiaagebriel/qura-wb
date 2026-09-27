@@ -5,10 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { auth } from "./auth";
-import { ensurePersonalProfile } from "./profile";
 import { loginPath } from "./redirect";
-
-export { ensurePersonalProfile };
 
 /**
  * The current session or `null`, memoized per request. May be served from

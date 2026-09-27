@@ -9,10 +9,10 @@ import {
   LOCALE_HEADER,
   LOCALE_PARAM,
 } from "@/lib/i18n/config";
-import { routes } from "@/lib/routes";
 
 // Routes that need a signed-in user (prefix match, so sub-paths count too).
-const PROTECTED_PREFIXES = [routes.welcome];
+// None yet — add e.g. `href("settings")` from `@/lib/routes`.
+const PROTECTED_PREFIXES: string[] = [];
 
 /**
  * Two cheap, cookie-only jobs — never a final auth decision (pages call

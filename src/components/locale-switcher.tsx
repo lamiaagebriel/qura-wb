@@ -23,7 +23,8 @@ export function LocaleSwitcher() {
       onValueChange={(value) => isLocale(value) && setLocale(value)}
       disabled={isPending}
     >
-      <SelectTrigger aria-label={t("Select language")}>
+      {/* 44px touch target. */}
+      <SelectTrigger aria-label={t("Select language")} className="h-11">
         <HugeiconsIcon icon={TranslateIcon} strokeWidth={2} />
         <SelectValue />
       </SelectTrigger>

@@ -13,8 +13,16 @@ import {
 import { id, timestamps } from "../helpers";
 import { users } from "./users";
 
-// Better Auth's session, account and verification models.
+/**
+ * Tables only Better Auth uses — app code never queries them directly.
+ * `sessions` and `accounts` belong to a user (deleted with it);
+ * `verifications` and `rate_limits` stand alone.
+ */
 
+/**
+ * One row per signed-in device/browser; the session cookie points to it.
+ * Signing out (or expiry) removes the row.
+ */
 export const sessions = pgTable(
   "sessions",
   {
@@ -34,7 +42,11 @@ export const sessions = pgTable(
   ],
 );
 
-/** One row per sign-in method. `providerId` is "google"; `password` stays unused. */
+/**
+ * *How* a user signs in — one row per method (`providerId` "google" with
+ * Google's user id and tokens). Separate from `users` so one person can
+ * have several sign-in methods without being duplicated. `password` unused.
+ */
 export const accounts = pgTable(
   "accounts",
   {
@@ -62,7 +74,10 @@ export const accounts = pgTable(
   ],
 );
 
-/** Short-lived values Better Auth needs (e.g. OAuth state). */
+/**
+ * Short-lived values Better Auth needs mid-flow, e.g. the OAuth "state"
+ * proving Google's callback matches the sign-in you started. Expire fast.
+ */
 export const verifications = pgTable(
   "verifications",
   {
@@ -76,8 +91,9 @@ export const verifications = pgTable(
 );
 
 /**
- * Better Auth's rate-limit counters. Kept in the DB (not memory) so limits
- * hold across serverless instances. `lastRequest` is a ms timestamp.
+ * Request counters that block abuse (e.g. too many sign-in attempts). In
+ * the DB, not memory, so limits hold across every serverless instance.
+ * `lastRequest` is a ms timestamp.
  */
 export const rateLimits = pgTable("rate_limits", {
   ...id,

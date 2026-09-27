@@ -17,9 +17,13 @@ export const PROFILE_TYPES = ["personal", "business"] as const;
 export const profileType = pgEnum("profile_type", PROFILE_TYPES);
 
 /**
- * The public identity that posts and gets followed. Every user gets one
- * `personal` profile at sign-up; `business` profiles belong to an
- * organization (added later — `organizationId` has no FK yet).
+ * The public identity — what posts, gets followed and shows up in search.
+ * - `personal`: exactly one per user, created at sign-up (`userId` set).
+ * - `business`: a restaurant, shop… owned by an organization, not a person
+ *   (`organizationId` set; organizations come later, so no FK yet).
+ * Social tables (threads, follows, reviews…) reference `profiles.id`, so a
+ * business acts on its own without being a fake user who can't sign in.
+ * `username` shares one namespace with `users.username`.
  */
 export const profiles = pgTable(
   "profiles",

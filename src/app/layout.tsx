@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -11,6 +11,22 @@ const cairo = Cairo({
   subsets: ["latin", "arabic"],
 });
 
+/**
+ * One full-screen surface on every page, in the browser and when installed:
+ * draw under the notch/status bar and home indicator (`viewport-fit=cover`;
+ * screens pad themselves with safe-area insets) and color the browser/system
+ * bars to match the app background in light and dark.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getTranslations();
   return {
@@ -18,6 +34,14 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t(
       "Discover restaurants, events, jobs, apartments, and more — all in one local feed. Launching in Aswan, expanding worldwide.",
     ),
+    // Installed on iPhone ("Add to Home Screen"): open full-screen, and let the
+    // app draw under the status bar so it's part of the page (and of the
+    // sheet's scale-back effect) instead of a separate strip.
+    appleWebApp: {
+      capable: true,
+      title: "Qura",
+      statusBarStyle: "black-translucent",
+    },
   };
 }
 
@@ -34,7 +58,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <Providers locale={locale} messages={messages}>
-          {children}
+          {/* The page vaul scales back while a bottom sheet is open. */}
+          <div data-vaul-drawer-wrapper="" className="flex min-h-(--app-height) flex-col bg-background">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

@@ -30,6 +30,9 @@ export {
   MultiplicationSignCircleIcon,
   // Layout
   SidebarLeftIcon,
+  // Navigation
+  Search01Icon,
+  UserCircleIcon,
   // Status screens
   FileNotFoundIcon,
   RefreshIcon,

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 
+import { AuthSheetProvider } from "@/components/auth/auth-sheet";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Locale } from "@/lib/i18n/config";
@@ -13,7 +14,8 @@ import type { Messages } from "@/lib/i18n/types";
  * Every app-wide provider, in one place. `ThemeProvider` toggles the `.dark`
  * class (light / dark / system). `LocaleProvider` also sets the
  * reading direction for all shadcn/Base UI components. `Toaster` makes
- * `toast.add(...)` (from `@/components/ui/toast`) work anywhere.
+ * `toast.add(...)` (from `@/components/ui/toast`) work anywhere, and
+ * `AuthSheetProvider` lets any component open the sign-in sheet.
  */
 export function Providers({
   locale,
@@ -40,7 +42,9 @@ export function Providers({
     >
       <LocaleProvider locale={locale} messages={messages}>
         <TooltipProvider>
-          <Toaster>{children}</Toaster>
+          <Toaster>
+            <AuthSheetProvider>{children}</AuthSheetProvider>
+          </Toaster>
         </TooltipProvider>
       </LocaleProvider>
     </ThemeProvider>

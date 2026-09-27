@@ -8,7 +8,6 @@ import { Button, ButtonProps } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { signOut } from "@/lib/auth/client";
 import { useLocale } from "@/lib/i18n/provider";
-import { href } from "@/lib/routes";
 
 export function SignOutButton({ ...props }: ButtonProps) {
   const { t } = useLocale();
@@ -18,8 +17,8 @@ export function SignOutButton({ ...props }: ButtonProps) {
   function handleSignOut() {
     startTransition(async () => {
       await signOut();
+      // Stay on this page, re-rendered signed out (sign-in is a sheet now).
       // The active profile will be cleared here once it's stored separately.
-      router.replace(href("login"));
       router.refresh();
     });
   }

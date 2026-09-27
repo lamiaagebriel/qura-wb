@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { signIn } from "@/lib/auth/client";
 import { loginPath } from "@/lib/auth/redirect";
-import { href } from "@/lib/routes";
 import type { MessageKey } from "@/lib/i18n/types";
 import { useLocale } from "@/lib/i18n/provider";
 
@@ -36,7 +35,6 @@ export function GoogleSignIn({
     const { error } = await signIn.social({
       provider: "google",
       callbackURL: next,
-      newUserCallbackURL: href("welcome", { query: { next } }),
       errorCallbackURL: loginPath(next),
     });
 

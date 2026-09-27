@@ -16,7 +16,7 @@ const MESSAGES = [
 export default function GlobalError({ retry }: { retry: () => void }) {
   return (
     <html lang="en">
-      <body className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background px-6 font-sans text-foreground antialiased">
+      <body className="flex min-h-(--app-height) flex-col items-center justify-center gap-6 bg-background px-6 font-sans text-foreground antialiased">
         <title>Qura</title>
         <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
           <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />

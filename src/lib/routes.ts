@@ -3,7 +3,7 @@
  * writing paths by hand:
  *
  *   href("home")                                      // "/"
- *   href("login", { query: { next: "/welcome" } })    // "/login?next=%2Fwelcome"
+ *   href("login", { query: { next: "/profile" } })    // "/login?next=%2Fprofile"
  *
  * Dynamic segments use `:name`, and `href` requires exactly those params:
  *
@@ -12,8 +12,9 @@
  */
 export const routes = {
   home: "/",
+  search: "/search",
+  profile: "/profile",
   login: "/login",
-  welcome: "/welcome",
 } as const;
 
 export type RouteName = keyof typeof routes;
