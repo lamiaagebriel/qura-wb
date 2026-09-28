@@ -14,7 +14,6 @@ import { useNavigation } from "@/components/navigation/navigation-provider";
 import type { MessageKey } from "@/lib/i18n/types";
 import { useLocale } from "@/lib/i18n/provider";
 import { TABS, tabOf, type Tab } from "@/lib/navigation";
-import { href } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 // Tabs and their order live in `lib/navigation.ts`; this adds the UI bits.
@@ -26,13 +25,13 @@ const TAB_UI: Record<Tab, { label: MessageKey; icon: IconSvgElement }> = {
 
 /**
  * App-style tab bar pinned to the bottom, above the home indicator.
- * Taps go through `selectTab`: other tab → the screen you left it on;
- * active tab → scroll to top, or back to its root from a sub-screen.
+ * Each tab is a real link from `tabLink`: other tab → the screen you left
+ * it on; active tab → scroll to top, or back to its root from a sub-screen.
  */
 export function BottomNav() {
   const { t } = useLocale();
   const pathname = usePathname();
-  const { selectTab } = useNavigation();
+  const { tabLink } = useNavigation();
   const activeTab = tabOf(pathname);
 
   return (
@@ -46,20 +45,18 @@ export function BottomNav() {
         {TABS.map((tab) => {
           const { label, icon } = TAB_UI[tab];
           const active = tab === activeTab;
+          const link = tabLink(tab);
 
           return (
             <li key={tab} className="flex-1">
               <Link
-                href={href(tab)}
+                href={link.href}
+                // Full prefetch: tab screens open instantly, data included.
+                prefetch
                 scroll={false}
+                transitionTypes={link.transitionTypes}
+                onClick={link.onClick}
                 aria-current={active ? "page" : undefined}
-                onClick={(event) => {
-                  // Keep real links (prefetch, open-in-new-tab), but route
-                  // plain taps through the tab logic.
-                  if (event.metaKey || event.ctrlKey || event.shiftKey) return;
-                  event.preventDefault();
-                  selectTab(tab);
-                }}
                 className={cn(
                   "flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground transition-[color,transform] active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100",
                   active && "text-foreground",

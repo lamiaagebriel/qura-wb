@@ -7,6 +7,12 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Generated shadcn files are kept untouched; this upstream pattern
   // (setState in an effect) is intentional there. Scoped to these files only.
+  // Playwright fixtures call their callback `use(...)`, which the React hooks
+  // rule mistakes for React's `use` hook. Not React code.
+  {
+    files: ["e2e/**"],
+    rules: { "react-hooks/rules-of-hooks": "off" },
+  },
   {
     files: ["src/components/ui/carousel.tsx", "src/hooks/use-mobile.ts"],
     rules: { "react-hooks/set-state-in-effect": "off" },

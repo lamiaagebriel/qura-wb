@@ -9,5 +9,7 @@ import { navType } from "@/lib/navigation";
 /** A link that opens a deeper screen, sliding in from the end edge. */
 export function StackLink(props: ComponentProps<typeof Link>) {
   const { dir } = useLocale();
-  return <Link transitionTypes={[navType("forward", dir)]} {...props} />;
+  // Full prefetch (see BackButton): the screen's data is ready before the
+  // tap, so the slide animates the real destination in one commit.
+  return <Link prefetch transitionTypes={[navType("forward", dir)]} {...props} />;
 }
