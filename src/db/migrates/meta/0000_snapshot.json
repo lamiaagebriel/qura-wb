@@ -1,5 +1,5 @@
 {
-  "id": "45e254d6-5c28-4b6b-bdb1-3321bd5935a3",
+  "id": "17efa44a-8348-401c-b921-97bb2481bd8d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -349,6 +349,657 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.business_blocks": {
+      "name": "business_blocks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "business_block__category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "city": {
+          "name": "city",
+          "type": "city",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'aswan'"
+        }
+      },
+      "indexes": {
+        "business_block__city__idx": {
+          "name": "business_block__city__idx",
+          "columns": [
+            {
+              "expression": "city",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "business_blocks_business_id_users_id_fk": {
+          "name": "business_blocks_business_id_users_id_fk",
+          "tableFrom": "business_blocks",
+          "tableTo": "users",
+          "columnsFrom": [
+            "business_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "business_blocks_business_id_unique": {
+          "name": "business_blocks_business_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "business_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.business_google_places": {
+      "name": "business_google_places",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "google_place_id": {
+          "name": "google_place_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "business_google_place__business_id__google_place_id__idx": {
+          "name": "business_google_place__business_id__google_place_id__idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "google_place_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "business_google_place__google_place_id__idx": {
+          "name": "business_google_place__google_place_id__idx",
+          "columns": [
+            {
+              "expression": "google_place_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "business_google_place__business_id__idx": {
+          "name": "business_google_place__business_id__idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "business_google_places_business_id_users_id_fk": {
+          "name": "business_google_places_business_id_users_id_fk",
+          "tableFrom": "business_google_places",
+          "tableTo": "users",
+          "columnsFrom": [
+            "business_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.business_reviews": {
+      "name": "business_reviews",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_id": {
+          "name": "author_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "business_review__business_id__author_id__idx": {
+          "name": "business_review__business_id__author_id__idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "author_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "business_review__business_id__idx": {
+          "name": "business_review__business_id__idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "business_review__author_id__idx": {
+          "name": "business_review__author_id__idx",
+          "columns": [
+            {
+              "expression": "author_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "business_reviews_business_id_users_id_fk": {
+          "name": "business_reviews_business_id_users_id_fk",
+          "tableFrom": "business_reviews",
+          "tableTo": "users",
+          "columnsFrom": [
+            "business_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "business_reviews_author_id_users_id_fk": {
+          "name": "business_reviews_author_id_users_id_fk",
+          "tableFrom": "business_reviews",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.google_place_claim_conflicts": {
+      "name": "google_place_claim_conflicts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "google_place_id": {
+          "name": "google_place_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attempting_business_id": {
+          "name": "attempting_business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attempting_owner_id": {
+          "name": "attempting_owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "existing_business_id": {
+          "name": "existing_business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "existing_owner_id": {
+          "name": "existing_owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "google_place_claim_conflict__status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'conflict'"
+        }
+      },
+      "indexes": {
+        "google_place_claim_conflict__google_place_id__idx": {
+          "name": "google_place_claim_conflict__google_place_id__idx",
+          "columns": [
+            {
+              "expression": "google_place_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "google_place_claim_conflict__attempting_business_id__idx": {
+          "name": "google_place_claim_conflict__attempting_business_id__idx",
+          "columns": [
+            {
+              "expression": "attempting_business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "google_place_claim_conflict__existing_business_id__idx": {
+          "name": "google_place_claim_conflict__existing_business_id__idx",
+          "columns": [
+            {
+              "expression": "existing_business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "google_place_claim_conflict__status__idx": {
+          "name": "google_place_claim_conflict__status__idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "google_place_claim_conflict__created_at__idx": {
+          "name": "google_place_claim_conflict__created_at__idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "google_place_claim_conflicts_attempting_business_id_users_id_fk": {
+          "name": "google_place_claim_conflicts_attempting_business_id_users_id_fk",
+          "tableFrom": "google_place_claim_conflicts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "attempting_business_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "google_place_claim_conflicts_attempting_owner_id_users_id_fk": {
+          "name": "google_place_claim_conflicts_attempting_owner_id_users_id_fk",
+          "tableFrom": "google_place_claim_conflicts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "attempting_owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "google_place_claim_conflicts_existing_business_id_users_id_fk": {
+          "name": "google_place_claim_conflicts_existing_business_id_users_id_fk",
+          "tableFrom": "google_place_claim_conflicts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "existing_business_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "google_place_claim_conflicts_existing_owner_id_users_id_fk": {
+          "name": "google_place_claim_conflicts_existing_owner_id_users_id_fk",
+          "tableFrom": "google_place_claim_conflicts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "existing_owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.google_places": {
+      "name": "google_places",
+      "schema": "",
+      "columns": {
+        "place_id": {
+          "name": "place_id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "types": {
+          "name": "types",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "rating": {
+          "name": "rating",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_rating_count": {
+          "name": "user_rating_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "business_status": {
+          "name": "business_status",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website": {
+          "name": "website",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opening_hours": {
+          "name": "opening_hours",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviews": {
+          "name": "reviews",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_locked_until": {
+          "name": "refresh_locked_until",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -405,7 +1056,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'bussiness_owner'"
+          "default": "'business_owner'"
         },
         "status": {
           "name": "status",
@@ -438,10 +1089,46 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "user__owner_id__idx": {
+          "name": "user__owner_id__idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "users_owner_id_users_id_fk": {
+          "name": "users_owner_id_users_id_fk",
+          "tableFrom": "users",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_unique": {
@@ -692,6 +1379,28 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"
+        },
+        "image_path": {
+          "name": "image_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "city": {
+          "name": "city",
+          "type": "city",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'aswan'"
+        },
+        "category": {
+          "name": "category",
+          "type": "thread__category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'general'"
         }
       },
       "indexes": {
@@ -739,6 +1448,36 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "thread__city__idx": {
+          "name": "thread__city__idx",
+          "columns": [
+            {
+              "expression": "city",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "thread__category__idx": {
+          "name": "thread__category__idx",
+          "columns": [
+            {
+              "expression": "category",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -775,8 +1514,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.thread_likes": {
-      "name": "thread_likes",
+    "public.thread_saves": {
+      "name": "thread_saves",
       "schema": "",
       "columns": {
         "id": {
@@ -807,8 +1546,8 @@
         }
       },
       "indexes": {
-        "thread_like__user_id__thread_id__idx": {
-          "name": "thread_like__user_id__thread_id__idx",
+        "thread_save__user_id__thread_id__idx": {
+          "name": "thread_save__user_id__thread_id__idx",
           "columns": [
             {
               "expression": "user_id",
@@ -828,8 +1567,8 @@
           "method": "btree",
           "with": {}
         },
-        "thread_like__thread_id__idx": {
-          "name": "thread_like__thread_id__idx",
+        "thread_save__thread_id__idx": {
+          "name": "thread_save__thread_id__idx",
           "columns": [
             {
               "expression": "thread_id",
@@ -843,8 +1582,8 @@
           "method": "btree",
           "with": {}
         },
-        "thread_like__user_id__idx": {
-          "name": "thread_like__user_id__idx",
+        "thread_save__user_id__idx": {
+          "name": "thread_save__user_id__idx",
           "columns": [
             {
               "expression": "user_id",
@@ -860,9 +1599,9 @@
         }
       },
       "foreignKeys": {
-        "thread_likes_user_id_users_id_fk": {
-          "name": "thread_likes_user_id_users_id_fk",
-          "tableFrom": "thread_likes",
+        "thread_saves_user_id_users_id_fk": {
+          "name": "thread_saves_user_id_users_id_fk",
+          "tableFrom": "thread_saves",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -873,9 +1612,133 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "thread_likes_thread_id_threads_id_fk": {
-          "name": "thread_likes_thread_id_threads_id_fk",
-          "tableFrom": "thread_likes",
+        "thread_saves_thread_id_threads_id_fk": {
+          "name": "thread_saves_thread_id_threads_id_fk",
+          "tableFrom": "thread_saves",
+          "tableTo": "threads",
+          "columnsFrom": [
+            "thread_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.thread_votes": {
+      "name": "thread_votes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "thread_id": {
+          "name": "thread_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "thread_vote__user_id__thread_id__idx": {
+          "name": "thread_vote__user_id__thread_id__idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "thread_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "thread_vote__thread_id__idx": {
+          "name": "thread_vote__thread_id__idx",
+          "columns": [
+            {
+              "expression": "thread_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "thread_vote__user_id__idx": {
+          "name": "thread_vote__user_id__idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "thread_votes_user_id_users_id_fk": {
+          "name": "thread_votes_user_id_users_id_fk",
+          "tableFrom": "thread_votes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "thread_votes_thread_id_threads_id_fk": {
+          "name": "thread_votes_thread_id_threads_id_fk",
+          "tableFrom": "thread_votes",
           "tableTo": "threads",
           "columnsFrom": [
             "thread_id"
@@ -895,12 +1758,60 @@
     }
   },
   "enums": {
+    "public.business_block__category": {
+      "name": "business_block__category",
+      "schema": "public",
+      "values": [
+        "food-drinks",
+        "health",
+        "beauty",
+        "creative",
+        "shopping",
+        "home-services",
+        "automotive",
+        "education",
+        "tourism",
+        "professional-services",
+        "real-estate",
+        "jobs",
+        "marketplace",
+        "community",
+        "events",
+        "government",
+        "emergency",
+        "lifestyle"
+      ]
+    },
+    "public.city": {
+      "name": "city",
+      "schema": "public",
+      "values": [
+        "aswan",
+        "luxor",
+        "cairo",
+        "alexandria",
+        "qena",
+        "hurghada",
+        "sharm-el-sheikh",
+        "sohag",
+        "marsa-alam"
+      ]
+    },
+    "public.google_place_claim_conflict__status": {
+      "name": "google_place_claim_conflict__status",
+      "schema": "public",
+      "values": [
+        "conflict",
+        "resolved",
+        "dismissed"
+      ]
+    },
     "public.user__role": {
       "name": "user__role",
       "schema": "public",
       "values": [
         "super_admin",
-        "bussiness_owner"
+        "business_owner"
       ]
     },
     "public.user__status": {
@@ -910,6 +1821,19 @@
         "pending",
         "active",
         "suspended"
+      ]
+    },
+    "public.thread__category": {
+      "name": "thread__category",
+      "schema": "public",
+      "values": [
+        "general",
+        "together",
+        "experience",
+        "question",
+        "offer",
+        "announcement",
+        "alert"
       ]
     }
   },

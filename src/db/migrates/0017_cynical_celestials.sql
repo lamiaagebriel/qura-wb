@@ -1,1 +1,0 @@
-ALTER TABLE "threads" ADD COLUMN "image_path" text;

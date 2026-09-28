@@ -3,6 +3,8 @@ import "server-only";
 import { and, eq, ilike, isNotNull, notInArray, or } from "drizzle-orm";
 
 import { db, schema } from "@/db";
+import type { BusinessCategory, CityId } from "@/db/schema";
+import { getCachedLocations } from "@/lib/business/google-place-cache";
 import {
   getBusinessesConnectedToPlaceIds,
   getFollowerCountsForBusinesses,
@@ -10,12 +12,10 @@ import {
   getReviewSummariesForBusinesses,
 } from "@/lib/business/queries";
 import { CITY_CENTER, CITY_LABEL } from "@/lib/city/cities";
-import { getCachedLocations } from "@/lib/business/google-place-cache";
 import { GooglePlacesError } from "@/lib/google-places/errors";
-import { logEvent, logWarning, withTiming } from "@/lib/observability/log";
 import { searchGooglePlaces } from "@/lib/google-places/search";
 import type { GooglePlaceSearchResult } from "@/lib/google-places/types";
-import type { BusinessCategory, CityId } from "@/db/schema";
+import { logEvent, logWarning, withTiming } from "@/lib/observability/log";
 
 import { mergeSearchCandidates } from "./merge";
 import type { QuraEngagementSignals } from "./ranking";
@@ -35,7 +35,7 @@ const QURA_PAGE_SIZE = 20;
 // Everything downstream (merge, connected-business enrichment, pins)
 // already degrades correctly with zero Google candidates, the same way
 // it already does on a live Google failure.
-const GOOGLE_SEARCH_ENABLED = false;
+const GOOGLE_SEARCH_ENABLED = true;
 
 // Deliberately smaller than Google's own per-request max (20). This is
 // candidates for THIS page's merge, not a hard cap on how many Google
@@ -76,7 +76,10 @@ async function searchQuraCandidates(
       city: schema.businessBlocks.city,
     })
     .from(schema.users)
-    .innerJoin(schema.businessBlocks, eq(schema.businessBlocks.businessId, schema.users.id))
+    .innerJoin(
+      schema.businessBlocks,
+      eq(schema.businessBlocks.businessId, schema.users.id),
+    )
     .where(
       and(
         isNotNull(schema.users.ownerId),
@@ -103,7 +106,9 @@ async function searchQuraCandidates(
           ilike(schema.users.bio, pattern),
           category ? eq(schema.businessBlocks.category, category) : undefined,
         ),
-        excludeIds.length > 0 ? notInArray(schema.users.id, excludeIds) : undefined,
+        excludeIds.length > 0
+          ? notInArray(schema.users.id, excludeIds)
+          : undefined,
       ),
     )
     .orderBy(schema.users.username)
@@ -116,7 +121,9 @@ async function searchQuraCandidates(
   // Phase 24: connections no longer ride along on the same row (they're
   // not a column anymore) — one batched follow-up query for this page's
   // businesses, never per-result.
-  const googlePlaceIds = await getGooglePlaceIdsForBusinesses(page.map((r) => r.id));
+  const googlePlaceIds = await getGooglePlaceIdsForBusinesses(
+    page.map((r) => r.id),
+  );
   const summaries: QuraBusinessSummary[] = page.map((r) => ({
     ...r,
     googlePlaceIds: googlePlaceIds.get(r.id) ?? [],
@@ -180,7 +187,10 @@ async function searchGoogleCandidates(
   city: CityId,
   pageToken: string | null,
   area?: MapArea,
-): Promise<{ results: GooglePlaceSearchResult[]; nextPageToken: string | null }> {
+): Promise<{
+  results: GooglePlaceSearchResult[];
+  nextPageToken: string | null;
+}> {
   const cityContext = CITY_LABEL[city];
   // An explicit map viewport overrides the city center entirely — both
   // the bias Google gets and the cutoff applied after — rather than
@@ -269,12 +279,18 @@ export async function searchUnified({
   city: CityId;
   category?: BusinessCategory;
   area?: MapArea;
-}): Promise<{ items: UnifiedSearchResult[]; nextCursor: UnifiedSearchCursor | null }> {
+}): Promise<{
+  items: UnifiedSearchResult[];
+  nextCursor: UnifiedSearchCursor | null;
+}> {
   const totalStart = Date.now();
 
   const [quraOutcome, googleOutcome] = await Promise.all([
     cursor.quraExhausted
-      ? Promise.resolve({ summaries: [] as QuraBusinessSummary[], hasMore: false })
+      ? Promise.resolve({
+          summaries: [] as QuraBusinessSummary[],
+          hasMore: false,
+        })
       : withTiming("unified_search_qura_query", { query, city }, () =>
           searchQuraCandidates(
             query,
@@ -285,7 +301,10 @@ export async function searchUnified({
           ),
         ),
     cursor.googleExhausted || !GOOGLE_SEARCH_ENABLED
-      ? Promise.resolve({ results: [] as GooglePlaceSearchResult[], nextPageToken: null })
+      ? Promise.resolve({
+          results: [] as GooglePlaceSearchResult[],
+          nextPageToken: null,
+        })
       : withTiming("unified_search_google_query", { query, city }, () =>
           searchGoogleCandidates(query, city, cursor.googlePageToken, area),
         ),
@@ -309,7 +328,10 @@ export async function searchUnified({
         // `merge.ts` deals in `QuraBusinessSummary` throughout (`googlePlaceIds:
         // string[]`) — a `ConnectedBusinessSummary` here is always scoped to
         // this ONE place already, so it's just that one id, singleton.
-        .map((business) => ({ ...business, googlePlaceIds: [business.googlePlaceId] })),
+        .map((business) => ({
+          ...business,
+          googlePlaceIds: [business.googlePlaceId],
+        })),
     ]),
   );
 
@@ -323,7 +345,11 @@ export async function searchUnified({
       ]),
   );
 
-  const { results: mergedResults, mergedBusinessIds, mergedPlaceIds } = mergeSearchCandidates({
+  const {
+    results: mergedResults,
+    mergedBusinessIds,
+    mergedPlaceIds,
+  } = mergeSearchCandidates({
     query,
     googleCandidates: googleOutcome.results,
     quraCandidates: quraOutcome.summaries,
@@ -349,17 +375,23 @@ export async function searchUnified({
   }));
 
   const quraExhausted = cursor.quraExhausted || !quraOutcome.hasMore;
-  const googleExhausted = cursor.googleExhausted || !googleOutcome.nextPageToken;
+  const googleExhausted =
+    cursor.googleExhausted || !googleOutcome.nextPageToken;
 
   const nextCursor: UnifiedSearchCursor | null =
     quraExhausted && googleExhausted
       ? null
       : {
-          quraOffset: quraExhausted ? cursor.quraOffset : cursor.quraOffset + QURA_PAGE_SIZE,
+          quraOffset: quraExhausted
+            ? cursor.quraOffset
+            : cursor.quraOffset + QURA_PAGE_SIZE,
           quraExhausted,
           googlePageToken: googleExhausted ? null : googleOutcome.nextPageToken,
           googleExhausted,
-          mergedBusinessIds: [...cursor.mergedBusinessIds, ...mergedBusinessIds],
+          mergedBusinessIds: [
+            ...cursor.mergedBusinessIds,
+            ...mergedBusinessIds,
+          ],
           mergedPlaceIds: [...cursor.mergedPlaceIds, ...mergedPlaceIds],
         };
 

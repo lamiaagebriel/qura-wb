@@ -1,1 +1,0 @@
-ALTER TABLE "google_places" ADD COLUMN "reviews" jsonb;

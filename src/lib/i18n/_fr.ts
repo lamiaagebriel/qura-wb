@@ -164,6 +164,9 @@ export const fr = {
   "Map unavailable": "Carte indisponible",
   "Search this area": "Rechercher dans cette zone",
   "Your location": "Votre position",
+  "Couldn't get your location.": "Impossible d'obtenir votre position.",
+  "Location access is blocked. Allow it in your browser settings.":
+    "L'accès à la position est bloqué. Autorisez-le dans les paramètres de votre navigateur.",
   "Search by name or what you're looking for…": "Cherche par nom ou par ce que tu veux…",
   "Try asking": "Essayez de demander",
   "Cozy cafe nearby": "Café cosy à proximité",

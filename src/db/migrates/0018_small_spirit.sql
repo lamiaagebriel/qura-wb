@@ -1,1 +1,0 @@
-ALTER TABLE "threads" ALTER COLUMN "image_path" SET NOT NULL;

@@ -162,6 +162,9 @@ export const ar = {
   "Map unavailable": "الخريطة غير متاحة",
   "Search this area": "ابحث في هذه المنطقة",
   "Your location": "موقعك",
+  "Couldn't get your location.": "تعذّر تحديد موقعك.",
+  "Location access is blocked. Allow it in your browser settings.":
+    "الوصول إلى الموقع محظور. اسمح به من إعدادات المتصفح.",
   "Search by name or what you're looking for…": "ابحث بالاسم أو بما تريده…",
   "Try asking": "جرّب أن تسأل",
   "Cozy cafe nearby": "مقهى هادئ قريب",
