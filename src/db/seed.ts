@@ -1,11 +1,27 @@
 import { randomUUID } from "node:crypto";
 import { hash } from "@node-rs/argon2";
-import { getTableName, sql } from "drizzle-orm";
+import { inArray, like } from "drizzle-orm";
 
 import { db, schema } from "@/db";
 import type { CityId } from "@/db/schema/cities";
-import type { ThreadCategory } from "@/db/schema/threads";
 import { EMPTY_WORKING_HOURS, type DayKey, type WorkingHours } from "@/lib/working-hours";
+
+import {
+  SEED_BUSINESSES_MORE,
+  SEED_CLAIM_CONFLICTS_MORE,
+  SEED_FOLLOWS_MORE,
+  SEED_GOOGLE_PLACES_MORE,
+  SEED_PLACE_ID_PREFIX,
+  SEED_REPORTS,
+  SEED_REVIEWS_MORE,
+  SEED_THREADS_MORE,
+  SEED_USERS_MORE,
+  type SeedThread,
+} from "./seed-cities";
+
+// Every seeded person's email ends with this — it's how a re-run finds
+// (and removes) only its own previous rows, leaving real accounts alone.
+const SEED_EMAIL_DOMAIN = "@qura.dev";
 
 function dailyHours(
   days: DayKey[],
@@ -479,18 +495,6 @@ const SEED_BUSINESSES_LUXOR = [
     },
   },
 ] as const;
-
-type SeedThread = {
-  author: string;
-  body: string;
-  images?: string[];
-  replies?: { author: string; body: string }[];
-  // Omitted = "aswan" (the column default) — only `SEED_THREADS_LUXOR`
-  // below sets this explicitly.
-  city?: "aswan" | "luxor";
-  // Omitted = "general" (the column default).
-  category?: ThreadCategory;
-};
 
 const SEED_THREADS: SeedThread[] = [
   {
@@ -1030,43 +1034,62 @@ const SEED_REVIEWS_LUXOR: [string, string, number, string][] = [
 ];
 
 async function seed() {
-  // Full reset every run, not an upsert — every table gets wiped and
-  // reseeded from scratch, in FK-safe order (children before `users`,
-  // though `CASCADE` would handle it anyway). This is a dev/demo seed
-  // script, not a migration: idempotency here means "always the same
-  // clean state", not "never touch existing rows".
-  console.log("Clearing existing data…");
-  for (const table of [
-    schema.threadSaves,
-    schema.threadVotes,
-    schema.threads,
-    schema.reports,
-    schema.follows,
-    schema.businessReviews,
-    schema.businessBlocks,
-    // Independent of `users`/`business_blocks` (keyed by Google's own
-    // `placeId`, not a FK — see its schema comment), so a `users` TRUNCATE
-    // CASCADE never reaches it. Must be cleared explicitly, or a second
-    // `db:seed` run collides on `SEED_GOOGLE_PLACES`' fixed place ids.
-    schema.googlePlacesCache,
-    schema.sessions,
-    schema.accounts,
-    schema.verifications,
-    schema.users,
-  ]) {
-    await db.execute(sql.raw(`TRUNCATE TABLE "${getTableName(table)}" CASCADE`));
-  }
+  // Reset every run, not an upsert — but only the seed's OWN rows: every
+  // `@qura.dev` person, the businesses they own, and the fake
+  // `ChIJqura_…` Google places. Real accounts (signed up through the app,
+  // Google or email) and everything they created are left untouched, so
+  // this is safe to run against a database people actually use.
+  // Everything else a seed user created (threads, replies, votes, saves,
+  // follows, reviews, reports, business blocks, place connections,
+  // sessions, accounts) goes with them via `ON DELETE CASCADE`.
+  console.log("Clearing previous seed data…");
+  const seedPeople = db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(like(schema.users.email, `%${SEED_EMAIL_DOMAIN}`));
+  await db
+    .delete(schema.users)
+    .where(inArray(schema.users.ownerId, seedPeople));
+  await db
+    .delete(schema.users)
+    .where(like(schema.users.email, `%${SEED_EMAIL_DOMAIN}`));
+  // Neither is FK-cascaded from `users` (keyed by Google's own place id),
+  // so a second run would otherwise collide on the fixed place ids.
+  await db
+    .delete(schema.googlePlacesCache)
+    .where(like(schema.googlePlacesCache.placeId, `${SEED_PLACE_ID_PREFIX}%`));
+  await db
+    .delete(schema.googlePlaceClaimConflicts)
+    .where(
+      like(
+        schema.googlePlaceClaimConflicts.googlePlaceId,
+        `${SEED_PLACE_ID_PREFIX}%`,
+      ),
+    );
 
-  // Aswan + Luxor combined from here on — one list of users, businesses,
-  // etc., each already carrying its own `city` (explicit on the Luxor
-  // entries, defaulted to `"aswan"` on the original ones).
-  const allUsers = [...SEED_USERS, ...SEED_USERS_LUXOR];
-  const allBusinesses = [...SEED_BUSINESSES, ...SEED_BUSINESSES_LUXOR];
-  const allFollows = [...SEED_FOLLOWS, ...SEED_FOLLOWS_LUXOR];
-  const allThreads = [...SEED_THREADS, ...SEED_THREADS_LUXOR];
-  const allSaves = [...SEED_SAVES, ...SEED_SAVES_LUXOR];
-  const allVotes = [...SEED_VOTES, ...SEED_VOTES_LUXOR];
-  const allReviews = [...SEED_REVIEWS, ...SEED_REVIEWS_LUXOR];
+  // Every city combined from here on — one list of users, businesses,
+  // etc., each already carrying its own `city` (explicit everywhere but
+  // the original Aswan entries, which default to `"aswan"`).
+  const allUsers = [...SEED_USERS, ...SEED_USERS_LUXOR, ...SEED_USERS_MORE];
+  const allBusinesses = [
+    ...SEED_BUSINESSES,
+    ...SEED_BUSINESSES_LUXOR,
+    ...SEED_BUSINESSES_MORE,
+  ];
+  const allFollows = [...SEED_FOLLOWS, ...SEED_FOLLOWS_LUXOR, ...SEED_FOLLOWS_MORE];
+  const allThreads = [...SEED_THREADS, ...SEED_THREADS_LUXOR, ...SEED_THREADS_MORE];
+  const allReviews = [...SEED_REVIEWS, ...SEED_REVIEWS_LUXOR, ...SEED_REVIEWS_MORE];
+  const allGooglePlaces = [...SEED_GOOGLE_PLACES, ...SEED_GOOGLE_PLACES_MORE];
+  // The original index-based saves/votes, plus the per-thread ones
+  // (`savedBy`/`upvotedBy`/`downvotedBy`) the newer threads carry —
+  // resolved to indices here so both go through one insert below.
+  const allSaves: [string, number][] = [...SEED_SAVES, ...SEED_SAVES_LUXOR];
+  const allVotes: [string, number, 1 | -1][] = [...SEED_VOTES, ...SEED_VOTES_LUXOR];
+  allThreads.forEach((t, i) => {
+    for (const u of t.savedBy ?? []) allSaves.push([u, i]);
+    for (const u of t.upvotedBy ?? []) allVotes.push([u, i, 1]);
+    for (const u of t.downvotedBy ?? []) allVotes.push([u, i, -1]);
+  });
 
   console.log("Seeding users…");
   const passwordHash = await hash(SEED_PASSWORD, ARGON2_OPTIONS);
@@ -1136,7 +1159,8 @@ async function seed() {
   const googlePlaceConnections = allBusinesses
     .map((b, i) => ({
       businessId: businesses[i].id,
-      googlePlaceId: "googlePlaceId" in b.block ? b.block.googlePlaceId : null,
+      googlePlaceId:
+        ("googlePlaceId" in b.block ? b.block.googlePlaceId : null) ?? null,
     }))
     .filter((row) => row.googlePlaceId !== null)
     .map((row) => ({ businessId: row.businessId, googlePlaceId: row.googlePlaceId as string }));
@@ -1145,17 +1169,27 @@ async function seed() {
   console.log("Seeding Google Places cache…");
   const now = new Date();
   await db.insert(schema.googlePlacesCache).values(
-    SEED_GOOGLE_PLACES.map((p) => ({ ...p, fetchedAt: now, updatedAt: now })),
+    allGooglePlaces.map((p) => ({ ...p, fetchedAt: now, updatedAt: now })),
   );
 
   console.log("Seeding Google place claim conflicts…");
-  await db.insert(schema.googlePlaceClaimConflicts).values({
-    googlePlaceId: PLACE_PHILAE_DOCK,
-    attemptingBusinessId: businessByUsername.get("philaeboats")!.id,
-    attemptingOwnerId: userByUsername.get("fady")!.id,
-    existingBusinessId: businessByUsername.get("adeltours")!.id,
-    existingOwnerId: userByUsername.get("adel")!.id,
-  });
+  await db.insert(schema.googlePlaceClaimConflicts).values([
+    {
+      googlePlaceId: PLACE_PHILAE_DOCK,
+      attemptingBusinessId: businessByUsername.get("philaeboats")!.id,
+      attemptingOwnerId: userByUsername.get("fady")!.id,
+      existingBusinessId: businessByUsername.get("adeltours")!.id,
+      existingOwnerId: userByUsername.get("adel")!.id,
+    },
+    ...SEED_CLAIM_CONFLICTS_MORE.map((c) => ({
+      googlePlaceId: c.googlePlaceId,
+      attemptingBusinessId: businessByUsername.get(c.attemptingBusiness)!.id,
+      attemptingOwnerId: userByUsername.get(c.attemptingOwner)!.id,
+      existingBusinessId: businessByUsername.get(c.existingBusiness)!.id,
+      existingOwnerId: userByUsername.get(c.existingOwner)!.id,
+      status: c.status,
+    })),
+  ]);
 
   console.log("Seeding business reviews…");
   await db.insert(schema.businessReviews).values(
@@ -1177,7 +1211,15 @@ async function seed() {
 
   console.log("Seeding threads and replies…");
   const flatThreads: { id: string }[] = [];
-  for (const t of allThreads) {
+  // Spread posts over roughly the last 9 days instead of all landing at
+  // "now" — shuffled by index (37 is coprime with the thread count's
+  // likely sizes) so cities interleave in the feed rather than arriving
+  // in blocks. Replies trickle in 25 minutes apart after their parent.
+  const HOUR_MS = 60 * 60 * 1000;
+  const seedNow = Date.now();
+  for (const [i, t] of allThreads.entries()) {
+    const hoursAgo = ((i * 37) % allThreads.length) * 3 + 1;
+    const postedAt = new Date(seedNow - hoursAgo * HOUR_MS);
     // Same id/`imagePath` scheme the real app reserves before uploading
     // images (`lib/threads/image-path.ts`) — a top-level thread's own
     // path is just its own id. Generated here (not left to the column's
@@ -1196,11 +1238,12 @@ async function seed() {
         images: t.images ?? [],
         city: t.city ?? "aswan",
         category: t.category ?? "general",
+        createdAt: postedAt,
       })
       .returning();
     flatThreads.push(thread);
 
-    for (const reply of t.replies ?? []) {
+    for (const [k, reply] of (t.replies ?? []).entries()) {
       const replyId = randomUUID();
       await db.insert(schema.threads).values({
         id: replyId,
@@ -1209,9 +1252,20 @@ async function seed() {
         parentId: thread.id,
         body: reply.body,
         city: t.city ?? "aswan",
+        createdAt: new Date(
+          Math.min(postedAt.getTime() + (k + 1) * 25 * 60 * 1000, seedNow),
+        ),
       });
     }
   }
+
+  console.log("Seeding reports…");
+  await db.insert(schema.reports).values(
+    SEED_REPORTS.map(([username, message]) => ({
+      userId: userByUsername.get(username)!.id,
+      message,
+    })),
+  );
 
   console.log("Seeding saves…");
   await db.insert(schema.threadSaves).values(
@@ -1231,7 +1285,7 @@ async function seed() {
   );
 
   console.log(
-    `\nDone. ${users.length} users, ${businesses.length} businesses (${SEED_GOOGLE_PLACES.length} connected to a cached Google Place), ${allThreads.length} threads, and ${allReviews.length} reviews seeded across Aswan and Luxor. User password: ${SEED_PASSWORD}`,
+    `\nDone. ${users.length} users, ${businesses.length} businesses (${googlePlaceConnections.length} connected to a cached Google Place), ${allThreads.length} threads, ${allReviews.length} reviews, ${allSaves.length} saves, ${allVotes.length} votes, and ${SEED_REPORTS.length} reports seeded across all ${new Set(allBusinesses.map((b) => ("city" in b.block ? b.block.city : "aswan"))).size} cities. User password: ${SEED_PASSWORD}`,
   );
   console.log("Sign in with any seeded email, e.g. yasmine@qura.dev or mostafa@qura.dev.");
   console.log(
