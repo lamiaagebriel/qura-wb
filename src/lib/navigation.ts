@@ -32,6 +32,10 @@ export const NAV_TYPES = [
   "nav-back",
   "nav-forward-rtl",
   "nav-back-rtl",
+  // Edge-swipe back: finishes from where the finger let go (see
+  // navigation/use-swipe-back.ts, which writes its keyframes).
+  "nav-swipe",
+  "nav-swipe-rtl",
 ] as const;
 export type NavType = (typeof NAV_TYPES)[number];
 
@@ -40,4 +44,8 @@ export function navType(
   dir: "ltr" | "rtl",
 ): NavType {
   return `nav-${direction}${dir === "rtl" ? "-rtl" : ""}`;
+}
+
+export function swipeNavType(dir: "ltr" | "rtl"): NavType {
+  return dir === "rtl" ? "nav-swipe-rtl" : "nav-swipe";
 }

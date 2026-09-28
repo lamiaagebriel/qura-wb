@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
     ...PRIVATE_NETWORKS,
     ...(env.TRUSTED_ORIGINS ?? []).map((origin) => new URL(origin).hostname),
   ],
+  // Browsers still ask for /favicon.ico on their own; serve the drawn icon.
+  async rewrites() {
+    return [{ source: "/favicon.ico", destination: "/icon" }];
+  },
   // The service worker must never be cached, so every deploy's version is
   // picked up immediately (Next's PWA guide).
   async headers() {

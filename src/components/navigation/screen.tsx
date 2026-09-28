@@ -21,7 +21,7 @@ export function Screen({ children }: { children: ReactNode }) {
       {/* Opaque and full-height: during a slide the screen is a solid sheet,
           so the screen underneath never shows through its gaps or its
           (transparent-at-top) header. */}
-      <div className="flex flex-1 flex-col bg-background">
+      <div data-screen className="flex flex-1 flex-col bg-background">
         {children}
       </div>
     </ViewTransition>

@@ -23,6 +23,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { isIOS, isStandalone } from "@/lib/device";
 import { useLocale } from "@/lib/i18n/provider";
 
 // Chromium's install event (not in the TS DOM lib yet).
@@ -53,13 +54,6 @@ const storage = {
   },
 };
 
-const isStandalone = () =>
-  window.matchMedia("(display-mode: standalone)").matches ||
-  (navigator as Navigator & { standalone?: boolean }).standalone === true;
-
-const isIOS = () =>
-  /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
 /** Counts one visit per browser session; returns the total. */
 function countVisit() {

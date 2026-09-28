@@ -31,6 +31,12 @@ test.describe("icons & manifest", () => {
     expect((await request.get("/icons/nope.png")).status()).toBe(404);
   });
 
+  test("/favicon.ico (asked for by browsers on their own) is the icon", async ({ request }) => {
+    const res = await request.get("/favicon.ico");
+    expect(res.status()).toBe(200);
+    expect([...(await res.body()).subarray(0, 4)]).toEqual(PNG);
+  });
+
   test("every iPhone launch screen is linked", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator('link[rel="apple-touch-startup-image"]')).toHaveCount(20);
