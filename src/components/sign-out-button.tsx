@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { HugeiconsIcon, Logout03Icon } from "@/components/icons";
+import { clearSavedPages } from "@/components/offline/service-worker";
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { signOut } from "@/lib/auth/client";
@@ -35,6 +36,7 @@ export function SignOutButton({ ...props }: ButtonProps) {
         destructive
         onConfirm={async () => {
           await signOut();
+          clearSavedPages(); // offline copies may show the signed-in profile
           // Stay on this page, re-rendered signed out (sign-in is a sheet).
           // The active profile will be cleared here once it's stored separately.
           router.refresh();

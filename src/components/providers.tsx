@@ -6,6 +6,8 @@ import { ThemeProvider } from "next-themes";
 import { AuthSheetProvider } from "@/components/auth/auth-sheet";
 import { InstallPromptProvider } from "@/components/install-prompt";
 import { NavigationProvider } from "@/components/navigation/navigation-provider";
+import { OfflineBanner } from "@/components/offline/offline-banner";
+import { ServiceWorker } from "@/components/offline/service-worker";
 import { ThemeColor } from "@/components/theme-color";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -51,6 +53,8 @@ export function Providers({
                 <AuthSheetProvider>{children}</AuthSheetProvider>
               </InstallPromptProvider>
               <ThemeColor />
+              <ServiceWorker />
+              <OfflineBanner />
             </NavigationProvider>
           </Toaster>
         </TooltipProvider>

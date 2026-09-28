@@ -38,6 +38,8 @@ export {
   FileNotFoundIcon,
   RefreshIcon,
   Home01Icon,
+  // Offline
+  WifiDisconnected01Icon,
   // Search
   Clock01Icon,
   // Share & install

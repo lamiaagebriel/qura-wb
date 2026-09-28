@@ -15,6 +15,7 @@ export const routes = {
   search: "/search",
   profile: "/profile",
   settings: "/profile/settings",
+  offline: "/offline",
   login: "/login",
 } as const;
 

@@ -60,6 +60,9 @@ const fr = {
   "You can sign back in anytime with Google.": "Tu peux te reconnecter à tout moment avec Google.",
   Cancel: "Annuler",
   Loading: "Chargement",
+  "You're offline": "Tu es hors ligne",
+  "Check your connection and try again.": "Vérifie ta connexion et réessaie.",
+  "Back online": "De retour en ligne",
 } satisfies Messages;
 
 export default fr;
