@@ -50,6 +50,16 @@ const fr = {
   "Not now": "Pas maintenant",
   "Share Qura": "Partager Qura",
   "Your city, one feed.": "Ta ville, un seul fil.",
+  "Recent searches": "Recherches récentes",
+  Clear: "Effacer",
+  "Clear search": "Effacer la recherche",
+  Remove: "Supprimer",
+  "No results for “{{query}}”": "Aucun résultat pour « {{query}} »",
+  "Try a different word or check the spelling.": "Essaie un autre mot ou vérifie l'orthographe.",
+  "Sign out of Qura?": "Se déconnecter de Qura ?",
+  "You can sign back in anytime with Google.": "Tu peux te reconnecter à tout moment avec Google.",
+  Cancel: "Annuler",
+  Loading: "Chargement",
 } satisfies Messages;
 
 export default fr;

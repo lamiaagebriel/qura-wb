@@ -4,12 +4,18 @@ import * as React from "react"
 import { cn } from "cn"
 import { Drawer as DrawerPrimitive } from "vaul"
 
+// Updated: see Drawer below.
+import { useBackToClose } from "@/components/navigation/use-back-to-close"
+
 // Updated: scale the page back behind the sheet by default (native iOS feel);
 // needs the `data-vaul-drawer-wrapper` element in the root layout.
+// Updated: the back gesture/button closes an open (controlled) sheet first,
+// instead of leaving the page (useBackToClose).
 function Drawer({
   shouldScaleBackground = true,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
+  useBackToClose(props.open ?? false, () => props.onOpenChange?.(false))
   return (
     <DrawerPrimitive.Root
       data-slot="drawer"

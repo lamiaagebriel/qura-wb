@@ -50,6 +50,16 @@ const ar = {
   "Not now": "ليس الآن",
   "Share Qura": "شارك قُري",
   "Your city, one feed.": "مدينتك، في تدفق واحد.",
+  "Recent searches": "عمليات البحث الأخيرة",
+  Clear: "مسح",
+  "Clear search": "مسح البحث",
+  Remove: "إزالة",
+  "No results for “{{query}}”": "لا توجد نتائج لـ «{{query}}»",
+  "Try a different word or check the spelling.": "جرّب كلمة أخرى أو تحقّق من الإملاء.",
+  "Sign out of Qura?": "تسجيل الخروج من قُري؟",
+  "You can sign back in anytime with Google.": "يمكنك تسجيل الدخول مرة أخرى في أي وقت باستخدام Google.",
+  Cancel: "إلغاء",
+  Loading: "جارٍ التحميل",
 } as const;
 
 export default ar;

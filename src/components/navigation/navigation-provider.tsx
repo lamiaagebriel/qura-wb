@@ -99,6 +99,9 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     };
     // Browser/OS back & forward: restore the destination's scroll too.
     const onPopState = () => {
+      // Same page (e.g. back closing a sheet — see useBackToClose): not a
+      // navigation, nothing to restore.
+      if (window.location.pathname === currentPath.current) return;
       navigating.current = true;
       restoreNext.current = true;
     };
