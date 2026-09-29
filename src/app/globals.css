@@ -187,6 +187,17 @@ a {
   }
 }
 
+/* When the browser scrolls a focused field into view, keep it clear of the
+   sticky header (44px bar + status bar) and the tab bar — which hides while
+   the keyboard is up (components/keyboard.tsx). */
+html {
+  scroll-padding-top: calc(var(--safe-top) + 2.75rem + 0.5rem);
+  scroll-padding-bottom: calc(4rem + var(--safe-bottom) + 0.5rem);
+}
+html[data-keyboard="open"] {
+  scroll-padding-bottom: 0.5rem;
+}
+
 /* Inputs under 16px make iOS zoom the page on focus. */
 @media (pointer: coarse) {
   input,

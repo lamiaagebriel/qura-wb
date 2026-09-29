@@ -38,8 +38,9 @@ export function BottomNav() {
     <nav
       aria-label={t("Main navigation")}
       // Named so it stays still (above the sliding page) during transitions.
+      // Slides away while the on-screen keyboard is up (components/keyboard).
       style={{ viewTransitionName: "bottom-nav" }}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/50 bg-background/80 pb-(--safe-bottom) backdrop-blur-xl"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/50 bg-background/80 pb-(--safe-bottom) backdrop-blur-xl transition-[translate,visibility] duration-200 ease-out in-data-[keyboard=open]:invisible in-data-[keyboard=open]:translate-y-full motion-reduce:transition-none"
     >
       <ul className="mx-auto flex h-16 max-w-md items-stretch">
         {TABS.map((tab) => {

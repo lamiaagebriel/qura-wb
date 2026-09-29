@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 
 import { AuthSheetProvider } from "@/components/auth/auth-sheet";
 import { InstallPromptProvider } from "@/components/install-prompt";
+import { KeyboardObserver } from "@/components/keyboard";
 import { NavigationProvider } from "@/components/navigation/navigation-provider";
 import { OfflineBanner } from "@/components/offline/offline-banner";
 import { ServiceWorker } from "@/components/offline/service-worker";
@@ -55,6 +56,7 @@ export function Providers({
               <ThemeColor />
               <ServiceWorker />
               <OfflineBanner />
+              <KeyboardObserver />
             </NavigationProvider>
           </Toaster>
         </TooltipProvider>
