@@ -167,6 +167,29 @@ export const tab = (page: Page, path: keyof typeof TAB_INDEX) =>
 
 export const pathname = (page: Page) => new URL(page.url()).pathname;
 
+/**
+ * A real one-finger touch drag (Chromium touch input): `steps` moves ~16ms
+ * apart, like a finger. `steps = 0` is a tap at `from`.
+ */
+export async function touchDrag(
+  page: Page,
+  from: [number, number],
+  to: [number, number] = from,
+  steps = 12,
+) {
+  const cdp = await page.context().newCDPSession(page);
+  const point = (x: number, y: number) => [{ x, y, id: 1 }];
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: point(...from) });
+  for (let i = 1; i <= steps; i++) {
+    const x = from[0] + ((to[0] - from[0]) * i) / steps;
+    const y = from[1] + ((to[1] - from[1]) * i) / steps;
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: point(x, y) });
+    await page.waitForTimeout(16);
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await cdp.detach();
+}
+
 /** Makes the page tall enough to scroll (screens are short while empty). */
 export const makeTall = (context: BrowserContext) =>
   context.addInitScript(() =>

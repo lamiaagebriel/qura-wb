@@ -8,6 +8,7 @@ import {
   UserCircleIcon,
 } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StackLink } from "@/components/navigation/stack-link";
 import { StatusScreen } from "@/components/status-screen";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,35 +50,37 @@ export default async function ProfilePage() {
           </Button>
         }
       />
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-4 py-4">
-        {user ? (
-          <>
-            <section className="flex items-center gap-4">
-              <Avatar className="size-16">
-                {user.image && <AvatarImage src={user.image} alt="" />}
-                <AvatarFallback className="text-xl">
-                  {user.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex min-w-0 flex-col">
-                <p className="truncate text-lg font-semibold">{user.name}</p>
-                <p className="truncate text-sm text-muted-foreground" dir="ltr">
-                  @{user.username}
-                </p>
-              </div>
-            </section>
-          </>
-        ) : (
-          <StatusScreen
-            icon={UserCircleIcon}
-            title={t("Sign in to Qura")}
-            description={t("Sign in to see your profile.")}
-            inline
-          >
-            <SignInButton size="xl" className="w-full rounded-xl" />
-          </StatusScreen>
-        )}
-      </main>
+      <PullToRefresh>
+        <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-4 py-4">
+          {user ? (
+            <>
+              <section className="flex items-center gap-4">
+                <Avatar className="size-16">
+                  {user.image && <AvatarImage src={user.image} alt="" />}
+                  <AvatarFallback className="text-xl">
+                    {user.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex min-w-0 flex-col">
+                  <p className="truncate text-lg font-semibold">{user.name}</p>
+                  <p className="truncate text-sm text-muted-foreground" dir="ltr">
+                    @{user.username}
+                  </p>
+                </div>
+              </section>
+            </>
+          ) : (
+            <StatusScreen
+              icon={UserCircleIcon}
+              title={t("Sign in to Qura")}
+              description={t("Sign in to see your profile.")}
+              inline
+            >
+              <SignInButton size="xl" className="w-full rounded-xl" />
+            </StatusScreen>
+          )}
+        </main>
+      </PullToRefresh>
     </Screen>
   );
 }

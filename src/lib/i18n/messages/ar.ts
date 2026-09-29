@@ -60,6 +60,7 @@ const ar = {
   "You can sign back in anytime with Google.": "يمكنك تسجيل الدخول مرة أخرى في أي وقت باستخدام Google.",
   Cancel: "إلغاء",
   Loading: "جارٍ التحميل",
+  "Refreshing…": "جارٍ التحديث…",
   "You're offline": "أنت غير متصل بالإنترنت",
   "Check your connection and try again.": "تحقّق من اتصالك وحاول مرة أخرى.",
   "Back online": "عاد الاتصال",

@@ -6,6 +6,7 @@ import {
   recordTransitions,
   takeTransitions,
   test,
+  touchDrag as drag,
   transitionOf,
   transitionSettled,
   waitForHydration,
@@ -16,21 +17,6 @@ const installed = (context: BrowserContext) =>
   context.addInitScript(() =>
     Object.defineProperty(Navigator.prototype, "standalone", { get: () => true }),
   );
-
-/** A real one-finger drag (Chromium touch input), `steps` moves, ~16ms apart. */
-async function drag(page: Page, from: [number, number], to: [number, number], steps = 12) {
-  const cdp = await page.context().newCDPSession(page);
-  const point = (x: number, y: number) => [{ x, y, id: 1 }];
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: point(...from) });
-  for (let i = 1; i <= steps; i++) {
-    const x = from[0] + ((to[0] - from[0]) * i) / steps;
-    const y = from[1] + ((to[1] - from[1]) * i) / steps;
-    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: point(x, y) });
-    await page.waitForTimeout(16);
-  }
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-  await cdp.detach();
-}
 
 /** Opens settings from profile, so back has a real previous screen. */
 async function openSettings(page: Page) {

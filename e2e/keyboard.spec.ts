@@ -1,6 +1,6 @@
 import type { BrowserContext, Page } from "@playwright/test";
 
-import { expect, test, waitForHydration } from "./fixtures";
+import { expect, test, touchDrag, waitForHydration } from "./fixtures";
 
 /**
  * Test browsers never show an on-screen keyboard, so `visualViewport` is
@@ -27,18 +27,6 @@ async function fakeKeyboard(context: BrowserContext) {
 }
 const keyboard = (page: Page, px: number) =>
   page.evaluate((px) => (window as unknown as { __keyboard: (px: number) => void }).__keyboard(px), px);
-
-/** A real one-finger touch path (Chromium touch input). */
-async function touch(page: Page, points: [number, number][]) {
-  const cdp = await page.context().newCDPSession(page);
-  const at = ([x, y]: [number, number]) => [{ x, y, id: 1 }];
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: at(points[0]) });
-  for (const point of points.slice(1)) {
-    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: at(point) });
-  }
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-  await cdp.detach();
-}
 
 const nav = (page: Page) => page.getByRole("navigation", { name: "Main navigation" });
 const field = (page: Page) => page.getByRole("searchbox", { name: "Search Qura" });
@@ -75,7 +63,7 @@ test.describe("keyboard", () => {
   test("dragging the page dismisses the keyboard", async ({ page }) => {
     await keyboard(page, 320);
     await expect(page.locator("html")).toHaveAttribute("data-keyboard", "open");
-    await touch(page, [[200, 400], [200, 380], [200, 340]]);
+    await touchDrag(page, [200, 400], [200, 340], 3);
     await expect.poll(() => isFocused(page)).toBe(false);
     await keyboard(page, 0);
     await expect(nav(page)).toBeVisible();
@@ -91,11 +79,11 @@ test.describe("keyboard", () => {
     await expect(page.locator("html")).toHaveAttribute("data-keyboard", "open");
 
     const box = (await field(page).boundingBox())!;
-    await touch(page, [[box.x + box.width / 2, box.y + box.height / 2]]);
+    await touchDrag(page, [box.x + box.width / 2, box.y + box.height / 2], undefined, 0);
     await page.waitForTimeout(100);
     expect(await isFocused(page)).toBe(true);
 
-    await touch(page, [[200, 700]]); // empty area under the content
+    await touchDrag(page, [200, 700], undefined, 0); // empty area under the content
     await expect.poll(() => isFocused(page)).toBe(false);
   });
 
