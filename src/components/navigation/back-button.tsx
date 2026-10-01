@@ -1,29 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, type MouseEvent } from "react";
 
 import { ArrowLeft01Icon, HugeiconsIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n/provider";
-import { swipeNavType } from "@/lib/navigation";
+import { navType, swipeNavType } from "@/lib/navigation";
 
-import { useNavigation } from "./navigation-provider";
+import { canGoBack, markReplace } from "./history";
 import { useSwipeBack } from "./use-swipe-back";
 
 /**
- * In-app back arrow (mirrored in RTL): a real link to the previous screen
- * of this tab, sliding back; with no in-app history (deep link) it goes to
- * `fallback`, the parent. Being a `<Link>`, its target is prefetched and the
- * back slide always plays. In the installed app, an edge swipe goes back
- * too (same link, finishing the slide from the finger — use-swipe-back).
+ * In-app back arrow (mirrored in RTL). With an in-app screen behind this
+ * one it's the browser's back (`router.back()`, instant). Opened directly
+ * (deep link) it replaces this screen with `fallback`, the parent, sliding
+ * back — so back never leaves the app. In the installed app, an edge swipe
+ * goes back too (use-swipe-back).
  */
 export function BackButton({ fallback }: { fallback: string }) {
   const { t, dir } = useLocale();
+  const router = useRouter();
   const swipeRef = useRef<HTMLAnchorElement>(null);
   useSwipeBack(swipeRef, dir);
-  const { backLink } = useNavigation();
-  const { href, replace, transitionTypes, onClick } = backLink(fallback);
+
+  const onClick = (event: MouseEvent) => {
+    // Modified clicks (open in new tab…) are left to the browser.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!canGoBack()) return markReplace(); // the link goes to `fallback`
+    event.preventDefault();
+    router.back();
+  };
 
   return (
     <>
@@ -35,14 +43,13 @@ export function BackButton({ fallback }: { fallback: string }) {
         nativeButton={false}
         render={
           <Link
-            href={href}
+            href={fallback}
             // Full prefetch: the screens are dynamic, and without their data
             // ready the router commits twice — the back slide would animate
-            // the current screen, then the previous one pops in.
+            // the current screen, then the parent pops in.
             prefetch
-            replace={replace}
-            scroll={false}
-            transitionTypes={transitionTypes}
+            replace
+            transitionTypes={[navType("back", dir)]}
             onClick={onClick}
           />
         }
@@ -56,9 +63,8 @@ export function BackButton({ fallback }: { fallback: string }) {
       {/* The edge swipe clicks this: same target, its own transition type. */}
       <Link
         ref={swipeRef}
-        href={href}
-        replace={replace}
-        scroll={false}
+        href={fallback}
+        replace
         prefetch
         transitionTypes={[swipeNavType(dir)]}
         onClick={onClick}

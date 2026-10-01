@@ -11,12 +11,12 @@ test.describe("theme-color", () => {
   test.use({ colorScheme: "light" });
 
   test("follows the in-app theme and dims under a sheet", async ({ page }) => {
-    await page.goto("/profile/settings");
+    await page.goto("/profile");
     await waitForHydration(page);
     await expect.poll(() => themeColors(page)).toEqual(["#ffffff"]);
 
     await page.locator('[aria-label="Dark"]').tap();
-    await expect.poll(() => themeColors(page)).toEqual(["#0a0a0a"]);
+    await expect.poll(() => themeColors(page)).toEqual(["#0c0a09"]);
     await page.locator('[aria-label="Light"]').tap();
 
     await page.goto("/profile");
@@ -39,7 +39,7 @@ test.describe("share", () => {
       };
       navigator.canShare = () => true;
     });
-    await page.goto("/profile/settings");
+    await page.goto("/profile");
     await waitForHydration(page);
     await page.getByRole("button", { name: "Share Qura" }).tap();
     await expect
@@ -56,7 +56,7 @@ test.describe("share", () => {
       delete (Navigator.prototype as Partial<Navigator>).share;
       delete (Navigator.prototype as Partial<Navigator>).canShare;
     });
-    await page.goto("/profile/settings");
+    await page.goto("/profile");
     await waitForHydration(page);
     await page.getByRole("button", { name: "Share Qura" }).tap();
 

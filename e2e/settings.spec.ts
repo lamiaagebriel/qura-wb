@@ -2,7 +2,7 @@ import { ANDROID_UA, expect, fireInstallEvent, IPHONE_UA, test, waitForHydration
 
 test.describe("language", () => {
   test("row opens a sheet; picking a language switches the app", async ({ page }) => {
-    await page.goto("/profile/settings");
+    await page.goto("/profile");
     await waitForHydration(page);
     const row = page.getByRole("button", { name: /^Language/ });
     expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -23,9 +23,9 @@ test.describe("language", () => {
   });
 
   test("?lang= is saved and removed from the URL", async ({ page }) => {
-    await page.goto("/profile/settings?lang=ar");
+    await page.goto("/profile?lang=ar");
     await waitForHydration(page);
-    await expect(page).toHaveURL(/\/profile\/settings$/);
+    await expect(page).toHaveURL(/\/profile$/);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     // Switching afterwards still works (the old ?lang= can't override it).
     await page.getByRole("button", { name: /^اللغة/ }).tap();
@@ -42,7 +42,7 @@ test.describe("Install Qura row", () => {
     test.use({ userAgent: IPHONE_UA });
 
     test("shown on the first visit and opens the steps", async ({ page }) => {
-      await page.goto("/profile/settings");
+      await page.goto("/profile");
       await waitForHydration(page);
       await row(page).tap();
       await expect(page.getByText("Add to Home Screen")).toBeVisible();
@@ -52,7 +52,7 @@ test.describe("Install Qura row", () => {
       await context.addInitScript(() =>
         Object.defineProperty(navigator, "standalone", { get: () => true }),
       );
-      await page.goto("/profile/settings");
+      await page.goto("/profile");
       await waitForHydration(page);
       await page.waitForTimeout(400);
       await expect(row(page)).toBeHidden();
@@ -63,7 +63,7 @@ test.describe("Install Qura row", () => {
     test.use({ userAgent: ANDROID_UA });
 
     test("appears once installable and runs the native prompt", async ({ page }) => {
-      await page.goto("/profile/settings");
+      await page.goto("/profile");
       await waitForHydration(page);
       await page.waitForTimeout(400);
       await expect(row(page)).toBeHidden();

@@ -1,5 +1,7 @@
 import { test as base, expect, type BrowserContext, type Page } from "@playwright/test";
 
+import { signIn } from "./auth";
+
 export { expect };
 
 export const IPHONE_UA =
@@ -14,11 +16,17 @@ type Lang = "en" | "ar" | "fr";
  *   top of app controls; it only exists in development).
  * - Any console error or uncaught page error fails the test.
  * - `setLang(lang)` picks the app language for this test's browser.
+ * - `signIn()` signs this test's browser in as the test user (e2e/auth.ts).
  */
 export const test = base.extend<{
   setLang: (lang: Lang) => Promise<void>;
+  signIn: () => Promise<void>;
   pageErrors: string[];
 }>({
+  signIn: async ({ context, baseURL }, use) => {
+    await use(() => signIn(context, baseURL!));
+  },
+
   context: async ({ context }, use) => {
     await hideDevBadge(context);
     await use(context);
@@ -161,7 +169,7 @@ const TAB_INDEX = { "/": 1, "/search": 2, "/profile": 3 } as const;
 
 /** A tab of the bottom bar by its root path, e.g. tab(page, "/profile").
  * By position, not href: a tab's link points at the screen it remembers
- * (e.g. /profile/settings). */
+ * (e.g. /profile/businesses). */
 export const tab = (page: Page, path: keyof typeof TAB_INDEX) =>
   page.locator(`nav[aria-label] li:nth-child(${TAB_INDEX[path]}) a`);
 

@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 export type SheetAction = {
   label: string;
   icon?: IconSvgElement;
+  /** Shows the icon in a round badge with these colours (e.g. a brand's). */
+  iconColors?: string;
   /** Red, for destructive choices (delete, report…). */
   destructive?: boolean;
   onSelect: () => void;
@@ -61,9 +63,19 @@ export function ActionSheet({
               action.destructive && "text-destructive",
             )}
           >
-            {action.icon && (
-              <HugeiconsIcon icon={action.icon} strokeWidth={2} className="size-5" />
-            )}
+            {action.icon &&
+              (action.iconColors ? (
+                <span
+                  className={cn(
+                    "flex size-8 shrink-0 items-center justify-center rounded-full",
+                    action.iconColors,
+                  )}
+                >
+                  <HugeiconsIcon icon={action.icon} strokeWidth={2} className="size-4" />
+                </span>
+              ) : (
+                <HugeiconsIcon icon={action.icon} strokeWidth={2} className="size-5" />
+              ))}
             {action.label}
           </button>
         ))}

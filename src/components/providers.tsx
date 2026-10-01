@@ -6,7 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthSheetProvider } from "@/components/auth/auth-sheet";
 import { InstallPromptProvider } from "@/components/install-prompt";
 import { KeyboardObserver } from "@/components/keyboard";
-import { NavigationProvider } from "@/components/navigation/navigation-provider";
+import { HistoryTracker } from "@/components/navigation/history";
 import { OfflineBanner } from "@/components/offline/offline-banner";
 import { ServiceWorker } from "@/components/offline/service-worker";
 import { ThemeColor } from "@/components/theme-color";
@@ -49,15 +49,14 @@ export function Providers({
       <LocaleProvider locale={locale} messages={messages}>
         <TooltipProvider>
           <Toaster>
-            <NavigationProvider>
-              <InstallPromptProvider>
-                <AuthSheetProvider>{children}</AuthSheetProvider>
-              </InstallPromptProvider>
-              <ThemeColor />
-              <ServiceWorker />
-              <OfflineBanner />
-              <KeyboardObserver />
-            </NavigationProvider>
+            <InstallPromptProvider>
+              <AuthSheetProvider>{children}</AuthSheetProvider>
+            </InstallPromptProvider>
+            <HistoryTracker />
+            <ThemeColor />
+            <ServiceWorker />
+            <OfflineBanner />
+            <KeyboardObserver />
           </Toaster>
         </TooltipProvider>
       </LocaleProvider>

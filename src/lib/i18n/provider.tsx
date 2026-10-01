@@ -39,7 +39,7 @@ export function LocaleProvider({
   const value: LocaleContextValue = {
     locale,
     dir: LOCALE_META[locale].dir,
-    t: createTranslator(messages),
+    t: createTranslator(locale, messages),
     setLocale: (next) => startTransition(() => setLocale(next)),
     isPending,
   };

@@ -25,6 +25,15 @@ const DAY = 60 * 60 * 24;
 // (LAN address, tunnel, preview domains...).
 const origins = [env.APP_URL, ...(env.TRUSTED_ORIGINS ?? [])];
 
+// Google rejects IP addresses as redirect URIs, so a LAN IP can't build its
+// own auth URLs: it falls back to APP_URL (localhost). On the phone, swap
+// `localhost` for the IP in the failed callback URL to finish signing in.
+const isIpHost = (origin: string) =>
+  /^[\d.]+$|^\[/.test(new URL(origin).hostname);
+const authHosts = origins
+  .filter((origin) => origin === env.APP_URL || !isIpHost(origin))
+  .map((origin) => new URL(origin).host);
+
 /**
  * The single Better Auth instance: Google is the only sign-in method.
  * Used by the `/api/auth/[...all]` route and every server-side session check.
@@ -35,7 +44,7 @@ export const auth = betterAuth({
   // instead of APP_URL. Only listed hosts are accepted; anything else
   // falls back to APP_URL.
   baseURL: {
-    allowedHosts: origins.map((origin) => new URL(origin).host),
+    allowedHosts: authHosts,
     fallback: env.APP_URL,
   },
   secret: env.BETTER_AUTH_SECRET,

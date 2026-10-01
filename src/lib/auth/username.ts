@@ -8,7 +8,8 @@ import { profiles, users } from "@/db/schema";
 const MAX_LENGTH = 20;
 const ATTEMPTS = 10;
 
-async function isTaken(username: string) {
+/** A user or profile already has this handle (they share one space). */
+export async function isTaken(username: string) {
   const [user] = await db
     .select({ id: users.id })
     .from(users)

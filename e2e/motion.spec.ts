@@ -9,23 +9,24 @@ import {
 
 // Which animations actually run for each navigation, per language and
 // motion preference. Forward: the new screen enters from the end edge
-// (right in LTR, left in RTL); back: from the start edge.
+// (right in LTR, left in RTL). The back arrow is a history back: instant.
 for (const lang of ["en", "ar"] as const) {
   for (const reduced of [false, true]) {
     test.describe(`${lang}${reduced ? ", reduced motion" : ""}`, () => {
       test.use({ reducedMotion: reduced ? "reduce" : "no-preference" });
 
-      test("forward, back and tab transitions", async ({ page, context, setLang }) => {
+      test("forward, back and tab transitions", async ({ page, context, setLang, signIn }) => {
+        await signIn();
         await recordTransitions(context);
         await setLang(lang);
         await page.goto("/profile");
         await waitForHydration(page);
-        const gear = page.locator(`a[aria-label="${lang === "ar" ? "الإعدادات" : "Settings"}"]`);
+        const row = page.locator('main a[href="/profile/businesses"]'); // "My businesses"
         const back = page.locator(`[aria-label="${lang === "ar" ? "رجوع" : "Back"}"]`);
 
         const forward = await transitionOf(page, async () => {
-          await gear.tap();
-          await page.waitForURL("**/profile/settings");
+          await row.tap();
+          await page.waitForURL("**/profile/businesses");
         });
         const backward = await transitionOf(page, async () => {
           await back.tap();
@@ -41,15 +42,14 @@ for (const lang of ["en", "ar"] as const) {
 
         if (reduced) {
           expect(forward.map((a) => a.name).sort()).toEqual(["nav-fade-in", "nav-fade-out"]);
-          expect(backward.map((a) => a.name).sort()).toEqual(["nav-fade-in", "nav-fade-out"]);
         } else {
           const end = lang === "ar" ? "-100%" : "100%";
           const start = lang === "ar" ? "100%" : "-100%";
           expect(layer(forward, "new")?.from).toBe(end);
           expect(layer(forward, "old")?.to).toBe(start);
-          expect(layer(backward, "new")?.from).toBe(start);
-          expect(layer(backward, "old")?.to).toBe(end);
         }
+        // Back is a history back (instant, like browser back); tabs too.
+        expect(backward).toEqual([]);
         expect(tabSwitch).toEqual([]);
       });
     });

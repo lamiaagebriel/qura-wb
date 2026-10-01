@@ -53,7 +53,7 @@ export const getTranslations = cache(async () => {
   const locale = await getLocale();
   const messages = await getMessages(locale);
   return {
-    t: createTranslator(messages),
+    t: createTranslator(locale, messages),
     locale,
     dir: LOCALE_META[locale].dir,
     messages,

@@ -61,7 +61,7 @@ test.describe("SEO", () => {
   });
 
   test("personal pages are noindex", async ({ page }) => {
-    for (const path of ["/profile", "/profile/settings", "/login"]) {
+    for (const path of ["/profile", "/login"]) {
       await page.goto(path);
       await expect(page.locator('meta[name="robots"]'), path).toHaveAttribute(
         "content",
@@ -81,7 +81,7 @@ test.describe("SEO", () => {
 
 test.describe("layout", () => {
   test("no page overflows the screen", async ({ page }) => {
-    for (const path of ["/", "/search", "/profile", "/profile/settings", "/login"]) {
+    for (const path of ["/", "/search", "/login"]) {
       await page.goto(path);
       const overflow = await page.evaluate(
         () => document.documentElement.scrollHeight - innerHeight,

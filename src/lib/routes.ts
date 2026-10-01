@@ -14,7 +14,15 @@ export const routes = {
   home: "/",
   search: "/search",
   profile: "/profile",
-  settings: "/profile/settings",
+  // Your businesses: the list, a new one, and editing one.
+  businesses: "/profile/businesses",
+  newBusiness: "/profile/businesses/new",
+  editBusiness: "/profile/businesses/:username",
+  // A business's public profile (outside every tab: opened from anywhere).
+  business: "/bs/:username",
+  businessReviews: "/bs/:username/reviews",
+  // A category and everything under it (any depth; slugs are unique).
+  category: "/c/:slug",
   offline: "/offline",
   login: "/login",
 } as const;

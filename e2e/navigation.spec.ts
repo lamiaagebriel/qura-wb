@@ -10,7 +10,7 @@ import {
   waitForHydration,
 } from "./fixtures";
 
-const gear = 'a[aria-label="Settings"]';
+const businesses = 'main a[href="/profile/businesses"]';
 const back = '[aria-label="Back"]';
 
 test.beforeEach(async ({ context }) => {
@@ -41,17 +41,25 @@ test.describe("app header", () => {
 });
 
 test.describe("stack navigation", () => {
-  test("gear slides forward, back arrow slides back", async ({ page }) => {
+  test("a row slides forward; back arrow goes back in history", async ({
+    page,
+    signIn,
+  }) => {
+    await signIn();
     await page.goto("/profile");
     await waitForHydration(page);
-    await page.locator(gear).tap();
-    await page.waitForURL("**/profile/settings");
+    await page.locator(businesses).tap();
+    await page.waitForURL("**/profile/businesses");
     await expect.poll(() => takeTransitions(page)).toContainEqual(["nav-forward"]);
     await transitionSettled(page);
 
+    const historyLength = await page.evaluate(() => history.length);
     await page.locator(back).tap();
     await page.waitForURL(/\/profile$/);
-    await expect.poll(() => takeTransitions(page)).toContainEqual(["nav-back"]);
+    // A real history back (no new entry): instant, like browser back.
+    expect(await page.evaluate(() => history.length)).toBe(historyLength);
+    await page.goForward();
+    await page.waitForURL("**/profile/businesses");
   });
 
   test("tab switches are instant (no slide)", async ({ page }) => {
@@ -64,61 +72,23 @@ test.describe("stack navigation", () => {
     expect(types.flat()).toEqual([]);
   });
 
-  test("tabs remember their screen; back stays inside the tab", async ({ page }) => {
-    await page.goto("/profile");
-    await waitForHydration(page);
-    await page.locator(gear).tap();
-    await page.waitForURL("**/profile/settings");
-
-    await tab(page, "/search").tap();
-    await page.waitForURL("**/search");
-    await tab(page, "/profile").tap();
-    await expect.poll(() => pathname(page)).toBe("/profile/settings");
-
-    await page.locator(back).tap();
-    await expect.poll(() => pathname(page)).toBe("/profile"); // not /search
-  });
-
-  test("re-tapping the active tab: sub-screen → root, root → top", async ({ page }) => {
-    await page.goto("/profile");
-    await waitForHydration(page);
-    await page.locator(gear).tap();
-    await page.waitForURL("**/profile/settings");
-    await tab(page, "/profile").tap();
-    await expect.poll(() => pathname(page)).toBe("/profile");
-
-    await page.mouse.wheel(0, 600);
-    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
-    await tab(page, "/profile").tap();
-    await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
-  });
-
-  test("scroll position is restored when returning to a tab", async ({ page }) => {
-    await page.goto("/search");
-    await waitForHydration(page);
-    await page.mouse.wheel(0, 500);
-    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
-    const saved = await page.evaluate(() => scrollY);
-
-    await tab(page, "/").tap();
-    await expect.poll(() => pathname(page)).toBe("/");
-    await tab(page, "/search").tap();
-    await expect.poll(() => pathname(page)).toBe("/search");
-    await expect.poll(() => page.evaluate(() => scrollY)).toBe(saved);
-  });
-
-  test("deep link: back goes to the parent without leaving the app", async ({ page }) => {
-    await page.goto("/profile/settings");
+  test("deep link: back goes to the parent without leaving the app", async ({
+    page,
+    signIn,
+  }) => {
+    await signIn();
+    await page.goto("/profile/businesses");
     await waitForHydration(page);
     const historyLength = await page.evaluate(() => history.length);
     await page.locator(back).tap();
     await expect.poll(() => pathname(page)).toBe("/profile");
     expect(await page.evaluate(() => history.length)).toBe(historyLength);
+    await expect.poll(() => takeTransitions(page)).toContainEqual(["nav-back"]);
   });
 
   test("RTL: back arrow is mirrored", async ({ page, setLang }) => {
     await setLang("ar");
-    await page.goto("/profile/settings");
+    await page.goto("/bs/nileview");
     await waitForHydration(page);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     await expect(page.locator('[aria-label="رجوع"] svg')).toHaveCSS("rotate", "180deg");

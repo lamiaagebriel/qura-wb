@@ -42,6 +42,8 @@ const schema = z.object({
     .min(32, "must be at least 32 characters (openssl rand -base64 32)"),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  // Maps JavaScript API (browser key, referrer-restricted): the pin picker.
+  GOOGLE_MAPS_API_KEY: optional(z.string().min(1)),
   TRUSTED_ORIGINS: optional(
     z
       .string()

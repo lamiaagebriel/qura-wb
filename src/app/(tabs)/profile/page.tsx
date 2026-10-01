@@ -2,20 +2,15 @@ import type { Metadata } from "next";
 
 import { AppHeader } from "@/components/app-header";
 import { SignInButton } from "@/components/auth/sign-in-button";
-import {
-  HugeiconsIcon,
-  Settings01Icon,
-  UserCircleIcon,
-} from "@/components/icons";
+import { UserCircleIcon } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
 import { PullToRefresh } from "@/components/pull-to-refresh";
-import { StackLink } from "@/components/navigation/stack-link";
+import { FAKE_MY_BUSINESSES } from "@/components/profile/fake-businesses";
+import { PersonalHero } from "@/components/profile/personal-hero";
+import { SettingsList } from "@/components/profile/settings-list";
 import { StatusScreen } from "@/components/status-screen";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth/session";
 import { getTranslations } from "@/lib/i18n/server";
-import { href } from "@/lib/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getTranslations();
@@ -23,52 +18,37 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("Profile"), robots: { index: false, follow: true } };
 }
 
-/** Works signed in (profile) and signed out (sign-in prompt). */
+/**
+ * Your personal profile, then the settings. Signed out: a sign-in prompt,
+ * with the settings (language, theme…) still under it.
+ */
 export default async function ProfilePage() {
   const [{ t }, session] = await Promise.all([getTranslations(), getSession()]);
   const user = session?.user;
 
   return (
     <Screen>
-      <AppHeader
-        title={t("Profile")}
-        large
-        action={
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-11 rounded-full"
-            aria-label={t("Settings")}
-            nativeButton={false}
-            render={<StackLink href={href("settings")} />}
-          >
-            <HugeiconsIcon
-              icon={Settings01Icon}
-              strokeWidth={2}
-              className="size-6"
-            />
-          </Button>
-        }
-      />
+      <AppHeader title={t("Profile")} large />
       <PullToRefresh>
-        <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-4 py-4">
+        <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4">
           {user ? (
-            <>
-              <section className="flex items-center gap-4">
-                <Avatar className="size-16">
-                  {user.image && <AvatarImage src={user.image} alt="" />}
-                  <AvatarFallback className="text-xl">
-                    {user.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex min-w-0 flex-col">
-                  <p className="truncate text-lg font-semibold">{user.name}</p>
-                  <p className="truncate text-sm text-muted-foreground" dir="ltr">
-                    @{user.username}
-                  </p>
-                </div>
-              </section>
-            </>
+            <section
+              aria-label={user.name}
+              className="flex flex-col gap-4 pt-2 pb-5"
+            >
+              <PersonalHero
+                profile={{
+                  kind: "personal",
+                  name: user.name,
+                  username: user.username,
+                  avatarUrl: user.image ?? null,
+                  verified: false,
+                  bio: user.bio ?? "",
+                  // TEMPORARY: no follows yet.
+                  stats: { followers: 0, following: 0 },
+                }}
+              />
+            </section>
           ) : (
             <StatusScreen
               icon={UserCircleIcon}
@@ -79,6 +59,11 @@ export default async function ProfilePage() {
               <SignInButton size="xl" className="w-full rounded-xl" />
             </StatusScreen>
           )}
+          <SettingsList
+            signedIn={!!user}
+            // TEMPORARY: fake businesses until businesses are stored.
+            businessCount={FAKE_MY_BUSINESSES.length}
+          />
         </main>
       </PullToRefresh>
     </Screen>

@@ -1,11 +1,11 @@
-import { expect, pathname, test, waitForHydration } from "./fixtures";
+import { expect, pathname, tab, test, waitForHydration } from "./fixtures";
 
 test.describe("back closes a sheet first", () => {
   test("language sheet", async ({ page }) => {
-    await page.goto("/profile");
+    await page.goto("/");
     await waitForHydration(page);
-    await page.locator('a[aria-label="Settings"]').tap();
-    await page.waitForURL("**/profile/settings");
+    await tab(page, "/profile").tap();
+    await page.waitForURL("**/profile");
     await waitForHydration(page);
 
     await page.getByRole("button", { name: /^Language/ }).tap();
@@ -14,17 +14,17 @@ test.describe("back closes a sheet first", () => {
 
     await page.goBack(); // Android back / browser back / swipe
     await expect(sheet).toBeHidden();
-    expect(pathname(page)).toBe("/profile/settings"); // stayed on the page
+    expect(pathname(page)).toBe("/profile"); // stayed on the page
 
     await page.goBack(); // the next back navigates as usual
-    await expect.poll(() => pathname(page)).toBe("/profile");
+    await expect.poll(() => pathname(page)).toBe("/");
   });
 
   test("closing a sheet normally doesn't leave an extra back step", async ({ page }) => {
-    await page.goto("/profile");
+    await page.goto("/");
     await waitForHydration(page);
-    await page.locator('a[aria-label="Settings"]').tap();
-    await page.waitForURL("**/profile/settings");
+    await tab(page, "/profile").tap();
+    await page.waitForURL("**/profile");
     await waitForHydration(page);
 
     await page.getByRole("button", { name: /^Language/ }).tap();
@@ -33,7 +33,7 @@ test.describe("back closes a sheet first", () => {
     await expect(page.getByRole("dialog")).toBeHidden();
 
     await page.goBack();
-    await expect.poll(() => pathname(page)).toBe("/profile");
+    await expect.poll(() => pathname(page)).toBe("/");
   });
 
   test("sign-in sheet", async ({ page }) => {

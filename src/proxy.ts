@@ -10,7 +10,7 @@ import {
 } from "@/lib/i18n/config";
 
 // Routes that need a signed-in user (prefix match, so sub-paths count too).
-// None yet — add e.g. `href("settings")` from `@/lib/routes`.
+// None yet — add e.g. `href("businesses")` from `@/lib/routes`.
 const PROTECTED_PREFIXES: string[] = [];
 
 /**

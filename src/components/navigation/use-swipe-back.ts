@@ -4,6 +4,8 @@ import { useEffect, type RefObject } from "react";
 
 import { isStandalone } from "@/lib/device";
 
+import { canGoBack } from "./history";
+
 const EDGE = 24; // px from the leading edge where a back swipe can start
 const INTENT = 10; // px moved before deciding: horizontal swipe or scroll
 const COMMIT = 0.35; // share of the width past which letting go goes back
@@ -25,25 +27,28 @@ export function useSwipeBack(
   dir: "ltr" | "rtl",
 ) {
   useEffect(() => {
-    const link = linkRef.current;
-    const screen = link?.closest<HTMLElement>("[data-screen]");
-    if (!link || !screen) return;
-
     const sign = dir === "rtl" ? -1 : 1; // finger direction for "back"
+    // The link and its screen, read when each swipe starts: React can
+    // replace either element without re-running this effect.
+    let link: HTMLAnchorElement | null = null;
+    let screen: HTMLElement | null = null;
     let start: { x: number; y: number } | null = null;
     let dragging = false;
     let offset = 0;
     let samples: { x: number; t: number }[] = [];
 
-    const reset = () => {
-      screen.style.removeProperty("transform");
-      screen.style.removeProperty("transition");
-      screen.style.removeProperty("box-shadow");
-      screen.style.removeProperty("will-change");
+    const reset = (el: HTMLElement) => {
+      el.style.removeProperty("transform");
+      el.style.removeProperty("transition");
+      el.style.removeProperty("box-shadow");
+      el.style.removeProperty("will-change");
     };
 
     const onStart = (event: TouchEvent) => {
       if (event.touches.length !== 1 || !isStandalone()) return;
+      link = linkRef.current;
+      screen = link?.closest<HTMLElement>("[data-screen]") ?? null;
+      if (!screen) return;
       // Only this screen (not an open sheet, not a screen sliding away).
       if (!(event.target instanceof Node) || !screen.contains(event.target)) return;
       const touch = event.touches[0];
@@ -57,7 +62,7 @@ export function useSwipeBack(
     };
 
     const onMove = (event: TouchEvent) => {
-      if (!start) return;
+      if (!start || !screen) return;
       const touch = event.touches[0];
       const moved = (touch.clientX - start.x) * sign;
       if (!dragging) {
@@ -80,7 +85,7 @@ export function useSwipeBack(
     };
 
     const onEnd = () => {
-      if (!start) return;
+      if (!start || !screen || !link) return;
       start = null;
       if (!dragging) return;
       dragging = false;
@@ -92,24 +97,40 @@ export function useSwipeBack(
       const width = screen.offsetWidth;
 
       if (offset > width * COMMIT || (velocity > FLICK && offset > 20)) {
-        finish(offset, width);
+        finish(link, screen, offset, width);
       } else {
-        screen.style.transition = "transform 200ms var(--nav-ease)";
-        screen.style.transform = "";
-        screen.addEventListener("transitionend", reset, { once: true });
+        const el = screen;
+        el.style.transition = "transform 200ms var(--nav-ease)";
+        el.style.transform = "";
+        el.addEventListener("transitionend", () => reset(el), { once: true });
       }
     };
 
     const onCancel = () => {
-      if (dragging) reset();
+      if (dragging && screen) reset(screen);
       start = null;
       dragging = false;
     };
 
     /** Go back, continuing the slide from `offset`. */
-    const finish = (offset: number, width: number) => {
+    const finish = (
+      link: HTMLAnchorElement,
+      screen: HTMLElement,
+      offset: number,
+      width: number,
+    ) => {
       const x = offset * sign;
       const ms = Math.round(Math.max(120, 280 * (1 - offset / width)));
+      // A history back can't carry a transition type: slide the screen the
+      // rest of the way here, then go.
+      if (canGoBack()) {
+        screen.style.transition = `transform ${ms}ms cubic-bezier(0.2, 0.8, 0.2, 1)`;
+        screen.style.transform = `translateX(${sign * width}px)`;
+        // A timer, not `transitionend`: that one isn't guaranteed to fire.
+        setTimeout(() => link.click(), ms);
+        setTimeout(() => reset(screen), ms + 1000);
+        return;
+      }
       const cls = dir === "rtl" ? "nav-swipe-rtl" : "nav-swipe";
       let style = document.getElementById(STYLE_ID);
       if (!style) {
@@ -138,7 +159,7 @@ export function useSwipeBack(
       link.click();
       // Normally this screen is gone by then; if not, don't leave it adrift.
       setTimeout(() => {
-        if (screen.isConnected) reset();
+        if (screen.isConnected) reset(screen);
       }, 1000);
     };
 

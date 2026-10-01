@@ -59,6 +59,43 @@ export function PostSkeleton() {
   );
 }
 
+/**
+ * A business profile (yours or someone else's): avatar + name, category
+ * and followers, buttons, bio, and the details card (reviews, hours,
+ * links, address rows, then the map).
+ */
+export function BusinessProfileSkeleton() {
+  return (
+    <>
+      <div className="flex items-center gap-4">
+        <Bone className="size-20 shrink-0 rounded-full" />
+        <div className="flex flex-1 flex-col gap-2">
+          <Bone className="h-5 w-40" />
+          <Bone className="h-3.5 w-32" />
+          <Bone className="mt-1 h-3.5 w-24" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Bone className="h-11 rounded-xl" />
+        <Bone className="h-11 rounded-xl" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <Bone className="h-3.5 w-full" />
+        <Bone className="h-3.5 w-3/4" />
+      </div>
+      <div className="divide-y divide-border/60 overflow-hidden rounded-2xl ring-1 ring-foreground/5">
+        {["w-28", "w-40", "w-32", "w-4/5"].map((width) => (
+          <div key={width} className="flex h-11 items-center gap-3 px-4">
+            <Bone className="size-5 shrink-0 rounded-full" />
+            <Bone className={`h-3.5 ${width}`} />
+          </div>
+        ))}
+        <Bone className="h-40 rounded-none" />
+      </div>
+    </>
+  );
+}
+
 /** A grouped list card (settings, recent searches). */
 export function ListCardSkeleton({ rows = 3 }: { rows?: number }) {
   return (
@@ -69,6 +106,23 @@ export function ListCardSkeleton({ rows = 3 }: { rows?: number }) {
           <Bone className="size-5 rounded-md" />
         </div>
       ))}
+    </div>
+  );
+}
+
+/** The business form (`BusinessForm`): labelled fields, then the button. */
+export function BusinessFormSkeleton() {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
+        {["w-28", "w-36", "w-36", "w-20", "w-20", "w-12", "w-32"].map((width, i) => (
+          <div key={i} className="flex flex-col gap-2">
+            <Bone className={`h-3.5 ${width}`} />
+            <Bone className={i === 5 ? "h-24 rounded-xl" : "h-11 rounded-xl"} />
+          </div>
+        ))}
+      </div>
+      <Bone className="h-11 rounded-xl" />
     </div>
   );
 }

@@ -42,9 +42,9 @@ test.describe("offline", () => {
 
   test("an unvisited page shows the offline screen; retry recovers", async ({ page, context }) => {
     await context.setOffline(true);
-    await page.goto("/profile/settings");
+    await page.goto("/profile");
     await expect(page.getByText("You're offline").first()).toBeVisible();
-    expect(pathname(page)).toBe("/profile/settings");
+    expect(pathname(page)).toBe("/profile");
 
     await context.setOffline(false);
     await page.getByRole("button", { name: "Try again" }).tap();

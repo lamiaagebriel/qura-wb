@@ -11,6 +11,9 @@ import { cn } from "@/lib/utils";
  *   there's no in-app history (deep link).
  * - `action`: at most one icon button at the end.
  * - `large`: iOS large title under the bar that collapses into it on scroll.
+ * - `titleAfter`: id of an element on the page that already shows the
+ *   title (a profile's name); the bar's title stays hidden until that
+ *   element has scrolled under the bar.
  * - `children`: content under the title, e.g. a search field.
  * Like iOS: transparent at the top; the blur background + hairline appear
  * once scrolled (with `large`, once the big title has tucked under the bar,
@@ -21,19 +24,21 @@ export function AppHeader({
   back,
   action,
   large = false,
+  titleAfter,
   children,
 }: {
   title: string;
   back?: string;
   action?: ReactNode;
   large?: boolean;
+  titleAfter?: string;
   children?: ReactNode;
 }) {
   const topRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   const largeTitleRef = useRef<HTMLHeadingElement>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [collapsed, setCollapsed] = useState(!large);
+  const [collapsed, setCollapsed] = useState(!large && !titleAfter);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -55,8 +60,23 @@ export function AppHeader({
       o.observe(largeTitleRef.current);
       observers.push(o);
     }
+    // The page's own title element scrolled under the bar → show ours.
+    const titled = titleAfter && document.getElementById(titleAfter);
+    if (!large && titled && barRef.current) {
+      const o = new IntersectionObserver(
+        ([e]) =>
+          // Hidden *above* the bar (not below the screen, before reaching it).
+          setCollapsed(
+            !e.isIntersecting &&
+              e.boundingClientRect.top < (e.rootBounds?.top ?? 0),
+          ),
+        { rootMargin: `-${barRef.current.offsetHeight}px 0px 0px 0px` },
+      );
+      o.observe(titled);
+      observers.push(o);
+    }
     return () => observers.forEach((o) => o.disconnect());
-  }, [large]);
+  }, [large, titleAfter]);
 
   return (
     <>
@@ -77,7 +97,9 @@ export function AppHeader({
             className={cn(
               // Small inline title: fades and rises into the bar (iOS).
               "truncate px-2 text-center text-base font-semibold transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none",
-              collapsed ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
+              collapsed
+                ? "translate-y-0 opacity-100"
+                : "translate-y-1 opacity-0",
             )}
           >
             {title}
@@ -86,12 +108,12 @@ export function AppHeader({
         </div>
       </header>
 
+      {/* iOS large title: its own row under the icons, start-aligned. */}
       {large ? (
         <div className="mx-auto w-full max-w-md px-4 pt-1 pb-2">
-          {/* iOS large title: its own row under the icons, start-aligned. */}
           <h1
             ref={largeTitleRef}
-            className="font-heading text-[2.125rem] leading-tight font-bold tracking-tight"
+            className="font-heading text-4xl leading-tight font-bold tracking-tight"
           >
             {title}
           </h1>

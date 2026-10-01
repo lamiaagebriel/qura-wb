@@ -5,8 +5,8 @@
  */
 export const BRAND = {
   name: "Qura",
-  light: { background: "#ffffff", foreground: "#0a0a0a" },
-  dark: { background: "#0a0a0a", foreground: "#ffffff" },
+  light: { background: "#ffffff", foreground: "#0c0a09" },
+  dark: { background: "#0c0a09", foreground: "#ffffff" },
 } as const;
 
 export type BrandMode = keyof Omit<typeof BRAND, "name">;
