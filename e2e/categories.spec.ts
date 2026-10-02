@@ -1,6 +1,6 @@
 import { expect, pathname, test, waitForHydration } from "./fixtures";
 
-// TEMPORARY: runs against the fake businesses until profiles are stored.
+// Runs against the sample businesses (reset before every run).
 test.describe("categories", () => {
   test("a category shows its whole subtree; chips drill down; back goes up", async ({ page }) => {
     await page.goto("/c/beauty");

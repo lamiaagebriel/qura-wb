@@ -76,6 +76,14 @@ test.describe("SEO", () => {
     expect(robots).toContain("Sitemap:");
     const sitemap = await (await request.get("/sitemap.xml")).text();
     expect(sitemap).toContain("/search</loc>");
+    // Every business is listed…
+    expect(sitemap).toContain("/bs/nileview</loc>");
+  });
+
+  test("a business's page is indexable, with its own canonical", async ({ page }) => {
+    await page.goto("/bs/nileview");
+    await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute("content", /noindex/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/bs\/nileview$/);
   });
 });
 

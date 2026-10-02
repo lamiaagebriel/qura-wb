@@ -1,24 +1,70 @@
-// TEMPORARY: other people's business profiles, as a visitor sees them
-// (Search → a business). Replace with a `profiles` query once the UI is
-// signed off.
+// Sample businesses for local development and e2e tests — loaded by
+// `pnpm db:seed` (src/db/seed.ts), never in production.
 
-import { pathOf, subtreeOf } from "@/lib/categories";
-import { allLanguages } from "@/lib/localized";
+import type { BusinessLocation, BusinessProfile, OpeningHours } from "@/lib/business";
+import type { Localized } from "@/lib/localized";
 
-import {
-  FAKE_BUSINESS_PROFILE,
-  loc,
-  type BusinessProfile,
-  type OpeningHours,
-} from "./fake-profile";
+/** A business as seeded: everything but what's counted (followers). */
+export type SeedBusiness = Omit<BusinessProfile, "stats">;
 
+/** `loc({ en: "Old Souq, Aswan" }, 24.0965, 32.901)` */
+const loc = (description: Localized, lat: number, lng: number): BusinessLocation => ({
+  description,
+  coords: { lat, lng },
+});
 const h = (open: string, close: string): OpeningHours => ({ open, close });
 const everyDay = (slot: OpeningHours) => Array.from({ length: 7 }, () => slot);
+const DAY = h("08:00", "23:00");
 
-const FAKE_BUSINESSES: BusinessProfile[] = [
-  FAKE_BUSINESS_PROFILE,
+export const SEED_BUSINESSES: SeedBusiness[] = [
   {
-    kind: "business",
+    name: {
+      en: "Nile Breeze Café",
+      ar: "مقهى نسيم النيل",
+      fr: "Café Brise du Nil",
+    },
+    username: "nilebreeze",
+    avatarUrl: null,
+    verified: true,
+    category: "cafe",
+    bio: {
+      en: "Coffee, fresh juices and Nubian breakfast on the Corniche 🌅\nFamily seating and a terrace facing Elephantine Island.",
+      ar: "قهوة وعصائر طازجة وفطور نوبي على الكورنيش 🌅\nجلسات عائلية وتراس يطل على جزيرة إلفنتين.",
+      fr: "Café, jus frais et petit-déjeuner nubien sur la Corniche 🌅\nCoin famille et terrasse face à l'île Éléphantine.",
+    },
+    locations: [
+      loc(
+        {
+          en: "Corniche El Nil, next to the Old Cataract, Aswan",
+          ar: "كورنيش النيل، بجوار فندق أولد كتاراكت، أسوان",
+          fr: "Corniche du Nil, à côté de l'Old Cataract, Assouan",
+        },
+        24.0795,
+        32.8878,
+      ),
+    ],
+    socials: [
+      { platform: "whatsapp", url: "https://wa.me/201009876543" },
+      { platform: "phone", url: "tel:+20 97 123 4567" },
+      { platform: "phone", url: "tel:+20 100 987 6543" },
+      { platform: "website", url: "https://nilebreeze.example" },
+      { platform: "instagram", url: "https://instagram.com/nilebreeze.cafe" },
+      { platform: "facebook", url: "https://facebook.com/nilebreezecafe" },
+      { platform: "tiktok", url: "https://tiktok.com/@nilebreeze" },
+    ],
+    // Sunday → Saturday; closed on Mondays, late on Thursday and Friday.
+    hours: [
+      DAY,
+      null,
+      DAY,
+      DAY,
+      { open: "08:00", close: "24:00" },
+      { open: "13:00", close: "24:00" },
+      DAY,
+    ],
+    timeZone: "Africa/Cairo",
+    },
+  {
     name: { en: "Aswan Eats", ar: "مطاعم أسوان", fr: "Saveurs d'Assouan" },
     username: "aswan.eats",
     avatarUrl: null,
@@ -59,10 +105,8 @@ const FAKE_BUSINESSES: BusinessProfile[] = [
     ],
     hours: everyDay(h("12:00", "24:00")),
     timeZone: "Africa/Cairo",
-    stats: { followers: 8410 },
   },
   {
-    kind: "business",
     name: {
       en: "Nile View Hotel",
       ar: "فندق إطلالة النيل",
@@ -101,10 +145,8 @@ const FAKE_BUSINESSES: BusinessProfile[] = [
     ],
     hours: everyDay(h("00:00", "24:00")),
     timeZone: "Africa/Cairo",
-    stats: { followers: 23100 },
   },
   {
-    kind: "business",
     name: { en: "Elephantine Felucca Tours", ar: "رحلات فلوكة إلفنتين" },
     username: "felucca.tours",
     avatarUrl: null,
@@ -141,10 +183,8 @@ const FAKE_BUSINESSES: BusinessProfile[] = [
       h("07:00", "19:00"),
     ],
     timeZone: "Africa/Cairo",
-    stats: { followers: 3920 },
   },
   {
-    kind: "business",
     name: {
       en: "El Shifa Pharmacy",
       ar: "صيدلية الشفاء",
@@ -178,10 +218,8 @@ const FAKE_BUSINESSES: BusinessProfile[] = [
     ],
     hours: everyDay(h("09:00", "24:00")),
     timeZone: "Africa/Cairo",
-    stats: { followers: 1270 },
   },
   {
-    kind: "business",
     name: { en: "Salon Nefertari", ar: "صالون نفرتاري" },
     username: "salon.nefertari",
     avatarUrl: null,
@@ -217,10 +255,8 @@ const FAKE_BUSINESSES: BusinessProfile[] = [
       h("11:00", "21:00"),
     ],
     timeZone: "Africa/Cairo",
-    stats: { followers: 640 },
   },
   {
-    kind: "business",
     name: { en: "Souq Spices", ar: "توابل السوق", fr: "Épices du Souk" },
     username: "souq.spices",
     avatarUrl: null,
@@ -244,88 +280,16 @@ const FAKE_BUSINESSES: BusinessProfile[] = [
     ],
     hours: everyDay(h("10:00", "23:00")),
     timeZone: "Africa/Cairo",
-    stats: { followers: 95 },
   },
 ];
 
-export const fakeBusiness = (username: string) =>
-  FAKE_BUSINESSES.find((b) => b.username === username);
-
-/** What the Search list needs (plain data, safe to send to the client). */
-export type BusinessSummary = Pick<
-  BusinessProfile,
-  "name" | "username" | "category" | "verified" | "avatarUrl"
->;
-
-const summaryOf = ({
-  name,
-  username,
-  category,
-  verified,
-  avatarUrl,
-}: BusinessProfile): BusinessSummary => ({
-  name,
-  username,
-  category,
-  verified,
-  avatarUrl,
-});
-
 /**
- * Businesses whose name, handle, category or description (in any
- * language) contains `query`.
+ * The e2e test user (e2e/auth.ts) owns two sample businesses, so "My
+ * businesses" has something to show: one they added themselves, and one
+ * someone else added for them (they can edit it but not pick its owner).
  */
-export function searchFakeBusinesses(query: string): BusinessSummary[] {
-  const q = query.trim().toLocaleLowerCase();
-  if (!q) return [];
-  return FAKE_BUSINESSES.filter((business) =>
-    [
-      ...allLanguages(business.name),
-      business.username,
-      // Its category and every parent ("salon" finds nail bars too).
-      ...pathOf(business.category).flatMap((c) => Object.values(c.name)),
-      ...allLanguages(business.bio),
-    ].some((text) => text.toLocaleLowerCase().includes(q)),
-  ).map(summaryOf);
-}
-
-// The businesses you manage (Profile → My businesses). `createdByMe`: you
-// added it (`createdBy`); `ownedByMe`: it's yours (`ownerId`). Whoever adds
-// a business may add it for someone else (`ownerId` empty).
-const MINE: Record<string, { createdByMe: boolean; ownedByMe: boolean }> = {
-  nilebreeze: { createdByMe: true, ownedByMe: true },
-  "aswan.eats": { createdByMe: false, ownedByMe: true },
+export const SEED_OWNER = { email: "e2e@qura.test", name: "E2E Tester", username: "e2e_tester" };
+export const SEED_OWNED: Record<string, { addedByOwner: boolean }> = {
+  nilebreeze: { addedByOwner: true },
+  "aswan.eats": { addedByOwner: false },
 };
-
-export const FAKE_MY_BUSINESSES = FAKE_BUSINESSES.filter((b) =>
-  Object.hasOwn(MINE, b.username),
-).map(summaryOf);
-
-/**
- * One of your businesses (to edit) and your part in it, or `undefined` if
- * it isn't yours.
- */
-export function fakeMyBusiness(username: string) {
-  const business = Object.hasOwn(MINE, username)
-    ? fakeBusiness(username)
-    : undefined;
-  return business && { business, ...MINE[username] };
-}
-
-/** Some business already uses this @handle. */
-export const fakeUsernameTaken = (username: string) =>
-  FAKE_BUSINESSES.some((b) => b.username === username);
-
-/** Businesses in category `slug` or anywhere under it. */
-export function fakeBusinessesIn(slug: string): BusinessSummary[] {
-  const slugs = subtreeOf(slug);
-  return FAKE_BUSINESSES.filter((b) => slugs.has(b.category)).map(summaryOf);
-}
-
-/** How many businesses each category has, counting its whole subtree. */
-export function fakeCategoryCounts(): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const b of FAKE_BUSINESSES)
-    for (const c of pathOf(b.category)) counts[c.slug] = (counts[c.slug] ?? 0) + 1;
-  return counts;
-}

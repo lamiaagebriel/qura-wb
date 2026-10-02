@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useOptimistic, useTransition } from "react";
 
+import { useAuthSheet } from "@/components/auth/auth-sheet";
 import {
   HugeiconsIcon,
   Share08Icon,
@@ -10,28 +11,51 @@ import {
   WhatsappIcon,
 } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { useLocale } from "@/lib/i18n/provider";
 import { href } from "@/lib/routes";
 import { useShare } from "@/lib/share";
 import { withMessage, type WhatsappLink } from "@/lib/socials";
 import { cn } from "@/lib/utils";
 
+import { setFollowing } from "./social-actions";
+
 /**
  * A visitor's buttons under a business profile: follow, and order on
  * WhatsApp (every business has it) with a message ready to send.
  * Sharing lives in the top bar (`ShareProfileButton`).
+ * Follow flips at once and is saved in the background (undone on error);
+ * signed out, it opens the sign-in sheet instead.
  */
 export function VisitorActions({
   name,
+  username,
   whatsapp,
+  signedIn,
+  following: saved,
 }: {
   name: string;
+  username: string;
   /** The business's WhatsApp link (first in its socials, required). */
   whatsapp: WhatsappLink;
+  signedIn: boolean;
+  /** Whether the signed-in user follows it (as stored). */
+  following: boolean;
 }) {
   const { t } = useLocale();
-  // TEMPORARY: local only until following is stored (profiles → follows).
-  const [following, setFollowing] = useState(false);
+  const { open: signIn } = useAuthSheet();
+  const [following, setOptimistic] = useOptimistic(saved);
+  const [, startTransition] = useTransition();
+
+  const toggle = () => {
+    if (!signedIn) return signIn();
+    const next = !following;
+    startTransition(async () => {
+      setOptimistic(next);
+      const result = await setFollowing(username, next);
+      if (!result.ok) toast.add({ title: t(result.error), type: "error" });
+    });
+  };
 
   const order = withMessage(
     whatsapp,
@@ -45,7 +69,7 @@ export function VisitorActions({
         size="xl"
         className={cn("rounded-xl", !following && "text-primary")}
         aria-pressed={following}
-        onClick={() => setFollowing((f) => !f)}
+        onClick={toggle}
       >
         <HugeiconsIcon
           icon={following ? Tick02Icon : UserAdd01Icon}

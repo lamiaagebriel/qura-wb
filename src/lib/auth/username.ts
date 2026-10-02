@@ -3,32 +3,24 @@ import "server-only";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { profiles, users } from "@/db/schema";
+import { users } from "@/db/schema";
 
 const MAX_LENGTH = 20;
 const ATTEMPTS = 10;
 
-/** A user or profile already has this handle (they share one space). */
+/** A user already has this handle (businesses have their own space). */
 export async function isTaken(username: string) {
   const [user] = await db
     .select({ id: users.id })
     .from(users)
     .where(eq(users.username, username))
     .limit(1);
-  if (user) return true;
-
-  const [profile] = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(eq(profiles.username, username))
-    .limit(1);
-  return !!profile;
+  return !!user;
 }
 
 /**
  * A free handle derived from a display name ("Omar Hassan" → "omarhassan",
- * then "omarhassan_4821" on collision). Checked against users and profiles,
- * which share one username space.
+ * then "omarhassan_4821" on collision). Checked against users.
  */
 export async function generateUniqueUsername(name: string): Promise<string> {
   // Remove all spaces to form the base (e.g., "Omar Hassan" → "omarhassan")

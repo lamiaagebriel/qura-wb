@@ -8,14 +8,14 @@ import postgres from "postgres";
 // thing its `test-utils` plugin does). Uses DATABASE_URL and
 // BETTER_AUTH_SECRET from `.env`.
 
-const EMAIL = "e2e@qura.test";
+export const EMAIL = "e2e@qura.test";
 const USERNAME = "e2e_tester";
 const NAME = "E2E Tester";
 const DAY = 24 * 60 * 60 * 1000;
 
 let sql: postgres.Sql | undefined;
 
-function db() {
+export function db() {
   if (!sql) {
     try {
       process.loadEnvFile(".env");
@@ -35,11 +35,6 @@ export async function signIn(context: BrowserContext, baseURL: string) {
     values (${NAME}, ${EMAIL}, true, ${USERNAME})
     on conflict (email) do update set status = 'active'
     returning id`;
-  // What sign-up creates too (lib/auth/profile.ts).
-  await sql`
-    insert into profiles (type, user_id, username, display_name)
-    values ('personal', ${user.id}, ${USERNAME}, ${NAME})
-    on conflict do nothing`;
   await sql`delete from sessions where user_id = ${user.id} and expires_at < now()`;
 
   const token = randomBytes(24).toString("base64url");

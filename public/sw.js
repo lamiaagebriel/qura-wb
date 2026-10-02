@@ -11,7 +11,9 @@
  *   page strategy above then handles.
  * Bump VERSION to drop every cache on the next deploy.
  */
-const VERSION = "v1";
+// v2: businesses moved from sample data to the database — drop pages saved
+// with the old data.
+const VERSION = "v2";
 const STATIC_CACHE = `qura-static-${VERSION}`;
 const PAGES_CACHE = `qura-pages-${VERSION}`;
 const OFFLINE_URL = "/offline";

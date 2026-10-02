@@ -16,7 +16,6 @@ import {
 } from "@/db/schema";
 import { env } from "@/lib/env";
 
-import { ensurePersonalProfile } from "./profile";
 import { generateUniqueUsername } from "./username";
 
 const DAY = 60 * 60 * 24;
@@ -109,9 +108,6 @@ export const auth = betterAuth({
             username: await generateUniqueUsername(user.name),
           },
         }),
-        after: async (user) => {
-          await ensurePersonalProfile(user.id);
-        },
       },
     },
     session: {

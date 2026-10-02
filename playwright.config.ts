@@ -11,6 +11,8 @@ const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
  */
 export default defineConfig({
   testDir: "./e2e",
+  // Fresh sample data each run (e2e/global-setup.ts).
+  globalSetup: "./e2e/global-setup.ts",
   timeout: 60_000,
   expect: { timeout: 10_000 },
   // One dev server compiles on demand; keep parallelism modest.

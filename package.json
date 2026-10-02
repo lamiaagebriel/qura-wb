@@ -13,6 +13,8 @@
     "db:studio": "drizzle-kit studio --config=src/db/config.ts",
     "db:seed": "tsx --conditions=react-server src/db/seed.ts",
     "db:reset": "tsx src/db/reset.ts && pnpm db:migrate",
+    "admin": "tsx --conditions=react-server src/db/admin.ts",
+    "build:deploy": "pnpm db:migrate && next build",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui"
   },

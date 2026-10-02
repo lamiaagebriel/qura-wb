@@ -5,10 +5,10 @@ import { HugeiconsIcon, PlusSignIcon, Store01Icon } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
 import { StackLink } from "@/components/navigation/stack-link";
 import { BusinessList } from "@/components/profile/business-list";
-import { FAKE_MY_BUSINESSES } from "@/components/profile/fake-businesses";
 import { StatusScreen } from "@/components/status-screen";
 import { buttonVariants } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/session";
+import { getMyBusinesses } from "@/lib/data/businesses";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -20,12 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** The businesses you manage; tap one to edit it, or add a new one. */
 export default async function MyBusinessesPage() {
-  const [{ t }] = await Promise.all([
+  const [{ t }, user] = await Promise.all([
     getTranslations(),
     requireUser(href("businesses")),
   ]);
-  // TEMPORARY: fake businesses until businesses are stored.
-  const businesses = FAKE_MY_BUSINESSES;
+  const businesses = await getMyBusinesses(user.id);
 
   const add = (
     <StackLink

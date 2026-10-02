@@ -14,7 +14,8 @@ import { initials } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import type { MessageKey } from "@/lib/i18n/types";
 
-import type { ProfileData } from "./fake-profile";
+/** What the shared pieces read from a profile (personal or business). */
+type HeroProfile = { avatarUrl: string | null; verified: boolean };
 
 /** Avatar on the start side, name / handle / counts next to it. */
 export function HeroTop({
@@ -23,7 +24,7 @@ export function HeroTop({
   fallbackIcon,
   children,
 }: {
-  profile: ProfileData;
+  profile: HeroProfile;
   /** The name shown (a business: in the app language). */
   name: string;
   /** Shown in the avatar when there's no picture (instead of initials). */
@@ -47,7 +48,7 @@ function ProfileAvatar({
   name,
   fallbackIcon,
 }: {
-  profile: ProfileData;
+  profile: HeroProfile;
   name: string;
   fallbackIcon?: IconSvgElement;
 }) {
@@ -77,7 +78,7 @@ export function ProfileName({
   name,
   verifiedLabel,
 }: {
-  profile: ProfileData;
+  profile: HeroProfile;
   name: string;
   verifiedLabel: string;
 }) {

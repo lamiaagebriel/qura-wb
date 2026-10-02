@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
 
+import { useAuthSheet } from "@/components/auth/auth-sheet";
 import { HugeiconsIcon, StarIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,38 +18,58 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { useLocale } from "@/lib/i18n/provider";
+import {
+  REVIEW_MAX_LENGTH,
+  reviewSchema,
+  type ReviewInput,
+} from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 
-const STARS = [1, 2, 3, 4, 5] as const;
+import { postReview } from "./social-actions";
 
-const reviewSchema = z.object({
-  rating: z.number().int().min(1).max(5),
-  text: z.string().trim().max(1000),
-});
-type Review = z.infer<typeof reviewSchema>;
-const EMPTY: Review = { rating: 0, text: "" };
+const STARS = [1, 2, 3, 4, 5] as const;
+const EMPTY: ReviewInput = { rating: 0, text: "" };
 
 /**
  * A visitor's "Write a review": opens a bottom sheet with a 1–5 star
- * picker and an optional comment. Posting needs at least a star.
+ * picker and an optional comment. Posting needs at least a star. With a
+ * review already written, the sheet opens on it and posting replaces it.
+ * Signed out, it opens the sign-in sheet instead.
  */
-export function WriteReviewButton({ businessName }: { businessName: string }) {
+export function WriteReviewButton({
+  businessName,
+  username,
+  signedIn,
+  mine,
+}: {
+  businessName: string;
+  username: string;
+  signedIn: boolean;
+  /** The review the signed-in user already wrote, if any. */
+  mine?: ReviewInput;
+}) {
   const { t, locale } = useLocale();
+  const { open: signIn } = useAuthSheet();
   const [open, setOpen] = useState(false);
-  const form = useForm<Review>({
+  const form = useForm<ReviewInput>({
     resolver: zodResolver(reviewSchema),
-    defaultValues: EMPTY,
+    defaultValues: mine ?? EMPTY,
   });
   const rating = useWatch({ control: form.control, name: "rating" });
   const number = new Intl.NumberFormat(locale);
 
-  const post = form.handleSubmit(() => {
-    // TODO: save the review (reviews table) once reviews are stored.
+  const post = form.handleSubmit(async (values) => {
     (document.activeElement as HTMLElement | null)?.blur();
+    const result = await postReview(username, values);
+    if (!result.ok) {
+      toast.add({ title: t(result.error), type: "error" });
+      return;
+    }
     setOpen(false);
-    form.reset(EMPTY);
+    form.reset(values);
     toast.add({ title: t("Thanks for your review!") });
   });
+  const title = mine ? t("Edit your review") : t("Write a review");
 
   return (
     <>
@@ -57,18 +77,16 @@ export function WriteReviewButton({ businessName }: { businessName: string }) {
         variant="secondary"
         size="xl"
         className="w-full rounded-xl"
-        onClick={() => setOpen(true)}
+        onClick={() => (signedIn ? setOpen(true) : signIn())}
       >
         <HugeiconsIcon icon={StarIcon} strokeWidth={2} />
-        {t("Write a review")}
+        {title}
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent className="pb-[max(var(--safe-bottom),1rem)]">
           <DrawerHeader>
-            <DrawerTitle className="text-base">
-              {t("Write a review")}
-            </DrawerTitle>
+            <DrawerTitle className="text-base">{title}</DrawerTitle>
             <DrawerDescription dir="auto">{businessName}</DrawerDescription>
           </DrawerHeader>
 
@@ -120,7 +138,7 @@ export function WriteReviewButton({ businessName }: { businessName: string }) {
                   aria-label={t("Your review")}
                   dir="auto"
                   rows={4}
-                  maxLength={1000}
+                  maxLength={REVIEW_MAX_LENGTH}
                   enterKeyHint="done"
                   autoComplete="off"
                   className="min-h-28 resize-none"
@@ -133,7 +151,7 @@ export function WriteReviewButton({ businessName }: { businessName: string }) {
                 type="submit"
                 size="xl"
                 className="w-full rounded-2xl text-base"
-                disabled={!rating}
+                disabled={!rating || form.formState.isSubmitting}
               >
                 {t("Post review")}
               </Button>

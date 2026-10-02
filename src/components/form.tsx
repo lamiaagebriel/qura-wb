@@ -244,3 +244,44 @@ export function LocalizedField<T extends FieldValues>({
     </Field>
   );
 }
+
+/**
+ * An @handle: lowercase as you type (handles are lowercase), no
+ * autocorrect, with "@" in front. Left-to-right in every language.
+ */
+export function UsernameField<T extends FieldValues>({
+  control,
+  name,
+  label,
+}: Omit<FieldProps<T>, "description">) {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <Field data-invalid={fieldState.invalid}>
+          <FieldLabel htmlFor={name}>{label}</FieldLabel>
+          <InputGroup dir="ltr" className="h-11 rounded-xl">
+            <InputGroupAddon className="ps-3 text-base">@</InputGroupAddon>
+            <InputGroupInput
+              {...field}
+              onChange={(event) =>
+                field.onChange(event.target.value.toLowerCase())
+              }
+              id={name}
+              aria-invalid={fieldState.invalid}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              autoComplete="off"
+              enterKeyHint="next"
+              maxLength={30}
+              className="h-full text-base md:text-base"
+            />
+          </InputGroup>
+          <FormError error={fieldState.error} />
+        </Field>
+      )}
+    />
+  );
+}

@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { BusinessForm } from "@/components/profile/business-form";
-import { fakeMyBusiness } from "@/components/profile/fake-businesses";
 import { requireUser } from "@/lib/auth/session";
+import { getMyBusiness } from "@/lib/data/businesses";
 import { businessToForm } from "@/lib/business";
 import { env } from "@/lib/env";
 import { getTranslations } from "@/lib/i18n/server";
@@ -21,12 +21,11 @@ export default async function EditBusinessPage({
   params,
 }: PageProps<"/profile/businesses/[username]">) {
   const { username } = await params;
-  const [{ t }] = await Promise.all([
+  const [{ t }, user] = await Promise.all([
     getTranslations(),
     requireUser(href("editBusiness", { params: { username } })),
   ]);
-  // TEMPORARY: fake businesses until businesses are stored.
-  const mine = fakeMyBusiness(decodeURIComponent(username));
+  const mine = await getMyBusiness(decodeURIComponent(username), user.id);
   if (!mine) notFound();
 
   return (

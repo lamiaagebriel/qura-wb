@@ -1,20 +1,59 @@
-// The business form: everything an owner can change about their business,
-// and the rules for it. One zod schema, used by the form (errors as you
-// type) and again by the save action (the server never trusts the client).
-// Error messages are translation keys — `<FormError>` shows them translated.
-// Client-safe.
+// A business as the screens show it (read from `lib/data/businesses.ts`),
+// and the business form: everything an owner can change about their
+// business, and the rules for it. One zod schema, used by the form (errors
+// as you type) and again by the save action (the server never trusts the
+// client). Error messages are translation keys — `<FormError>` shows them
+// translated. Client-safe.
 
 import { z } from "zod";
 
-import type {
-  BusinessLocation,
-  BusinessProfile,
-  OpeningHours,
-} from "@/components/profile/fake-profile";
-import { CATEGORY_SLUGS } from "@/lib/categories";
+import { CATEGORY_SLUGS, type CategorySlug } from "@/lib/categories";
 import type { MessageKey } from "@/lib/i18n/types";
 import type { Localized } from "@/lib/localized";
-import { SOCIAL_PLATFORMS, type SocialLink } from "@/lib/socials";
+import {
+  SOCIAL_PLATFORMS,
+  type SocialLink,
+  type WhatsappLink,
+} from "@/lib/socials";
+
+/** Opening time and closing time, "HH:MM" (24h, same day; "24:00" = midnight). */
+export type OpeningHours = { open: string; close: string };
+
+/** One branch: its address as the owner wrote it, and the map pin. */
+export type BusinessLocation = {
+  description: Localized;
+  coords: { lat: number; lng: number };
+};
+
+/** A business's public page. */
+export type BusinessProfile = {
+  username: string;
+  avatarUrl: string | null;
+  verified: boolean;
+  /** Written by the owner in English, and optionally Arabic / French. */
+  name: Localized;
+  bio: Localized;
+  /** What the business is — a slug from the category tree (lib/categories.ts), any level. */
+  category: CategorySlug;
+  /** Its branches (at least one): the address as written, and the pin. */
+  locations: [BusinessLocation, ...BusinessLocation[]];
+  /**
+   * WhatsApp first — required (customers order there) — then the website
+   * and other accounts in the order the owner listed them.
+   */
+  socials: [WhatsappLink, ...SocialLink[]];
+  /** Sunday first (index = `Date#getDay()`); `null` = closed that day. */
+  hours: (OpeningHours | null)[];
+  /** IANA zone the hours are in. */
+  timeZone: string;
+  stats: { followers: number };
+};
+
+/** A business in a list (search, a category, yours): plain data, client-safe. */
+export type BusinessSummary = Pick<
+  BusinessProfile,
+  "name" | "username" | "category" | "verified" | "avatarUrl"
+>;
 
 const m = (key: MessageKey) => key;
 
@@ -267,5 +306,5 @@ export function formToBusiness(values: BusinessFormValues) {
         open ? { open: from, close: to === "00:00" ? "24:00" : to } : null,
     ),
     timeZone: values.timeZone,
-  } satisfies Omit<BusinessProfile, "kind" | "avatarUrl" | "verified" | "stats">;
+  } satisfies Omit<BusinessProfile, "avatarUrl" | "verified" | "stats">;
 }

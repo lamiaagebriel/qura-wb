@@ -18,6 +18,8 @@ export const routes = {
   businesses: "/profile/businesses",
   newBusiness: "/profile/businesses/new",
   editBusiness: "/profile/businesses/:username",
+  // Your personal profile (name, @handle, photo, bio).
+  editProfile: "/profile/edit",
   // A business's public profile (outside every tab: opened from anywhere).
   business: "/bs/:username",
   businessReviews: "/bs/:username/reviews",

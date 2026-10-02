@@ -6,13 +6,10 @@ import { Store01Icon } from "@/components/icons";
 import { StackLink } from "@/components/navigation/stack-link";
 import { Screen } from "@/components/navigation/screen";
 import { BusinessList } from "@/components/profile/business-list";
-import {
-  fakeBusinessesIn,
-  fakeCategoryCounts,
-} from "@/components/profile/fake-businesses";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StatusScreen } from "@/components/status-screen";
 import { categoryOf } from "@/lib/categories";
+import { businessesIn, categoryCounts } from "@/lib/data/businesses";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 
@@ -41,9 +38,10 @@ export default async function CategoryPage({ params }: PageProps<"/c/[slug]">) {
   ]);
   const category = categoryOf(slug);
   if (!category) notFound();
-  // TEMPORARY: fake businesses until businesses are stored.
-  const businesses = fakeBusinessesIn(slug);
-  const counts = fakeCategoryCounts();
+  const [businesses, counts] = await Promise.all([
+    businessesIn(slug),
+    categoryCounts(),
+  ]);
   const children = category.children.filter((c) => counts[c.slug]);
   const chip =
     "flex h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium ring-1 ring-foreground/10";

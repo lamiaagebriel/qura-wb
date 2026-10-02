@@ -1,7 +1,7 @@
 import { expect, makeTall, pathname, tab, test, waitForHydration } from "./fixtures";
 
-// TEMPORARY: runs against the fake businesses (components/profile/
-// fake-businesses.ts) until profiles come from the database.
+// Runs against the sample businesses (`pnpm db:seed`, reset before every
+// run by e2e/global-setup.ts).
 test.describe("public business profile", () => {
   test("Search: a category lists its businesses; one opens", async ({ page }) => {
     await page.goto("/search");
@@ -16,14 +16,35 @@ test.describe("public business profile", () => {
     await expect(page.getByRole("button", { name: "Working hours" })).toContainText(
       "Open 24 hours",
     );
-    // A visitor follows; there's no edit button.
+    // No edit button for a visitor; signed out, Follow asks to sign in.
     await expect(page.getByRole("button", { name: "Edit profile" })).toHaveCount(0);
-    const follow = page.getByRole("button", { name: "Follow" });
-    await follow.tap();
-    await expect(page.getByRole("button", { name: "Following" })).toHaveAttribute(
+    await page.getByRole("button", { name: "Follow" }).tap();
+    await expect(page.getByRole("dialog", { name: "Sign in to Qura" })).toBeVisible();
+  });
+
+  test("follow: saved, still followed after a reload, then unfollowed", async ({
+    page,
+    signIn,
+  }) => {
+    await signIn();
+    await page.goto("/bs/elshifa");
+    await waitForHydration(page);
+    await page.getByRole("button", { name: "Follow" }).tap();
+    const following = page.getByRole("button", { name: "Following" });
+    await expect(following).toHaveAttribute("aria-pressed", "true");
+    // The followers count includes you once it's saved.
+    await expect(page.getByText(/^1 follower$/)).toBeVisible();
+
+    await page.reload();
+    await waitForHydration(page);
+    await expect(following).toHaveAttribute("aria-pressed", "true");
+    await following.tap();
+    await expect(page.getByRole("button", { name: "Follow" })).toHaveAttribute(
       "aria-pressed",
-      "true",
+      "false",
     );
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Follow" })).toBeVisible();
   });
 
   test("the Search tab still opens Search after visiting a business", async ({ page }) => {
@@ -134,7 +155,25 @@ test.describe("public business profile", () => {
     await expect(barTitle).toHaveClass(/opacity-0/);
   });
 
-  test("write a review: stars required, then posted", async ({ page }) => {
+  test("write a review: signed out, asks to sign in", async ({ page }) => {
+    await page.goto("/bs/nileview/reviews");
+    await waitForHydration(page);
+    await page.getByRole("button", { name: "Write a review" }).tap();
+    await expect(page.getByRole("dialog", { name: "Sign in to Qura" })).toBeVisible();
+  });
+
+  test("your own business: no “Write a review”", async ({ page, signIn }) => {
+    await signIn();
+    await page.goto("/bs/nilebreeze/reviews");
+    await expect(page.getByText("@nilebreeze")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Write a review" })).toHaveCount(0);
+  });
+
+  test("write a review: stars required, posted, then shown and editable", async ({
+    page,
+    signIn,
+  }) => {
+    await signIn();
     await page.goto("/bs/nileview/reviews");
     await waitForHydration(page);
     await page.getByRole("button", { name: "Write a review" }).tap();
@@ -151,6 +190,15 @@ test.describe("public business profile", () => {
 
     await expect(sheet).toBeHidden();
     await expect(page.getByText("Thanks for your review!")).toBeVisible();
+
+    // Saved: newest first, and writing again edits it.
+    await page.reload();
+    await waitForHydration(page);
+    await expect(page.getByText("Lovely view!")).toBeVisible();
+    await page.getByRole("button", { name: "Edit your review" }).tap();
+    const edit = page.getByRole("dialog", { name: "Edit your review" });
+    await expect(edit.getByRole("radio", { name: "4 out of 5 stars" })).toBeChecked();
+    await expect(edit.getByRole("textbox", { name: "Your review" })).toHaveValue("Lovely view!");
   });
 
   test("contact and links: slides open; every entry is a link", async ({ page }) => {

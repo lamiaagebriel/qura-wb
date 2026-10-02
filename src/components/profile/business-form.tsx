@@ -15,7 +15,12 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 
-import { FormError, INPUT, LocalizedField } from "@/components/form";
+import {
+  FormError,
+  INPUT,
+  LocalizedField,
+  UsernameField,
+} from "@/components/form";
 import {
   Copy01Icon,
   Delete02Icon,
@@ -49,11 +54,6 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
@@ -168,7 +168,7 @@ export function BusinessForm({
             }}
             maxLength={100}
           />
-          <UsernameField control={control} />
+          <UsernameField control={control} name="username" label={t("Username")} />
           <Controller
             control={control}
             name="category"
@@ -330,40 +330,6 @@ function OwnerField({ control }: { control: Form }) {
           </RadioGroup>
           <FormError error={fieldState.error} />
         </FieldSet>
-      )}
-    />
-  );
-}
-
-function UsernameField({ control }: { control: Form }) {
-  const { t } = useLocale();
-  return (
-    <Controller
-      control={control}
-      name="username"
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor="username">{t("Username")}</FieldLabel>
-          <InputGroup dir="ltr" className="h-11 rounded-xl">
-            <InputGroupAddon className="ps-3 text-base">@</InputGroupAddon>
-            <InputGroupInput
-              {...field}
-              onChange={(event) =>
-                field.onChange(event.target.value.toLowerCase())
-              }
-              id="username"
-              aria-invalid={fieldState.invalid}
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              autoComplete="off"
-              enterKeyHint="next"
-              maxLength={30}
-              className="h-full text-base md:text-base"
-            />
-          </InputGroup>
-          <FormError error={fieldState.error} />
-        </Field>
       )}
     />
   );

@@ -5,7 +5,7 @@ import { initials, timeAgo } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
-import type { FakeReview, ReviewSummary } from "./fake-reviews";
+import type { Review, ReviewSummary } from "@/lib/reviews";
 
 /** Five stars, filled up to `rating` (rounded to the nearest star). */
 async function Stars({
@@ -106,7 +106,7 @@ export async function ReviewSummaryCard({
 }
 
 /** One review: reviewer, stars and age, then the text. */
-async function ReviewItem({ review }: { review: FakeReview }) {
+async function ReviewItem({ review }: { review: Review }) {
   const { locale } = await getTranslations();
   return (
     <article className="flex flex-col gap-2 py-4">
@@ -139,7 +139,7 @@ async function ReviewItem({ review }: { review: FakeReview }) {
   );
 }
 
-export function ReviewList({ reviews }: { reviews: FakeReview[] }) {
+export function ReviewList({ reviews }: { reviews: Review[] }) {
   return (
     <ul className="divide-y divide-border/60 rounded-2xl bg-card px-4 ring-1 ring-foreground/5">
       {reviews.map((review) => (

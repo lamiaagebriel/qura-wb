@@ -4,14 +4,16 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { BusinessHero } from "@/components/profile/business-hero";
-import { fakeBusiness } from "@/components/profile/fake-businesses";
-import { fakeReviews, summarize } from "@/components/profile/fake-reviews";
 import { PROFILE_NAME_ID } from "@/components/profile/hero-parts";
 import {
   ShareProfileButton,
   VisitorActions,
 } from "@/components/profile/visitor-actions";
 import { PullToRefresh } from "@/components/pull-to-refresh";
+import { getSession } from "@/lib/auth/session";
+import { findPublicBusiness, getBusiness } from "@/lib/data/businesses";
+import { isFollowing } from "@/lib/data/follows";
+import { getReviewSummary } from "@/lib/data/reviews";
 import { getTranslations } from "@/lib/i18n/server";
 import { inLocale } from "@/lib/localized";
 import { href } from "@/lib/routes";
@@ -23,15 +25,12 @@ export async function generateMetadata({
     getTranslations(),
     params,
   ]);
-  const business = fakeBusiness(decodeURIComponent(username));
+  const business = await getBusiness(decodeURIComponent(username));
   if (!business) return {};
   return {
     title: inLocale(business.name, locale),
     description: inLocale(business.bio, locale) || undefined,
     alternates: { canonical: href("business", { params: { username } }) },
-    // TEMPORARY: fake businesses stay out of search engines (and out of
-    // app/sitemap.ts) until profiles come from the database.
-    robots: { index: false, follow: true },
   };
 }
 
@@ -42,17 +41,24 @@ export async function generateMetadata({
 export default async function BusinessPage({
   params,
 }: PageProps<"/bs/[username]">) {
-  const [{ locale }, { username }] = await Promise.all([
+  const [{ locale }, { username }, session] = await Promise.all([
     getTranslations(),
     params,
+    getSession(),
   ]);
-  // TEMPORARY: fake data until profiles exist.
-  const business = fakeBusiness(decodeURIComponent(username));
-  if (!business) notFound();
+  const handle = decodeURIComponent(username);
+  const [row, business] = await Promise.all([
+    findPublicBusiness(handle),
+    getBusiness(handle),
+  ]);
+  if (!row || !business) notFound();
+  const userId = session?.user.id;
+  const [summary, following] = await Promise.all([
+    getReviewSummary(row.id),
+    userId ? isFollowing(userId, row.id) : false,
+  ]);
   // Written by the owner; shown in the app language (English if missing).
   const name = inLocale(business.name, locale);
-  const reviews = fakeReviews(business.username);
-  const summary = summarize(reviews);
 
   return (
     <Screen>
@@ -71,7 +77,13 @@ export default async function BusinessPage({
               profile={business}
               rating={summary}
               actions={
-                <VisitorActions name={name} whatsapp={business.socials[0]} />
+                <VisitorActions
+                  name={name}
+                  username={business.username}
+                  whatsapp={business.socials[0]}
+                  signedIn={!!userId}
+                  following={following}
+                />
               }
             />
           </section>

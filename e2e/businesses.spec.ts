@@ -17,9 +17,9 @@ async function setLocationHere(page: Page) {
   }
 }
 
-// TEMPORARY: your businesses are fake (components/profile/fake-businesses.ts)
-// and saving only validates (client + `saveBusiness` action), until
-// businesses are stored.
+// Your businesses are the sample ones the test user owns (src/db/seed/
+// businesses.ts), reset before every run by e2e/global-setup.ts. Tests run
+// in parallel, so none changes what another one checks.
 test.describe("my businesses", () => {
   test("Profile → My businesses → edit one → saved, back to the list", async ({
     page,
@@ -33,7 +33,8 @@ test.describe("my businesses", () => {
     await waitForHydration(page);
 
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
-    await expect(page.locator("main").getByRole("listitem")).toHaveCount(2);
+    // Both of yours (another test may be adding a third right now).
+    await expect(page.getByRole("link", { name: /Aswan Eats/ })).toBeVisible();
     await page.getByRole("link", { name: /Nile Breeze Café/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/profile/businesses/nilebreeze");
     await waitForHydration(page);
@@ -69,12 +70,16 @@ test.describe("my businesses", () => {
     // You added it: you choose who owns it.
     await expect(page.getByRole("radio", { name: /It's my business/ })).toBeChecked();
 
-    await page.getByLabel("Name (English)").fill("Nile Breeze");
     await page.getByRole("button", { name: "Remove link 3" }).tap();
     await expect(page.getByRole("button", { name: "Link 3: type — Website" })).toBeVisible();
     await page.getByRole("button", { name: "Save changes" }).tap();
     await expect(page.getByText("Changes saved")).toBeVisible();
     await expect.poll(() => pathname(page)).toBe("/profile/businesses");
+
+    // Stored: opening it again shows the change.
+    await page.goto("/profile/businesses/nilebreeze");
+    await expect(page.getByRole("button", { name: "Link 3: type — Website" })).toBeVisible();
+    await expect(page.getByLabel("Name (English)")).toHaveValue("Nile Breeze Café");
   });
 
   test("a business someone else added: no owner choice", async ({ page, signIn }) => {
@@ -151,6 +156,10 @@ test.describe("my businesses", () => {
     await page.getByRole("button", { name: "Create business" }).tap();
     await expect(page.getByText("Business created")).toBeVisible();
     await expect.poll(() => pathname(page)).toBe("/profile/businesses");
+    // Added for someone else, but you added it: it's in your list, and public.
+    await expect(page.getByRole("link", { name: /Aswan Bakery/ })).toBeVisible();
+    await page.goto("/bs/aswan.bakery");
+    await expect(page.getByRole("heading", { level: 2, name: "Aswan Bakery" })).toBeVisible();
   });
 
   test("a username that's taken is refused by the server", async ({ page, signIn }) => {

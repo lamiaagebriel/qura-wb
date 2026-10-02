@@ -25,6 +25,9 @@ async function openBusinesses(page: Page) {
   await page.locator('main a[href="/profile/businesses"]').tap(); // any language
   await page.waitForURL("**/profile/businesses");
   await waitForHydration(page);
+  // Loaded (not its skeleton): a touch on an element that gets replaced
+  // never ends, so a swipe started during loading would be lost.
+  await expect(page.locator("main[aria-busy]")).toHaveCount(0);
   await transitionSettled(page);
   await takeTransitions(page);
 }

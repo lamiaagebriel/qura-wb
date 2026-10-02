@@ -1,7 +1,7 @@
 // Opening hours: is the business open right now, and when does that change.
 // Times are "HH:MM" in the business's own time zone ("24:00" = midnight).
 
-import type { OpeningHours } from "./fake-profile";
+import type { OpeningHours } from "@/lib/business";
 
 const minutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);

@@ -7,8 +7,8 @@ import { inLocale } from "@/lib/localized";
 import { href } from "@/lib/routes";
 
 import { BusinessDetails } from "./business-details";
-import type { BusinessLocation, BusinessProfile } from "./fake-profile";
-import type { ReviewSummary } from "./fake-reviews";
+import type { BusinessLocation, BusinessProfile } from "@/lib/business";
+import type { ReviewSummary } from "@/lib/reviews";
 import { Bio, compactNumber, Count, HeroTop, ProfileName } from "./hero-parts";
 import {
   formatTime,

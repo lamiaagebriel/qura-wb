@@ -13,7 +13,7 @@ import { useLocale } from "@/lib/i18n/provider";
 import { inLocale } from "@/lib/localized";
 import { href } from "@/lib/routes";
 
-import type { BusinessSummary } from "./fake-businesses";
+import type { BusinessSummary } from "@/lib/business";
 
 /**
  * A card of businesses; each row opens its public profile, or with

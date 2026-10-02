@@ -15,6 +15,20 @@
       "when": 1790434924618,
       "tag": "0001_cloudy_barracuda",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790826807840,
+      "tag": "0002_milky_magneto",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790830042519,
+      "tag": "0003_colorful_blackheart",
+      "breakpoints": true
     }
   ]
 }

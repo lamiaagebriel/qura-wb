@@ -1,10 +1,10 @@
-// TEMPORARY: stand-in reviews for business profiles. Replace with a
-// `reviews` table (profile, author, rating 1–5, text) once the UI is
-// signed off.
+// Sample reviews for local development and e2e tests — loaded by
+// `pnpm db:seed` (src/db/seed.ts), never in production. Deterministic, so
+// every run gives each business the same reviews.
 
-type Reviewer = { name: string; username: string; avatarUrl: string | null };
+import type { ReviewInput } from "@/lib/reviews";
 
-/** Small deterministic PRNG, so the same fake data renders every time. */
+/** Small deterministic PRNG, so the same data comes out every time. */
 function random(seed: number) {
   return () => {
     seed = (seed * 1664525 + 1013904223) % 2 ** 32;
@@ -14,34 +14,19 @@ function random(seed: number) {
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 
-export type FakeReview = {
-  id: string;
-  author: Reviewer;
-  rating: Rating;
-  text: string;
-  createdAt: Date;
-};
-
-export type ReviewSummary = {
-  count: number;
-  /** 0 when there are no reviews. */
-  average: number;
-  /** How many reviews gave 5, 4, 3, 2 and 1 stars (in that order). */
-  byStars: [number, number, number, number, number];
-};
-
-const REVIEWERS: Reviewer[] = [
-  { name: "Omar Said", username: "omar.said", avatarUrl: null },
-  { name: "Mariam Adel", username: "mariam.a", avatarUrl: null },
-  { name: "Youssef Nubi", username: "youssef.nubi", avatarUrl: null },
-  { name: "Sara Mahmoud", username: "sara.m", avatarUrl: null },
-  { name: "Karim Fathy", username: "karimf", avatarUrl: null },
-  { name: "Hana Ali", username: "hana.ali", avatarUrl: null },
-  { name: "Ahmed Gamal", username: "a.gamal", avatarUrl: null },
-  { name: "Laila Hassan", username: "laila.h", avatarUrl: null },
-  { name: "Mostafa Idris", username: "mostafa.idris", avatarUrl: null },
-  { name: "Nadia Kamel", username: "nadia.k", avatarUrl: null },
-];
+/** Sample users who write the reviews (emails on the reserved test domain). */
+export const SEED_REVIEWERS = [
+  { name: "Omar Said", username: "omar.said" },
+  { name: "Mariam Adel", username: "mariam.a" },
+  { name: "Youssef Nubi", username: "youssef.nubi" },
+  { name: "Sara Mahmoud", username: "sara.m" },
+  { name: "Karim Fathy", username: "karimf" },
+  { name: "Hana Ali", username: "hana.ali" },
+  { name: "Ahmed Gamal", username: "a.gamal" },
+  { name: "Laila Hassan", username: "laila.h" },
+  { name: "Mostafa Idris", username: "mostafa.idris" },
+  { name: "Nadia Kamel", username: "nadia.k" },
+].map((reviewer) => ({ ...reviewer, email: `${reviewer.username}@qura.test` }));
 
 const TEXTS: Record<Rating, string[]> = {
   5: [
@@ -87,39 +72,30 @@ const DAY = 24 * 60 * 60 * 1000;
 const seedOf = (text: string) =>
   [...text].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 7);
 
-/** A business's reviews, newest first. */
-export function fakeReviews(username: string): FakeReview[] {
+/**
+ * A business's sample reviews: each by a different reviewer (one review
+ * per user per business), each a few days older than the last.
+ */
+export function seedReviews(
+  username: string,
+): (ReviewInput & { reviewer: string; createdAt: Date })[] {
   // One business with none, to see the empty state.
   if (username === "souq.spices") return [];
   const next = random(seedOf(username));
-  const count = 3 + Math.floor(next() * 38);
+  const reviewers = [...SEED_REVIEWERS].sort(() => next() - 0.5);
+  const count = 3 + Math.floor(next() * (reviewers.length - 2));
   const now = Date.now();
   let age = 0;
-  return Array.from({ length: count }, (_, i) => {
+  return reviewers.slice(0, count).map((reviewer) => {
     let roll = next();
     const rating = RATING_ODDS.find(([, odds]) => (roll -= odds) < 0)?.[0] ?? 5;
     const texts = TEXTS[rating];
-    age += Math.ceil(next() * 9) * DAY; // each review a few days older
+    age += Math.ceil(next() * 9) * DAY;
     return {
-      id: `${username}-review-${i + 1}`,
-      author: REVIEWERS[Math.floor(next() * REVIEWERS.length)],
+      reviewer: reviewer.email,
       rating,
       text: texts[Math.floor(next() * texts.length)],
       createdAt: new Date(now - age),
     };
   });
-}
-
-export function summarize(reviews: FakeReview[]): ReviewSummary {
-  const byStars: ReviewSummary["byStars"] = [0, 0, 0, 0, 0];
-  let total = 0;
-  for (const { rating } of reviews) {
-    byStars[5 - rating]++;
-    total += rating;
-  }
-  return {
-    count: reviews.length,
-    average: reviews.length ? total / reviews.length : 0,
-    byStars,
-  };
 }

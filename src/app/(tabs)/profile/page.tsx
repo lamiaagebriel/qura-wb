@@ -4,12 +4,13 @@ import { AppHeader } from "@/components/app-header";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import { UserCircleIcon } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
-import { PullToRefresh } from "@/components/pull-to-refresh";
-import { FAKE_MY_BUSINESSES } from "@/components/profile/fake-businesses";
 import { PersonalHero } from "@/components/profile/personal-hero";
 import { SettingsList } from "@/components/profile/settings-list";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StatusScreen } from "@/components/status-screen";
 import { getSession } from "@/lib/auth/session";
+import { getMyBusinesses } from "@/lib/data/businesses";
+import { followingCount } from "@/lib/data/follows";
 import { getTranslations } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,6 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProfilePage() {
   const [{ t }, session] = await Promise.all([getTranslations(), getSession()]);
   const user = session?.user;
+  const [following, businesses] = user
+    ? await Promise.all([followingCount(user.id), getMyBusinesses(user.id)])
+    : [0, []];
 
   return (
     <Screen>
@@ -38,14 +42,12 @@ export default async function ProfilePage() {
             >
               <PersonalHero
                 profile={{
-                  kind: "personal",
                   name: user.name,
                   username: user.username,
                   avatarUrl: user.image ?? null,
                   verified: false,
                   bio: user.bio ?? "",
-                  // TEMPORARY: no follows yet.
-                  stats: { followers: 0, following: 0 },
+                  stats: { following },
                 }}
               />
             </section>
@@ -61,8 +63,7 @@ export default async function ProfilePage() {
           )}
           <SettingsList
             signedIn={!!user}
-            // TEMPORARY: fake businesses until businesses are stored.
-            businessCount={FAKE_MY_BUSINESSES.length}
+            businessCount={businesses.length}
           />
         </main>
       </PullToRefresh>

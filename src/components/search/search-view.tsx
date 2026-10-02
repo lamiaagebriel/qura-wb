@@ -13,7 +13,7 @@ import {
 } from "@/components/icons";
 import { StackLink } from "@/components/navigation/stack-link";
 import { BusinessList } from "@/components/profile/business-list";
-import type { BusinessSummary } from "@/components/profile/fake-businesses";
+import type { BusinessSummary } from "@/lib/business";
 import { StatusScreen } from "@/components/status-screen";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -98,6 +98,7 @@ export function SearchView({
   };
 
   const clearField = () => {
+    latest.current++; // a search still loading must not come back
     setQuery("");
     setSubmitted(null);
     setUrlQuery(null);

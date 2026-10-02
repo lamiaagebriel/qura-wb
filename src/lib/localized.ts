@@ -11,7 +11,3 @@ export type Localized = { en: string } & Partial<
 /** The text in `locale`, or English when it wasn't written in it. */
 export const inLocale = (text: Localized, locale: Locale) =>
   text[locale] || text.en;
-
-/** Every language it was written in (e.g. to search all of them). */
-export const allLanguages = (text: Localized) =>
-  Object.values(text).filter(Boolean) as string[];

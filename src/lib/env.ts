@@ -51,7 +51,20 @@ const schema = z.object({
   ),
 });
 
-const parsed = schema.safeParse(process.env);
+// Production: real users, real cookies — HTTPS only (localhost is allowed so
+// a production build can be tested locally: `pnpm start`).
+const checked = schema.superRefine((env, ctx) => {
+  if (env.NODE_ENV !== "production") return;
+  const { protocol, hostname } = new URL(env.APP_URL);
+  if (protocol !== "https:" && hostname !== "localhost")
+    ctx.addIssue({
+      code: "custom",
+      path: ["APP_URL"],
+      message: "must be https:// in production",
+    });
+});
+
+const parsed = checked.safeParse(process.env);
 
 if (!parsed.success) {
   throw new Error(

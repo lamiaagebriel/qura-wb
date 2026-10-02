@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Qura
 
-## Getting Started
+Your city, one feed: local businesses you can find, follow and review.
+Mobile-first Next.js app (installable, works offline) in English, Arabic and
+French. Conventions for working in the code are in [AGENTS.md](AGENTS.md).
 
-First, run the development server:
+**Stack:** Next.js (App Router) · Postgres + Drizzle · Better Auth (Google
+sign-in) · shadcn/ui (Base UI) · Playwright.
+
+## Data model
+
+- **`users`**: people who sign in. Private: never shown publicly, except
+  as the author of a review.
+- **`businesses`**: the only public identity, at `/bs/<username>`. Owned
+  by a user (`ownerId`, empty when added for someone else) and added by one
+  (`createdById`); both can edit it. Locations, links and hours have their
+  own tables.
+- **`follows`**, **`reviews`**: a user → a business. One review per user per
+  business; you can't review your own.
+
+Reads live in `src/lib/data/`, writes are server actions next to the
+screens that use them, and every write re-checks the session and input
+(the form's zod schema) and is rate limited.
+
+## Local setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+docker compose up -d   # Postgres on :5433
+cp .env.example .env   # fill in BETTER_AUTH_SECRET and Google OAuth
+pnpm db:migrate        # create the tables
+pnpm db:seed           # sample businesses, reviewers and the e2e test user
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The seed can be re-run safely and refuses to run in production.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | What it does |
+| --- | --- |
+| `pnpm dev` | Dev server on :3000. |
+| `pnpm db:generate` | A migration from schema changes (`src/db/schema/`). |
+| `pnpm db:migrate` | Apply migrations (uses `DIRECT_URL` when set). |
+| `pnpm db:seed` | Sample data (dev / tests only). |
+| `pnpm db:reset` | Wipe the database and migrate again (asks first). |
+| `pnpm admin <command> <who>` | Verify, suspend or restore a business; suspend or restore a user; make an admin. Run it with no arguments for usage. |
+| `pnpm e2e` | End-to-end tests (see below). |
+| `pnpm build:deploy` | Migrate, then build: the production build command. |
+| `node scripts/draw-avatars.mjs public/avatars` | Redraw the preset avatars. |
 
-## Learn More
+## Tests
 
-To learn more about Next.js, take a look at the following resources:
+`pnpm e2e` runs Playwright on a phone-sized screen (Edge on Windows). It
+starts `pnpm dev` or reuses one that's running. Before every run,
+`e2e/global-setup.ts` resets the sample businesses and the test user's
+data, then re-seeds; other data in your database is left alone.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The reference run is against a production build:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm build && pnpm start -p 3100
+E2E_BASE_URL=http://localhost:3100 pnpm e2e
+```
 
-## Deploy on Vercel
+Don't run `pnpm build` while `pnpm dev` is running (they share `.next`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Production checklist
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Database**
+- A managed Postgres with **daily backups and point-in-time recovery**
+  turned on.
+- `DATABASE_URL`: the provider's **connection pooler** URL (serverless
+  opens many short connections). `DIRECT_URL`: the direct URL, for
+  migrations.
+- Build with `pnpm build:deploy`: migrations run before the new code goes
+  live. Migrations only add things (columns, tables), so the running
+  version keeps working while they apply.
+
+**Environment** (validated at startup by `src/lib/env.ts`)
+- `APP_URL`: the https:// production URL (http is refused in production).
+- `BETTER_AUTH_SECRET`: a fresh value for production
+  (`openssl rand -base64 32`), never the dev one.
+- Google OAuth: add `${APP_URL}/api/auth/callback/google` as a redirect
+  URI and `${APP_URL}` as a JavaScript origin, and **publish** the consent
+  screen (out of "Testing", or only test users can sign in).
+- `GOOGLE_MAPS_API_KEY` (optional): restrict it to your domain's HTTP
+  referrers.
+
+**Releases**
+- Changed the service worker's caching, or what saved pages contain? Bump
+  `VERSION` in `public/sw.js` so phones drop their old copies.
+- Never run `pnpm db:seed` against production (it refuses anyway).
+
+**Moderation**: `pnpm admin`, with `DATABASE_URL` pointing at production.
+A suspended business is hidden from visitors, search, categories and the
+sitemap, but its owner still sees it under My businesses. A suspended user
+is signed out everywhere and can't sign in.
+
+**Not built yet:** uploading logos and photos (needs object storage).
+Business avatars show their category's icon, and people pick a drawn avatar
+or keep their Google photo.
