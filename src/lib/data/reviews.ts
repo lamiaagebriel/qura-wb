@@ -1,10 +1,11 @@
 import "server-only";
 
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, exists, inArray, ne, sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { reviews, users } from "@/db/schema";
-import type { Review, ReviewSummary } from "@/lib/reviews";
+import { businesses, businessLocations, reviews, users } from "@/db/schema";
+import { cityAndSubs, type CitySlug } from "@/lib/cities";
+import type { CityReview, Review, ReviewSummary } from "@/lib/reviews";
 
 /** A business's reviews, newest first, with each author's name and photo. */
 export async function getReviews(businessId: string): Promise<Review[]> {
@@ -26,6 +27,52 @@ export async function getReviews(businessId: string): Promise<Review[]> {
     .orderBy(desc(reviews.createdAt));
   // `rating` is 1–5 (checked by the database).
   return rows as Review[];
+}
+
+/**
+ * The latest reviews with text of businesses in `city` (sub-cities included) (home page), each
+ * with its author and business.
+ */
+export async function recentReviewsIn(
+  city: CitySlug,
+  limit = 5,
+): Promise<CityReview[]> {
+  const rows = await db
+    .select({
+      id: reviews.id,
+      rating: reviews.rating,
+      text: reviews.text,
+      createdAt: reviews.createdAt,
+      author: {
+        name: users.name,
+        username: users.username,
+        avatarUrl: users.image,
+      },
+      business: { name: businesses.name, username: businesses.username },
+    })
+    .from(reviews)
+    .innerJoin(users, eq(users.id, reviews.authorId))
+    .innerJoin(businesses, eq(businesses.id, reviews.businessId))
+    .where(
+      and(
+        eq(businesses.status, "active"),
+        ne(reviews.text, ""),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(businessLocations)
+            .where(
+              and(
+                eq(businessLocations.businessId, businesses.id),
+                inArray(businessLocations.city, cityAndSubs(city)),
+              ),
+            ),
+        ),
+      ),
+    )
+    .orderBy(desc(reviews.createdAt))
+    .limit(limit);
+  return rows as CityReview[];
 }
 
 /** Count, average and star breakdown, computed by the database. */

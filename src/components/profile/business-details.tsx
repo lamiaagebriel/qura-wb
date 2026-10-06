@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import {
   ArrowRight01Icon,
   HugeiconsIcon,
-  Location01Icon,
+  PinIcon,
   StarIcon,
 } from "@/components/icons";
 import { StackLink } from "@/components/navigation/stack-link";
@@ -111,7 +111,7 @@ export function BusinessDetails({
             className="flex min-h-11 items-center gap-3 px-4 py-2.5 text-start text-sm"
           >
             <HugeiconsIcon
-              icon={Location01Icon}
+              icon={PinIcon}
               strokeWidth={2}
               role="img"
               aria-label={t("Address")}

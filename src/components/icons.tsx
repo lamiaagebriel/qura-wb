@@ -46,7 +46,6 @@ export {
   CheckmarkBadge01Icon,
   Globe02Icon,
   Link01Icon,
-  Location01Icon,
   MapsLocation01Icon,
   PencilEdit02Icon,
   PlusSignIcon,
@@ -54,7 +53,6 @@ export {
   UserCheck01Icon,
   Copy01Icon,
   Gps01Icon,
-  MapPinIcon,
   Building03Icon,
   Restaurant01Icon,
   UserAdd01Icon,
@@ -98,4 +96,11 @@ export {
   Sun03Icon,
   Moon02Icon,
   ComputerIcon,
+  // Business status & admin
+  Shield01Icon,
+  Flag01Icon,
+  StoreRemove01Icon,
 } from "@hugeicons/core-free-icons";
+
+// The app's location pin (addresses, cities, map pins) — change it here.
+export { Location01Icon as PinIcon } from "@hugeicons/core-free-icons";

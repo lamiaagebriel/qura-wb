@@ -3,7 +3,7 @@
 import { Radio } from "@base-ui/react/radio";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import {
   Controller,
   useFieldArray,
@@ -25,7 +25,7 @@ import {
   Copy01Icon,
   Delete02Icon,
   Gps01Icon,
-  MapPinIcon,
+  PinIcon,
   HugeiconsIcon,
   PlusSignIcon,
   Store01Icon,
@@ -69,6 +69,7 @@ import {
   type BusinessFormValues,
 } from "@/lib/business";
 import { categoryOf } from "@/lib/categories";
+import { CITIES, DEFAULT_CITY } from "@/lib/cities";
 import { useCurrentLocation } from "@/lib/geolocation";
 import { useLocale } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n/types";
@@ -77,6 +78,8 @@ import { SOCIAL_PLATFORMS } from "@/lib/socials";
 import { cn } from "@/lib/utils";
 
 import { CategoryPicker } from "./category-picker";
+import { DeleteBusinessButton } from "./delete-business-button";
+import { StatusPanel } from "./status-panel";
 
 type Form = Control<BusinessFormValues>;
 
@@ -97,14 +100,27 @@ export function BusinessForm({
   editing,
   canChooseOwner,
   mapsApiKey,
+  categoryCounts,
+  status,
+  deletable = false,
 }: {
+  /** Editing: this user may delete it (`canDelete`). */
+  deletable?: boolean;
+  /** Businesses per category (all cities), shown in the category picker. */
+  categoryCounts: Record<string, number>;
+  /**
+   * Editing: who this user is to the business and any request they have
+   * open — what the status field lets them pick (`StatusPanel`). The
+   * stored status itself is `initial.status`.
+   */
+  status?: Pick<ComponentProps<typeof StatusPanel>, "role" | "openRequest">;
   initial: BusinessFormValues;
   editing: string | null;
   canChooseOwner: boolean;
   /** GOOGLE_MAPS_API_KEY: pick pins on a map (hidden without it). */
   mapsApiKey: string | null;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema),
@@ -133,7 +149,12 @@ export function BusinessForm({
       return;
     }
     toast.add({
-      title: editing === null ? t("Business created") : t("Changes saved"),
+      title:
+        editing === null
+          ? t("Business created")
+          : result.requested
+            ? t("Changes saved. Your status request was sent to an admin.")
+            : t("Changes saved"),
     });
     if (canGoBack()) router.back();
     else router.replace(href("businesses"));
@@ -168,7 +189,11 @@ export function BusinessForm({
             }}
             maxLength={100}
           />
-          <UsernameField control={control} name="username" label={t("Username")} />
+          <UsernameField
+            control={control}
+            name="username"
+            label={t("Username")}
+          />
           <Controller
             control={control}
             name="category"
@@ -180,6 +205,7 @@ export function BusinessForm({
                   value={field.value}
                   onChange={field.onChange}
                   invalid={fieldState.invalid}
+                  counts={categoryCounts}
                 />
                 <FormError error={fieldState.error} />
               </Field>
@@ -213,6 +239,27 @@ export function BusinessForm({
         <FieldSeparator />
 
         <HoursFields form={form} />
+
+        {editing && status && initial.status && (
+          <>
+            <FieldSeparator />
+            <Controller
+              control={control}
+              name="status"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <StatusPanel
+                    saved={initial.status!}
+                    value={field.value ?? initial.status!}
+                    onChange={field.onChange}
+                    {...status}
+                  />
+                  <FormError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </>
+        )}
       </FieldGroup>
 
       <Button
@@ -224,6 +271,12 @@ export function BusinessForm({
         {form.formState.isSubmitting && <Spinner />}
         {editing === null ? t("Create business") : t("Save changes")}
       </Button>
+      {editing && deletable && (
+        <DeleteBusinessButton
+          username={editing}
+          name={initial.name[locale] || initial.name.en}
+        />
+      )}
     </form>
   );
 }
@@ -571,6 +624,7 @@ function LocationFields({
               )
             }
           />
+          <CityField control={control} index={index} />
           <PinField control={control} index={index} mapsApiKey={mapsApiKey} />
         </FieldSet>
       ))}
@@ -579,13 +633,61 @@ function LocationFields({
           label={t("Add a branch")}
           onClick={() =>
             append(
-              { address: { en: "", ar: "", fr: "" }, pin: "" },
+              {
+                address: { en: "", ar: "", fr: "" },
+                city: DEFAULT_CITY,
+                pin: "",
+              },
               { shouldFocus: false },
             )
           }
         />
       )}
     </FieldSet>
+  );
+}
+
+/** The branch's city or sub-city, as chips (the list is short). */
+function CityField({ control, index }: { control: Form; index: number }) {
+  const { t, locale } = useLocale();
+  return (
+    <Controller
+      control={control}
+      name={`locations.${index}.city`}
+      render={({ field, fieldState }) => (
+        <Field data-invalid={fieldState.invalid}>
+          <FieldTitle>{t("City")}</FieldTitle>
+          <div
+            role="radiogroup"
+            aria-label={t("City")}
+            className="flex flex-wrap gap-2"
+          >
+            {CITIES.map((city) => {
+              const selected = field.value === city.slug;
+              return (
+                <button
+                  key={city.slug}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => {
+                    field.onChange(city.slug);
+                    field.onBlur();
+                  }}
+                  className={cn(
+                    "flex h-11 items-center rounded-full px-4 text-sm font-medium ring-1 ring-foreground/10",
+                    selected ? "bg-primary text-primary-foreground" : "bg-card",
+                  )}
+                >
+                  {city.name[locale]}
+                </button>
+              );
+            })}
+          </div>
+          <FormError error={fieldState.error} />
+        </Field>
+      )}
+    />
   );
 }
 
@@ -648,7 +750,7 @@ function PinField({
                   <Spinner className="size-6" />
                 ) : (
                   <HugeiconsIcon
-                    icon={mapsApiKey ? MapPinIcon : Gps01Icon}
+                    icon={mapsApiKey ? PinIcon : Gps01Icon}
                     strokeWidth={2}
                     className="size-6"
                   />

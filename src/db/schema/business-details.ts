@@ -38,9 +38,12 @@ export const businessLocations = pgTable(
     address: jsonb().$type<Localized>().notNull(),
     lat: doublePrecision().notNull(),
     lng: doublePrecision().notNull(),
+    /** A slug from `lib/cities.ts` (the home page filters by it). */
+    city: varchar({ length: 40 }).notNull(),
   },
   (t) => [
     index("business_locations_business_id_idx").on(t.businessId),
+    index("business_locations_city_idx").on(t.city, t.businessId),
     check("business_locations_lat_check", sql`${t.lat} between -90 and 90`),
     check("business_locations_lng_check", sql`${t.lng} between -180 and 180`),
   ],

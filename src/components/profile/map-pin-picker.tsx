@@ -3,7 +3,7 @@
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
 import { useState } from "react";
 
-import { Gps01Icon, HugeiconsIcon, MapPinIcon } from "@/components/icons";
+import { Gps01Icon, HugeiconsIcon, PinIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -121,7 +121,7 @@ function CenterPin() {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <HugeiconsIcon
-        icon={MapPinIcon}
+        icon={PinIcon}
         strokeWidth={2}
         className="size-10 -translate-y-1/2 fill-primary text-primary-foreground drop-shadow-md"
       />

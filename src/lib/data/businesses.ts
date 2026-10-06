@@ -1,6 +1,17 @@
 import "server-only";
 
-import { and, asc, count, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  avg,
+  count,
+  desc,
+  eq,
+  exists,
+  inArray,
+  or,
+  sql,
+} from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
@@ -11,14 +22,21 @@ import {
   businessLinks,
   businessLocations,
   follows,
+  reviews,
   type Business,
 } from "@/db/schema";
+import {
+  isPublic,
+  roleFor,
+  type BusinessStatus,
+} from "@/lib/business-status";
 import type {
   BusinessProfile,
   BusinessSummary,
   OpeningHours,
 } from "@/lib/business";
 import { ALL_CATEGORIES, pathOf, subtreeOf } from "@/lib/categories";
+import { cityAndSubs, type CitySlug } from "@/lib/cities";
 
 /**
  * Tag on every cached business read. A write that changes businesses
@@ -28,8 +46,22 @@ export const BUSINESSES_TAG = "businesses";
 
 const SEARCH_LIMIT = 50;
 
-/** Shown to visitors: not suspended by an admin. */
-const listed = isNull(businesses.suspendedAt);
+/** In lists, search and counts: approved and open (`lib/business-status.ts`). */
+const listed = eq(businesses.status, "active");
+
+/** Has a branch in `city` or one of its sub-cities. */
+const inCity = (city: CitySlug) =>
+  exists(
+    db
+      .select({ one: sql`1` })
+      .from(businessLocations)
+      .where(
+        and(
+          eq(businessLocations.businessId, businesses.id),
+          inArray(businessLocations.city, cityAndSubs(city)),
+        ),
+      ),
+  );
 
 const summaryColumns = {
   name: businesses.name,
@@ -37,6 +69,14 @@ const summaryColumns = {
   category: businesses.category,
   verified: businesses.verified,
   avatarUrl: businesses.image,
+  status: businesses.status,
+  // Table names written out: in a one-table select Drizzle leaves columns
+  // unqualified, and `id` would then resolve inside the subquery.
+  cities: sql<CitySlug[]>`(
+    select coalesce(array_agg(distinct bl.city), '{}')
+    from business_locations bl
+    where bl.business_id = "businesses"."id"
+  )`,
 };
 
 /** "08:00:00" → "08:00" (Postgres returns seconds). */
@@ -77,8 +117,9 @@ async function toProfile(business: Business): Promise<BusinessProfile> {
     bio: business.bio,
     category: business.category,
     // The save action guarantees at least one location and one WhatsApp.
-    locations: locations.map(({ address, lat, lng }) => ({
+    locations: locations.map(({ address, lat, lng, city }) => ({
       description: address,
+      city: city as CitySlug,
       coords: { lat, lng },
     })) as BusinessProfile["locations"],
     socials: links.map(({ platform, url }) => ({
@@ -105,24 +146,40 @@ export const findBusiness = cache(async (username: string) => {
 });
 
 /**
- * A business visitors can see: `undefined` if no business has this
- * or an admin suspended it. Public pages and actions use this one.
+ * A business anyone can open (active, or closed — its page says so):
+ * `undefined` if there's none, or it's pending / suspended. Public actions
+ * (follow, review) use this one.
  */
 export const findPublicBusiness = async (username: string) => {
   const business = await findBusiness(username);
-  return business?.suspendedAt ? undefined : business;
+  return business && isPublic(business.status) ? business : undefined;
 };
+
+/**
+ * The business if this user may open its page: everyone for public ones;
+ * its owner, creator and admins for pending / suspended ones too.
+ */
+export async function findVisibleBusiness(
+  username: string,
+  user: { id: string; role?: string | null } | null | undefined,
+) {
+  const business = await findBusiness(username);
+  if (!business) return undefined;
+  if (isPublic(business.status)) return business;
+  const role = roleFor(business, user);
+  return role && role !== "visitor" ? business : undefined;
+}
 
 /** Whether this user owns or added the business (can't review it). */
 export const isMine = (business: Business, userId: string | undefined) =>
   !!userId && (business.ownerId === userId || business.createdById === userId);
 
 /**
- * A business's public page, or `undefined` if there's none to show (see
- * `findPublicBusiness`). Deduplicated per request (metadata + page).
+ * A business's page data, whatever its status — check who may see it first
+ * (`findVisibleBusiness`). Deduplicated per request (metadata + page).
  */
 export const getBusiness = cache(async (username: string) => {
-  const business = await findPublicBusiness(username);
+  const business = await findBusiness(username);
   return business && toProfile(business);
 });
 
@@ -151,32 +208,92 @@ export async function getMyBusiness(username: string, userId: string) {
   if (!ownedByMe && !createdByMe) return undefined;
   return {
     id: business.id,
+    status: business.status,
     business: await toProfile(business),
     ownedByMe,
     createdByMe,
+    hasOwner: business.ownerId !== null,
   };
 }
 
-/** Businesses in category `slug` or anywhere under it. */
-export async function businessesIn(slug: string): Promise<BusinessSummary[]> {
+/** Businesses in `city` and category `slug` or anywhere under it. */
+export async function businessesIn(
+  slug: string,
+  city: CitySlug,
+): Promise<BusinessSummary[]> {
   return db
     .select(summaryColumns)
     .from(businesses)
-    .where(and(listed, inArray(businesses.category, [...subtreeOf(slug)])))
+    .where(
+      and(
+        listed,
+        inCity(city),
+        inArray(businesses.category, [...subtreeOf(slug)]),
+      ),
+    )
     .orderBy(asc(businesses.createdAt));
 }
 
+/** A business on the home page: its summary and its rating. */
+export type RatedBusiness = BusinessSummary & {
+  rating: number | null;
+  reviewCount: number;
+};
+
+const ratings = () =>
+  db
+    .select({
+      businessId: reviews.businessId,
+      rating: avg(reviews.rating).as("rating"),
+      reviewCount: count().as("review_count"),
+    })
+    .from(reviews)
+    .groupBy(reviews.businessId)
+    .as("ratings");
+
+/** Home sections: businesses in `city` with their ratings, best or newest first. */
+async function ratedIn(
+  city: CitySlug,
+  order: "top" | "new",
+  limit: number,
+): Promise<RatedBusiness[]> {
+  const r = ratings();
+  const rows = await db
+    .select({ ...summaryColumns, rating: r.rating, reviewCount: r.reviewCount })
+    .from(businesses)
+    .leftJoin(r, eq(r.businessId, businesses.id))
+    .where(and(listed, inCity(city), order === "top" ? sql`${r.reviewCount} > 0` : undefined))
+    .orderBy(
+      ...(order === "top"
+        ? [desc(r.rating), desc(r.reviewCount)]
+        : [desc(businesses.createdAt)]),
+    )
+    .limit(limit);
+  return rows.map((row) => ({
+    ...row,
+    rating: row.rating === null ? null : Number(row.rating),
+    reviewCount: row.reviewCount ?? 0,
+  }));
+}
+
+export const topRatedIn = (city: CitySlug, limit = 10) =>
+  ratedIn(city, "top", limit);
+
+export const newestIn = (city: CitySlug, limit = 10) =>
+  ratedIn(city, "new", limit);
+
 /**
- * How many businesses each category has, counting its whole subtree.
+ * How many businesses in `city` (sub-cities included; every city when left
+ * out) each category has, counting its whole subtree.
  * Cached across requests; refreshed when `BUSINESSES_TAG` is revalidated
  * (a save) or after an hour.
  */
 export const categoryCounts = unstable_cache(
-  async (): Promise<Record<string, number>> => {
+  async (city?: CitySlug): Promise<Record<string, number>> => {
     const rows = await db
       .select({ category: businesses.category, count: count() })
       .from(businesses)
-      .where(listed)
+      .where(and(listed, city && inCity(city)))
       .groupBy(businesses.category);
     const counts: Record<string, number> = {};
     for (const row of rows)
@@ -235,6 +352,17 @@ export async function searchBusinesses(
     )
     .orderBy(asc(businesses.createdAt))
     .limit(SEARCH_LIMIT);
+}
+
+/** Businesses with this status, oldest change first (the admin queues). */
+export async function businessesWithStatus(
+  status: BusinessStatus,
+): Promise<BusinessSummary[]> {
+  return db
+    .select(summaryColumns)
+    .from(businesses)
+    .where(eq(businesses.status, status))
+    .orderBy(asc(businesses.statusChangedAt));
 }
 
 /** Every listed business's @handle and last change (for the sitemap). */

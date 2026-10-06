@@ -4,6 +4,8 @@
 
 import { z } from "zod";
 
+import type { Localized } from "@/lib/localized";
+
 export const REVIEW_MAX_LENGTH = 1000;
 
 export const reviewSchema = z.object({
@@ -20,6 +22,11 @@ export type Review = {
   rating: 1 | 2 | 3 | 4 | 5;
   text: string;
   createdAt: Date;
+};
+
+/** A review on the home page, with the business it's about. */
+export type CityReview = Review & {
+  business: { name: Localized; username: string };
 };
 
 export type ReviewSummary = {

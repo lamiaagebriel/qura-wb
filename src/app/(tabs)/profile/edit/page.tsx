@@ -32,6 +32,7 @@ export default async function EditProfilePage() {
             bio: user.bio ?? "",
             image: user.image ?? null,
           }}
+          email={user.email}
           googlePhoto={googlePhoto}
         />
       </main>

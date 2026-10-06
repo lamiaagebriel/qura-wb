@@ -5,8 +5,10 @@ import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { BusinessForm } from "@/components/profile/business-form";
 import { requireUser } from "@/lib/auth/session";
-import { getMyBusiness } from "@/lib/data/businesses";
+import { myOpenRequest } from "@/lib/data/business-requests";
+import { categoryCounts, getMyBusiness } from "@/lib/data/businesses";
 import { businessToForm } from "@/lib/business";
+import { canDelete } from "@/lib/business-status";
 import { env } from "@/lib/env";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
@@ -27,20 +29,35 @@ export default async function EditBusinessPage({
   ]);
   const mine = await getMyBusiness(decodeURIComponent(username), user.id);
   if (!mine) notFound();
+  const role =
+    user.role === "super_admin"
+      ? "admin"
+      : mine.ownedByMe
+        ? "owner"
+        : "creator";
 
   return (
     <Screen>
       <AppHeader title={t("Edit business")} back={href("businesses")} />
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4">
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4">
         <BusinessForm
-          initial={businessToForm(
-            mine.business,
-            mine.ownedByMe ? "me" : "someone-else",
-          )}
+          initial={{
+            ...businessToForm(
+              mine.business,
+              mine.ownedByMe ? "me" : "someone-else",
+            ),
+            status: mine.status,
+          }}
           editing={mine.business.username}
           // Only whoever added it picks its owner.
           canChooseOwner={mine.createdByMe}
           mapsApiKey={env.GOOGLE_MAPS_API_KEY ?? null}
+          categoryCounts={await categoryCounts()}
+          deletable={canDelete(role, mine.hasOwner)}
+          status={{
+            role,
+            openRequest: await myOpenRequest(mine.id, user.id),
+          }}
         />
       </main>
     </Screen>

@@ -6,9 +6,11 @@ import {
   HugeiconsIcon,
   Store01Icon,
 } from "@/components/icons";
+import { BusinessStatusBadge } from "@/components/business-status-badge";
 import { StackLink } from "@/components/navigation/stack-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { categoryOf } from "@/lib/categories";
+import { cityOf } from "@/lib/cities";
 import { useLocale } from "@/lib/i18n/provider";
 import { inLocale } from "@/lib/localized";
 import { href } from "@/lib/routes";
@@ -32,6 +34,10 @@ export function BusinessList({
     <ul className="divide-y divide-border/60 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/5">
       {businesses.map((business) => {
         const category = categoryOf(business.category);
+        const cities = business.cities
+          .map((slug) => cityOf(slug)?.name[locale])
+          .filter(Boolean)
+          .join(locale === "ar" ? "، " : ", ");
         return (
           <li key={business.username}>
             <StackLink
@@ -66,10 +72,21 @@ export function BusinessList({
                       className="size-4 shrink-0 text-primary"
                     />
                   )}
+                  {business.status !== "active" && (
+                    <BusinessStatusBadge
+                      status={business.status}
+                      className="ms-auto"
+                    />
+                  )}
                 </span>
-                <span className="truncate text-sm text-muted-foreground">
-                  {category && `${category.name[locale]} · `}
-                  <bdi dir="ltr">@{business.username}</bdi>
+                <span className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
+                  <span className="truncate">
+                    {category?.name[locale]}
+                    {category && cities && " · "}
+                    {cities}
+                  </span>
+                  {/* {category && `${category.name[locale]} · `}
+                  <bdi dir="ltr">@{business.username}</bdi> */}
                 </span>
               </span>
               <HugeiconsIcon

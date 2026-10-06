@@ -1,0 +1,1 @@
+ALTER TABLE "businesses" DROP COLUMN "suspended_at";

@@ -5,6 +5,7 @@ import { Screen } from "@/components/navigation/screen";
 import { BusinessForm } from "@/components/profile/business-form";
 import { requireUser } from "@/lib/auth/session";
 import { EMPTY_BUSINESS } from "@/lib/business";
+import { categoryCounts } from "@/lib/data/businesses";
 import { env } from "@/lib/env";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
@@ -31,6 +32,7 @@ export default async function NewBusinessPage() {
           editing={null}
           canChooseOwner
           mapsApiKey={env.GOOGLE_MAPS_API_KEY ?? null}
+          categoryCounts={await categoryCounts()}
         />
       </main>
     </Screen>

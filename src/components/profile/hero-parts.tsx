@@ -10,7 +10,6 @@ import {
   type IconSvgElement,
 } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { initials } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import type { MessageKey } from "@/lib/i18n/types";
 
@@ -54,7 +53,7 @@ function ProfileAvatar({
 }) {
   return (
     <Avatar className="size-20 shrink-0 ring-1 ring-foreground/10">
-      {profile.avatarUrl && <AvatarImage src={profile.avatarUrl} alt="" />}
+      <AvatarImage src={profile.avatarUrl ?? undefined} alt="" />
       <AvatarFallback className="bg-primary/10 text-2xl font-semibold text-primary">
         {fallbackIcon ? (
           <HugeiconsIcon
@@ -63,7 +62,7 @@ function ProfileAvatar({
             className="size-9"
           />
         ) : (
-          initials(name)
+          name
         )}
       </AvatarFallback>
     </Avatar>

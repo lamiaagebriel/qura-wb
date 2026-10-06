@@ -20,6 +20,8 @@ export const routes = {
   editBusiness: "/profile/businesses/:username",
   // Your personal profile (name, @handle, photo, bio).
   editProfile: "/profile/edit",
+  // Admins only: approve businesses, answer close / reopen requests.
+  admin: "/profile/admin",
   // A business's public profile (outside every tab: opened from anywhere).
   business: "/bs/:username",
   businessReviews: "/bs/:username/reviews",

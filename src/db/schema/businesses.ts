@@ -2,6 +2,7 @@ import {
   boolean,
   index,
   jsonb,
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -9,6 +10,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+import { BUSINESS_STATUSES } from "@/lib/business-status";
 import type { Localized } from "@/lib/localized";
 
 import { id, timestamps } from "../helpers";
@@ -21,7 +23,10 @@ import { users } from "./auth";
  * - `createdById`: whoever added it; can edit it.
  * - `ownerId`: the business's owner — empty when it was added for someone
  *   else, until they claim it. Organizations can come later on top.
+ * - `status`: see `lib/business-status.ts` (who may change it).
  */
+export const businessStatus = pgEnum("business_status", BUSINESS_STATUSES);
+
 export const businesses = pgTable(
   "businesses",
   {
@@ -42,13 +47,15 @@ export const businesses = pgTable(
     image: text(),
     /** Set by admins only. */
     verified: boolean().notNull().default(false),
-    /** Set by admins: hidden from everyone but its owner and creator. */
-    suspendedAt: timestamp({ withTimezone: true }),
+    /** New ones wait for an admin; only `active` ones are listed. */
+    status: businessStatus().notNull().default("pending"),
+    statusChangedAt: timestamp({ withTimezone: true }),
   },
   (t) => [
     index("businesses_owner_id_idx").on(t.ownerId),
     index("businesses_created_by_id_idx").on(t.createdById),
     index("businesses_category_idx").on(t.category),
+    index("businesses_status_idx").on(t.status),
   ],
 );
 

@@ -9,6 +9,7 @@ import { SettingsList } from "@/components/profile/settings-list";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StatusScreen } from "@/components/status-screen";
 import { getSession } from "@/lib/auth/session";
+import { adminQueueCount } from "@/lib/data/business-requests";
 import { getMyBusinesses } from "@/lib/data/businesses";
 import { followingCount } from "@/lib/data/follows";
 import { getTranslations } from "@/lib/i18n/server";
@@ -26,9 +27,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProfilePage() {
   const [{ t }, session] = await Promise.all([getTranslations(), getSession()]);
   const user = session?.user;
-  const [following, businesses] = user
-    ? await Promise.all([followingCount(user.id), getMyBusinesses(user.id)])
-    : [0, []];
+  const isAdmin = user?.role === "super_admin";
+  const [following, businesses, adminCount] = user
+    ? await Promise.all([
+        followingCount(user.id),
+        getMyBusinesses(user.id),
+        isAdmin ? adminQueueCount() : 0,
+      ])
+    : [0, [], 0];
 
   return (
     <Screen>
@@ -64,6 +70,7 @@ export default async function ProfilePage() {
           <SettingsList
             signedIn={!!user}
             businessCount={businesses.length}
+            adminCount={isAdmin ? adminCount : undefined}
           />
         </main>
       </PullToRefresh>

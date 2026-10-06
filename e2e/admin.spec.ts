@@ -11,16 +11,16 @@ test.describe("admin: pnpm admin", () => {
   test.beforeAll(async () => {
     const sql = db();
     const [{ id }] = await sql`
-      insert into businesses (username, name, category, time_zone, created_by_id, owner_id)
-      select ${HANDLE}, ${sql.json({ en: "Hidden Kiosk" })}, 'cafe', 'Africa/Cairo', id, id
+      insert into businesses (username, name, category, time_zone, created_by_id, owner_id, status)
+      select ${HANDLE}, ${sql.json({ en: "Hidden Kiosk" })}, 'cafe', 'Africa/Cairo', id, id, 'active'
       from users where email = ${EMAIL}
-      on conflict (username) do update set suspended_at = null
+      on conflict (username) do update set status = 'active'
       returning id`;
     await sql`delete from business_locations where business_id = ${id}`;
     await sql`delete from business_links where business_id = ${id}`;
     await sql`
-      insert into business_locations (business_id, position, address, lat, lng)
-      values (${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9)`;
+      insert into business_locations (business_id, position, address, lat, lng, city)
+      values (${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, 'aswan')`;
     await sql`
       insert into business_links (business_id, position, platform, url)
       values (${id}, 0, 'whatsapp', 'https://wa.me/201000000000')`;
@@ -37,7 +37,7 @@ test.describe("admin: pnpm admin", () => {
     await page.goto(`/bs/${HANDLE}`);
     await expect(page.getByRole("heading", { level: 2, name: "Hidden Kiosk" })).toBeVisible();
 
-    expect(admin("suspend")).toContain("suspendedAt");
+    expect(admin("suspend")).toContain("suspended");
     await page.goto(`/bs/${HANDLE}`);
     await expect(page.getByText("Page not found")).toBeVisible();
     pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));

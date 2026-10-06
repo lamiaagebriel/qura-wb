@@ -9,9 +9,17 @@ import {
   ShareProfileButton,
   VisitorActions,
 } from "@/components/profile/visitor-actions";
+import { ReportClosed } from "@/components/profile/report-closed";
+import { StatusNotice } from "@/components/profile/status-notice";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { getSession } from "@/lib/auth/session";
-import { findPublicBusiness, getBusiness } from "@/lib/data/businesses";
+import { allowedRequest, roleFor } from "@/lib/business-status";
+import { myOpenRequest } from "@/lib/data/business-requests";
+import {
+  findPublicBusiness,
+  findVisibleBusiness,
+  getBusiness,
+} from "@/lib/data/businesses";
 import { isFollowing } from "@/lib/data/follows";
 import { getReviewSummary } from "@/lib/data/reviews";
 import { getTranslations } from "@/lib/i18n/server";
@@ -25,7 +33,10 @@ export async function generateMetadata({
     getTranslations(),
     params,
   ]);
-  const business = await getBusiness(decodeURIComponent(username));
+  const handle = decodeURIComponent(username);
+  // Pending / suspended ones: only their people see them — never indexed.
+  if (!(await findPublicBusiness(handle))) return { robots: { index: false } };
+  const business = await getBusiness(handle);
   if (!business) return {};
   return {
     title: inLocale(business.name, locale),
@@ -48,14 +59,17 @@ export default async function BusinessPage({
   ]);
   const handle = decodeURIComponent(username);
   const [row, business] = await Promise.all([
-    findPublicBusiness(handle),
+    findVisibleBusiness(handle, session?.user),
     getBusiness(handle),
   ]);
   if (!row || !business) notFound();
   const userId = session?.user.id;
-  const [summary, following] = await Promise.all([
+  const role = roleFor(row, session?.user);
+  const canReport = allowedRequest(role ?? "visitor", row.status) === "close" && role !== "creator";
+  const [summary, following, openRequest] = await Promise.all([
     getReviewSummary(row.id),
     userId ? isFollowing(userId, row.id) : false,
+    userId && canReport ? myOpenRequest(row.id, userId) : null,
   ]);
   // Written by the owner; shown in the app language (English if missing).
   const name = inLocale(business.name, locale);
@@ -72,6 +86,9 @@ export default async function BusinessPage({
       />
       <PullToRefresh>
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-4 pb-8">
+          {row.status !== "active" && (
+            <StatusNotice status={row.status} />
+          )}
           <section aria-label={name} className="flex flex-col gap-4 pt-2">
             <BusinessHero
               profile={business}
@@ -87,6 +104,13 @@ export default async function BusinessPage({
               }
             />
           </section>
+          {canReport && (
+            <ReportClosed
+              username={business.username}
+              signedIn={!!userId}
+              reported={openRequest === "close"}
+            />
+          )}
         </main>
       </PullToRefresh>
     </Screen>

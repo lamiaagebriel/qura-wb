@@ -8,6 +8,11 @@
 import { z } from "zod";
 
 import { CATEGORY_SLUGS, type CategorySlug } from "@/lib/categories";
+import {
+  BUSINESS_STATUSES,
+  type BusinessStatus,
+} from "@/lib/business-status";
+import { CITY_SLUGS, DEFAULT_CITY, type CitySlug } from "@/lib/cities";
 import type { MessageKey } from "@/lib/i18n/types";
 import type { Localized } from "@/lib/localized";
 import {
@@ -19,10 +24,11 @@ import {
 /** Opening time and closing time, "HH:MM" (24h, same day; "24:00" = midnight). */
 export type OpeningHours = { open: string; close: string };
 
-/** One branch: its address as the owner wrote it, and the map pin. */
+/** One branch: its address as the owner wrote it, the map pin and its city. */
 export type BusinessLocation = {
   description: Localized;
   coords: { lat: number; lng: number };
+  city: CitySlug;
 };
 
 /** A business's public page. */
@@ -53,7 +59,11 @@ export type BusinessProfile = {
 export type BusinessSummary = Pick<
   BusinessProfile,
   "name" | "username" | "category" | "verified" | "avatarUrl"
->;
+> & {
+  /** The cities its branches are in (each once). */
+  cities: CitySlug[];
+  status: BusinessStatus;
+};
 
 const m = (key: MessageKey) => key;
 
@@ -168,6 +178,7 @@ export const businessSchema = z.object({
     .array(
       z.object({
         address: localized(200),
+        city: z.enum(CITY_SLUGS, { error: m("Choose a city") }),
         pin: z
           .string()
           .refine((pin) => parsePin(pin) !== null, m("Set the location on the map")),
@@ -205,6 +216,12 @@ export const businessSchema = z.object({
    * `createdBy` is them either way).
    */
   owner: z.enum(OWNERS),
+  /**
+   * Editing only: the status picked in the form. Saved with the rest if
+   * this user may set it, or filed as a request to an admin (its creator);
+   * see `lib/business-status.ts`.
+   */
+  status: z.enum(BUSINESS_STATUSES).optional(),
 });
 
 export type BusinessFormValues = z.infer<typeof businessSchema>;
@@ -218,7 +235,7 @@ export const EMPTY_BUSINESS: BusinessFormValues = {
   category: "",
   bio: { en: "", ar: "", fr: "" },
   links: [{ platform: "whatsapp", url: "" }],
-  locations: [{ address: { en: "", ar: "", fr: "" }, pin: "" }],
+  locations: [{ address: { en: "", ar: "", fr: "" }, city: DEFAULT_CITY, pin: "" }],
   hours: Array.from({ length: 7 }, () => DEFAULT_HOURS),
   timeZone: "Africa/Cairo",
   owner: "me",
@@ -258,6 +275,7 @@ export function businessToForm(
     })),
     locations: business.locations.map((location) => ({
       address: fill(location.description),
+      city: location.city,
       pin: formatPin(location.coords),
     })),
     hours: business.hours.map((slot) =>
@@ -296,8 +314,9 @@ export function formToBusiness(values: BusinessFormValues) {
     bio: compact(values.bio),
     socials: socials as BusinessProfile["socials"],
     locations: values.locations.map(
-      ({ address, pin }): BusinessLocation => ({
+      ({ address, city, pin }): BusinessLocation => ({
         description: compact(address),
+        city: city as CitySlug,
         coords: parsePin(pin)!,
       }),
     ) as BusinessProfile["locations"],

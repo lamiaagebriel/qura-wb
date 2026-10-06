@@ -112,7 +112,7 @@ test.describe("my businesses", () => {
     await expect(page.getByLabel("Username")).toHaveValue("aswan.bakery");
     // The picker drills down; "Choose …" picks a level that has children.
     await page.getByLabel("Category").tap();
-    await page.getByRole("dialog").getByRole("button", { name: "Restaurant", exact: true }).tap();
+    await page.getByRole("dialog").getByRole("button", { name: /^[0-9]* ?Restaurant$/ }).tap();
     await page.getByRole("button", { name: "Choose “Restaurant”" }).tap();
     await expect(page.getByLabel("Category")).toHaveAttribute("data-value", "restaurant");
     await expect(page.getByTestId("business-avatar-icon")).toHaveAttribute("data-category", "restaurant");
@@ -156,10 +156,12 @@ test.describe("my businesses", () => {
     await page.getByRole("button", { name: "Create business" }).tap();
     await expect(page.getByText("Business created")).toBeVisible();
     await expect.poll(() => pathname(page)).toBe("/profile/businesses");
-    // Added for someone else, but you added it: it's in your list, and public.
-    await expect(page.getByRole("link", { name: /Aswan Bakery/ })).toBeVisible();
+    // Added for someone else, but you added it: it's in your list, waiting
+    // for an admin; its page opens for you, saying so.
+    await expect(page.getByRole("link", { name: /Aswan Bakery.*Pending review/ })).toBeVisible();
     await page.goto("/bs/aswan.bakery");
     await expect(page.getByRole("heading", { level: 2, name: "Aswan Bakery" })).toBeVisible();
+    await expect(page.getByText("Waiting for approval — only you can see this page.")).toBeVisible();
   });
 
   test("a username that's taken is refused by the server", async ({ page, signIn }) => {

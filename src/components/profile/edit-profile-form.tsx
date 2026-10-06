@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, useWatch, type Path } from "react-hook-form";
 
-import { TextareaField, TextField, UsernameField } from "@/components/form";
+import {
+  INPUT,
+  TextareaField,
+  TextField,
+  UsernameField,
+} from "@/components/form";
 import { HugeiconsIcon, PencilEdit02Icon } from "@/components/icons";
 import { canGoBack } from "@/components/navigation/history";
 import { updateProfile } from "@/components/profile/profile-actions";
@@ -17,10 +22,15 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { FieldGroup } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
-import { initials } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/provider";
 import {
   AVATARS,
@@ -38,9 +48,12 @@ import { cn } from "@/lib/utils";
  */
 export function EditProfileForm({
   initial,
+  email,
   googlePhoto,
 }: {
   initial: ProfileFormValues;
+  /** Your account's email, shown read-only. */
+  email: string;
   /** Your Google photo, offered first among the avatars (if any). */
   googlePhoto: string | null;
 }) {
@@ -117,6 +130,22 @@ export function EditProfileForm({
           name="username"
           label={t("Username")}
         />
+        {/* Shown only: it's your Google account's, not part of the form. */}
+        <Field data-disabled>
+          <FieldLabel htmlFor="email">{t("Email")}</FieldLabel>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            disabled
+            readOnly
+            dir="ltr"
+            className={cn(INPUT, "text-start")}
+          />
+          <FieldDescription>
+            {t("From your Google account. It can't be changed here.")}
+          </FieldDescription>
+        </Field>
         <TextareaField
           control={control}
           name="bio"
@@ -176,12 +205,12 @@ function AvatarPicker({
         className="relative rounded-full"
       >
         <Avatar className="size-24 ring-1 ring-foreground/10">
-          {value && (
-            <AvatarImage src={value} alt="" referrerPolicy="no-referrer" />
-          )}
-          <AvatarFallback className="bg-primary/10 text-3xl font-semibold text-primary">
-            {initials(name)}
-          </AvatarFallback>
+          <AvatarImage
+            src={value ?? undefined}
+            alt=""
+            referrerPolicy="no-referrer"
+          />
+          <AvatarFallback>{name}</AvatarFallback>
         </Avatar>
         <span className="absolute inset-e-0 bottom-0 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground ring-3 ring-background">
           <HugeiconsIcon

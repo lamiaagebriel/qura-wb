@@ -28,6 +28,7 @@ import {
   pathOf,
   type Category,
 } from "@/lib/categories";
+import { CategoryAvatar } from "@/components/category-avatar";
 import { useLocale } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +43,10 @@ export function CategoryPicker({
   value,
   onChange,
   invalid,
+  counts,
 }: {
+  /** Businesses per category, subcategories included (shown on each row). */
+  counts?: Record<string, number>;
   id: string;
   value: string;
   onChange: (slug: string) => void;
@@ -98,7 +102,7 @@ export function CategoryPicker({
           c.children.length && !withPath ? setAt(c.slug) : choose(c.slug)
         }
       >
-        <HugeiconsIcon icon={c.icon} strokeWidth={1.75} className="size-5 shrink-0 text-primary" />
+        <CategoryAvatar icon={c.icon} count={counts && (counts[c.slug] ?? 0)} />
         <span className="min-w-0 flex-1 truncate">{withPath ? label(c) : c.name[locale]}</span>
         {c.slug === value && (
           <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-5 shrink-0 text-primary" />

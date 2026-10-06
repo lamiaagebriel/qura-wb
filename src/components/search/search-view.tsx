@@ -23,6 +23,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { CategoryAvatar } from "@/components/category-avatar";
 import { CATEGORIES } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/provider";
 import { useRecentSearches } from "@/lib/recent-searches";
@@ -43,9 +44,12 @@ import { searchBusinesses } from "./actions";
  * back, the router may restore Search without it, so the URL wins.
  */
 export function SearchView({
+  categoryCounts,
   initialQuery,
   initialResults,
 }: {
+  /** Businesses per category in the visitor's city, subcategories included. */
+  categoryCounts: Record<string, number>;
   initialQuery: string;
   initialResults: BusinessSummary[];
 }) {
@@ -262,13 +266,10 @@ export function SearchView({
                       href={href("category", { params: { slug: category.slug } })}
                       className="flex min-h-14 w-full items-center gap-3 rounded-2xl bg-card px-3 py-2 text-start text-sm font-medium ring-1 ring-foreground/5"
                     >
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <HugeiconsIcon
-                          icon={category.icon}
-                          strokeWidth={1.75}
-                          className="size-5"
-                        />
-                      </span>
+                      <CategoryAvatar
+                        icon={category.icon}
+                        count={categoryCounts[category.slug] ?? 0}
+                      />
                       <span className="min-w-0 leading-tight">
                         {category.name[locale]}
                       </span>

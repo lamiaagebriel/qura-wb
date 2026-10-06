@@ -3,8 +3,10 @@
  *
  *   pnpm admin verify @nileview         the blue badge on a business
  *   pnpm admin unverify @nileview
+ *   pnpm admin approve @nileview        a pending business goes live
  *   pnpm admin suspend @nileview        hidden from everyone but its owner
- *   pnpm admin restore @nileview
+ *   pnpm admin restore @nileview        live again (after suspend / close)
+ *   pnpm admin close @nileview          closed for good (its page says so)
  *   pnpm admin suspend-user a@b.com     signed out, can't sign in
  *   pnpm admin restore-user a@b.com
  *   pnpm admin make-admin a@b.com       role super_admin
@@ -14,14 +16,18 @@
  */
 import { eq } from "drizzle-orm";
 
+import type { BusinessStatus } from "@/lib/business-status";
+
 import { db } from "./index";
 import { businesses, sessions, users } from "./schema";
 
 const COMMANDS = {
   verify: (handle: string) => setBusiness(handle, { verified: true }),
   unverify: (handle: string) => setBusiness(handle, { verified: false }),
-  suspend: (handle: string) => setBusiness(handle, { suspendedAt: new Date() }),
-  restore: (handle: string) => setBusiness(handle, { suspendedAt: null }),
+  approve: (handle: string) => setStatus(handle, "active"),
+  suspend: (handle: string) => setStatus(handle, "suspended"),
+  restore: (handle: string) => setStatus(handle, "active"),
+  close: (handle: string) => setStatus(handle, "closed"),
   "suspend-user": async (email: string) => {
     const id = await setUser(email, { status: "suspended" });
     // Signed out everywhere now, not when their sessions expire.
@@ -44,6 +50,10 @@ async function setBusiness(
   if (!row) throw new Error(`No business @${username}.`);
   console.log(`@${row.username}:`, values);
 }
+
+// Same effect as the admin screen, minus resolving open requests.
+const setStatus = (handle: string, status: BusinessStatus) =>
+  setBusiness(handle, { status, statusChangedAt: new Date() });
 
 async function setUser(
   email: string,

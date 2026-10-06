@@ -2,7 +2,7 @@
 
 import {
   HugeiconsIcon,
-  Location01Icon,
+  PinIcon,
   MapsLocation01Icon,
 } from "@/components/icons";
 import {
@@ -39,7 +39,7 @@ export function BranchesItem({
         className={DETAILS_TRIGGER}
       >
         <HugeiconsIcon
-          icon={Location01Icon}
+          icon={PinIcon}
           strokeWidth={2}
           className="size-5 shrink-0 text-muted-foreground"
         />

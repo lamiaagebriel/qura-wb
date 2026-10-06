@@ -1,7 +1,7 @@
 import { HugeiconsIcon, StarIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { initials, timeAgo } from "@/lib/format";
+import { timeAgo } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
@@ -112,15 +112,11 @@ async function ReviewItem({ review }: { review: Review }) {
     <article className="flex flex-col gap-2 py-4">
       <div className="flex min-w-0 items-center gap-2.5">
         <Avatar className="size-9 shrink-0">
-          {review.author.avatarUrl && (
-            <AvatarImage src={review.author.avatarUrl} alt="" />
-          )}
-          <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-            {initials(review.author.name)}
-          </AvatarFallback>
+          <AvatarImage src={review.author?.avatarUrl ?? undefined} alt="" />
+          <AvatarFallback>{review.author.name}</AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-1 flex-col">
-          <p dir="auto" className="truncate text-start text-sm font-semibold">
+          <p className="truncate text-start text-sm font-semibold">
             {review.author.name}
           </p>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">

@@ -13,7 +13,6 @@ import { getSession } from "@/lib/auth/session";
 import { categoryOf } from "@/lib/categories";
 import { findPublicBusiness, isMine } from "@/lib/data/businesses";
 import { getMyReview, getReviews, getReviewSummary } from "@/lib/data/reviews";
-import { initials } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import { inLocale } from "@/lib/localized";
 import { href } from "@/lib/routes";
@@ -114,7 +113,7 @@ async function BusinessBrief({ business }: { business: Business }) {
               className="size-8"
             />
           ) : (
-            initials(name)
+            name
           )}
         </AvatarFallback>
       </Avatar>

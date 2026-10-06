@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import {
   HugeiconsIcon,
   PencilEdit02Icon,
+  Shield01Icon,
   Store01Icon,
   type IconSvgElement,
 } from "@/components/icons";
@@ -64,15 +65,18 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
 
 /**
  * The settings under your profile, grouped like a native settings list:
- * your account (Edit profile, My businesses) when signed in, then the
+ * your account (Edit profile, My businesses, Admin for admins) when signed in, then the
  * app (language, theme, share, install), then Sign out.
  */
 export async function SettingsList({
   signedIn,
   businessCount = 0,
+  adminCount,
 }: {
   signedIn: boolean;
   businessCount?: number;
+  /** Admins only: what waits for them (shows the Admin row). */
+  adminCount?: number;
 }) {
   const { t, locale } = await getTranslations();
 
@@ -91,6 +95,14 @@ export async function SettingsList({
             icon={Store01Icon}
             value={new Intl.NumberFormat(locale).format(businessCount)}
           />
+          {adminCount !== undefined && (
+            <LinkRow
+              href={href("admin")}
+              label={t("Admin")}
+              icon={Shield01Icon}
+              value={new Intl.NumberFormat(locale).format(adminCount)}
+            />
+          )}
         </Group>
       )}
 

@@ -59,6 +59,8 @@ async function main() {
         .values({
           ...fields,
           image: avatarUrl,
+          // Sample businesses are already approved.
+          status: "active",
           ...(owned && {
             ownerId,
             createdById: owned.addedByOwner ? ownerId : someoneElse,
@@ -70,10 +72,11 @@ async function main() {
       added++;
 
       await tx.insert(businessLocations).values(
-        locations.map(({ description, coords }, position) => ({
+        locations.map(({ description, coords, city }, position) => ({
           businessId: row.id,
           position,
           address: description,
+          city,
           ...coords,
         })),
       );

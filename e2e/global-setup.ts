@@ -17,6 +17,7 @@ export default async function globalSetup() {
     delete from businesses
     where username in ${sql(handles)}
       or created_by_id = (select id from users where email = ${EMAIL})`;
+  await sql`delete from business_requests where author_id = (select id from users where email = ${EMAIL})`;
   await sql`delete from follows where user_id = (select id from users where email = ${EMAIL})`;
   await sql`delete from reviews where author_id = (select id from users where email = ${EMAIL})`;
   await sql`update users set image = null, bio = null where email = ${EMAIL}`;

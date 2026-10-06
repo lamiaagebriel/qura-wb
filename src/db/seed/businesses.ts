@@ -2,15 +2,17 @@
 // `pnpm db:seed` (src/db/seed.ts), never in production.
 
 import type { BusinessLocation, BusinessProfile, OpeningHours } from "@/lib/business";
+import { nearestCity } from "@/lib/cities";
 import type { Localized } from "@/lib/localized";
 
 /** A business as seeded: everything but what's counted (followers). */
 export type SeedBusiness = Omit<BusinessProfile, "stats">;
 
-/** `loc({ en: "Old Souq, Aswan" }, 24.0965, 32.901)` */
+/** `loc({ en: "Old Souq, Aswan" }, 24.0965, 32.901)` — city from the pin. */
 const loc = (description: Localized, lat: number, lng: number): BusinessLocation => ({
   description,
   coords: { lat, lng },
+  city: nearestCity({ lat, lng }),
 });
 const h = (open: string, close: string): OpeningHours => ({ open, close });
 const everyDay = (slot: OpeningHours) => Array.from({ length: 7 }, () => slot);
