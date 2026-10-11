@@ -7,7 +7,7 @@ test.describe("public business profile", () => {
     await page.goto("/search");
     await waitForHydration(page);
 
-    await page.getByRole("link", { name: "Hotel", exact: true }).tap();
+    await page.getByRole("link", { name: /^\d+ Hotel$/ }).tap();
     await page.getByRole("link", { name: /Nile View Hotel/ }).tap();
 
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
@@ -50,7 +50,7 @@ test.describe("public business profile", () => {
   test("the Search tab still opens Search after visiting a business", async ({ page }) => {
     await page.goto("/search");
     await waitForHydration(page);
-    await page.getByRole("link", { name: "Restaurant", exact: true }).tap();
+    await page.getByRole("link", { name: /^\d+ Restaurant$/ }).tap();
     await page.getByRole("link", { name: /Aswan Eats/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/aswan.eats");
     await waitForHydration(page);
@@ -108,7 +108,7 @@ test.describe("public business profile", () => {
   test("back arrows: reviews → business → category → Search", async ({ page }) => {
     await page.goto("/search");
     await waitForHydration(page);
-    await page.getByRole("link", { name: "Hotel", exact: true }).tap();
+    await page.getByRole("link", { name: /^\d+ Hotel$/ }).tap();
     await page.getByRole("link", { name: /Nile View Hotel/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
     await waitForHydration(page);

@@ -7,6 +7,7 @@
  *     │   ──1:N── businesses     the businesses they own
  *   verifications                short-lived OAuth state (standalone)
  *   rate_limits                  request counters (standalone)
+ *   posts ──1:N── post_votes / post_saves; by a user, optionally as a business
  *
  * - `auth.ts`       Better Auth's tables. `users` (the private person, never
  *   shown) is also used by the app; the rest only by Better Auth.
@@ -19,3 +20,4 @@ export * from "./businesses";
 export * from "./business-details";
 export * from "./business-requests";
 export * from "./social";
+export * from "./posts";

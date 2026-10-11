@@ -9,7 +9,8 @@ test.describe("categories", () => {
 
     // Only subcategories with businesses get a chip.
     const chips = page.getByRole("navigation", { name: "Subcategories" });
-    await expect(chips.getByText("All")).toHaveAttribute("aria-current", "page");
+    // The current chip ("All") is the one marked as the page, not a link.
+    await expect(chips.locator('[aria-current="page"]')).toHaveText(/All/);
     await expect(chips.getByRole("link")).toHaveCount(1);
     await chips.getByRole("link", { name: /Salon/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/c/salon");

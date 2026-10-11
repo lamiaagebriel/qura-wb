@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { ALL_CATEGORIES } from "@/lib/categories";
 import { allBusinessHandles } from "@/lib/data/businesses";
 import { env } from "@/lib/env";
+import { POST_TYPES } from "@/lib/posts";
 import { href, routes, type RouteName } from "@/lib/routes";
 
 // Public, indexable screens. Add feed pages here as they're built.
@@ -13,6 +14,7 @@ type StaticRoute = {
 const PUBLIC_ROUTES: { route: StaticRoute; priority: number }[] = [
   { route: "home", priority: 1 },
   { route: "search", priority: 0.8 },
+  { route: "posts", priority: 0.9 },
 ];
 
 // Rebuilt at most hourly, so new businesses show up without a deploy.
@@ -31,6 +33,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...ALL_CATEGORIES.map((c) => ({
       url: `${env.APP_URL}${href("category", { params: { slug: c.slug } })}`,
       changeFrequency: "daily" as const,
+      priority: 0.6,
+    })),
+    // Posts filtered by each type (offers, questions…).
+    ...POST_TYPES.map((type) => ({
+      url: `${env.APP_URL}${href("posts", { query: { type } })}`,
+      changeFrequency: "hourly" as const,
       priority: 0.6,
     })),
     // Every business's profile.

@@ -1,17 +1,6 @@
 import "server-only";
 
-import {
-  and,
-  asc,
-  avg,
-  count,
-  desc,
-  eq,
-  exists,
-  inArray,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, asc, count, eq, exists, inArray, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
@@ -22,14 +11,9 @@ import {
   businessLinks,
   businessLocations,
   follows,
-  reviews,
   type Business,
 } from "@/db/schema";
-import {
-  isPublic,
-  roleFor,
-  type BusinessStatus,
-} from "@/lib/business-status";
+import { isPublic, roleFor, type BusinessStatus } from "@/lib/business-status";
 import type {
   BusinessProfile,
   BusinessSummary,
@@ -233,54 +217,6 @@ export async function businessesIn(
     )
     .orderBy(asc(businesses.createdAt));
 }
-
-/** A business on the home page: its summary and its rating. */
-export type RatedBusiness = BusinessSummary & {
-  rating: number | null;
-  reviewCount: number;
-};
-
-const ratings = () =>
-  db
-    .select({
-      businessId: reviews.businessId,
-      rating: avg(reviews.rating).as("rating"),
-      reviewCount: count().as("review_count"),
-    })
-    .from(reviews)
-    .groupBy(reviews.businessId)
-    .as("ratings");
-
-/** Home sections: businesses in `city` with their ratings, best or newest first. */
-async function ratedIn(
-  city: CitySlug,
-  order: "top" | "new",
-  limit: number,
-): Promise<RatedBusiness[]> {
-  const r = ratings();
-  const rows = await db
-    .select({ ...summaryColumns, rating: r.rating, reviewCount: r.reviewCount })
-    .from(businesses)
-    .leftJoin(r, eq(r.businessId, businesses.id))
-    .where(and(listed, inCity(city), order === "top" ? sql`${r.reviewCount} > 0` : undefined))
-    .orderBy(
-      ...(order === "top"
-        ? [desc(r.rating), desc(r.reviewCount)]
-        : [desc(businesses.createdAt)]),
-    )
-    .limit(limit);
-  return rows.map((row) => ({
-    ...row,
-    rating: row.rating === null ? null : Number(row.rating),
-    reviewCount: row.reviewCount ?? 0,
-  }));
-}
-
-export const topRatedIn = (city: CitySlug, limit = 10) =>
-  ratedIn(city, "top", limit);
-
-export const newestIn = (city: CitySlug, limit = 10) =>
-  ratedIn(city, "new", limit);
 
 /**
  * How many businesses in `city` (sub-cities included; every city when left

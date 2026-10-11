@@ -49,8 +49,9 @@ export function FormError({ error }: { error?: RhfFieldError }) {
   return <FieldError>{t(error.message as MessageKey)}</FieldError>;
 }
 
-type FieldProps<T extends FieldValues> = {
-  control: Control<T>;
+// `R`: the values after validation, when the schema transforms them.
+type FieldProps<T extends FieldValues, R extends FieldValues = T> = {
+  control: Control<T, unknown, R>;
   name: FieldPath<T>;
   label: ReactNode;
   description?: ReactNode;
@@ -88,14 +89,17 @@ export function TextField<T extends FieldValues>({
 }
 
 /** A labelled multi-line text field bound to `name`. */
-export function TextareaField<T extends FieldValues>({
+export function TextareaField<
+  T extends FieldValues,
+  R extends FieldValues = T,
+>({
   control,
   name,
   label,
   description,
   className,
   ...props
-}: FieldProps<T> & Omit<ComponentProps<"textarea">, "name" | "value">) {
+}: FieldProps<T, R> & Omit<ComponentProps<"textarea">, "name" | "value">) {
   return (
     <Controller
       control={control}

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import {
+  Bookmark01Icon,
   HugeiconsIcon,
   PencilEdit02Icon,
   Shield01Icon,
@@ -94,6 +95,11 @@ export async function SettingsList({
             label={t("My businesses")}
             icon={Store01Icon}
             value={new Intl.NumberFormat(locale).format(businessCount)}
+          />
+          <LinkRow
+            href={href("saved")}
+            label={t("Saved posts")}
+            icon={Bookmark01Icon}
           />
           {adminCount !== undefined && (
             <LinkRow

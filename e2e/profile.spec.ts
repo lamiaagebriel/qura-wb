@@ -37,11 +37,10 @@ test.describe("profile", () => {
     await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
   });
 
-  test("/profile/settings and /profile/saved are gone", async ({ page, pageErrors }) => {
-    for (const path of ["/profile/settings", "/profile/saved"]) {
-      await page.goto(path);
-      await expect(page.getByText("Page not found")).toBeVisible();
-    }
+  // (/profile/saved is back, as Saved posts.)
+  test("/profile/settings is gone", async ({ page, pageErrors }) => {
+    await page.goto("/profile/settings");
+    await expect(page.getByText("Page not found")).toBeVisible();
     // The browser logs each 404 itself — expected here.
     pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));
   });

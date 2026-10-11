@@ -2,6 +2,28 @@
 
 import { useEffect, useRef } from "react";
 
+// A UI close's `history.back()` is async. An overlay opened from another
+// (options sheet → confirm sheet) waits for it, or that late back would pop
+// the new overlay's entry and close it.
+let pendingBack: Promise<void> | null = null;
+
+/** Resolves once no overlay's closing `history.back()` is in flight. */
+export const overlaysSettled = () => pendingBack ?? Promise.resolve();
+
+function back() {
+  pendingBack = new Promise((resolve) =>
+    window.addEventListener(
+      "popstate",
+      () => {
+        pendingBack = null;
+        resolve();
+      },
+      { once: true },
+    ),
+  );
+  window.history.back();
+}
+
 /**
  * While `open`, the back gesture/button (Android back, browser back, iOS
  * swipe) closes the overlay instead of leaving the page — like a native app.
@@ -22,20 +44,29 @@ export function useBackToClose(open: boolean, onClose: () => void) {
       // the listener below is already gone).
       if (pushed.current) {
         pushed.current = false;
-        window.history.back();
+        back();
       }
       return;
     }
 
-    window.history.pushState({ overlay: true }, "", window.location.href);
-    pushed.current = true;
-
+    let active = true;
     const onPopState = () => {
       if (!pushed.current) return;
       pushed.current = false;
       onCloseRef.current();
     };
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    const start = () => {
+      if (!active) return;
+      window.history.pushState({ overlay: true }, "", window.location.href);
+      pushed.current = true;
+      window.addEventListener("popstate", onPopState);
+    };
+    if (pendingBack) pendingBack.then(start);
+    else start();
+
+    return () => {
+      active = false;
+      window.removeEventListener("popstate", onPopState);
+    };
   }, [open]);
 }

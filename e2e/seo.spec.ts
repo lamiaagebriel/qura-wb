@@ -89,13 +89,20 @@ test.describe("SEO", () => {
 
 test.describe("layout", () => {
   test("no page overflows the screen", async ({ page }) => {
-    for (const path of ["/", "/search", "/login"]) {
+    // Nothing scrolls sideways (long content may scroll down).
+    for (const path of ["/", "/search", "/posts", "/login"]) {
       await page.goto(path);
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollHeight - innerHeight,
+      const sideways = await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
       );
-      expect(overflow, path).toBeLessThanOrEqual(0);
+      expect(sideways, path).toBeLessThanOrEqual(0);
     }
+    // A short screen fits without scrolling at all.
+    await page.goto("/login");
+    const down = await page.evaluate(
+      () => document.documentElement.scrollHeight - innerHeight,
+    );
+    expect(down, "/login").toBeLessThanOrEqual(0);
   });
 
   test("404 page", async ({ page, pageErrors }) => {

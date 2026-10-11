@@ -17,6 +17,15 @@ sign-in) · shadcn/ui (Base UI) · Playwright.
   own tables.
 - **`follows`**, **`reviews`**: a user → a business. One review per user per
   business; you can't review your own.
+- **`posts`**: everything shared in a city (general, questions, offers,
+  announcements, alerts…), one table told apart by `type`. Written by a user
+  (`createdById`, always set), optionally as one of their businesses
+  (`businessId`; offers and announcements need one), which it then shows as.
+  Fields that belong to one type (an offer's price and last day) live in
+  one JSON column, `data`, checked per type by `POST_DATA` in
+  `src/lib/posts.ts` — adding a field there needs no migration.
+  Replies are posts with a `parentId`. **`post_votes`** (helpful / not) and
+  **`post_saves`** (private bookmarks) belong to a user. Text only for now.
 
 Reads live in `src/lib/data/`, writes are server actions next to the
 screens that use them, and every write re-checks the session and input

@@ -59,6 +59,51 @@ export function PostSkeleton() {
   );
 }
 
+/** A post card (`PostCard`): author row and type, two lines, the action row. */
+export function PostCardSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/5">
+      <div className="flex items-center gap-3">
+        <Bone className="size-10 rounded-full" />
+        <div className="flex flex-1 flex-col gap-2">
+          <Bone className="h-3.5 w-32" />
+          <Bone className="h-3 w-20" />
+        </div>
+        <Bone className="h-5 w-16 rounded-full" />
+      </div>
+      <Bone className="h-3.5 w-full" />
+      <Bone className="h-3.5 w-4/5" />
+      <div className="flex items-center gap-3">
+        <Bone className="h-6 w-24 rounded-full" />
+        <Bone className="h-6 w-10 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+/** The post form (`PostForm`): type pills, the text box, the button. */
+export function PostFormSkeleton({ types = true }: { types?: boolean }) {
+  return (
+    <div className="flex flex-col gap-5">
+      {types && (
+        <div className="flex flex-col gap-2">
+          <Bone className="h-3.5 w-24" />
+          <div className="flex flex-wrap gap-2">
+            {["w-20", "w-24", "w-24", "w-28", "w-16"].map((width, i) => (
+              <Bone key={i} className={`h-9 rounded-full ${width}`} />
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="flex flex-col gap-2">
+        <Bone className="h-3.5 w-20" />
+        <Bone className="h-32 rounded-xl" />
+      </div>
+      <Bone className="h-11 rounded-xl" />
+    </div>
+  );
+}
+
 /**
  * A business profile (yours or someone else's): avatar + name, category
  * and followers, buttons, bio, and the details card (reviews, hours,
