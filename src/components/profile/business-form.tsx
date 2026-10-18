@@ -34,6 +34,7 @@ import {
   UserCheck01Icon,
 } from "@/components/icons";
 import { MapEmbed } from "@/components/map-embed";
+import { PlaceField } from "@/components/places/place-field";
 import { canGoBack } from "@/components/navigation/history";
 import { saveBusiness } from "@/components/profile/business-actions";
 import { MapPinPicker } from "@/components/profile/map-pin-picker";
@@ -69,7 +70,7 @@ import {
   type BusinessFormValues,
 } from "@/lib/business";
 import { categoryOf } from "@/lib/categories";
-import { CITIES, DEFAULT_CITY } from "@/lib/cities";
+import { DEFAULT_PLACE } from "@/lib/places";
 import { useCurrentLocation } from "@/lib/geolocation";
 import { useLocale } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n/types";
@@ -184,8 +185,7 @@ export function BusinessForm({
             label={t("Name")}
             inputLabels={{
               en: t("Name (English)"),
-              ar: t("Name (Arabic, optional)"),
-              fr: t("Name (French, optional)"),
+              ar: t("Name (Arabic)"),
             }}
             maxLength={100}
           />
@@ -217,8 +217,7 @@ export function BusinessForm({
             label={t("Bio")}
             inputLabels={{
               en: t("Bio (English)"),
-              ar: t("Bio (Arabic, optional)"),
-              fr: t("Bio (French, optional)"),
+              ar: t("Bio (Arabic)"),
             }}
             maxLength={300}
             multiline
@@ -601,8 +600,7 @@ function LocationFields({
             label={t("Address")}
             inputLabels={{
               en: t("Address (English)"),
-              ar: t("Address (Arabic, optional)"),
-              fr: t("Address (French, optional)"),
+              ar: t("Address (Arabic)"),
             }}
             maxLength={200}
             action={
@@ -634,8 +632,8 @@ function LocationFields({
           onClick={() =>
             append(
               {
-                address: { en: "", ar: "", fr: "" },
-                city: DEFAULT_CITY,
+                address: { en: "", ar: "" },
+                city: DEFAULT_PLACE,
                 pin: "",
               },
               { shouldFocus: false },
@@ -647,9 +645,9 @@ function LocationFields({
   );
 }
 
-/** The branch's city or sub-city, as chips (the list is short). */
+/** The branch's place, picked from the tree (any depth). */
 function CityField({ control, index }: { control: Form; index: number }) {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   return (
     <Controller
       control={control}
@@ -657,33 +655,14 @@ function CityField({ control, index }: { control: Form; index: number }) {
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
           <FieldTitle>{t("City")}</FieldTitle>
-          <div
-            role="radiogroup"
-            aria-label={t("City")}
-            className="flex flex-wrap gap-2"
-          >
-            {CITIES.map((city) => {
-              const selected = field.value === city.slug;
-              return (
-                <button
-                  key={city.slug}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => {
-                    field.onChange(city.slug);
-                    field.onBlur();
-                  }}
-                  className={cn(
-                    "flex h-11 items-center rounded-full px-4 text-sm font-medium ring-1 ring-foreground/10",
-                    selected ? "bg-primary text-primary-foreground" : "bg-card",
-                  )}
-                >
-                  {city.name[locale]}
-                </button>
-              );
-            })}
-          </div>
+          <PlaceField
+            value={field.value}
+            label={t("City")}
+            onChange={(slug) => {
+              field.onChange(slug);
+              field.onBlur();
+            }}
+          />
           <FormError error={fieldState.error} />
         </Field>
       )}

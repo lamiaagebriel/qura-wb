@@ -3,7 +3,7 @@ import { expect, pathname, test, waitForHydration } from "./fixtures";
 // Tests run in parallel and others check the test user's name and @handle,
 // so this one changes only the avatar and bio (reset by global-setup.ts).
 test.describe("edit profile", () => {
-  test("Profile → Edit profile → pick an avatar and a bio → shown at once", async ({
+  test("Profile → Edit profile → pick an avatar → shown at once", async ({
     page,
     signIn,
   }) => {
@@ -27,13 +27,14 @@ test.describe("edit profile", () => {
     await avatars.getByRole("radio", { name: "Glasses" }).tap();
     await expect(sheet).toBeHidden();
     await expect(page.locator('main img[src="/avatars/glasses.svg"]')).toBeVisible();
-    await page.getByLabel("Bio (optional)").fill("Coffee on the Corniche ☕");
+    // Bio is hidden for now.
+    // await page.getByLabel("Bio (optional)").fill("Coffee on the Corniche ☕");
     await page.getByRole("button", { name: "Save changes" }).tap();
 
     await expect(page.getByText("Changes saved")).toBeVisible();
     await expect.poll(() => pathname(page)).toBe("/profile");
     // Not stale: the session cookie was refreshed with the change.
-    await expect(page.getByText("Coffee on the Corniche ☕")).toBeVisible();
+    // await expect(page.getByText("Coffee on the Corniche ☕")).toBeVisible();
     await expect(page.locator('main img[src="/avatars/glasses.svg"]')).toBeVisible();
   });
 

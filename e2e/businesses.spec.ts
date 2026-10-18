@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 
+import { db, EMAIL } from "./auth";
 import { expect, pathname, test, waitForHydration } from "./fixtures";
 
 /**
@@ -42,9 +43,9 @@ test.describe("my businesses", () => {
     // Everything is filled in from the business.
     await expect(page.getByLabel("Name (English)")).toHaveValue("Nile Breeze Café");
     // One input per text, with a language switch inside it.
-    await expect(page.getByLabel("Name (Arabic, optional)")).toHaveCount(0);
+    await expect(page.getByLabel("Name (Arabic)")).toHaveCount(0);
     await page.getByRole("button", { name: "العربية" }).first().tap();
-    await expect(page.getByLabel("Name (Arabic, optional)")).toHaveValue("مقهى نسيم النيل");
+    await expect(page.getByLabel("Name (Arabic)")).toHaveValue("مقهى نسيم النيل");
     await page.getByRole("button", { name: "English" }).first().tap();
     // The avatar is the category's icon.
     await expect(page.getByTestId("business-avatar-icon")).toHaveAttribute("data-category", "cafe");
@@ -200,5 +201,109 @@ test.describe("my businesses", () => {
   test("signed out: sent to sign in", async ({ page }) => {
     await page.goto("/profile/businesses");
     await expect.poll(() => pathname(page)).toBe("/login");
+  });
+});
+
+// Whoever adds a business runs it only until someone owns it.
+test.describe("a business you added, once someone owns it", () => {
+  const HANDLE = "e2e.claimed";
+
+  test("is gone from your businesses, its edit page and “Post as”", async ({ page, signIn, pageErrors }) => {
+    // Added by the test user for someone else (no owner yet), live.
+    const sql = db();
+    await sql`
+      insert into users (name, email, email_verified, username)
+      values ('Claiming Owner', 'e2e-claimer@qura.test', true, 'e2e_claimer')
+      on conflict (email) do nothing`;
+    const [{ id }] = await sql`
+      insert into businesses (username, name, category, time_zone, created_by_id, owner_id, status, links, hours)
+      select ${HANDLE}, ${sql.json({ en: "Claimed Kiosk" })}, 'cafe', 'Africa/Cairo', id, null, 'active',
+        ${sql.json([{ platform: "whatsapp", url: "https://wa.me/201000000000" }])}, '[]'::jsonb
+      from users where email = ${EMAIL}
+      on conflict (username) do update set owner_id = null, status = 'active'
+      returning id`;
+    await sql`delete from business_locations where business_id = ${id}`;
+    await sql`
+      insert into business_locations (business_id, position, address, lat, lng, place_id)
+      select ${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, id from places where slug = 'aswan'`;
+
+    // While nobody owns it: yours to run.
+    await signIn();
+    await page.goto("/profile/businesses");
+    await expect(page.getByText("Claimed Kiosk")).toBeVisible();
+    await page.goto("/posts/new");
+    await waitForHydration(page);
+    await expect(page.getByRole("main").getByRole("button", { name: /Claimed Kiosk/ })).toBeVisible();
+
+    // Its owner claims it.
+    await sql`update businesses set owner_id = (select id from users where email = 'e2e-claimer@qura.test') where id = ${id}`;
+
+    await page.goto("/profile/businesses");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByText("Claimed Kiosk")).toHaveCount(0);
+    await page.goto("/posts/new");
+    await waitForHydration(page);
+    await expect(page.getByRole("main").getByRole("button", { name: /Claimed Kiosk/ })).toHaveCount(0);
+    await page.goto(`/profile/businesses/${HANDLE}`);
+    await expect(page.getByText("Page not found")).toBeVisible();
+    pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));
+    // Still public, for everyone.
+    await page.goto(`/bs/${HANDLE}`);
+    await expect(page.getByRole("heading", { level: 2, name: "Claimed Kiosk" })).toBeVisible();
+  });
+});
+
+// A renamed business doesn't keep its old @handle: it's free for any
+// business right away, and old links no longer open it.
+test.describe("renaming a business", () => {
+  test.describe.configure({ mode: "serial" });
+
+  /** A live business of the test user's, with what its form needs. */
+  async function addOwned(handle: string, name: string) {
+    const sql = db();
+    const [{ id }] = await sql`
+      insert into businesses (username, name, category, time_zone, created_by_id, owner_id, status, links)
+      select ${handle}, ${sql.json({ en: name })}, 'cafe', 'Africa/Cairo', id, id, 'active',
+        ${sql.json([{ platform: "whatsapp", url: "https://wa.me/201000000000" }])}
+      from users where email = ${EMAIL}
+      returning id`;
+    await sql`
+      insert into business_locations (business_id, position, address, lat, lng, place_id)
+      select ${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, id from places where slug = 'aswan'`;
+  }
+
+  async function rename(page: Page, from: string, to: string) {
+    await page.goto(`/profile/businesses/${from}`);
+    await waitForHydration(page);
+    await page.getByRole("textbox", { name: "Username" }).fill(to);
+    await page.getByRole("button", { name: "Save changes" }).tap();
+  }
+
+  test("the old handle is free right away; old links don't follow", async ({ page, signIn, pageErrors }) => {
+    const sql = db();
+    await sql`delete from businesses where username like 'e2e.rename.%'`;
+    await addOwned("e2e.rename.one", "Rename Café");
+    await addOwned("e2e.rename.other", "Other Café");
+    await signIn();
+
+    await rename(page, "e2e.rename.one", "e2e.rename.two");
+    await expect(page.getByText("Changes saved")).toBeVisible();
+    await page.goto("/bs/e2e.rename.two");
+    await expect(page.getByRole("heading", { level: 2, name: "Rename Café" })).toBeVisible();
+
+    // The old link: nothing there now.
+    await page.goto("/bs/e2e.rename.one");
+    await expect(page.getByText("Page not found")).toBeVisible();
+    pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));
+
+    // Another business takes the old handle; old links now open that one.
+    await rename(page, "e2e.rename.other", "e2e.rename.one");
+    await expect(page.getByText("Changes saved")).toBeVisible();
+    await page.goto("/bs/e2e.rename.one");
+    await expect(page.getByRole("heading", { level: 2, name: "Other Café" })).toBeVisible();
+
+    // A handle in use is still taken.
+    await rename(page, "e2e.rename.two", "e2e.rename.one");
+    await expect(page.getByText("This username is taken")).toBeVisible();
   });
 });

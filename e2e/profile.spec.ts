@@ -16,11 +16,16 @@ test.describe("profile", () => {
     await expect(page.getByRole("heading", { name: /^Saved/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Profile", exact: true })).toHaveCount(0);
 
-    // Settings live here, in groups: your account, then the app.
+    // In groups: what you run, what you posted and kept, then the app.
     const settings = page.getByRole("region", { name: "Settings" });
     const account = settings.getByRole("group", { name: "Account" }).locator(":scope > *");
-    await expect(account.nth(0)).toHaveAccessibleName(/^Edit profile/);
-    await expect(account.nth(1)).toHaveAccessibleName(/^My businesses/);
+    // Edit profile is the avatar, not a settings row.
+    await expect(page.getByRole("link", { name: "Edit profile" })).toBeVisible();
+    await expect(account.nth(0)).toHaveAccessibleName(/^My businesses/);
+    await expect(account.nth(1)).toHaveAccessibleName(/^Place requests/);
+    const activity = settings.getByRole("group", { name: "Activity" }).locator(":scope > *");
+    await expect(activity.nth(0)).toHaveAccessibleName(/^My posts/);
+    await expect(activity.nth(1)).toHaveAccessibleName(/^Saved posts/);
     const app = settings.getByRole("group", { name: "App" }).locator(":scope > *");
     await expect(app.nth(0)).toHaveAccessibleName(/^Language/);
     await expect(settings.getByRole("button", { name: "Sign out" })).toBeVisible();
@@ -35,6 +40,15 @@ test.describe("profile", () => {
     await expect(page.getByRole("button", { name: /^Language/ })).toBeVisible();
     await expect(page.getByRole("group", { name: "Account" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
+  });
+
+  test("My posts: the posts you wrote", async ({ page, signIn }) => {
+    await signIn();
+    await page.goto("/profile");
+    await waitForHydration(page);
+    await page.getByRole("link", { name: /^My posts/ }).tap();
+    await expect.poll(() => page.url()).toContain("/profile/posts");
+    await expect(page.getByRole("heading", { name: "My posts" }).or(page.getByText("No posts yet")).first()).toBeVisible();
   });
 
   // (/profile/saved is back, as Saved posts.)

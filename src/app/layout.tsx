@@ -3,6 +3,7 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { BRAND, SPLASH_SCREENS } from "@/lib/brand";
+import { getPlaces } from "@/lib/data/places";
 import { env } from "@/lib/env";
 import { LOCALE_META, LOCALES } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n/server";
@@ -90,7 +91,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const { locale, dir, messages } = await getTranslations();
+  const [{ locale, dir, messages }, places] = await Promise.all([
+    getTranslations(),
+    getPlaces(),
+  ]);
 
   return (
     <html
@@ -101,7 +105,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full font-sans antialiased", cairo.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <Providers locale={locale} messages={messages}>
+        <Providers locale={locale} messages={messages} places={places}>
           {/* The page vaul scales back while a bottom sheet is open. */}
           <div data-vaul-drawer-wrapper="" className="flex min-h-(--app-height) flex-col bg-background">
             {children}

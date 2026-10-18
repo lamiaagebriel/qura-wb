@@ -2,11 +2,12 @@
 
 import { cookies } from "next/headers";
 
-import { CITY_COOKIE, CITY_COOKIE_OPTIONS, isCity } from "./cities";
+import { getPlaceIndex } from "./data/places";
+import { PLACE_COOKIE, PLACE_COOKIE_OPTIONS } from "./places";
 
-/** Saves the choice; Next re-renders the page for the new city in the same roundtrip. */
-export async function setCity(city: string) {
-  if (!isCity(city)) return;
+/** Saves the place picked; Next re-renders the page for it in the same roundtrip. */
+export async function setCity(slug: unknown) {
+  if (!(await getPlaceIndex()).has(slug)) return;
 
-  (await cookies()).set(CITY_COOKIE, city, CITY_COOKIE_OPTIONS);
+  (await cookies()).set(PLACE_COOKIE, slug, PLACE_COOKIE_OPTIONS);
 }

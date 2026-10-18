@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { AlertCircleIcon, GoogleIcon, HugeiconsIcon } from "@/components/icons";
+import { AlertCircleIcon, GoogleLogo, HugeiconsIcon } from "@/components/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -67,7 +67,7 @@ export function GoogleSignIn({
         {pending ? (
           <Spinner className="size-5" />
         ) : (
-          <HugeiconsIcon icon={GoogleIcon} strokeWidth={2} className="size-5" />
+          <GoogleLogo className="size-5" />
         )}
         {pending ? t("Opening Google…") : t("Continue with Google")}
       </Button>

@@ -1,4 +1,5 @@
 import { getTranslations } from "@/lib/i18n/server";
+import { href } from "@/lib/routes";
 
 import { Bio, compactNumber, Count, HeroTop, ProfileName } from "./hero-parts";
 
@@ -15,8 +16,8 @@ export type PersonalProfile = {
 
 /**
  * Personal profile top: avatar, name, handle (where a business shows its
- * category), how many businesses they follow, bio. No buttons (the
- * settings list has "Edit profile") and no details card (business only).
+ * category), how many businesses they follow, bio. Tapping the avatar opens Edit
+ * profile. No details card (business only).
  */
 export async function PersonalHero({ profile }: { profile: PersonalProfile }) {
   const { t, locale } = await getTranslations();
@@ -24,7 +25,11 @@ export async function PersonalHero({ profile }: { profile: PersonalProfile }) {
 
   return (
     <>
-      <HeroTop profile={profile} name={profile.name}>
+      <HeroTop
+        profile={profile}
+        name={profile.name}
+        avatarLink={{ href: href("editProfile"), label: t("Edit profile") }}
+      >
         <ProfileName
           profile={profile}
           name={profile.name}

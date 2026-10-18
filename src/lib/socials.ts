@@ -95,6 +95,10 @@ export type SocialLink = { platform: SocialPlatform; url: string };
 export type WhatsappLink = { platform: "whatsapp"; url: string };
 
 /** The WhatsApp chat link with a message ready to send ("Order on WhatsApp"). */
+/** The business's WhatsApp, if it has one (the "Order" button needs it). */
+export const whatsappOf = (links: SocialLink[]) =>
+  links.find((link): link is WhatsappLink => link.platform === "whatsapp");
+
 export function withMessage(whatsapp: WhatsappLink, text: string) {
   const url = new URL(whatsapp.url);
   url.searchParams.set("text", text);

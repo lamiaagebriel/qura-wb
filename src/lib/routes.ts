@@ -20,10 +20,22 @@ export const routes = {
   editBusiness: "/profile/businesses/:username",
   // Your personal profile (name, @handle, photo, bio).
   editProfile: "/profile/edit",
+  // Posts you wrote.
+  myPosts: "/profile/posts",
   // Posts you bookmarked.
   saved: "/profile/saved",
-  // Admins only: approve businesses, answer close / reopen requests.
-  admin: "/profile/admin",
+  // The new places you asked for.
+  myPlaces: "/profile/places",
+  // Asking for a new place (`?parent=` = the place it goes under).
+  newPlace: "/places/new",
+  // The super admin dashboard (`app/(admin)`, desktop-first): an overview,
+  // then one screen per section.
+  admin: "/admin",
+  adminRequests: "/admin/requests",
+  adminReports: "/admin/reports",
+  // Any table, then one of its records (`new` = adding one).
+  adminTable: "/admin/:resource",
+  adminRecord: "/admin/:resource/:id",
   // A business's public profile (outside every tab: opened from anywhere).
   business: "/bs/:username",
   businessReviews: "/bs/:username/reviews",

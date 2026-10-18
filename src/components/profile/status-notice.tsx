@@ -8,6 +8,8 @@ const NOTICES: Record<Exclude<BusinessStatus, "active">, MessageKey> = {
   closed: "This business has closed.",
   pending: "Waiting for approval — only you can see this page.",
   suspended: "Suspended by an admin — only you can see this page.",
+  // Never shown: a deleted business has no page.
+  deleted: "This business was deleted — only you can see this page.",
 };
 
 /**

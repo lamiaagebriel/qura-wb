@@ -8,7 +8,9 @@ import {
   CheckmarkBadge01Icon,
   HugeiconsIcon,
   type IconSvgElement,
+  PencilEdit02Icon,
 } from "@/components/icons";
+import { StackLink } from "@/components/navigation/stack-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getTranslations } from "@/lib/i18n/server";
 import type { MessageKey } from "@/lib/i18n/types";
@@ -21,6 +23,7 @@ export function HeroTop({
   profile,
   name,
   fallbackIcon,
+  avatarLink,
   children,
 }: {
   profile: HeroProfile;
@@ -28,15 +31,38 @@ export function HeroTop({
   name: string;
   /** Shown in the avatar when there's no picture (instead of initials). */
   fallbackIcon?: IconSvgElement;
+  /** Makes the avatar open a screen (your own profile: Edit profile). */
+  avatarLink?: { href: string; label: string };
   children: ReactNode;
 }) {
+  const avatar = (
+    <ProfileAvatar
+      profile={profile}
+      name={name}
+      fallbackIcon={fallbackIcon}
+    />
+  );
   return (
     <div className="flex items-center gap-4">
-      <ProfileAvatar
-        profile={profile}
-        name={name}
-        fallbackIcon={fallbackIcon}
-      />
+      {avatarLink ? (
+        <StackLink
+          href={avatarLink.href}
+          aria-label={avatarLink.label}
+          className="relative shrink-0 rounded-full"
+        >
+          {avatar}
+          {/* Badge on the bottom-end corner: the avatar opens an editor. */}
+          <span className="absolute -inset-e-0.5 -bottom-0.5 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground ring-2 ring-background">
+            <HugeiconsIcon
+              icon={PencilEdit02Icon}
+              strokeWidth={2}
+              className="size-3.5"
+            />
+          </span>
+        </StackLink>
+      ) : (
+        avatar
+      )}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">{children}</div>
     </div>
   );

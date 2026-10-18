@@ -10,7 +10,7 @@ test.describe("language", () => {
     await row.tap();
     const sheet = page.getByRole("dialog", { name: "Select language" });
     await expect(sheet).toBeVisible();
-    await expect(sheet.getByRole("radio")).toHaveCount(3);
+    await expect(sheet.getByRole("radio")).toHaveCount(2);
     await expect(sheet.getByRole("radio", { name: "English", checked: true })).toBeVisible();
 
     await sheet.getByRole("radio", { name: "العربية" }).tap();

@@ -1,7 +1,7 @@
 // Client-safe locale settings. Adding a language = one entry in `LOCALES`
 // + `LOCALE_META`, and a file in `messages/` registered in `server.ts`.
 
-export const LOCALES = ["en", "ar", "fr"] as const;
+export const LOCALES = ["en", "ar"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
@@ -24,7 +24,6 @@ export const LOCALE_META: Record<
 > = {
   en: { label: "English", dir: "ltr", flag: "gb", ogLocale: "en_US" },
   ar: { label: "العربية", dir: "rtl", flag: "eg", ogLocale: "ar_EG" },
-  fr: { label: "Français", dir: "ltr", flag: "fr", ogLocale: "fr_FR" },
 };
 
 export function isLocale(value: unknown): value is Locale {

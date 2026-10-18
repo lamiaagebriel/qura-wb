@@ -125,13 +125,13 @@ export function TextareaField<
   );
 }
 
-const LANGUAGE_DIR = { en: "auto", ar: "rtl", fr: "ltr" } as const;
+const LANGUAGE_DIR = { en: "auto", ar: "rtl" } as const;
 
 /**
- * Text written in several languages (`name` holds `{ en, ar, fr }`): one
+ * Text written in several languages (`name` holds `{ en, ar }`, at least one written): one
  * input, with a language switch inside it. A dot on a language = written
  * (red when it has an error). `inputLabels` name each language's input
- * ("Name (Arabic, optional)") for screen readers.
+ * ("Name (Arabic)") for screen readers.
  */
 export function LocalizedField<T extends FieldValues>({
   control,

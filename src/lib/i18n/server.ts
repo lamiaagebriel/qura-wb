@@ -18,7 +18,6 @@ import type { Messages } from "./types";
 const loaders: Record<Locale, () => Promise<Partial<Messages>>> = {
   en: async () => ({}),
   ar: () => import("./messages/ar").then((m) => m.default),
-  fr: () => import("./messages/fr").then((m) => m.default),
 };
 
 /**

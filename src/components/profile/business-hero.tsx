@@ -113,16 +113,18 @@ export async function BusinessHero({
       <BusinessDetails
         hours={{ open: status.open, detail, days }}
         socials={profile.socials}
-        address={branchOf(first, locale)}
+        address={first ? branchOf(first, locale) : null}
         otherBranches={others.map((branch) => branchOf(branch, locale))}
         reviews={{ ...rating, href: reviewsHref }}
         map={
-          <MapPreview
-            location={first.coords}
-            href={mapsHrefOf(first)}
-            label={t("Open in Maps")}
-            locale={locale}
-          />
+          first && (
+            <MapPreview
+              location={first.coords}
+              href={mapsHrefOf(first)}
+              label={t("Open in Maps")}
+              locale={locale}
+            />
+          )
         }
       />
     </>

@@ -1,26 +1,22 @@
 import "server-only";
 
-import { and, asc, count, eq, exists, inArray, or, sql } from "drizzle-orm";
+import { and, asc, count, eq, exists, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
 import { db } from "@/db";
 import {
+  businessFollows,
   businesses,
-  businessHours,
-  businessLinks,
   businessLocations,
-  follows,
+  places,
+  users,
   type Business,
 } from "@/db/schema";
 import { isPublic, roleFor, type BusinessStatus } from "@/lib/business-status";
-import type {
-  BusinessProfile,
-  BusinessSummary,
-  OpeningHours,
-} from "@/lib/business";
+import type { BusinessProfile, BusinessSummary } from "@/lib/business";
 import { ALL_CATEGORIES, pathOf, subtreeOf } from "@/lib/categories";
-import { cityAndSubs, type CitySlug } from "@/lib/cities";
+import { inPlaceTree } from "@/lib/data/places";
 
 /**
  * Tag on every cached business read. A write that changes businesses
@@ -33,8 +29,8 @@ const SEARCH_LIMIT = 50;
 /** In lists, search and counts: approved and open (`lib/business-status.ts`). */
 const listed = eq(businesses.status, "active");
 
-/** Has a branch in `city` or one of its sub-cities. */
-const inCity = (city: CitySlug) =>
+/** Has a branch in `city` or any place under it. */
+const inCity = (city: string) =>
   exists(
     db
       .select({ one: sql`1` })
@@ -42,7 +38,7 @@ const inCity = (city: CitySlug) =>
       .where(
         and(
           eq(businessLocations.businessId, businesses.id),
-          inArray(businessLocations.city, cityAndSubs(city)),
+          inPlaceTree(businessLocations.placeId, city),
         ),
       ),
   );
@@ -56,42 +52,41 @@ const summaryColumns = {
   status: businesses.status,
   // Table names written out: in a one-table select Drizzle leaves columns
   // unqualified, and `id` would then resolve inside the subquery.
-  cities: sql<CitySlug[]>`(
-    select coalesce(array_agg(distinct bl.city), '{}')
-    from business_locations bl
+  cities: sql<string[]>`(
+    select coalesce(array_agg(distinct p.slug), '{}')
+    from business_locations bl join places p on p.id = bl.place_id
     where bl.business_id = "businesses"."id"
   )`,
 };
 
-/** "08:00:00" → "08:00" (Postgres returns seconds). */
-const hhmm = (time: string) => time.slice(0, 5);
-
 /** Everything a business's page shows, in the shape the screens use. */
 async function toProfile(business: Business): Promise<BusinessProfile> {
-  const [locations, links, hours, [followers]] = await Promise.all([
+  const [locations, [followers]] = await Promise.all([
     db
-      .select()
+      .select({
+        address: businessLocations.address,
+        lat: businessLocations.lat,
+        lng: businessLocations.lng,
+        city: places.slug,
+      })
       .from(businessLocations)
+      .innerJoin(places, eq(places.id, businessLocations.placeId))
       .where(eq(businessLocations.businessId, business.id))
       .orderBy(asc(businessLocations.position)),
     db
-      .select()
-      .from(businessLinks)
-      .where(eq(businessLinks.businessId, business.id))
-      .orderBy(asc(businessLinks.position)),
-    db
-      .select()
-      .from(businessHours)
-      .where(eq(businessHours.businessId, business.id)),
-    db
+      // Only people still here: suspended and deleted accounts don't count.
       .select({ count: count() })
-      .from(follows)
-      .where(eq(follows.businessId, business.id)),
+      .from(businessFollows)
+      .innerJoin(users, eq(users.id, businessFollows.userId))
+      .where(
+        and(
+          eq(businessFollows.businessId, business.id),
+          eq(users.status, "active"),
+        ),
+      ),
   ]);
-
-  const week: (OpeningHours | null)[] = Array.from({ length: 7 }, () => null);
-  for (const { day, opens, closes } of hours)
-    week[day] = { open: hhmm(opens), close: hhmm(closes) };
+  // 7 days, Sunday first; older rows may have none (= closed every day).
+  const week = Array.from({ length: 7 }, (_, day) => business.hours[day] ?? null);
 
   return {
     username: business.username,
@@ -103,13 +98,10 @@ async function toProfile(business: Business): Promise<BusinessProfile> {
     // The save action guarantees at least one location and one WhatsApp.
     locations: locations.map(({ address, lat, lng, city }) => ({
       description: address,
-      city: city as CitySlug,
+      city,
       coords: { lat, lng },
-    })) as BusinessProfile["locations"],
-    socials: links.map(({ platform, url }) => ({
-      platform,
-      url,
-    })) as BusinessProfile["socials"],
+    })),
+    socials: business.links as BusinessProfile["socials"],
     hours: week,
     timeZone: business.timeZone,
     stats: { followers: followers.count },
@@ -150,11 +142,12 @@ export async function findVisibleBusiness(
   const business = await findBusiness(username);
   if (!business) return undefined;
   if (isPublic(business.status)) return business;
+  if (business.status === "deleted") return undefined;
   const role = roleFor(business, user);
   return role && role !== "visitor" ? business : undefined;
 }
 
-/** Whether this user owns or added the business (can't review it). */
+/** Whether this user owns or ever added the business (can't review it). */
 export const isMine = (business: Business, userId: string | undefined) =>
   !!userId && (business.ownerId === userId || business.createdById === userId);
 
@@ -175,7 +168,12 @@ export async function getMyBusinesses(
     .select(summaryColumns)
     .from(businesses)
     .where(
-      or(eq(businesses.ownerId, userId), eq(businesses.createdById, userId)),
+      and(
+        // Yours, or added by you and not claimed by an owner yet.
+        or(eq(businesses.ownerId, userId), and(eq(businesses.createdById, userId), isNull(businesses.ownerId))),
+        // Deleted is gone for its owner too (only the dashboard keeps it).
+        ne(businesses.status, "deleted"),
+      ),
     )
     .orderBy(asc(businesses.createdAt));
 }
@@ -186,10 +184,11 @@ export async function getMyBusinesses(
  */
 export async function getMyBusiness(username: string, userId: string) {
   const business = await findBusiness(username);
-  if (!business) return undefined;
+  if (!business || business.status === "deleted") return undefined;
   const ownedByMe = business.ownerId === userId;
   const createdByMe = business.createdById === userId;
-  if (!ownedByMe && !createdByMe) return undefined;
+  // Once someone owns it, it's theirs alone (whoever added it can't edit it).
+  if (!ownedByMe && !(createdByMe && business.ownerId === null)) return undefined;
   return {
     id: business.id,
     status: business.status,
@@ -203,7 +202,7 @@ export async function getMyBusiness(username: string, userId: string) {
 /** Businesses in `city` and category `slug` or anywhere under it. */
 export async function businessesIn(
   slug: string,
-  city: CitySlug,
+  city: string,
 ): Promise<BusinessSummary[]> {
   return db
     .select(summaryColumns)
@@ -225,11 +224,11 @@ export async function businessesIn(
  * (a save) or after an hour.
  */
 export const categoryCounts = unstable_cache(
-  async (city?: CitySlug): Promise<Record<string, number>> => {
+  async (city?: string): Promise<Record<string, number>> => {
     const rows = await db
       .select({ category: businesses.category, count: count() })
       .from(businesses)
-      .where(and(listed, city && inCity(city)))
+      .where(and(listed, city ? inCity(city) : undefined))
       .groupBy(businesses.category);
     const counts: Record<string, number> = {};
     for (const row of rows)
@@ -290,7 +289,7 @@ export async function searchBusinesses(
     .limit(SEARCH_LIMIT);
 }
 
-/** Businesses with this status, oldest change first (the admin queues). */
+/** Businesses with this status, least recently changed first (the admin queues). */
 export async function businessesWithStatus(
   status: BusinessStatus,
 ): Promise<BusinessSummary[]> {
@@ -298,7 +297,7 @@ export async function businessesWithStatus(
     .select(summaryColumns)
     .from(businesses)
     .where(eq(businesses.status, status))
-    .orderBy(asc(businesses.statusChangedAt));
+    .orderBy(asc(businesses.updatedAt));
 }
 
 /** Every listed business's @handle and last change (for the sitemap). */

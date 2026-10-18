@@ -106,8 +106,8 @@ export function PostFormSkeleton({ types = true }: { types?: boolean }) {
 
 /**
  * A business profile (yours or someone else's): avatar + name, category
- * and followers, buttons, bio, and the details card (reviews, hours,
- * links, address rows, then the map).
+ * and followers, buttons, bio, the details card (reviews, hours, links,
+ * address rows, then the map), then its posts (heading, filter, a card).
  */
 export function BusinessProfileSkeleton() {
   return (
@@ -137,6 +137,11 @@ export function BusinessProfileSkeleton() {
         ))}
         <Bone className="h-40 rounded-none" />
       </div>
+      <div className="mt-4 flex items-center justify-between">
+        <Bone className="h-5 w-16" />
+        <Bone className="h-9 w-24 rounded-full" />
+      </div>
+      <PostCardSkeleton />
     </>
   );
 }

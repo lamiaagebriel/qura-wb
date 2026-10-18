@@ -71,6 +71,62 @@
       "when": 1791747715336,
       "tag": "0009_drop_post_price_ends_at",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791757646153,
+      "tag": "0010_places",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791758610214,
+      "tag": "0011_reports",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791804352186,
+      "tag": "0012_admin_audit",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791822963632,
+      "tag": "0013_schema_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792255800795,
+      "tag": "0014_place_type_names",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1792286803488,
+      "tag": "0015_business_handles",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792330198030,
+      "tag": "0016_remove_self_votes",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792330524875,
+      "tag": "0017_drop_business_handles",
+      "breakpoints": true
     }
   ]
 }

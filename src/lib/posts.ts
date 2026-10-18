@@ -133,13 +133,15 @@ const body = z.string().trim().min(1).max(POST_MAX_LENGTH);
 const data = z.record(z.string(), z.unknown()).default({});
 
 /**
- * A new post. `business` is the @handle of one of your businesses ("" =
+ * A new post. `city` is the place it's for (a slug, checked by the action;
+ * "" = the place being browsed). `business` is the @handle of one of your businesses ("" =
  * as yourself), which decides the types open to it (`typesFor`); `data`
  * holds the type's own fields (`POST_DATA`).
  */
 export const postSchema = z
   .object({
     type: z.enum(POST_TYPES),
+    city: z.string().max(80).default(""),
     business: z.string().max(50),
     body,
     data,
@@ -153,6 +155,7 @@ export const postSchema = z
 /** What the form holds: its `data` fields as typed (strings). */
 export type PostFormValues = {
   type: PostType;
+  city: string;
   business: string;
   body: string;
   data: Record<string, string>;
@@ -204,6 +207,11 @@ export type Post = {
   mine: boolean;
   /** The post it replies to; `null` for a post. */
   replyTo: string | null;
+  /**
+   * Hidden by an admin (only its author gets such a post): why, and
+   * whether an edit since waits for the admin to look again.
+   */
+  hidden: { reason: string; waiting: boolean } | null;
 };
 
 /** One of your live businesses you can post as. */

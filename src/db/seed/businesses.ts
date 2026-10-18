@@ -2,8 +2,9 @@
 // `pnpm db:seed` (src/db/seed.ts), never in production.
 
 import type { BusinessLocation, BusinessProfile, OpeningHours } from "@/lib/business";
-import { nearestCity } from "@/lib/cities";
 import type { Localized } from "@/lib/localized";
+
+import { SEED_PLACES } from "./places";
 
 /** A business as seeded: everything but what's counted (followers). */
 export type SeedBusiness = Omit<BusinessProfile, "stats">;
@@ -12,7 +13,7 @@ export type SeedBusiness = Omit<BusinessProfile, "stats">;
 const loc = (description: Localized, lat: number, lng: number): BusinessLocation => ({
   description,
   coords: { lat, lng },
-  city: nearestCity({ lat, lng }),
+  city: SEED_PLACES.nearest({ lat, lng }),
 });
 const h = (open: string, close: string): OpeningHours => ({ open, close });
 const everyDay = (slot: OpeningHours) => Array.from({ length: 7 }, () => slot);
@@ -23,7 +24,6 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     name: {
       en: "Nile Breeze Café",
       ar: "مقهى نسيم النيل",
-      fr: "Café Brise du Nil",
     },
     username: "nilebreeze",
     avatarUrl: null,
@@ -32,14 +32,12 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     bio: {
       en: "Coffee, fresh juices and Nubian breakfast on the Corniche 🌅\nFamily seating and a terrace facing Elephantine Island.",
       ar: "قهوة وعصائر طازجة وفطور نوبي على الكورنيش 🌅\nجلسات عائلية وتراس يطل على جزيرة إلفنتين.",
-      fr: "Café, jus frais et petit-déjeuner nubien sur la Corniche 🌅\nCoin famille et terrasse face à l'île Éléphantine.",
     },
     locations: [
       loc(
         {
           en: "Corniche El Nil, next to the Old Cataract, Aswan",
           ar: "كورنيش النيل، بجوار فندق أولد كتاراكت، أسوان",
-          fr: "Corniche du Nil, à côté de l'Old Cataract, Assouan",
         },
         24.0795,
         32.8878,
@@ -67,7 +65,7 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     timeZone: "Africa/Cairo",
     },
   {
-    name: { en: "Aswan Eats", ar: "مطاعم أسوان", fr: "Saveurs d'Assouan" },
+    name: { en: "Aswan Eats", ar: "مطاعم أسوان" },
     username: "aswan.eats",
     avatarUrl: null,
     verified: true,
@@ -75,14 +73,12 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     bio: {
       en: "Koshary, grilled fish and home-style Nubian dishes.\nDelivery all over Aswan 🛵",
       ar: "كشري وسمك مشوي وأكلات نوبية بيتي.\nتوصيل لكل أسوان 🛵",
-      fr: "Koshari, poisson grillé et plats nubiens maison.\nLivraison dans tout Assouan 🛵",
     },
     locations: [
       loc(
         {
           en: "Abtal El Tahrir St, near the train station, Aswan",
           ar: "شارع أبطال التحرير، قرب محطة القطار، أسوان",
-          fr: "Rue Abtal El Tahrir, près de la gare, Assouan",
         },
         24.0995,
         32.9025,
@@ -91,7 +87,6 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
         {
           en: "Sadat Rd, next to Aswan University, Aswan",
           ar: "طريق السادات، بجوار جامعة أسوان، أسوان",
-          fr: "Route Sadate, à côté de l'université d'Assouan",
         },
         24.0745,
         32.8795,
@@ -112,7 +107,6 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     name: {
       en: "Nile View Hotel",
       ar: "فندق إطلالة النيل",
-      fr: "Hôtel Vue sur le Nil",
     },
     username: "nileview",
     avatarUrl: null,
@@ -121,14 +115,12 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     bio: {
       en: "Rooms with a balcony over the Nile, rooftop breakfast and airport pickup.",
       ar: "غرف بشرفة على النيل، فطور على السطح وتوصيل من المطار.",
-      fr: "Chambres avec balcon sur le Nil, petit-déjeuner en terrasse et navette aéroport.",
     },
     locations: [
       loc(
         {
           en: "Corniche El Nil, Aswan",
           ar: "كورنيش النيل، أسوان",
-          fr: "Corniche du Nil, Assouan",
         },
         24.0905,
         32.897,
@@ -190,7 +182,6 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     name: {
       en: "El Shifa Pharmacy",
       ar: "صيدلية الشفاء",
-      fr: "Pharmacie El Shifa",
     },
     username: "elshifa",
     avatarUrl: null,
@@ -199,14 +190,12 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     bio: {
       en: "Medicines, baby care and cosmetics. Free home delivery nearby.",
       ar: "أدوية ومستلزمات أطفال ومستحضرات تجميل. توصيل مجاني للمنازل القريبة.",
-      fr: "Médicaments, soins bébé et cosmétiques. Livraison gratuite à proximité.",
     },
     locations: [
       loc(
         {
           en: "El Souq St, Aswan",
           ar: "شارع السوق، أسوان",
-          fr: "Rue du Souk, Assouan",
         },
         24.096,
         32.9005,
@@ -259,7 +248,7 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     timeZone: "Africa/Cairo",
   },
   {
-    name: { en: "Souq Spices", ar: "توابل السوق", fr: "Épices du Souk" },
+    name: { en: "Souq Spices", ar: "توابل السوق" },
     username: "souq.spices",
     avatarUrl: null,
     verified: false,
@@ -270,7 +259,6 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
         {
           en: "Old Souq, Aswan",
           ar: "السوق القديم، أسوان",
-          fr: "Vieux souk, Assouan",
         },
         24.0965,
         32.901,

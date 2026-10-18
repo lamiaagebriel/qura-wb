@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 
+import { ADMIN_EMAIL, db, EMAIL } from "./auth";
 import {
   expect,
   pathname,
@@ -199,12 +200,12 @@ test.describe("posts", () => {
     await expect(myReply).toHaveCount(0);
     expect(page.url()).toBe(postUrl);
 
-    // Vote (toggles) and save.
+    // Your own post: its score, but no voting on it. Saving works.
     const post = page.getByRole("article", { name: "Question" });
     const helpful = post.getByRole("button", { name: "Helpful", exact: true });
-    await sent(page, () => helpful.tap());
-    await expect(helpful).toHaveAttribute("aria-pressed", "true");
-    await expect(post.getByLabel("Score")).toHaveText("1");
+    await expect(helpful).toBeDisabled();
+    await expect(post.getByRole("button", { name: "Not helpful" })).toBeDisabled();
+    await expect(post.getByLabel("Score")).toHaveText("0");
     const save = post.getByRole("button", { name: "Save" });
     await sent(page, () => save.tap());
     await expect(save).toHaveAttribute("aria-pressed", "true");
@@ -212,9 +213,7 @@ test.describe("posts", () => {
     // Kept after a reload.
     await page.reload();
     await waitForHydration(page);
-    await expect(helpful).toHaveAttribute("aria-pressed", "true");
     await expect(save).toHaveAttribute("aria-pressed", "true");
-    await expect(post).toContainText("1");
 
     // Saved posts lists it.
     const url = page.url();
@@ -252,6 +251,39 @@ test.describe("posts", () => {
       pageErrors.length,
       ...pageErrors.filter((e) => !e.includes("404")),
     );
+  });
+
+  test("voting on someone else's post toggles and is kept", async ({ page, signIn }) => {
+    // A post by someone else, from the sample data (global-setup.ts clears
+    // the test user's votes before every run).
+    const [other] = await db()<{ id: string; score: number }[]>`
+      select p.id, coalesce((select sum(v.value) from post_votes v where v.post_id = p.id), 0)::int as score
+      from posts p join users u on u.id = p.created_by_id
+      where p.parent_id is null and p.status = 'visible' and p.business_id is null
+        and u.status = 'active' and u.email <> ${EMAIL}
+      order by p.created_at desc limit 1`;
+    await signIn();
+    await page.goto(`/p/${other.id}`);
+    await waitForHydration(page);
+    const post = page.getByRole("article").first();
+    const helpful = post.getByRole("button", { name: "Helpful", exact: true });
+    const notHelpful = post.getByRole("button", { name: "Not helpful" });
+    const score = post.getByLabel("Score");
+    await expect(helpful).toBeEnabled();
+
+    await sent(page, () => helpful.tap());
+    await expect(helpful).toHaveAttribute("aria-pressed", "true");
+    await expect(score).toHaveText(String(other.score + 1));
+    // Not helpful replaces it; tapping it again takes the vote back.
+    await sent(page, () => notHelpful.tap());
+    await expect(notHelpful).toHaveAttribute("aria-pressed", "true");
+    await expect(score).toHaveText(String(other.score - 1));
+    await sent(page, () => helpful.tap());
+
+    await page.reload();
+    await waitForHydration(page);
+    await expect(helpful).toHaveAttribute("aria-pressed", "true");
+    await expect(score).toHaveText(String(other.score + 1));
   });
 
   test("an offer is posted as one of your businesses, with its price", async ({
@@ -387,3 +419,42 @@ async function sent(page: Page, action: () => Promise<void>) {
   await action();
   await response;
 }
+
+test.describe("hidden replies", () => {
+  test("your hidden reply shows to you, with why; not to others", async ({
+    page,
+    signIn,
+    browser,
+  }) => {
+    const sql = db();
+    const [{ id: me }] = await sql<{ id: string }[]>`select id from users where email = ${EMAIL}`;
+    const [post] = await sql<{ id: string }[]>`
+      insert into posts (created_by_id, type, body, place_id)
+      select u.id, 'general', 'E2E post with a hidden reply', p.id
+      from users u, places p where u.email = ${ADMIN_EMAIL} and p.slug = 'luxor'
+      returning id`;
+    const [reply] = await sql<{ id: string }[]>`
+      insert into posts (created_by_id, parent_id, type, body, place_id, status)
+      select ${me}, id, type, 'E2E my hidden reply', place_id, 'hidden' from posts where id = ${post.id}
+      returning id`;
+    // Hidden the way a moderator hides it: the reason is on the action.
+    await sql`
+      insert into history (entry, source, action, input, note)
+      values ('action', 'system', 'post.hide', ${sql.json({ postId: reply.id })}, 'No phone numbers in replies')`;
+
+    await signIn();
+    await page.goto(`/p/${post.id}`);
+    await expect(page.getByText("E2E my hidden reply")).toBeVisible();
+    await expect(page.getByText("Hidden by an admin: only you can see this reply")).toBeVisible();
+    await expect(page.getByText("No phone numbers in replies")).toBeVisible();
+
+    // Signed out: the post, but not the reply.
+    const other = await browser.newContext();
+    const visitor = await other.newPage();
+    await visitor.goto(`/p/${post.id}`);
+    await expect(visitor.getByRole("main").getByText("E2E post with a hidden reply")).toBeVisible();
+    await expect(visitor.getByText("E2E my hidden reply")).toHaveCount(0);
+    await expect(visitor.getByText("No replies yet. Be the first!")).toBeVisible();
+    await other.close();
+  });
+});

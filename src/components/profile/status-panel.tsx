@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 
-import {
-  BusinessStatusBadge,
-  STATUS_LABELS,
-} from "@/components/business-status-badge";
+import { BusinessStatusBadge } from "@/components/business-status-badge";
 import { ArrowDown01Icon, HugeiconsIcon } from "@/components/icons";
 import {
   Drawer,
@@ -20,6 +17,7 @@ import {
   allowedRequest,
   allowedStatuses,
   requestTarget,
+  STATUS_LABELS,
   type BusinessRole,
   type BusinessStatus,
   type RequestKind,
@@ -34,6 +32,7 @@ const EXPLAIN: Record<BusinessStatus, MessageKey> = {
   suspended:
     "Suspended by an admin: hidden from everyone but you. Contact us to fix it.",
   closed: "its page stays up and says it's closed, but it isn't listed.",
+  deleted: "it's deleted: hidden from everyone but you.",
 };
 
 /**

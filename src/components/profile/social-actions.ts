@@ -4,8 +4,8 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { db } from "@/db";
-import { follows, reviews, type Business } from "@/db/schema";
+import { businessFollows, businessReviews, type Business } from "@/db/schema";
+import { runAction } from "@/lib/actions/run";
 import { getFreshSession } from "@/lib/auth/session";
 import { findPublicBusiness, isMine } from "@/lib/data/businesses";
 import type { MessageKey } from "@/lib/i18n/types";
@@ -30,7 +30,7 @@ async function prepare(
   max: number,
 ): Promise<Prepared> {
   const session = await getFreshSession();
-  if (!session || session.user.status === "suspended") {
+  if (!session || session.user.status !== "active") {
     return { error: "Please sign in again." };
   }
   const parsed = handle.safeParse(username);
@@ -60,18 +60,18 @@ export async function setFollowing(
   if ("error" in ready) return { ok: false, error: ready.error };
   const { userId, business } = ready;
 
-  if (follow) {
-    await db
-      .insert(follows)
-      .values({ userId, businessId: business.id })
-      .onConflictDoNothing();
-  } else {
-    await db
-      .delete(follows)
-      .where(
-        and(eq(follows.userId, userId), eq(follows.businessId, business.id)),
-      );
-  }
+  await runAction(
+    { action: follow ? "business.follow" : "business.unfollow", actorId: userId, input: { businessId: business.id } },
+    async (tx) => {
+      if (follow) {
+        await tx.insert(businessFollows).values({ userId, businessId: business.id }).onConflictDoNothing();
+      } else {
+        await tx
+          .delete(businessFollows)
+          .where(and(eq(businessFollows.userId, userId), eq(businessFollows.businessId, business.id)));
+      }
+    },
+  );
   revalidatePath(`/bs/${business.username}`);
   revalidatePath("/profile");
   return { ok: true };
@@ -97,13 +97,47 @@ export async function postReview(
     return { ok: false, error: "Something went wrong. Please try again." };
   }
 
-  await db
-    .insert(reviews)
-    .values({ businessId: business.id, authorId: userId, ...parsed.data })
-    .onConflictDoUpdate({
-      target: [reviews.businessId, reviews.authorId],
-      set: { ...parsed.data, updatedAt: new Date() },
-    });
+  await runAction(
+    { action: "review.write", actorId: userId, input: { businessId: business.id, rating: parsed.data.rating } },
+    (tx) =>
+      tx
+        .insert(businessReviews)
+        .values({ businessId: business.id, authorId: userId, ...parsed.data })
+        .onConflictDoUpdate({
+          target: [businessReviews.businessId, businessReviews.authorId],
+          set: { ...parsed.data, updatedAt: new Date() },
+        }),
+  );
+  revalidatePath(`/bs/${business.username}`, "layout");
+  return { ok: true };
+}
+
+/**
+ * Deletes your review of a business. A hidden one (an admin decided) stays:
+ * deleting it and writing again would bring it back past the admin.
+ */
+export async function deleteReview(username: unknown): Promise<SocialResult> {
+  const ready = await prepare(username, "review", 30);
+  if ("error" in ready) return { ok: false, error: ready.error };
+  const { userId, business } = ready;
+
+  const deleted = await runAction(
+    { action: "review.delete", actorId: userId, input: { businessId: business.id } },
+    (tx) =>
+      tx
+        .delete(businessReviews)
+        .where(
+          and(
+            eq(businessReviews.businessId, business.id),
+            eq(businessReviews.authorId, userId),
+            eq(businessReviews.status, "visible"),
+          ),
+        )
+        .returning({ id: businessReviews.id }),
+  );
+  if (!deleted.length) {
+    return { ok: false, error: "Something went wrong. Please try again." };
+  }
   revalidatePath(`/bs/${business.username}`, "layout");
   return { ok: true };
 }

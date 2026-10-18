@@ -10,9 +10,10 @@ import { BusinessStatusBadge } from "@/components/business-status-badge";
 import { StackLink } from "@/components/navigation/stack-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { categoryOf } from "@/lib/categories";
-import { cityOf } from "@/lib/cities";
+import { usePlaces } from "@/components/places/places-provider";
 import { useLocale } from "@/lib/i18n/provider";
 import { inLocale } from "@/lib/localized";
+import { placeName } from "@/lib/places";
 import { href } from "@/lib/routes";
 
 import type { BusinessSummary } from "@/lib/business";
@@ -29,14 +30,16 @@ export function BusinessList({
   editable?: boolean;
 }) {
   const { t, locale } = useLocale();
+  const places = usePlaces();
 
   return (
     <ul className="divide-y divide-border/60 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/5">
       {businesses.map((business) => {
         const category = categoryOf(business.category);
         const cities = business.cities
-          .map((slug) => cityOf(slug)?.name[locale])
-          .filter(Boolean)
+          .map((slug) => places.get(slug))
+          .filter((place) => place !== undefined)
+          .map((place) => placeName(place, locale))
           .join(locale === "ar" ? "، " : ", ");
         return (
           <li key={business.username}>

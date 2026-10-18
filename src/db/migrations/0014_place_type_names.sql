@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "place_types_name_en_idx" ON "place_types" USING btree (lower("name"->>'en'));--> statement-breakpoint
+CREATE UNIQUE INDEX "place_types_name_ar_idx" ON "place_types" USING btree (lower("name"->>'ar'));

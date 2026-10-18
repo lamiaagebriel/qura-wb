@@ -12,13 +12,12 @@ import {
   BUSINESS_STATUSES,
   type BusinessStatus,
 } from "@/lib/business-status";
-import { CITY_SLUGS, DEFAULT_CITY, type CitySlug } from "@/lib/cities";
+import { DEFAULT_PLACE } from "@/lib/places";
 import type { MessageKey } from "@/lib/i18n/types";
-import type { Localized } from "@/lib/localized";
+import { compactLocalized, fillLocalized, type Localized } from "@/lib/localized";
 import {
   SOCIAL_PLATFORMS,
   type SocialLink,
-  type WhatsappLink,
 } from "@/lib/socials";
 
 /** Opening time and closing time, "HH:MM" (24h, same day; "24:00" = midnight). */
@@ -28,7 +27,8 @@ export type OpeningHours = { open: string; close: string };
 export type BusinessLocation = {
   description: Localized;
   coords: { lat: number; lng: number };
-  city: CitySlug;
+  /** A place slug (`places`). */
+  city: string;
 };
 
 /** A business's public page. */
@@ -36,18 +36,19 @@ export type BusinessProfile = {
   username: string;
   avatarUrl: string | null;
   verified: boolean;
-  /** Written by the owner in English, and optionally Arabic / French. */
+  /** Written by the owner in English, Arabic or both (at least one). */
   name: Localized;
   bio: Localized;
   /** What the business is — a slug from the category tree (lib/categories.ts), any level. */
   category: CategorySlug;
-  /** Its branches (at least one): the address as written, and the pin. */
-  locations: [BusinessLocation, ...BusinessLocation[]];
+  /** Its branches: the address as written, and the pin (the form asks for one; other data may have none). */
+  locations: BusinessLocation[];
   /**
-   * WhatsApp first — required (customers order there) — then the website
-   * and other accounts in the order the owner listed them.
+   * WhatsApp first (the form requires it: customers order there; other
+   * data may lack it), then the website and other accounts in the order
+   * the owner listed them.
    */
-  socials: [WhatsappLink, ...SocialLink[]];
+  socials: SocialLink[];
   /** Sunday first (index = `Date#getDay()`); `null` = closed that day. */
   hours: (OpeningHours | null)[];
   /** IANA zone the hours are in. */
@@ -60,8 +61,8 @@ export type BusinessSummary = Pick<
   BusinessProfile,
   "name" | "username" | "category" | "verified" | "avatarUrl"
 > & {
-  /** The cities its branches are in (each once). */
-  cities: CitySlug[];
+  /** The places its branches are in (slugs, each once). */
+  cities: string[];
   status: BusinessStatus;
 };
 
@@ -71,14 +72,15 @@ const REQUIRED = m("Required");
 const TOO_LONG = m("Too long");
 
 const optional = (max: number) => z.string().trim().max(max, TOO_LONG);
-const required = (max: number) => optional(max).min(1, REQUIRED);
 
-/** English required (it's the fallback), Arabic and French optional. */
+/** English or Arabic: at least one written (the other is the fallback). */
 const localized = (max: number) =>
-  z.object({ en: required(max), ar: optional(max), fr: optional(max) });
-/** All three optional (a bio can be left empty). */
+  z
+    .object({ en: optional(max), ar: optional(max) })
+    .refine((text) => !!(text.en || text.ar), { message: REQUIRED, path: ["en"] });
+/** Both optional (a bio can be left empty). */
 const optionalLocalized = (max: number) =>
-  z.object({ en: optional(max), ar: optional(max), fr: optional(max) });
+  z.object({ en: optional(max), ar: optional(max) });
 
 export const USERNAME = /^[a-z0-9._]{3,30}$/;
 // As people write numbers: "+20 100 123 4567", "0100-123-4567".
@@ -178,7 +180,8 @@ export const businessSchema = z.object({
     .array(
       z.object({
         address: localized(200),
-        city: z.enum(CITY_SLUGS, { error: m("Choose a city") }),
+        // A place slug; the action checks it exists.
+        city: z.string().min(1, m("Choose a city")).max(80),
         pin: z
           .string()
           .refine((pin) => parsePin(pin) !== null, m("Set the location on the map")),
@@ -230,29 +233,19 @@ const DEFAULT_HOURS = { open: true, from: "09:00", to: "21:00" };
 
 /** A new business: nothing filled in, open every day 9–9. */
 export const EMPTY_BUSINESS: BusinessFormValues = {
-  name: { en: "", ar: "", fr: "" },
+  name: { en: "", ar: "" },
   username: "",
   category: "",
-  bio: { en: "", ar: "", fr: "" },
+  bio: { en: "", ar: "" },
   links: [{ platform: "whatsapp", url: "" }],
-  locations: [{ address: { en: "", ar: "", fr: "" }, city: DEFAULT_CITY, pin: "" }],
+  locations: [{ address: { en: "", ar: "" }, city: DEFAULT_PLACE, pin: "" }],
   hours: Array.from({ length: 7 }, () => DEFAULT_HOURS),
   timeZone: "Africa/Cairo",
   owner: "me",
 };
 
-const fill = (text: Localized) => ({
-  en: text.en,
-  ar: text.ar ?? "",
-  fr: text.fr ?? "",
-});
-
-/** Drops the languages left empty. */
-const compact = (text: { en: string; ar: string; fr: string }): Localized => ({
-  en: text.en,
-  ...(text.ar && { ar: text.ar }),
-  ...(text.fr && { fr: text.fr }),
-});
+const fill = fillLocalized;
+const compact = compactLocalized;
 
 /** A stored business, as the form shows it. */
 export function businessToForm(
@@ -312,14 +305,14 @@ export function formToBusiness(values: BusinessFormValues) {
     username: values.username,
     category: values.category as BusinessProfile["category"],
     bio: compact(values.bio),
-    socials: socials as BusinessProfile["socials"],
+    socials,
     locations: values.locations.map(
       ({ address, city, pin }): BusinessLocation => ({
         description: compact(address),
-        city: city as CitySlug,
+        city,
         coords: parsePin(pin)!,
       }),
-    ) as BusinessProfile["locations"],
+    ),
     hours: values.hours.map(
       ({ open, from, to }): OpeningHours | null =>
         open ? { open: from, close: to === "00:00" ? "24:00" : to } : null,

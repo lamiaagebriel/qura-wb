@@ -42,14 +42,16 @@ test.describe("home", () => {
     ).toBeVisible();
   });
 
-  test("sub-cities are listed under their city and filter to themselves", async ({
+  test("sub-cities open from their city and filter to themselves", async ({
     page,
   }) => {
     await page.goto("/");
     await waitForHydration(page);
     await page.getByRole("button", { name: "City: Aswan" }).tap();
-    // Aswan = all of it; its sub-cities pick only themselves.
+    // Aswan = all of it; its arrow opens its sub-cities, which pick only
+    // themselves.
     await expect(page.getByText("All of Aswan")).toBeVisible();
+    await page.getByRole("button", { name: "Places in Aswan" }).tap();
     await page.getByRole("radio", { name: "Abu Simbel" }).tap();
     await expect(
       page.getByRole("button", { name: "City: Abu Simbel" }),
@@ -57,7 +59,8 @@ test.describe("home", () => {
     await expect(page.getByText("No businesses in Abu Simbel yet")).toBeVisible();
 
     await page.getByRole("button", { name: "City: Abu Simbel" }).tap();
-    await page.getByRole("radio", { name: /^Aswan/ }).tap();
+    // It opens on Abu Simbel's level: all of Aswan is the first row.
+    await page.getByRole("radio", { name: "All of Aswan" }).tap();
     await expect(
       page.getByRole("heading", { name: "Explore places" }),
     ).toBeVisible();

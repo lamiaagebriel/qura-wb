@@ -5,7 +5,7 @@ export type MessageKey = keyof typeof ar;
 
 /**
  * A message that depends on a count, one text per plural category of the
- * language (`Intl.PluralRules`): English uses one/other, French adds many,
+ * language (`Intl.PluralRules`): English uses one/other,
  * Arabic uses all six (zero, one, two, few, many, other). `other` is the
  * fallback for any category left out.
  */

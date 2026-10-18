@@ -37,7 +37,7 @@ export async function requireUser(returnTo?: string) {
   const session = await getSession();
   if (!session) redirect(loginPath(returnTo));
 
-  if (session.user.status === "suspended") {
+  if (session.user.status !== "active") {
     redirect(loginPath(returnTo, "account_suspended"));
   }
 
@@ -49,7 +49,7 @@ export async function requireAdmin() {
   const session = await getFreshSession();
   if (
     !session ||
-    session.user.status === "suspended" ||
+    session.user.status !== "active" ||
     session.user.role !== "super_admin"
   ) {
     notFound();

@@ -39,13 +39,13 @@ export function BusinessDetails({
 }: {
   hours: { open: boolean; detail: string | null; days: HoursDay[] };
   socials: SocialLink[];
-  /** The first branch: what it says and its pin in Maps. */
-  address: Branch;
+  /** The first branch: what it says and its pin in Maps (none: no branch yet). */
+  address: Branch | null;
   otherBranches: Branch[];
   /** The rating, and the reviews screen it opens. */
   reviews: { average: number; count: number; href: string };
-  /** The first branch's map (rendered on the server). */
-  map: ReactNode;
+  /** The first branch's map (rendered on the server), if it has one. */
+  map?: ReactNode;
 }) {
   const { t, locale } = useLocale();
   const number = new Intl.NumberFormat(locale);
@@ -100,7 +100,7 @@ export function BusinessDetails({
       </div>
       <HoursItem {...hours} />
       <LinksItem socials={socials} />
-      {otherBranches.length > 0 ? (
+      {!address ? null : otherBranches.length > 0 ? (
         <BranchesItem address={address.description} branches={otherBranches} />
       ) : (
         <div className={cn("not-last:border-b", DETAILS_ITEM)}>

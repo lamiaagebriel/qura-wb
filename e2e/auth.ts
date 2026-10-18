@@ -27,13 +27,33 @@ export function db() {
   return sql;
 }
 
-/** Signs `context` in as the test user (created on first use). */
-export async function signIn(context: BrowserContext, baseURL: string) {
+// A second account for the admin dashboard, so the test user stays a
+// regular one for the specs running beside it.
+export const ADMIN_EMAIL = "e2e-admin@qura.test";
+const ADMIN_USERNAME = "e2e_admin";
+const ADMIN_NAME = "E2E Admin";
+
+/**
+ * Signs `context` in as the test user, or as the test super admin (`as:
+ * "admin"`) — created on first use.
+ */
+export async function signIn(
+  context: BrowserContext,
+  baseURL: string,
+  as: "user" | "admin" = "user",
+) {
   const sql = db();
+  const admin = as === "admin";
   const [user] = await sql<{ id: string }[]>`
-    insert into users (name, email, email_verified, username)
-    values (${NAME}, ${EMAIL}, true, ${USERNAME})
-    on conflict (email) do update set status = 'active'
+    insert into users (name, email, email_verified, username, role)
+    values (
+      ${admin ? ADMIN_NAME : NAME},
+      ${admin ? ADMIN_EMAIL : EMAIL},
+      true,
+      ${admin ? ADMIN_USERNAME : USERNAME},
+      ${admin ? "super_admin" : "member"}
+    )
+    on conflict (email) do update set status = 'active', role = excluded.role
     returning id`;
   await sql`delete from sessions where user_id = ${user.id} and expires_at < now()`;
 

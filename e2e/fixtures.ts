@@ -9,22 +9,23 @@ export const IPHONE_UA =
 export const ANDROID_UA =
   "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36";
 
-type Lang = "en" | "ar" | "fr";
+type Lang = "en" | "ar";
 
 /**
  * - Every page hides the Next.js dev badge (it's draggable and can sit on
  *   top of app controls; it only exists in development).
  * - Any console error or uncaught page error fails the test.
  * - `setLang(lang)` picks the app language for this test's browser.
- * - `signIn()` signs this test's browser in as the test user (e2e/auth.ts).
+ * - `signIn()` signs this test's browser in as the test user, `signIn("admin")`
+ *   as the test super admin (e2e/auth.ts).
  */
 export const test = base.extend<{
   setLang: (lang: Lang) => Promise<void>;
-  signIn: () => Promise<void>;
+  signIn: (as?: "user" | "admin") => Promise<void>;
   pageErrors: string[];
 }>({
   signIn: async ({ context, baseURL }, use) => {
-    await use(() => signIn(context, baseURL!));
+    await use((as) => signIn(context, baseURL!, as));
   },
 
   context: async ({ context }, use) => {
@@ -242,8 +243,9 @@ export async function fireInstallEvent(page: Page) {
  */
 export async function waitForHydration(page: Page) {
   await page.waitForFunction(() => {
-    const link = document.querySelector("nav[aria-label] li a");
-    return !!link && Object.keys(link).some((k) => k.startsWith("__reactProps$"));
+    // The tab bar's links, or (screens outside the tabs) the top bar's buttons.
+    const el = document.querySelector("nav[aria-label] li a, header button, header a");
+    return !!el && Object.keys(el).some((k) => k.startsWith("__reactProps$"));
   });
   await page.waitForLoadState("networkidle");
 }

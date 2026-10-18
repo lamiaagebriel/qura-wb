@@ -17,14 +17,13 @@ async function addBusiness(handle: string, name: string, owned: boolean) {
     on conflict (username) do update set status = 'pending'
     returning id`;
   await sql`delete from business_locations where business_id = ${id}`;
-  await sql`delete from business_links where business_id = ${id}`;
-  await sql`delete from business_requests where business_id = ${id}`;
+  await sql`delete from tickets where refs @> ${sql.json([{ table: "businesses", id }])}`;
   await sql`
-    insert into business_locations (business_id, position, address, lat, lng, city)
-    values (${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, 'aswan')`;
+    insert into business_locations (business_id, position, address, lat, lng, place_id)
+    select ${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, id from places where slug = 'aswan'`;
   await sql`
-    insert into business_links (business_id, position, platform, url)
-    values (${id}, 0, 'whatsapp', 'https://wa.me/201000000000')`;
+    update businesses set links = ${sql.json([{ platform: "whatsapp", url: "https://wa.me/201000000000" }])}
+    where id = ${id}`;
 }
 
 const admin = (command: string, handle: string) =>
@@ -79,23 +78,32 @@ test.describe("business status", () => {
     await expect(open).toBeChecked();
   });
 
-  test("its creator (not the owner): saving a status change asks an admin", async ({ page, signIn }) => {
+  test("its creator (no owner yet): closes and reopens it directly, like an owner", async ({ page, signIn }) => {
     admin("approve", ADDED);
     await signIn();
-    await page.goto(`/profile/businesses/${ADDED}`);
-    await waitForHydration(page);
     const status = page.getByRole("region", { name: "Status" });
     const open = status.getByRole("switch", { name: /Open/ });
-    await open.tap();
-    await expect(status.getByText("Saving will ask an admin to make it “Closed”.")).toBeVisible();
-    await page.getByRole("button", { name: "Save changes" }).tap();
-    await expect(page.getByText("Changes saved. Your status request was sent to an admin.")).toBeVisible();
+    const save = async () => {
+      await page.getByRole("button", { name: "Save changes" }).tap();
+      await expect(page.getByText("Changes saved", { exact: true })).toBeVisible();
+    };
 
-    // Still open until an admin approves; nothing to flip meanwhile.
     await page.goto(`/profile/businesses/${ADDED}`);
-    await expect(status.getByText("Request sent. An admin will review it.")).toBeVisible();
+    await waitForHydration(page);
+    await open.tap();
+    // No admin in between (NOTEPAD Step A).
+    await expect(status.getByText("Saving will ask an admin to make it “Closed”.")).toHaveCount(0);
+    await save();
+    await page.goto(`/bs/${ADDED}`);
+    await expect(page.getByText("This business has closed.")).toBeVisible();
+
+    await page.goto(`/profile/businesses/${ADDED}`);
+    await waitForHydration(page);
+    await expect(open).not.toBeChecked();
+    await open.tap();
+    await save();
+    await page.goto(`/profile/businesses/${ADDED}`);
     await expect(open).toBeChecked();
-    await expect(open).toBeDisabled();
   });
 
   test("the owner deletes it, after confirming", async ({ page, signIn, pageErrors }) => {
@@ -117,17 +125,23 @@ test.describe("business status", () => {
     await signIn();
     await page.goto("/bs/nileview");
     await waitForHydration(page);
+    // In the top bar's options sheet.
+    await page.getByRole("button", { name: "More options" }).tap();
     await page.getByRole("button", { name: "Has this place closed? Tell us" }).tap();
-    await page.getByRole("dialog").getByRole("button", { name: "Report" }).tap();
+    await page.getByRole("dialog", { name: "Report it as closed?" }).getByRole("button", { name: "Report" }).tap();
     await expect(page.getByText("Thanks, we'll check if it's closed.")).toBeVisible();
+    // Reported: the option is gone, even after a reload.
     await page.reload();
-    await expect(page.getByText("Thanks, we'll check if it's closed.")).toBeVisible();
+    await waitForHydration(page);
+    await page.getByRole("button", { name: "More options" }).tap();
+    await expect(page.getByRole("button", { name: "Report this business" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Has this place closed? Tell us" })).toHaveCount(0);
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
   });
 
   test("the admin screen is a 404 for non-admins", async ({ page, signIn, pageErrors }) => {
     await signIn();
-    await page.goto("/profile/admin");
+    await page.goto("/admin");
     await expect(page.getByText("Page not found")).toBeVisible();
     pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));
   });

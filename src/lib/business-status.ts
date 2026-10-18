@@ -3,19 +3,37 @@
 //
 //   pending ──approve──▶ active ◀──▶ suspended      (admins)
 //                          ▲  │
-//                   reopen │  ▼ close              (admins, the owner)
+//                   reopen │  ▼ close              (admins, whoever runs it)
 //                         closed
 //
-// Anyone else (its creator when not the owner, any signed-in visitor) can
-// only *ask* — a request an admin approves or rejects.
+// Whoever runs it — its owner, or its adder while it has no owner — closes
+// and reopens it directly. A visitor can only *ask* (report it closed), a
+// request the super admin approves or rejects.
+//
+// Whoever added a business looks after it only until it has an owner:
+// once claimed, it's the owner's alone (the adder is a visitor to it).
+
+import type { MessageKey } from "@/lib/i18n/types";
 
 export const BUSINESS_STATUSES = [
   "pending",
   "active",
   "suspended",
   "closed",
+  // Deleted by its owner (or an admin): gone from the app, kept for 30
+  // days before a purge (a scheduled job, later).
+  "deleted",
 ] as const;
 export type BusinessStatus = (typeof BUSINESS_STATUSES)[number];
+
+/** Each status as shown (a message key). */
+export const STATUS_LABELS: Record<BusinessStatus, MessageKey> = {
+  pending: "Pending review",
+  active: "Live",
+  suspended: "Suspended",
+  closed: "Closed",
+  deleted: "Deleted",
+};
 
 /** What a request asks for: close it (or report it closed), or reopen it. */
 export const REQUEST_KINDS = ["close", "reopen"] as const;
@@ -31,9 +49,13 @@ export function roleFor(
   if (!user) return null;
   if (user.role === "super_admin") return "admin";
   if (business.ownerId === user.id) return "owner";
-  if (business.createdById === user.id) return "creator";
+  // Its adder, while nobody owns it yet.
+  if (business.ownerId === null && business.createdById === user.id) return "creator";
   return "visitor";
 }
+
+/** Who may run it (edit it, post as it): its owner, or its adder while it has no owner. */
+export const canManage = (role: BusinessRole | null) => role === "owner" || role === "creator";
 
 /** Shown in lists, search and counts; anyone can open it. */
 export const isListed = (status: BusinessStatus) => status === "active";
@@ -49,9 +71,11 @@ export function allowedStatuses(
 ): BusinessStatus[] {
   if (role === "admin")
     return BUSINESS_STATUSES.filter((status) => status !== from);
-  if (role === "owner") {
-    if (from === "active") return ["closed"];
-    if (from === "closed") return ["active"];
+  // Whoever runs it (owner, or adder while unowned) closes, reopens and
+  // deletes it (soft: "deleted", purged later).
+  if (canManage(role)) {
+    if (from === "active") return ["closed", "deleted"];
+    if (from === "closed") return ["active", "deleted"];
   }
   return [];
 }
@@ -61,10 +85,8 @@ export function allowedRequest(
   role: BusinessRole | null,
   from: BusinessStatus,
 ): RequestKind | null {
-  if (role === "creator" || role === "visitor") {
-    if (from === "active") return "close";
-    if (from === "closed" && role === "creator") return "reopen";
-  }
+  // Whoever runs it does it directly (`allowedStatuses`).
+  if (role === "visitor" && from === "active") return "close";
   return null;
 }
 

@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 
 import {
   Bookmark01Icon,
+  Comment01Icon,
   HugeiconsIcon,
-  PencilEdit02Icon,
+  PinIcon,
   Shield01Icon,
   Store01Icon,
   type IconSvgElement,
@@ -66,49 +67,68 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
 
 /**
  * The settings under your profile, grouped like a native settings list:
- * your account (Edit profile, My businesses, Admin for admins) when signed in, then the
+ * when signed in, what you run (My businesses, Place requests, Admin for
+ * admins), then what you posted and kept (My posts, Saved posts); then the
  * app (language, theme, share, install), then Sign out.
  */
 export async function SettingsList({
   signedIn,
   businessCount = 0,
   adminCount,
+  postCount,
+  savedCount,
 }: {
   signedIn: boolean;
   businessCount?: number;
   /** Admins only: what waits for them (shows the Admin row). */
   adminCount?: number;
+  /** Posts you wrote, and posts you saved (signed in). */
+  postCount?: number;
+  savedCount?: number;
 }) {
   const { t, locale } = await getTranslations();
+  const number = new Intl.NumberFormat(locale);
 
   return (
     <section aria-label={t("Settings")} className="flex flex-col gap-6 pb-8">
       {signedIn && (
         <Group label={t("Account")}>
           <LinkRow
-            href={href("editProfile")}
-            label={t("Edit profile")}
-            icon={PencilEdit02Icon}
-          />
-          <LinkRow
             href={href("businesses")}
             label={t("My businesses")}
             icon={Store01Icon}
-            value={new Intl.NumberFormat(locale).format(businessCount)}
+            value={number.format(businessCount)}
           />
           <LinkRow
-            href={href("saved")}
-            label={t("Saved posts")}
-            icon={Bookmark01Icon}
+            href={href("myPlaces")}
+            label={t("Place requests")}
+            icon={PinIcon}
           />
           {adminCount !== undefined && (
             <LinkRow
               href={href("admin")}
               label={t("Admin")}
               icon={Shield01Icon}
-              value={new Intl.NumberFormat(locale).format(adminCount)}
+              value={number.format(adminCount)}
             />
           )}
+        </Group>
+      )}
+
+      {signedIn && (
+        <Group label={t("Activity")}>
+          <LinkRow
+            href={href("myPosts")}
+            label={t("My posts")}
+            icon={Comment01Icon}
+            value={postCount === undefined ? undefined : number.format(postCount)}
+          />
+          <LinkRow
+            href={href("saved")}
+            label={t("Saved posts")}
+            icon={Bookmark01Icon}
+            value={savedCount === undefined ? undefined : number.format(savedCount)}
+          />
         </Group>
       )}
 

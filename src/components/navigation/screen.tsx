@@ -17,13 +17,28 @@ const directional = {
  */
 export function Screen({ children }: { children: ReactNode }) {
   return (
-    <ViewTransition enter={directional} exit={directional} default="none">
+    <StackTransition>
       {/* Opaque and full-height: during a slide the screen is a solid sheet,
           so the screen underneath never shows through its gaps or its
           (transparent-at-top) header. */}
       <div data-screen className="flex flex-1 flex-col bg-background">
         {children}
       </div>
+    </StackTransition>
+  );
+}
+
+/**
+ * The slide itself, for a layout that comes and goes as a whole: the tabs
+ * layout, when you leave the tabs for a screen outside them (a business,
+ * a post, Profile → …) or come back. React only animates the outermost
+ * transition of what's removed or added, so without this the tab screen
+ * (inside the layout's wrapper) would just vanish instead of sliding.
+ */
+export function StackTransition({ children }: { children: ReactNode }) {
+  return (
+    <ViewTransition enter={directional} exit={directional} default="none">
+      {children}
     </ViewTransition>
   );
 }

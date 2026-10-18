@@ -3,7 +3,6 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { db } from "@/db";
 import { users } from "@/db/schema";
 import { getFreshSession } from "@/lib/auth/session";
 import { isTaken } from "@/lib/auth/username";
@@ -11,6 +10,7 @@ import { getGooglePhoto } from "@/lib/data/users";
 import type { MessageKey } from "@/lib/i18n/types";
 import { AVATARS, avatarUrl, profileSchema } from "@/lib/profile";
 import { rateLimit } from "@/lib/rate-limit";
+import { runAction } from "@/lib/actions/run";
 
 export type UpdateProfileResult =
   | { ok: true }
@@ -30,7 +30,7 @@ export async function updateProfile(
   input: unknown,
 ): Promise<UpdateProfileResult> {
   const session = await getFreshSession();
-  if (!session || session.user.status === "suspended") {
+  if (!session || session.user.status !== "active") {
     return { ok: false, form: "Please sign in again." };
   }
   const { user } = session;
@@ -66,7 +66,9 @@ export async function updateProfile(
   }
 
   try {
-    await db.update(users).set(values).where(eq(users.id, user.id));
+    await runAction({ action: "profile.update", actorId: user.id, input: { username: values.username } }, (tx) =>
+      tx.update(users).set(values).where(eq(users.id, user.id)),
+    );
   } catch (error) {
     // Someone took the @handle at the same moment.
     if (isUniqueViolation(error)) return taken;

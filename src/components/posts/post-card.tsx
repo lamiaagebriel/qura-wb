@@ -277,8 +277,11 @@ function PostActions({
   // The score without the viewer's own vote, so toggling stays in sync.
   const others = post.score - post.myVote;
 
+  // Your own post: its score only (people vote on others' posts).
+  const own = post.mine;
   const castVote = async (value: 1 | -1) => {
     if (!signedIn) return signIn();
+    if (own) return;
     const before = vote;
     const next = vote === value ? 0 : value;
     setVote(next);
@@ -313,6 +316,7 @@ function PostActions({
           className={cn(iconButton, vote === 1 && "text-primary")}
           aria-label={t("Helpful")}
           aria-pressed={vote === 1}
+          disabled={own}
           onClick={() => castVote(1)}
         >
           <HugeiconsIcon
@@ -332,6 +336,7 @@ function PostActions({
           className={cn(iconButton, vote === -1 && "text-destructive")}
           aria-label={t("Not helpful")}
           aria-pressed={vote === -1}
+          disabled={own}
           onClick={() => castVote(-1)}
         >
           <HugeiconsIcon

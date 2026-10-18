@@ -17,13 +17,12 @@ test.describe("admin: pnpm admin", () => {
       on conflict (username) do update set status = 'active'
       returning id`;
     await sql`delete from business_locations where business_id = ${id}`;
-    await sql`delete from business_links where business_id = ${id}`;
     await sql`
-      insert into business_locations (business_id, position, address, lat, lng, city)
-      values (${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, 'aswan')`;
+      insert into business_locations (business_id, position, address, lat, lng, place_id)
+      select ${id}, 0, ${sql.json({ en: "Aswan" })}, 24.09, 32.9, id from places where slug = 'aswan'`;
     await sql`
-      insert into business_links (business_id, position, platform, url)
-      values (${id}, 0, 'whatsapp', 'https://wa.me/201000000000')`;
+      update businesses set links = ${sql.json([{ platform: "whatsapp", url: "https://wa.me/201000000000" }])}
+      where id = ${id}`;
   });
 
   test("suspend hides a business from visitors (not its owner); restore brings it back", async ({

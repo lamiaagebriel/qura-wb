@@ -1,3 +1,4 @@
+import { db, EMAIL } from "./auth";
 import { expect, makeTall, pathname, tab, test, waitForHydration } from "./fixtures";
 
 // Runs against the sample businesses (`pnpm db:seed`, reset before every
@@ -54,6 +55,10 @@ test.describe("public business profile", () => {
     await page.getByRole("link", { name: /Aswan Eats/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/aswan.eats");
     await waitForHydration(page);
+    // Business pages are outside the tabs (no tab bar): back first.
+    await expect(tab(page, "/search")).toHaveCount(0);
+    await page.getByRole("button", { name: "Back" }).tap();
+    await page.getByRole("button", { name: "Back" }).tap();
 
     await tab(page, "/search").tap();
     await expect.poll(() => pathname(page)).toBe("/search");
@@ -67,7 +72,9 @@ test.describe("public business profile", () => {
     await field.fill("pharmacy");
     await field.press("Enter");
     await expect(page.getByRole("link", { name: /El Shifa Pharmacy/ })).toBeVisible();
-    await expect(page.getByRole("link")).toHaveCount(1 + 3); // result + tab bar
+    // Search covers every place (the sample world has pharmacies too): what
+    // matters is that other kinds of business are filtered out.
+    await expect(page.getByRole("link", { name: /Nile Breeze Café/ })).toHaveCount(0);
 
     await field.fill("مقهى"); // category name in Arabic
     await field.press("Enter");
@@ -79,7 +86,7 @@ test.describe("public business profile", () => {
     await waitForHydration(page);
     await page.getByRole("link", { name: "No reviews yet." }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/souq.spices/reviews");
-    await expect(page.getByText("No reviews yet. Be the first!")).toBeVisible();
+    await expect(page.getByText("Been here? Be the first to share how it was.")).toBeVisible();
   });
 
   test("reviews: a row in the details card opens the reviews screen", async ({ page }) => {
@@ -103,6 +110,27 @@ test.describe("public business profile", () => {
     await expect(page.getByText("@nilebreeze")).toBeVisible();
     await expect(page.getByRole("img", { name: "Verified" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Write a review" })).toBeVisible();
+  });
+
+  test("reviews: the star filter (a pill, like posts) filters the list in place", async ({ page }) => {
+    await page.goto("/bs/nileview/reviews");
+    await waitForHydration(page);
+    await expect(page.getByRole("heading", { level: 2, name: /^\d+ reviews$/ })).toBeVisible();
+    const pill = page.getByRole("button", { name: "Filter by stars: All ratings" });
+    await pill.tap();
+    const sheet = page.getByRole("dialog", { name: "Filter by stars" });
+    await expect(sheet.getByRole("button", { name: "All ratings" })).toBeVisible();
+    // Each star value someone gave, with its count: "5 stars · 3".
+    const option = sheet.getByRole("button", { name: /^\d stars? · \d+$/ }).first();
+    const stars = Number((await option.innerText()).trim()[0]);
+    await option.tap();
+    await expect.poll(() => page.url()).toContain(`stars=${stars}`);
+    await expect(page.getByRole("button", { name: new RegExp(`^Filter by stars: ${stars} stars?$`) })).toBeVisible();
+    const label = `${stars} out of 5 stars`;
+    const rated = page.getByRole("article").getByRole("img", { name: /out of 5 stars/ });
+    await expect.poll(() => rated.count()).toBeGreaterThan(0);
+    for (const name of await rated.evaluateAll((els) => els.map((el) => el.getAttribute("aria-label"))))
+      expect(name).toBe(label);
   });
 
   test("back arrows: reviews → business → category → Search", async ({ page }) => {
@@ -176,29 +204,46 @@ test.describe("public business profile", () => {
     await signIn();
     await page.goto("/bs/nileview/reviews");
     await waitForHydration(page);
-    await page.getByRole("button", { name: "Write a review" }).tap();
-
-    const sheet = page.getByRole("dialog", { name: "Write a review" });
+    // A message-style bar at the bottom: stars, a field, a send button.
+    const sheet = page.getByRole("form", { name: "Write a review" });
     await expect(sheet).toBeVisible();
+    // Like Instagram, the send button shows once there's something to send (a star).
     const post = sheet.getByRole("button", { name: "Post review" });
-    await expect(post).toBeDisabled();
+    await expect(post).toHaveCount(0);
 
     await sheet.getByRole("radio", { name: "4 out of 5 stars" }).tap();
     await expect(sheet.getByRole("radio", { name: "4 out of 5 stars" })).toBeChecked();
     await sheet.getByRole("textbox", { name: "Your review" }).fill("Lovely view!");
     await post.tap();
 
-    await expect(sheet).toBeHidden();
     await expect(page.getByText("Thanks for your review!")).toBeVisible();
 
-    // Saved: newest first, and writing again edits it.
+    // Saved: yours first, with Edit and Delete; the bar is gone.
     await page.reload();
     await waitForHydration(page);
-    await expect(page.getByText("Lovely view!")).toBeVisible();
-    await page.getByRole("button", { name: "Edit your review" }).tap();
-    const edit = page.getByRole("dialog", { name: "Edit your review" });
+    const mine = page.getByRole("article").first();
+    await expect(mine.getByText("Lovely view!")).toBeVisible();
+    await expect(page.getByRole("form", { name: "Write a review" })).toHaveCount(0);
+
+    // Edit: the bar comes back on it.
+    await mine.getByRole("button", { name: "Edit" }).tap();
+    const edit = page.getByRole("form", { name: "Edit your review" });
+    await expect(edit.getByText("Editing your review")).toBeVisible();
     await expect(edit.getByRole("radio", { name: "4 out of 5 stars" })).toBeChecked();
-    await expect(edit.getByRole("textbox", { name: "Your review" })).toHaveValue("Lovely view!");
+    const text = edit.getByRole("textbox", { name: "Your review" });
+    await expect(text).toHaveValue("Lovely view!");
+    await text.fill("Lovely view, again!");
+    await edit.getByRole("button", { name: "Post review" }).tap();
+    await expect(page.getByText("Review updated")).toBeVisible();
+    await expect(mine.getByText("Lovely view, again!")).toBeVisible();
+    await expect(edit).toHaveCount(0);
+
+    // Delete, after a confirmation.
+    await mine.getByRole("button", { name: "Delete" }).tap();
+    await page.getByRole("dialog", { name: "Delete your review?" }).getByRole("button", { name: "Delete" }).tap();
+    await expect(page.getByText("Review deleted")).toBeVisible();
+    await expect(page.getByText("Lovely view, again!")).toHaveCount(0);
+    await expect(page.getByRole("form", { name: "Write a review" })).toBeVisible();
   });
 
   test("contact and links: slides open; every entry is a link", async ({ page }) => {
@@ -237,7 +282,10 @@ test.describe("public business profile", () => {
   test("share in the top bar; order on WhatsApp next to Follow", async ({ page }) => {
     await page.goto("/bs/aswan.eats");
     await waitForHydration(page);
-    await expect(page.locator("header").getByRole("button", { name: "Share profile" })).toBeVisible();
+    // Share is in the top bar's options sheet.
+    await page.locator("header").getByRole("button", { name: "More options" }).tap();
+    await expect(page.getByRole("button", { name: "Share profile" })).toBeVisible();
+    await page.keyboard.press("Escape");
 
     const order = page.getByRole("link", { name: "Order on WhatsApp" });
     const url = new URL((await order.getAttribute("href"))!);
@@ -291,7 +339,7 @@ test.describe("public business profile", () => {
     await expect(hours).toHaveAttribute("aria-expanded", "false");
   });
 
-  test("name, bio and address follow the app language (English fallback)", async ({
+  test("name, bio and address follow the app language (the other one as fallback)", async ({
     page,
     setLang,
   }) => {
@@ -302,13 +350,17 @@ test.describe("public business profile", () => {
     await expect(page.getByText(/كشري وسمك مشوي/)).toBeVisible();
     await expect(page.getByText("شارع أبطال التحرير، قرب محطة القطار، أسوان")).toBeVisible();
 
-    // No French name written → English.
-    await setLang("fr");
-    await page.goto("/bs/felucca.tours");
+    // No Arabic name written → English (added by the test user, so
+    // global-setup.ts removes it).
+    const sql = db();
+    await sql`
+      insert into businesses (username, name, category, time_zone, created_by_id, owner_id, status)
+      select 'e2e.english.only', ${sql.json({ en: "English Only Kiosk" })}, 'cafe', 'Africa/Cairo', id, id, 'active'
+      from users where email = ${EMAIL}
+      on conflict (username) do update set status = 'active'`;
+    await page.goto("/bs/e2e.english.only");
     await waitForHydration(page);
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Elephantine Felucca Tours" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "English Only Kiosk" })).toBeVisible();
   });
 
   test("search finds a business by its name in another language", async ({ page }) => {
@@ -323,7 +375,8 @@ test.describe("public business profile", () => {
   test("counts use the language's plural forms", async ({ page, setLang }) => {
     await page.goto("/bs/nileview/reviews");
     await waitForHydration(page);
-    await expect(page.getByText(/^\d+ reviews$/)).toBeVisible();
+    // In the summary card and the list's heading.
+    await expect(page.getByText(/^\d+ reviews$/).first()).toBeVisible();
     // Stars bars: "1 star", "2 stars"…
     await expect(page.getByRole("progressbar", { name: /^1 star: / })).toHaveCount(1);
     await expect(page.getByRole("progressbar", { name: /^2 stars: / })).toHaveCount(1);

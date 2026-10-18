@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { BackButton } from "@/components/navigation/back-button";
 import { safeNext } from "@/lib/auth/redirect";
 import { getSession } from "@/lib/auth/session";
 import { getTranslations } from "@/lib/i18n/server";
+import { href } from "@/lib/routes";
 
 import { GoogleSignIn } from "@/components/auth/google-sign-in";
 
@@ -28,7 +30,11 @@ export default async function LoginPage({
   const { t } = await getTranslations();
 
   return (
-    <main className="mx-auto flex min-h-(--app-height) w-full max-w-md flex-col px-6 pt-[max(var(--safe-top),3rem)] pb-[max(var(--safe-bottom),1.5rem)]">
+    <main className="relative mx-auto flex min-h-(--app-height) w-full max-w-md flex-col px-6 pt-[max(var(--safe-top),3rem)] pb-[max(var(--safe-bottom),1.5rem)]">
+      {/* Never a dead end: back to where you were, or Home. */}
+      <div className="absolute start-2 top-[calc(var(--safe-top)+0.25rem)]">
+        <BackButton fallback={href("home")} />
+      </div>
       <div className="flex flex-1 flex-col justify-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500 motion-reduce:animate-none">
         <h1 className="font-heading text-4xl font-semibold tracking-tight">
           {t("Qura")}

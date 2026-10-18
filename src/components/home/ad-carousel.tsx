@@ -30,22 +30,22 @@ export const SAMPLE_ADS: Ad[] = [
   {
     id: "1",
     username: "nilebreeze",
-    title: { en: "Breakfast on the Nile", ar: "فطور على النيل", fr: "Petit-déj sur le Nil" },
-    subtitle: { en: "20% off before 10 am", ar: "خصم ٢٠٪ قبل ١٠ صباحًا", fr: "-20 % avant 10 h" },
+    title: { en: "Breakfast on the Nile", ar: "فطور على النيل" },
+    subtitle: { en: "20% off before 10 am", ar: "خصم ٢٠٪ قبل ١٠ صباحًا" },
     tint: "from-amber-500 to-rose-500",
   },
   {
     id: "2",
     username: "salon.nefertari",
-    title: { en: "Bridal packages", ar: "باقات العرائس", fr: "Forfaits mariée" },
-    subtitle: { en: "Book your date now", ar: "احجزي موعدك الآن", fr: "Réservez votre date" },
+    title: { en: "Bridal packages", ar: "باقات العرائس" },
+    subtitle: { en: "Book your date now", ar: "احجزي موعدك الآن" },
     tint: "from-fuchsia-500 to-indigo-500",
   },
   {
     id: "3",
     username: "aswan.eats",
-    title: { en: "Free delivery", ar: "توصيل مجاني", fr: "Livraison gratuite" },
-    subtitle: { en: "All over Aswan this week", ar: "لكل أسوان هذا الأسبوع", fr: "Dans tout Assouan cette semaine" },
+    title: { en: "Free delivery", ar: "توصيل مجاني" },
+    subtitle: { en: "All over Aswan this week", ar: "لكل أسوان هذا الأسبوع" },
     tint: "from-emerald-500 to-teal-600",
   },
 ];

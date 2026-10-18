@@ -146,6 +146,7 @@ export function EditProfileForm({
             {t("From your Google account. It can't be changed here.")}
           </FieldDescription>
         </Field>
+        {/* Bio: hidden for now, kept for later (the saved bio is left as is).
         <TextareaField
           control={control}
           name="bio"
@@ -156,6 +157,7 @@ export function EditProfileForm({
           enterKeyHint="done"
           autoComplete="off"
         />
+        */}
       </FieldGroup>
 
       <Button

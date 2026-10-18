@@ -2,8 +2,9 @@
 // `pnpm db:seed` (src/db/seed.ts), never in production. Deterministic:
 // every run writes the same posts (once).
 
-import { CITIES, type CitySlug } from "@/lib/cities";
 import type { AnyPostData, PostType } from "@/lib/posts";
+
+import { SEED_PLACES } from "./places";
 
 const HOUR = 3600 * 1000;
 
@@ -61,7 +62,8 @@ const TEXTS: Record<
 export type SeedPost = {
   type: PostType;
   body: string;
-  city: CitySlug;
+  /** A place slug. */
+  city: string;
   createdAt: Date;
   /** A sample reviewer's email, or a seeded business's @handle. */
   by: { reviewer: string } | { business: string };
@@ -81,7 +83,7 @@ export function seedUserPosts(reviewers: string[]): SeedPost[] {
   const now = Date.now();
   const posts: SeedPost[] = [];
   let n = 0;
-  const add = (type: keyof typeof TEXTS, city: CitySlug, i: number) => {
+  const add = (type: keyof typeof TEXTS, city: string, i: number) => {
     const texts = TEXTS[type];
     posts.push({
       type,
@@ -91,7 +93,7 @@ export function seedUserPosts(reviewers: string[]): SeedPost[] {
       by: { reviewer: reviewers[n++ % reviewers.length] },
     });
   };
-  for (const { slug } of CITIES) {
+  for (const { slug } of SEED_PLACES.all) {
     for (const type of Object.keys(TEXTS) as (keyof typeof TEXTS)[]) {
       const count = slug === "aswan" ? 3 : 1;
       for (let i = 0; i < count; i++) add(type, slug, i);

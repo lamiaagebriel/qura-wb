@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
 
 import { FormError, INPUT, TextareaField } from "@/components/form";
+import { PlaceField } from "@/components/places/place-field";
 import { Button } from "@/components/ui/button";
 import { canGoBack } from "@/components/navigation/history";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -43,6 +44,7 @@ export function PostForm({
   businesses,
   defaultKind = "general",
   editing,
+  place = "",
   back,
 }: {
   /** You, for "Post as" (new posts). */
@@ -50,6 +52,8 @@ export function PostForm({
   businesses: PostingBusiness[];
   defaultKind?: PostType;
   editing?: Post;
+  /** Where a new post goes at first: the place being browsed. */
+  place?: string;
   back: string;
 }) {
   const { t } = useLocale();
@@ -64,6 +68,7 @@ export function PostForm({
     type: typesFor(!!startAs).includes(defaultKind)
       ? defaultKind
       : typesFor(!!startAs)[0],
+    city: place,
     business: startAs,
     body: "",
     data: {},
@@ -78,6 +83,8 @@ export function PostForm({
     defaultValues: editing
       ? {
           type: editing.type,
+          // A post stays where it was posted.
+          city: "",
           // Kept as posted; only checked by the schema.
           business:
             editing.author.type === "business" ? editing.author.username : "",
@@ -136,6 +143,24 @@ export function PostForm({
                 onChange={postAs}
               />
               <FormError error={fieldState.error} />
+            </Field>
+          )}
+        />
+      )}
+
+      {!editing && place && (
+        <Controller
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <Field>
+              <FieldLabel htmlFor="post-place">{t("Where")}</FieldLabel>
+              <PlaceField
+                id="post-place"
+                value={field.value}
+                label={t("Where")}
+                onChange={field.onChange}
+              />
             </Field>
           )}
         />

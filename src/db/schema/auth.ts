@@ -21,10 +21,13 @@ import { id, timestamps } from "../helpers";
  * `verifications` and `rate_limits` stand alone.
  */
 
-export const USER_ROLES = ["super_admin", "business_owner"] as const;
+/** `member`: everyone; `super_admin`: runs the dashboard. Looking after a
+ * place is `place_admins`, owning a business is `businesses.ownerId`. */
+export const USER_ROLES = ["member", "super_admin"] as const;
 export const userRole = pgEnum("user_role", USER_ROLES);
 
-export const USER_STATUSES = ["active", "suspended"] as const;
+/** `deleted`: anonymized (personal fields wiped); their posts stay as "Deleted user". */
+export const USER_STATUSES = ["active", "suspended", "deleted"] as const;
 export const userStatus = pgEnum("user_status", USER_STATUSES);
 
 /**
@@ -43,7 +46,7 @@ export const users = pgTable("users", {
   emailVerified: boolean().notNull().default(false),
   // `text`: Google avatar URLs can exceed 255 chars.
   image: text(),
-  role: userRole().notNull().default("business_owner"),
+  role: userRole().notNull().default("member"),
   status: userStatus().notNull().default("active"),
   username: varchar({ length: 50 }).notNull().unique(),
   bio: text(),

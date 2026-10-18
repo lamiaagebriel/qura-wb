@@ -103,7 +103,7 @@ export const auth = betterAuth({
         before: async (user) => ({
           data: {
             ...user,
-            role: "business_owner",
+            role: "member",
             status: "active",
             username: await generateUniqueUsername(user.name),
           },
@@ -120,7 +120,7 @@ export const auth = betterAuth({
             .from(users)
             .where(eq(users.id, session.userId))
             .limit(1);
-          if (user?.status === "suspended") {
+          if (user && user.status !== "active") {
             // `code` becomes `?error=account_suspended` on the OAuth redirect.
             throw new APIError("FORBIDDEN", {
               code: "account_suspended",

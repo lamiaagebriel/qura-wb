@@ -3,13 +3,8 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 
-import { db } from "@/db";
-import {
-  businesses,
-  businessHours,
-  businessLinks,
-  businessLocations,
-} from "@/db/schema";
+import { businesses, businessLocations } from "@/db/schema";
+import { runAction } from "@/lib/actions/run";
 import { getFreshSession } from "@/lib/auth/session";
 import { businessSchema, formToBusiness } from "@/lib/business";
 import {
@@ -26,9 +21,11 @@ import {
   findBusiness,
   getMyBusiness,
 } from "@/lib/data/businesses";
-import { applyStatus, fileRequest } from "@/lib/data/status-writes";
+import { getPlaceIndex } from "@/lib/data/places";
+import { applyStatus, NOT_READY, NotReadyToGoLive } from "@/lib/data/status-writes";
 import type { MessageKey } from "@/lib/i18n/types";
 import { rateLimit } from "@/lib/rate-limit";
+import { openTicket } from "@/lib/tickets/server";
 
 export type SaveBusinessResult =
   /** `requested`: the status change was sent to an admin, not applied. */
@@ -54,7 +51,7 @@ export async function saveBusiness(
   input: unknown,
 ): Promise<SaveBusinessResult> {
   const session = await getFreshSession();
-  if (!session || session.user.status === "suspended") {
+  if (!session || session.user.status !== "active") {
     return { ok: false, form: "Please sign in again." };
   }
   const userId = session.user.id;
@@ -80,15 +77,25 @@ export async function saveBusiness(
     return { ok: false, fields };
   }
   const values = parsed.data;
+  // Places come from the database, so the form's schema can't list them.
+  const places = await getPlaceIndex();
+  const unknownPlace = values.locations.findIndex(
+    (location) => !places.has(location.city),
+  );
+  if (unknownPlace !== -1) {
+    return {
+      ok: false,
+      fields: { [`locations.${unknownPlace}.city`]: "Choose a city" },
+    };
+  }
   const taken = {
     ok: false,
     fields: { username: "This username is taken" },
   } as const;
 
-  if (
-    values.username !== editing &&
-    (await findBusiness(values.username))
-  ) {
+  // Taken: another business has it now. A renamed business's old @handle
+  // isn't kept: it's free for anyone right away.
+  if (values.username !== editing && (await findBusiness(values.username))) {
     return taken;
   }
 
@@ -124,82 +131,55 @@ export async function saveBusiness(
     ...(!existing && {
       createdById: userId,
       status: session.user.role === "super_admin" ? ("active" as const) : ("pending" as const),
-      statusChangedAt: new Date(),
     }),
     ...(createdByMe && { ownerId: values.owner === "me" ? userId : null }),
   };
 
+  const actor = { id: userId, role: session.user.role ?? "member", status: session.user.status ?? "active" };
   try {
-    await db.transaction(async (tx) => {
-      const [{ id }] = existing
-        ? await tx
-            .update(businesses)
-            .set(record)
-            .where(eq(businesses.id, existing.id))
-            .returning({ id: businesses.id })
-        : await tx
-            .insert(businesses)
-            .values(record)
-            .returning({ id: businesses.id });
+    await runAction(
+      {
+        action: existing ? "business.update" : "business.create",
+        actorId: userId,
+        input: { username: values.username, ...(existing && { businessId: existing.id }) },
+      },
+      async (tx) => {
+        // Links and the weekly hours live on the business's row.
+        const row = { ...record, links: socials, hours };
+        const [{ id }] = existing
+          ? await tx.update(businesses).set(row).where(eq(businesses.id, existing.id)).returning({ id: businesses.id })
+          : await tx.insert(businesses).values(row).returning({ id: businesses.id });
 
-      await Promise.all([
-        tx
-          .delete(businessLocations)
-          .where(eq(businessLocations.businessId, id)),
-        tx.delete(businessLinks).where(eq(businessLinks.businessId, id)),
-        tx.delete(businessHours).where(eq(businessHours.businessId, id)),
-      ]);
-      await Promise.all([
-        tx.insert(businessLocations).values(
+        // Branches are replaced, in order; each points at its place by id.
+        await tx.delete(businessLocations).where(eq(businessLocations.businessId, id));
+        await tx.insert(businessLocations).values(
           locations.map(({ description, coords, city }, position) => ({
             businessId: id,
+            placeId: places.get(city)!.id,
             position,
             address: description,
-            city,
             ...coords,
           })),
-        ),
-        tx.insert(businessLinks).values(
-          socials.map(({ platform, url }, position) => ({
-            businessId: id,
-            position,
-            platform,
-            url,
-          })),
-        ),
-        ...(hours.some(Boolean)
-          ? [
-              tx
-                .insert(businessHours)
-                .values(
-                  hours.flatMap((slot, day) =>
-                    slot
-                      ? [
-                          {
-                            businessId: id,
-                            day,
-                            opens: slot.open,
-                            closes: slot.close,
-                          },
-                        ]
-                      : [],
-                  ),
-                ),
-            ]
-          : []),
-      ]);
-    });
+        );
+        if (existing && statusChange && "apply" in statusChange) {
+          await applyStatus(tx, { id }, statusChange.apply, userId);
+        }
+      },
+    );
   } catch (error) {
     // Two people claiming the same @handle at once.
     if (isUniqueViolation(error)) return taken;
+    if (error instanceof NotReadyToGoLive) return { ok: false, fields: { status: NOT_READY } };
     throw error;
   }
 
-  if (existing && statusChange) {
-    const target = { id: existing.id, username: values.username };
-    if ("apply" in statusChange)
-      await applyStatus(target, statusChange.apply, userId);
-    else await fileRequest(target, userId, statusChange.request);
+  if (existing && statusChange && "request" in statusChange) {
+    await openTicket(
+      actor,
+      statusChange.request === "reopen" ? "reopen_business" : "close_business",
+      [{ table: "businesses", id: existing.id }],
+      {},
+    );
   }
 
   updateTag(BUSINESSES_TAG);
@@ -211,14 +191,15 @@ export async function saveBusiness(
 }
 
 /**
- * Deletes a business for good — its branches, links, hours, follows,
- * reviews and requests go with it (cascade). Only who `canDelete` allows.
+ * Deletes a business: it gets the `deleted` status (gone from the app, kept
+ * 30 days before a purge — a scheduled job, later). Only who `canDelete`
+ * allows. Recorded in history.
  */
 export async function deleteBusiness(
   username: unknown,
 ): Promise<{ ok: true } | { ok: false; error: MessageKey }> {
   const session = await getFreshSession();
-  if (!session || session.user.status === "suspended") {
+  if (!session || session.user.status !== "active") {
     return { ok: false, error: "Please sign in again." };
   }
   if (typeof username !== "string" || !username) {
@@ -230,7 +211,10 @@ export async function deleteBusiness(
     return { ok: false, error: "You can't do that." };
   }
 
-  await db.delete(businesses).where(eq(businesses.id, business.id));
+  await runAction(
+    { action: "business.delete", actorId: session.user.id, input: { businessId: business.id } },
+    (tx) => tx.update(businesses).set({ status: "deleted" }).where(eq(businesses.id, business.id)),
+  );
   updateTag(BUSINESSES_TAG);
   revalidatePath(`/bs/${business.username}`, "layout");
   revalidatePath("/c/[slug]", "page");

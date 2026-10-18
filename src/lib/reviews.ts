@@ -6,6 +6,12 @@ import { z } from "zod";
 
 export const REVIEW_MAX_LENGTH = 1000;
 
+/** How the reviews screen orders its list (`?sort=`; none: newest). */
+export const REVIEW_SORTS = ["newest", "highest", "lowest"] as const;
+export type ReviewSort = (typeof REVIEW_SORTS)[number];
+export const isReviewSort = (value: unknown): value is ReviewSort =>
+  REVIEW_SORTS.includes(value as ReviewSort);
+
 export const reviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
   text: z.string().trim().max(REVIEW_MAX_LENGTH),
@@ -20,6 +26,8 @@ export type Review = {
   rating: 1 | 2 | 3 | 4 | 5;
   text: string;
   createdAt: Date;
+  /** Written by the viewer (they can edit or delete it). */
+  mine: boolean;
 };
 
 export type ReviewSummary = {

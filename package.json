@@ -16,7 +16,9 @@
     "admin": "tsx --conditions=react-server src/db/admin.ts",
     "build:deploy": "pnpm db:migrate && next build",
     "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui"
+    "e2e:ui": "playwright test --ui",
+    "test:flows": "tsx --conditions=react-server --require ./e2e/flows/next-cache.cjs e2e/flows/flows.ts",
+    "test:integrity": "tsx e2e/flows/integrity.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -24,6 +26,7 @@
     "@hugeicons/core-free-icons": "^4.3.5",
     "@hugeicons/react": "^1.1.10",
     "@shadcn/react": "^0.3.1",
+    "@tanstack/react-table": "8.21.3",
     "@vis.gl/react-google-maps": "^1.10.1",
     "better-auth": "^1.7.6",
     "class-variance-authority": "^0.7.1",

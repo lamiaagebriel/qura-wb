@@ -6,11 +6,10 @@ import { Alert02Icon, HugeiconsIcon, RefreshIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 // Replaces the root layout when the layout itself fails, so there are no
-// providers (locale, theme) here — the message is shown in all three languages.
+// providers (locale, theme) here — the message is shown in both languages.
 const MESSAGES = [
   { lang: "en", dir: "ltr", title: "Something went wrong", retry: "Try again" },
   { lang: "ar", dir: "rtl", title: "حدث خطأ ما", retry: "حاول مرة أخرى" },
-  { lang: "fr", dir: "ltr", title: "Une erreur s'est produite", retry: "Réessayer" },
 ] as const;
 
 export default function GlobalError({ retry }: { retry: () => void }) {
