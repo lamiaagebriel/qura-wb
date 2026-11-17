@@ -1,1 +1,0 @@
-ALTER TABLE "businesses" ADD COLUMN "suspended_at" timestamp with time zone;

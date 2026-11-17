@@ -1,33 +1,9 @@
--- Schema v2 (approved 2026-10-12): 24 tables become 17. Core tables hold
--- facts and one status; every request and report goes into `tickets`, and
--- every action and change into `history`. French is dropped from names.
---
--- How: the old tables move into a `legacy` schema (their indexes and
--- constraints with them, so no name clashes), the new tables are created,
--- the data is copied across (ids kept), the database's own rules are
--- added, and `legacy` is dropped. One migration: all or nothing.
-
--- ── 1. Move the old tables aside ─────────────────────────────────────
-CREATE SCHEMA legacy;--> statement-breakpoint
-DO $$
-DECLARE r record;
-BEGIN
-  FOR r IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
-    EXECUTE format('ALTER TABLE public.%I SET SCHEMA legacy', r.tablename);
-  END LOOP;
-  FOR r IN SELECT t.typname FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
-           WHERE n.nspname = 'public' AND t.typtype = 'e' LOOP
-    EXECUTE format('ALTER TYPE public.%I SET SCHEMA legacy', r.typname);
-  END LOOP;
-END $$;--> statement-breakpoint
-
 -- At least one language written in an `{ en, ar }` value (rule 18).
 CREATE OR REPLACE FUNCTION has_text(value jsonb) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
   SELECT coalesce(btrim(value ->> 'en'), '') <> '' OR coalesce(btrim(value ->> 'ar'), '') <> ''
 $$;--> statement-breakpoint
 
--- ── 2. The new tables (as drizzle-kit generates them) ────────────────
 CREATE TYPE "public"."user_role" AS ENUM('member', 'super_admin');--> statement-breakpoint
 CREATE TYPE "public"."user_status" AS ENUM('active', 'suspended', 'deleted');--> statement-breakpoint
 CREATE TYPE "public"."business_status" AS ENUM('pending', 'active', 'suspended', 'closed', 'deleted');--> statement-breakpoint
@@ -287,6 +263,8 @@ CREATE INDEX "history_action_id_idx" ON "history" USING btree ("action_id");--> 
 CREATE INDEX "history_action_idx" ON "history" USING btree ("action","id");--> statement-breakpoint
 CREATE UNIQUE INDEX "place_admins_place_user_idx" ON "place_admins" USING btree ("place_id","user_id");--> statement-breakpoint
 CREATE INDEX "place_admins_user_id_idx" ON "place_admins" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "place_types_name_en_idx" ON "place_types" USING btree (lower("name"->>'en'));--> statement-breakpoint
+CREATE UNIQUE INDEX "place_types_name_ar_idx" ON "place_types" USING btree (lower("name"->>'ar'));--> statement-breakpoint
 CREATE INDEX "places_parent_id_idx" ON "places" USING btree ("parent_id");--> statement-breakpoint
 CREATE INDEX "post_saves_post_id_idx" ON "post_saves" USING btree ("post_id");--> statement-breakpoint
 CREATE INDEX "post_votes_post_id_idx" ON "post_votes" USING btree ("post_id");--> statement-breakpoint
@@ -298,156 +276,6 @@ CREATE UNIQUE INDEX "tickets_open_key_idx" ON "tickets" USING btree ("open_key")
 CREATE INDEX "tickets_type_status_created_idx" ON "tickets" USING btree ("type","status","created_at");--> statement-breakpoint
 CREATE INDEX "tickets_created_by_id_idx" ON "tickets" USING btree ("created_by_id");--> statement-breakpoint
 CREATE INDEX "tickets_refs_idx" ON "tickets" USING gin ("refs");--> statement-breakpoint
-
--- ── 3. Copy the data over (ids kept) ─────────────────────────────────
-INSERT INTO "users" ("id","created_at","updated_at","name","email","email_verified","image","role","status","username","bio")
-SELECT "id","created_at","updated_at","name","email","email_verified","image",
-  (CASE "role"::text WHEN 'business_owner' THEN 'member' ELSE "role"::text END)::"user_role",
-  "status"::text::"user_status","username","bio"
-FROM legacy."users";--> statement-breakpoint
-INSERT INTO "sessions" ("id","created_at","updated_at","token","user_id","expires_at","ip_address","user_agent")
-SELECT "id","created_at","updated_at","token","user_id","expires_at","ip_address","user_agent" FROM legacy."sessions";--> statement-breakpoint
-INSERT INTO "accounts" ("id","created_at","updated_at","user_id","account_id","provider_id","access_token","refresh_token","id_token","access_token_expires_at","refresh_token_expires_at","scope","password")
-SELECT "id","created_at","updated_at","user_id","account_id","provider_id","access_token","refresh_token","id_token","access_token_expires_at","refresh_token_expires_at","scope","password" FROM legacy."accounts";--> statement-breakpoint
-INSERT INTO "verifications" ("id","created_at","updated_at","identifier","value","expires_at")
-SELECT "id","created_at","updated_at","identifier","value","expires_at" FROM legacy."verifications";--> statement-breakpoint
-INSERT INTO "rate_limits" ("id","key","count","last_request")
-SELECT "id","key","count","last_request" FROM legacy."rate_limits";--> statement-breakpoint
-
--- Places: names lose French.
-INSERT INTO "place_types" ("id","created_at","updated_at","name","listed")
-SELECT "id","created_at","updated_at","name" - 'fr',"listed" FROM legacy."place_types";--> statement-breakpoint
-INSERT INTO "places" ("id","created_at","updated_at","slug","parent_id","type_id","name","lat","lng")
-SELECT "id","created_at","updated_at","slug","parent_id","type_id","name" - 'fr',"lat","lng" FROM legacy."places";--> statement-breakpoint
-INSERT INTO "place_admins" ("id","created_at","updated_at","place_id","user_id")
-SELECT "id","created_at","updated_at","place_id","user_id" FROM legacy."place_admins";--> statement-breakpoint
-
--- Businesses: links and the 7-day hours onto the row.
-INSERT INTO "businesses" ("id","created_at","updated_at","owner_id","created_by_id","username","name","bio","category","time_zone","image","verified","status","links","hours")
-SELECT b."id",b."created_at",b."updated_at",b."owner_id",b."created_by_id",b."username",
-  b."name" - 'fr',
-  -- An empty "about" is stored as {} (no language written).
-  (SELECT coalesce(jsonb_object_agg(k, v), '{}'::jsonb) FROM jsonb_each(b."bio" - 'fr') AS e(k, v) WHERE btrim(v #>> '{}') <> ''),
-  b."category",b."time_zone",b."image",b."verified",b."status"::text::"business_status",
-  coalesce((SELECT jsonb_agg(jsonb_build_object('platform', l."platform"::text, 'url', l."url") ORDER BY l."position")
-            FROM legacy."business_links" l WHERE l."business_id" = b."id"), '[]'::jsonb),
-  (SELECT jsonb_agg(
-            (SELECT jsonb_build_object('open', left(h."opens"::text, 5), 'close', left(h."closes"::text, 5))
-             FROM legacy."business_hours" h WHERE h."business_id" = b."id" AND h."day" = d)
-          ORDER BY d)
-   FROM generate_series(0, 6) AS d)
-FROM legacy."businesses" b;--> statement-breakpoint
-INSERT INTO "business_locations" ("id","business_id","place_id","position","address","lat","lng")
-SELECT l."id",l."business_id",p."id",l."position",l."address" - 'fr',l."lat",l."lng"
-FROM legacy."business_locations" l JOIN legacy."places" p ON p."slug" = l."city";--> statement-breakpoint
-INSERT INTO "business_follows" ("user_id","business_id","created_at")
-SELECT "user_id","business_id","created_at" FROM legacy."follows";--> statement-breakpoint
-INSERT INTO "business_reviews" ("id","created_at","updated_at","business_id","author_id","rating","text","status")
-SELECT "id","created_at","updated_at","business_id","author_id","rating","text",'visible' FROM legacy."reviews";--> statement-breakpoint
-
--- Posts: the place by id; the hiding columns become one status.
-INSERT INTO "posts" ("id","created_at","updated_at","created_by_id","business_id","parent_id","type","body","place_id","data","status")
-SELECT po."id",po."created_at",po."updated_at",po."created_by_id",po."business_id",po."parent_id",po."type"::text::"post_type",po."body",pl."id",po."data",
-  (CASE WHEN po."hidden_at" IS NULL THEN 'visible'
-        WHEN po."review_requested_at" IS NOT NULL THEN 'under_review'
-        ELSE 'hidden' END)::"post_status"
-FROM legacy."posts" po JOIN legacy."places" pl ON pl."slug" = po."city";--> statement-breakpoint
-INSERT INTO "post_votes" ("user_id","post_id","value","created_at")
-SELECT "user_id","post_id","value","created_at" FROM legacy."post_votes";--> statement-breakpoint
-INSERT INTO "post_saves" ("user_id","post_id","created_at")
-SELECT "user_id","post_id","created_at" FROM legacy."post_saves";--> statement-breakpoint
-
--- Tickets: every request and report table into one.
-INSERT INTO "tickets" ("id","created_at","updated_at","type","status","created_by_id","refs","data","open_key")
-SELECT r."id",r."created_at",r."updated_at",
-  CASE r."kind"::text WHEN 'reopen' THEN 'reopen_business' ELSE 'close_business' END,
-  CASE WHEN r."resolved_at" IS NULL THEN 'open' ELSE r."outcome"::text END,
-  r."author_id",
-  jsonb_build_array(jsonb_build_object('table','businesses','id',r."business_id"::text)),
-  jsonb_strip_nulls(jsonb_build_object('note', nullif(r."note", ''))),
-  CASE WHEN r."resolved_at" IS NULL THEN
-    (CASE r."kind"::text WHEN 'reopen' THEN 'reopen_business' ELSE 'close_business' END) || ':' || r."author_id" || ':businesses:' || r."business_id" END
-FROM legacy."business_requests" r;--> statement-breakpoint
-INSERT INTO "tickets" ("id","created_at","updated_at","type","status","created_by_id","refs","data","open_key")
-SELECT r."id",r."created_at",r."updated_at",'new_place',
-  CASE r."status"::text WHEN 'pending' THEN 'open' ELSE r."status"::text END,
-  r."author_id",
-  jsonb_build_array(jsonb_build_object('table','places','id',r."parent_id"::text)),
-  jsonb_strip_nulls(jsonb_build_object('name', r."name" - 'fr', 'typeId', r."type_id", 'customType', r."custom_type", 'reason', nullif(r."reason", ''))),
-  CASE WHEN r."status"::text = 'pending' THEN
-    'new_place:' || r."author_id" || ':places:' || r."parent_id" || ':' || lower(coalesce(r."name"->>'en', r."name"->>'ar', '')) END
-FROM legacy."place_requests" r;--> statement-breakpoint
-INSERT INTO "tickets" ("id","created_at","updated_at","type","status","created_by_id","refs","data","open_key")
-SELECT r."id",r."created_at",r."updated_at",
-  CASE r."kind"::text WHEN 'add' THEN 'add_admin' ELSE 'remove_admin' END,
-  CASE r."status"::text WHEN 'pending' THEN 'open' ELSE r."status"::text END,
-  r."author_id",
-  jsonb_build_array(jsonb_build_object('table','places','id',r."place_id"::text), jsonb_build_object('table','users','id',r."target_id"::text)),
-  jsonb_strip_nulls(jsonb_build_object('note', nullif(r."note", ''))),
-  CASE WHEN r."status"::text = 'pending' THEN
-    (CASE r."kind"::text WHEN 'add' THEN 'add_admin' ELSE 'remove_admin' END) || ':' || r."author_id" || ':places:' || r."place_id" || ':users:' || r."target_id" END
-FROM legacy."place_admin_requests" r;--> statement-breakpoint
-INSERT INTO "tickets" ("id","created_at","updated_at","type","status","created_by_id","refs","data","open_key")
-SELECT r."id",r."created_at",r."updated_at",'report_post',
-  CASE WHEN r."resolved_at" IS NULL THEN 'open' WHEN r."outcome"::text = 'hidden' THEN 'approved' ELSE 'dismissed' END,
-  r."reporter_id",
-  jsonb_build_array(jsonb_build_object('table','posts','id',r."post_id"::text)),
-  jsonb_strip_nulls(jsonb_build_object('reason', r."reason"::text, 'note', nullif(r."note", ''))),
-  CASE WHEN r."resolved_at" IS NULL THEN 'report_post:' || r."reporter_id" || ':posts:' || r."post_id" END
-FROM legacy."post_reports" r;--> statement-breakpoint
-INSERT INTO "tickets" ("id","created_at","updated_at","type","status","created_by_id","refs","data","open_key")
-SELECT r."id",r."created_at",r."updated_at",'report_business',
-  CASE WHEN r."resolved_at" IS NOT NULL THEN (CASE r."outcome"::text WHEN 'suspended' THEN 'approved' ELSE 'dismissed' END)
-       WHEN r."escalated_at" IS NOT NULL THEN 'escalated' ELSE 'open' END,
-  r."reporter_id",
-  jsonb_build_array(jsonb_build_object('table','businesses','id',r."business_id"::text)),
-  jsonb_strip_nulls(jsonb_build_object('reason', r."reason"::text, 'note', nullif(r."note", ''))),
-  CASE WHEN r."resolved_at" IS NULL THEN 'report_business:' || r."reporter_id" || ':businesses:' || r."business_id" END
-FROM legacy."business_reports" r;--> statement-breakpoint
-
--- History: what already happened — answers to requests and reports,
--- hidden posts, and the dashboard's audit log — as action entries.
-INSERT INTO "history" ("at","entry","actor_id","source","action","input","note")
-SELECT "at","entry","actor_id","source","action","input","note" FROM (
-  SELECT r."resolved_at" AS "at", 'action' AS "entry", r."resolved_by_id" AS "actor_id", 'app' AS "source",
-    'ticket.' || CASE r."outcome"::text WHEN 'approved' THEN 'approve' ELSE 'reject' END AS "action",
-    jsonb_build_object('ticketId', r."id") AS "input", NULL::text AS "note"
-  FROM legacy."business_requests" r WHERE r."resolved_at" IS NOT NULL
-  UNION ALL
-  SELECT r."resolved_at", 'action', CASE WHEN r."status"::text = 'cancelled' THEN r."author_id" ELSE r."resolved_by_id" END, 'app',
-    'ticket.' || CASE r."status"::text WHEN 'approved' THEN 'approve' WHEN 'rejected' THEN 'reject' ELSE 'cancel' END,
-    jsonb_strip_nulls(jsonb_build_object('ticketId', r."id", 'resultId', r."place_id")), nullif(r."answer", '')
-  FROM legacy."place_requests" r WHERE r."status"::text <> 'pending' AND r."resolved_at" IS NOT NULL
-  UNION ALL
-  SELECT r."resolved_at", 'action', r."resolved_by_id", 'app',
-    'ticket.' || CASE r."status"::text WHEN 'approved' THEN 'approve' WHEN 'rejected' THEN 'reject' ELSE 'cancel' END,
-    jsonb_build_object('ticketId', r."id"), nullif(r."answer", '')
-  FROM legacy."place_admin_requests" r WHERE r."status"::text <> 'pending' AND r."resolved_at" IS NOT NULL
-  UNION ALL
-  SELECT r."resolved_at", 'action', r."resolved_by_id", 'app',
-    'ticket.' || CASE r."outcome"::text WHEN 'hidden' THEN 'approve' ELSE 'dismiss' END,
-    jsonb_build_object('ticketId', r."id"), NULL
-  FROM legacy."post_reports" r WHERE r."resolved_at" IS NOT NULL
-  UNION ALL
-  SELECT r."escalated_at", 'action', r."escalated_by_id", 'app', 'ticket.escalate',
-    jsonb_build_object('ticketId', r."id"), NULL
-  FROM legacy."business_reports" r WHERE r."escalated_at" IS NOT NULL
-  UNION ALL
-  SELECT r."resolved_at", 'action', r."resolved_by_id", 'app',
-    'ticket.' || CASE r."outcome"::text WHEN 'suspended' THEN 'approve' ELSE 'dismiss' END,
-    jsonb_build_object('ticketId', r."id"), NULL
-  FROM legacy."business_reports" r WHERE r."resolved_at" IS NOT NULL
-  UNION ALL
-  SELECT p."hidden_at", 'action', p."hidden_by_id", 'app', 'post.hide',
-    jsonb_build_object('postId', p."id"), nullif(p."hidden_reason", '')
-  FROM legacy."posts" p WHERE p."hidden_at" IS NOT NULL
-  UNION ALL
-  SELECT a."created_at", 'action', a."admin_id", 'dashboard', a."resource" || '.' || a."action",
-    jsonb_build_object('resource', a."resource", 'recordId', a."record_key", 'label', a."record_label", 'changes', a."changes"),
-    nullif(a."note", '')
-  FROM legacy."admin_audit" a
-) AS past
-ORDER BY "at";--> statement-breakpoint
 -- ── 4. Rules the database keeps itself ───────────────────────────────
 
 -- History: one trigger on every table writes each row change. The app
@@ -591,7 +419,4 @@ CREATE TRIGGER tickets_close_on_delete AFTER DELETE ON places FOR EACH ROW EXECU
 CREATE TRIGGER tickets_close_on_delete AFTER DELETE ON businesses FOR EACH ROW EXECUTE FUNCTION tickets_close_on_delete();--> statement-breakpoint
 CREATE TRIGGER tickets_close_on_delete AFTER DELETE ON posts FOR EACH ROW EXECUTE FUNCTION tickets_close_on_delete();--> statement-breakpoint
 CREATE TRIGGER tickets_close_on_delete AFTER DELETE ON business_reviews FOR EACH ROW EXECUTE FUNCTION tickets_close_on_delete();--> statement-breakpoint
-CREATE TRIGGER tickets_close_on_delete AFTER DELETE ON users FOR EACH ROW EXECUTE FUNCTION tickets_close_on_delete();--> statement-breakpoint
-
--- ── 5. The old tables go ─────────────────────────────────────────────
-DROP SCHEMA legacy CASCADE;
+CREATE TRIGGER tickets_close_on_delete AFTER DELETE ON users FOR EACH ROW EXECUTE FUNCTION tickets_close_on_delete();

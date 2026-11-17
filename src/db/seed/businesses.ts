@@ -253,7 +253,8 @@ export const SEED_BUSINESSES: SeedBusiness[] = [
     avatarUrl: null,
     verified: false,
     category: "grocery",
-    bio: { en: "" },
+    // No bio (stored as no languages, like the forms save an empty one).
+    bio: {},
     locations: [
       loc(
         {

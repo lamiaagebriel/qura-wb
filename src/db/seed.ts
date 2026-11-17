@@ -77,7 +77,9 @@ async function seed(tx: Tx) {
         ...coords,
       })),
     );
-    const sample = seedReviews(business.username);
+    // Never by whoever added it (you can't review a business you run).
+    const addedBy = owned ? (owned.addedByOwner ? ownerId : someoneElse) : null;
+    const sample = seedReviews(business.username).filter((review) => idOf.get(review.reviewer) !== addedBy);
     if (sample.length)
       await tx.insert(businessReviews).values(
         sample.map(({ reviewer, ...review }) => ({
