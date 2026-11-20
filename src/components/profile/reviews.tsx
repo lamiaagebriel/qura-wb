@@ -39,7 +39,6 @@ async function Stars({
         <HugeiconsIcon
           key={star}
           icon={StarIcon}
-          strokeWidth={1.5}
           className={cn(
             "size-[1em]",
             star <= filled
@@ -204,7 +203,7 @@ export async function ReviewsEmpty({ stars }: { stars?: number | null }) {
   return (
     <div className="flex flex-col items-center gap-2 rounded-2xl bg-card px-4 py-8 text-center ring-1 ring-foreground/5">
       <span className="flex size-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
-        <HugeiconsIcon icon={StarIcon} strokeWidth={1.75} className="size-6" />
+        <HugeiconsIcon icon={StarIcon} className="size-6" />
       </span>
       {stars ? (
         <p className="text-sm text-muted-foreground">
@@ -241,7 +240,7 @@ async function ReviewItem({ review }: { review: Review }) {
         <p className="flex min-w-0 items-center gap-1.5 text-xs">
           <span className="truncate font-semibold">{review.author.name}</span>
           {review.mine && (
-            <Badge variant="secondary" className="h-4.5 px-1.5 text-[0.625rem]">
+            <Badge variant="secondary" className="h-4.5 px-1.5">
               {t("You")}
             </Badge>
           )}

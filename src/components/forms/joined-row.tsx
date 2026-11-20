@@ -31,7 +31,7 @@ export function RemoveButton({
       onClick={onClick}
       className="size-11 shrink-0 text-muted-foreground"
     >
-      <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} className="size-5" />
+      <HugeiconsIcon icon={Delete02Icon} className="size-5" />
     </Button>
   );
 }
@@ -43,9 +43,9 @@ export function AddButton({ label, onClick }: { label: string; onClick: () => vo
       variant="secondary"
       size="xl"
       onClick={onClick}
-      className="w-full rounded-xl text-sm"
+      className="w-full rounded-xl"
     >
-      <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+      <HugeiconsIcon icon={PlusSignIcon} />
       {label}
     </Button>
   );

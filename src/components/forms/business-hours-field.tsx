@@ -111,7 +111,7 @@ function DayHours({
     <div className="flex flex-col gap-1 py-2">
       {/* The whole day on one line. */}
       <div className={DAY_ROW}>
-        <FieldLabel htmlFor={`hours-${day}`} className="truncate text-sm">
+        <FieldLabel htmlFor={`hours-${day}`} className="truncate">
           <span aria-hidden>{shortWeekday}</span>
           <span className="sr-only">{weekday}</span>
         </FieldLabel>
@@ -150,7 +150,7 @@ function DayHours({
                       : { open: true, from: "09:00", to: "21:00" },
                   )
                 }
-                className="h-11 rounded-xl px-1.5 text-xs font-semibold"
+                className="h-11 rounded-xl px-1.5 font-semibold"
               >
                 24h
               </Toggle>
@@ -168,7 +168,6 @@ function DayHours({
           >
             <HugeiconsIcon
               icon={Copy01Icon}
-              strokeWidth={2}
               className="size-4"
             />
           </Button>
@@ -229,7 +228,7 @@ function TimeInput({
               : t("Closes on {{day}}", { day: weekday })
           }
           aria-invalid={fieldState.invalid}
-          className="h-11 min-w-0 flex-1 px-1 text-center text-base md:text-base"
+          className="h-11 min-w-0 flex-1 px-1 text-center"
         />
       )}
     />

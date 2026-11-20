@@ -38,7 +38,6 @@ export function HoursItem({
       >
         <HugeiconsIcon
           icon={Clock01Icon}
-          strokeWidth={2}
           className="size-5 shrink-0 text-muted-foreground"
         />
         <span className="min-w-0 flex-1">

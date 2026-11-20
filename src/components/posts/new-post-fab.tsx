@@ -1,13 +1,17 @@
 "use client";
 
 import { useAuthSheet } from "@/components/auth/auth-sheet";
+import { buttonVariants } from "@/components/ui/button";
 import { HugeiconsIcon, PlusSignIcon } from "@/components/icons";
 import { StackLink } from "@/components/navigation/stack-link";
 import { useLocale } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
 import { href } from "@/lib/routes";
 
-const FAB =
-  "pointer-events-auto flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-foreground/20";
+const FAB = cn(
+  buttonVariants(),
+  "pointer-events-auto size-14 rounded-full shadow-lg shadow-foreground/20",
+);
 
 /**
  * The floating "New post" button, above the tab bar at the end edge of the
@@ -17,7 +21,7 @@ export function NewPostFab({ signedIn }: { signedIn: boolean }) {
   const { t } = useLocale();
   const { open: signIn } = useAuthSheet();
   const icon = (
-    <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2.5} className="size-6" />
+    <HugeiconsIcon icon={PlusSignIcon} className="size-6" />
   );
 
   return (

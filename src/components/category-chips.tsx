@@ -52,7 +52,6 @@ export async function CategoryChips({
               >
                 <HugeiconsIcon
                   icon={chip.icon}
-                  strokeWidth={1.75}
                   className="size-3.5"
                 />
               </AvatarFallback>

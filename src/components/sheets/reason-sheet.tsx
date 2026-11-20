@@ -60,12 +60,12 @@ export function ReasonSheet({
         maxLength={maxLength}
         enterKeyHint="done"
         dir="auto"
-        className="min-h-24 resize-none rounded-xl px-3 text-base md:text-base"
+        className="min-h-24 resize-none rounded-xl px-3"
       />
       <Button
         size="xl"
         variant={destructive ? "destructive" : "default"}
-        className="w-full rounded-2xl text-base"
+        className="w-full rounded-2xl"
         disabled={pending || (required && !reason.trim())}
         aria-busy={pending}
         onClick={() =>

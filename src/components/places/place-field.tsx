@@ -3,9 +3,11 @@
 import { useState } from "react";
 
 import { ArrowDown01Icon, HugeiconsIcon, PinIcon } from "@/components/icons";
+import { buttonVariants } from "@/components/ui/button";
 import { PlacePicker } from "@/components/places/place-picker";
 import { usePlaces } from "@/components/places/places-provider";
 import { useLocale } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
 import { placeLabel } from "@/lib/places";
 
 /**
@@ -39,19 +41,17 @@ export function PlaceField({
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-label={t("{{label}}: {{place}}", { label, place: current })}
-        className="flex h-11 items-center justify-between gap-2 rounded-xl bg-card px-4 text-start text-sm font-medium ring-1 ring-foreground/10"
+        className={cn(buttonVariants({ variant: "outline" }), "h-11 justify-between gap-2 rounded-xl bg-card px-4 text-start")}
       >
         <span className="flex min-w-0 items-center gap-2">
           <HugeiconsIcon
             icon={PinIcon}
-            strokeWidth={2}
             className="size-4 shrink-0 text-primary"
           />
           <span className="truncate">{current}</span>
         </span>
         <HugeiconsIcon
           icon={ArrowDown01Icon}
-          strokeWidth={2}
           className="size-4 shrink-0 text-muted-foreground"
         />
       </button>

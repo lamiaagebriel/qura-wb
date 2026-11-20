@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { ArrowDown01Icon, HugeiconsIcon, PinIcon } from "@/components/icons";
+import { buttonVariants } from "@/components/ui/button";
 import { PlacePicker } from "@/components/places/place-picker";
 import { usePlaces } from "@/components/places/places-provider";
 import { setCity } from "@/server/actions/city";
@@ -37,15 +38,15 @@ export function CitySwitcher({ city }: { city: string }) {
         aria-haspopup="dialog"
         aria-label={t("City: {{city}}", { city: name })}
         className={cn(
-          "flex h-11 items-center gap-1 rounded-full px-3 text-sm font-semibold",
+          buttonVariants({ variant: "ghost" }),
+          "h-11 gap-1 rounded-full px-3 font-semibold",
           isPending && "opacity-60",
         )}
       >
-        <HugeiconsIcon icon={PinIcon} strokeWidth={2} className="size-4 text-primary" />
+        <HugeiconsIcon icon={PinIcon} className="size-4 text-primary" />
         <span className="max-w-28 truncate">{name}</span>
         <HugeiconsIcon
           icon={ArrowDown01Icon}
-          strokeWidth={2}
           className="size-4 text-muted-foreground"
         />
       </button>

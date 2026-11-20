@@ -1,9 +1,24 @@
 // Every icon in the app comes from here — never import "@hugeicons/*" directly.
-// Usage: <HugeiconsIcon icon={TranslateIcon} strokeWidth={2} className="size-4" />
-// Arrows that point along the reading direction need `rtl:rotate-180`.
+// Usage: <HugeiconsIcon icon={TranslateIcon} className="size-4" />
+// The stroke comes from here (`ICON_STROKE`, the shadcn style's); don't set
+// `strokeWidth` per icon. Inside a button, leave out the size too: the
+// button's size sets it. Arrows that point along the reading direction need
+// `rtl:rotate-180`.
 
-export { HugeiconsIcon } from "@hugeicons/react";
+import {
+  HugeiconsIcon as Icon,
+  type HugeiconsIconProps,
+} from "@hugeicons/react";
+
 export type { IconSvgElement } from "@hugeicons/react";
+
+/** The icon stroke for the whole app (Mira draws its own icons at 2). */
+export const ICON_STROKE = 2;
+
+/** A Hugeicons icon, stroked like the shadcn style. */
+export function HugeiconsIcon({ strokeWidth = ICON_STROKE, ...props }: HugeiconsIconProps) {
+  return <Icon strokeWidth={strokeWidth} {...props} />;
+}
 
 export {
   // Arrows & chevrons

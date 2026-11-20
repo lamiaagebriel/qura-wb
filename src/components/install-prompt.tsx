@@ -193,7 +193,7 @@ export function InstallPromptProvider({ children }: { children: ReactNode }) {
               </ol>
             ) : (
               <Button size="xl" className="w-full rounded-xl" onClick={install}>
-                <HugeiconsIcon icon={Download04Icon} strokeWidth={2} />
+                <HugeiconsIcon icon={Download04Icon} />
                 {t("Install")}
               </Button>
             )}
@@ -233,7 +233,7 @@ function Step({
       </span>
       <span className="flex-1 text-sm">{text}</span>
       <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
-        <HugeiconsIcon icon={icon} strokeWidth={2} className="size-5" />
+        <HugeiconsIcon icon={icon} className="size-5" />
       </span>
     </li>
   );

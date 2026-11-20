@@ -34,7 +34,7 @@ export async function StatusNotice({
             : "bg-muted text-foreground",
       )}
     >
-      <HugeiconsIcon icon={StoreRemove01Icon} strokeWidth={2} className="size-5 shrink-0" />
+      <HugeiconsIcon icon={StoreRemove01Icon} className="size-5 shrink-0" />
       {t(NOTICES[status])}
     </p>
   );

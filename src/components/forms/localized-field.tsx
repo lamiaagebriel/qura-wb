@@ -73,7 +73,7 @@ export function LocalizedField<T extends FieldValues>({
           value={l}
           aria-label={LOCALE_META[l].label}
           // 44px tap area around a compact pill.
-          className="relative h-8 gap-1 px-2 text-xs uppercase after:absolute after:-inset-y-1.5 after:inset-x-0"
+          className="relative h-8 gap-1 px-2 uppercase after:absolute after:-inset-y-1.5 after:inset-x-0"
         >
           {l}
           {(errorOf(l) || values?.[l]) && (
@@ -114,7 +114,7 @@ export function LocalizedField<T extends FieldValues>({
               <InputGroupTextarea
                 {...shared}
                 rows={3}
-                className="min-h-24 px-3 text-base md:text-base"
+                className="min-h-24 px-3"
               />
               <InputGroupAddon align="block-end" className="justify-end">
                 {switcher}
@@ -126,7 +126,7 @@ export function LocalizedField<T extends FieldValues>({
                 <InputGroupInput
                   {...shared}
                   enterKeyHint="next"
-                  className="h-full px-3 text-base md:text-base"
+                  className="h-full px-3"
                 />
                 <InputGroupAddon align="inline-end">{switcher}</InputGroupAddon>
               </InputGroup>

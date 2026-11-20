@@ -30,7 +30,7 @@ export function OfflineBanner() {
       className="pointer-events-none fixed inset-x-0 top-[calc(var(--safe-top)+0.5rem)] z-50 flex justify-center px-4 animate-in fade-in slide-in-from-top-2 duration-300 motion-reduce:animate-none"
     >
       <span className="flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background shadow-lg">
-        <HugeiconsIcon icon={WifiDisconnected01Icon} strokeWidth={2} className="size-4" />
+        <HugeiconsIcon icon={WifiDisconnected01Icon} className="size-4" />
         {t("You're offline")}
       </span>
     </div>

@@ -161,7 +161,7 @@ function PlatformButton({
             colors,
           )}
         >
-          <HugeiconsIcon icon={icon} strokeWidth={2} className="size-4" />
+          <HugeiconsIcon icon={icon} className="size-4" />
         </span>
       </Button>
       <ActionSheet

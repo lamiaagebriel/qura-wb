@@ -106,7 +106,6 @@ function Counts({ post }: { post: Post }) {
         <span className="flex items-center gap-1">
           <HugeiconsIcon
             icon={ThumbsUpIcon}
-            strokeWidth={2}
             className="size-3.5"
           />
           <span className="tabular-nums">
@@ -119,7 +118,6 @@ function Counts({ post }: { post: Post }) {
         <span className="flex items-center gap-1">
           <HugeiconsIcon
             icon={BubbleChatIcon}
-            strokeWidth={2}
             className="size-3.5"
           />
           {t.plural(post.replyCount, {
@@ -165,7 +163,6 @@ function AuthorRow({ post, type = true }: { post: Post; type?: boolean }) {
           {category ? (
             <HugeiconsIcon
               icon={category.icon}
-              strokeWidth={1.75}
               className="size-5"
             />
           ) : (
@@ -181,7 +178,6 @@ function AuthorRow({ post, type = true }: { post: Post; type?: boolean }) {
           {author.type === "business" && author.verified && (
             <HugeiconsIcon
               icon={CheckmarkBadge01Icon}
-              strokeWidth={2}
               role="img"
               aria-label={t("Verified")}
               className="size-3.5 shrink-0 text-primary"
@@ -204,7 +200,7 @@ function AuthorRow({ post, type = true }: { post: Post; type?: boolean }) {
       </div>
       {type && (
         <Badge className={cn("shrink-0 gap-1 border-0", meta.tint)}>
-          <HugeiconsIcon icon={meta.icon} strokeWidth={2} className="size-3" />
+          <HugeiconsIcon icon={meta.icon} className="size-3" />
           {t(meta.label)}
         </Badge>
       )}
@@ -224,7 +220,6 @@ function OfferDetails({ post }: { post: Post }) {
         <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-700 dark:text-emerald-400">
           <HugeiconsIcon
             icon={DiscountTag01Icon}
-            strokeWidth={2}
             className="size-3.5"
           />
           <bdi dir="auto">{price}</bdi>
@@ -240,7 +235,6 @@ function OfferDetails({ post }: { post: Post }) {
         >
           <HugeiconsIcon
             icon={Clock01Icon}
-            strokeWidth={2}
             className="size-3.5"
           />
           {ended
@@ -308,6 +302,7 @@ function PostActions({
       <div className="flex items-center rounded-full">
         <Button
           variant="ghost"
+          size="icon-lg"
           className={cn(iconButton, vote === 1 && "text-primary")}
           aria-label={t("Helpful")}
           aria-pressed={vote === 1}
@@ -316,8 +311,7 @@ function PostActions({
         >
           <HugeiconsIcon
             icon={ThumbsUpIcon}
-            strokeWidth={2}
-            className={cn("size-5", vote === 1 && "fill-current/20")}
+            className={cn(vote === 1 && "fill-current/20")}
           />
         </Button>
         <span
@@ -328,6 +322,7 @@ function PostActions({
         </span>
         <Button
           variant="ghost"
+          size="icon-lg"
           className={cn(iconButton, vote === -1 && "text-destructive")}
           aria-label={t("Not helpful")}
           aria-pressed={vote === -1}
@@ -336,8 +331,6 @@ function PostActions({
         >
           <HugeiconsIcon
             icon={ThumbsDownIcon}
-            strokeWidth={2}
-            className="size-5"
           />
         </Button>
       </div>
@@ -345,14 +338,13 @@ function PostActions({
       {!reply && (
         <Button
           variant="ghost"
-          className="h-11 gap-1.5 rounded-full px-3 text-sm text-muted-foreground"
+          size="lg"
+          className="h-11 gap-1.5 rounded-full px-3 text-muted-foreground"
           render={<StackLink href={link} />}
           nativeButton={false}
         >
           <HugeiconsIcon
             icon={BubbleChatIcon}
-            strokeWidth={2}
-            className="size-5"
           />
           <span className="tabular-nums">
             {post.replyCount.toLocaleString(locale)}
@@ -366,6 +358,7 @@ function PostActions({
       {!reply && (
         <Button
           variant="ghost"
+          size="icon-lg"
           className={cn(iconButton, saved && "text-primary")}
           aria-label={t("Save")}
           aria-pressed={saved}
@@ -373,22 +366,20 @@ function PostActions({
         >
           <HugeiconsIcon
             icon={Bookmark01Icon}
-            strokeWidth={2}
-            className={cn("size-5", saved && "fill-current")}
+            className={cn(saved && "fill-current")}
           />
         </Button>
       )}
       {!reply && (
         <Button
           variant="ghost"
+          size="icon-lg"
           className={iconButton}
           aria-label={t("Share")}
           onClick={() => share({ text: post.body.slice(0, 120), url: link })}
         >
           <HugeiconsIcon
             icon={Share08Icon}
-            strokeWidth={2}
-            className="size-5"
           />
         </Button>
       )}
@@ -397,6 +388,7 @@ function PostActions({
         <>
           <Button
             variant="ghost"
+            size="icon-lg"
             className={iconButton}
             render={
               <StackLink href={href("editPost", { params: { id: post.id } })} />
@@ -406,8 +398,6 @@ function PostActions({
           >
             <HugeiconsIcon
               icon={PencilEdit02Icon}
-              strokeWidth={2}
-              className="size-5"
             />
           </Button>
           <DeletePostButton id={post.id} reply icon />

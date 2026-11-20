@@ -20,8 +20,9 @@ import { FieldError } from "@/components/ui/field";
 import { useLocale } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n/types";
 
-// 44px+ tall fields, 16px text (no zoom on focus) — like the rest of the app.
-export const INPUT = "h-11 rounded-xl px-3 text-base md:text-base";
+// 44px tall fields with the app's rounder corners. Text stays Mira's size;
+// on phones globals.css lifts field text to 16px so iOS never zooms on focus.
+export const INPUT = "h-11 rounded-xl px-3";
 
 /** A field's error, translated (schema messages are `MessageKey`s). */
 export function FormError({ error }: { error?: RhfFieldError }) {

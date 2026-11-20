@@ -18,7 +18,7 @@ export default function GlobalError({ retry }: { retry: () => void }) {
       <body className="flex min-h-(--app-height) flex-col items-center justify-center gap-6 bg-background px-6 font-sans text-foreground antialiased">
         <title>Qura</title>
         <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-          <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+          <HugeiconsIcon icon={Alert02Icon} />
         </div>
         <div className="flex flex-col items-center gap-1 text-center">
           {MESSAGES.map((m) => (
@@ -28,7 +28,7 @@ export default function GlobalError({ retry }: { retry: () => void }) {
           ))}
         </div>
         <Button size="xl" className="w-full max-w-xs rounded-xl" onClick={() => retry()}>
-          <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} />
+          <HugeiconsIcon icon={RefreshIcon} />
           {MESSAGES.map((m) => m.retry).join(" · ")}
         </Button>
       </body>

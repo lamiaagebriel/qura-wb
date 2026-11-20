@@ -9,6 +9,7 @@ import {
   Search01Icon,
   Tick02Icon,
 } from "@/components/icons";
+import { LIST_ROW } from "@/components/list-row";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -90,8 +91,8 @@ export function CategoryPicker({
   };
 
   const chosen = categoryOf(value);
-  const row =
-    "flex min-h-14 w-full items-center gap-3 px-4 py-2 text-start text-base";
+  // Inside <li>s: the list draws the dividers.
+  const row = cn(LIST_ROW, "justify-start gap-3 border-b-0");
 
   const item = (c: Category, withPath = false) => (
     <li key={c.slug}>
@@ -105,12 +106,11 @@ export function CategoryPicker({
         <CategoryAvatar icon={c.icon} count={counts && (counts[c.slug] ?? 0)} />
         <span className="min-w-0 flex-1 truncate">{withPath ? label(c) : c.name[locale]}</span>
         {c.slug === value && (
-          <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-5 shrink-0 text-primary" />
+          <HugeiconsIcon icon={Tick02Icon} className="size-5 shrink-0 text-primary" />
         )}
         {c.children.length > 0 && !withPath && (
           <HugeiconsIcon
             icon={ArrowRight01Icon}
-            strokeWidth={2}
             className="size-4 shrink-0 text-muted-foreground rtl:rotate-180"
           />
         )}
@@ -127,14 +127,13 @@ export function CategoryPicker({
         aria-invalid={invalid}
         data-value={value}
         onClick={openSheet}
-        className="h-11 w-full justify-between rounded-xl ps-3 text-base font-normal"
+        className="h-11 w-full justify-between rounded-xl ps-3 font-normal"
       >
         <span className={cn("truncate", !chosen && "text-muted-foreground")}>
           {chosen ? label(chosen) : t("Choose a category")}
         </span>
         <HugeiconsIcon
           icon={ArrowRight01Icon}
-          strokeWidth={2}
           className="size-4 shrink-0 text-muted-foreground rtl:rotate-180"
         />
       </Button>
@@ -150,17 +149,17 @@ export function CategoryPicker({
                 aria-label={t("Back")}
                 onClick={() => setAt(current.parent)}
               >
-                <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="rtl:rotate-180" />
+                <HugeiconsIcon icon={ArrowLeft01Icon} className="rtl:rotate-180" />
               </Button>
             )}
-            <DrawerTitle className="text-base">
+            <DrawerTitle>
               {current && !results ? current.name[locale] : t("Category")}
             </DrawerTitle>
           </DrawerHeader>
           <div className="flex min-h-0 flex-col gap-3 px-4">
             <InputGroup className="h-11 shrink-0 rounded-xl">
               <InputGroupAddon>
-                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+                <HugeiconsIcon icon={Search01Icon} />
               </InputGroupAddon>
               <InputGroupInput
                 type="search"
@@ -194,7 +193,7 @@ export function CategoryPicker({
                           {t("Choose “{{name}}”", { name: current.name[locale] })}
                         </span>
                         {current.slug === value && (
-                          <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-5 shrink-0" />
+                          <HugeiconsIcon icon={Tick02Icon} className="size-5 shrink-0" />
                         )}
                       </button>
                     </li>

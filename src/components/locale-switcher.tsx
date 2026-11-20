@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { TranslateIcon } from "@/components/icons";
+import { STATIC_ROW } from "@/components/list-row";
 import { SettingsRow } from "@/components/settings-row";
 import {
   Drawer,
@@ -13,6 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { isLocale, LOCALE_META, LOCALES, type Locale } from "@/lib/i18n/config";
+import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n/provider";
 
 /**
@@ -33,7 +35,7 @@ export function LocaleSwitcher() {
       <SettingsRow
         label={t("Language")}
         last={
-          <span className=" text-muted-foreground text-sm">
+          <span className="text-muted-foreground">
             {LOCALE_META[locale].label}
           </span>
         }
@@ -58,13 +60,13 @@ export function LocaleSwitcher() {
               // The whole row is the label, so tapping anywhere selects it.
               <Label
                 key={l}
-                className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 px-4 py-2"
+                className={cn(STATIC_ROW, "cursor-pointer")}
               >
                 {/* Each name in its own language and direction. */}
                 <span
                   lang={l}
                   dir={LOCALE_META[l].dir}
-                  className="text-sm font-medium"
+                  className="font-medium"
                 >
                   {LOCALE_META[l].label}
                 </span>

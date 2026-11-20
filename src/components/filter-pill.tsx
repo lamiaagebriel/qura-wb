@@ -9,6 +9,7 @@ import {
   type IconSvgElement,
 } from "@/components/icons";
 import { overlaysSettled } from "@/components/navigation/use-back-to-close";
+import { buttonVariants } from "@/components/ui/button";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
@@ -83,19 +84,19 @@ export function FilterPill({
         onClick={() => setOpen(true)}
         // h-9 pill; the ::before stretches the tap area to 44px.
         className={cn(
-          "relative flex h-9 max-w-48 items-center gap-1.5 rounded-full border border-border bg-card ps-2 pe-2.5 text-sm font-medium before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
+          buttonVariants({ variant: "outline" }),
+          "relative h-9 max-w-48 gap-1.5 rounded-full bg-card ps-2 pe-2.5 before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
           value && "border-primary/40 bg-primary/5",
         )}
       >
         {pending ? (
           <Spinner className="size-4" />
         ) : (
-          <HugeiconsIcon icon={current.icon} strokeWidth={2} className="size-4 shrink-0" />
+          <HugeiconsIcon icon={current.icon} className="size-4 shrink-0" />
         )}
         <span className="truncate">{current.short ?? current.label}</span>
         <HugeiconsIcon
           icon={ArrowDown01Icon}
-          strokeWidth={2}
           className="size-3.5 shrink-0 text-muted-foreground"
         />
       </button>

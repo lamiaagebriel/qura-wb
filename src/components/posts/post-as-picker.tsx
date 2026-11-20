@@ -62,7 +62,6 @@ export function PostAsPicker({
           fallback={
             <HugeiconsIcon
               icon={UserCircleIcon}
-              strokeWidth={1.75}
               className="size-6"
             />
           }
@@ -83,7 +82,6 @@ export function PostAsPicker({
               category && (
                 <HugeiconsIcon
                   icon={category.icon}
-                  strokeWidth={1.75}
                   className="size-6"
                 />
               )
@@ -129,7 +127,7 @@ function Card({
           </AvatarFallback>
         </Avatar>
         <span className="absolute -end-0.5 -bottom-0.5 hidden size-4.5 items-center justify-center rounded-full bg-primary text-primary-foreground ring-2 ring-card group-data-[pressed]/card:flex">
-          <HugeiconsIcon icon={Tick02Icon} strokeWidth={3} className="size-3" />
+          <HugeiconsIcon icon={Tick02Icon} className="size-3" />
         </span>
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">
@@ -140,7 +138,6 @@ function Card({
           {verified && (
             <HugeiconsIcon
               icon={CheckmarkBadge01Icon}
-              strokeWidth={2}
               role="img"
               aria-label={t("Verified")}
               className="size-3.5 shrink-0 text-primary"

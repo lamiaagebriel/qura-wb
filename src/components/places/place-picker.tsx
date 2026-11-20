@@ -10,7 +10,7 @@ import {
 import { StackLink } from "@/components/navigation/stack-link";
 import { overlaysSettled } from "@/components/navigation/use-back-to-close";
 import { usePlaces } from "@/components/places/places-provider";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -89,7 +89,6 @@ export function PlacePicker({
             >
               <HugeiconsIcon
                 icon={ArrowLeft01Icon}
-                strokeWidth={2}
                 className="size-5 rtl:rotate-180"
               />
             </Button>
@@ -137,7 +136,7 @@ export function PlacePicker({
               setRequesting(true);
               onOpenChange(false);
             }}
-            className="mx-4 mb-[calc(var(--safe-bottom)+1rem)] -mt-2 flex min-h-11 items-center justify-center text-sm font-medium text-primary"
+            className={cn(buttonVariants({ variant: "link" }), "mx-4 mb-[calc(var(--safe-bottom)+1rem)] -mt-2 min-h-11")}
           >
             {t("Can't find your place? Request it")}
           </button>
@@ -198,7 +197,6 @@ function Row({
         >
           <HugeiconsIcon
             icon={ArrowRight01Icon}
-            strokeWidth={2}
             className="size-4 text-muted-foreground rtl:rotate-180"
           />
         </Button>

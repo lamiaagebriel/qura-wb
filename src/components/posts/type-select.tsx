@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ArrowDown01Icon, HugeiconsIcon } from "@/components/icons";
+import { buttonVariants } from "@/components/ui/button";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { useLocale } from "@/lib/i18n/provider";
 import type { PostType } from "@/lib/posts";
@@ -43,7 +44,7 @@ export function TypeSelect({
         data-invalid={invalid || undefined}
         aria-label={`${label}: ${t(meta.label)}`}
         onClick={() => setOpen(true)}
-        className="flex h-12 w-full items-center gap-3 rounded-xl border border-input bg-input/20 ps-2 pe-3 text-start text-base data-invalid:border-destructive dark:bg-input/30"
+        className={cn(buttonVariants({ variant: "outline" }), "h-11 w-full justify-start gap-3 rounded-xl border-input bg-input/20 ps-2 pe-3 text-start data-invalid:border-destructive")}
       >
         <span
           className={cn(
@@ -51,12 +52,11 @@ export function TypeSelect({
             meta.tint,
           )}
         >
-          <HugeiconsIcon icon={meta.icon} strokeWidth={2} className="size-4" />
+          <HugeiconsIcon icon={meta.icon} className="size-4" />
         </span>
         <span className="flex-1 truncate font-medium">{t(meta.label)}</span>
         <HugeiconsIcon
           icon={ArrowDown01Icon}
-          strokeWidth={2}
           className="size-4 text-muted-foreground"
         />
       </button>

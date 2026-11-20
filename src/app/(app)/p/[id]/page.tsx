@@ -8,7 +8,7 @@ import { Screen } from "@/components/navigation/screen";
 import { POST_TYPE_META } from "@/components/posts/type-meta";
 import { ReportButton } from "@/components/moderation/moderation-controls";
 import { PostCard } from "@/components/posts/post-card";
-import { ReplyButton } from "@/components/posts/reply-button";
+import { ReplyComposer, ReplyList } from "@/components/posts/replies";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { buttonVariants } from "@/components/ui/button";
 import { getSession } from "@/lib/auth/session";
@@ -35,8 +35,9 @@ export async function generateMetadata({
 }
 
 /**
- * One post with its replies (oldest first) and "Write a reply". Your own
- * has a pencil in the bar (edit / delete).
+ * One post with its replies (oldest first), written like comments: the
+ * thread, then a message bar pinned to the bottom to reply (like reviews).
+ * Your own post has a pencil in the header (edit / delete).
  */
 export default async function PostPage({ params }: PageProps<"/p/[id]">) {
   const [{ t }, { id }, session] = await Promise.all([
@@ -66,7 +67,6 @@ export default async function PostPage({ params }: PageProps<"/p/[id]">) {
             >
               <HugeiconsIcon
                 icon={PencilEdit02Icon}
-                strokeWidth={2}
                 className="size-5"
               />
             </StackLink>
@@ -78,33 +78,23 @@ export default async function PostPage({ params }: PageProps<"/p/[id]">) {
       <PullToRefresh>
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 px-4 pt-2 pb-8">
           <PostCard post={post} signedIn={!!userId} linked={false} />
-          <ReplyButton postId={post.id} signedIn={!!userId} />
-          <section
-            aria-labelledby="replies"
-            className="flex flex-col gap-3 pt-3"
+          <ReplyComposer
+            postId={post.id}
+            me={session ? { name: session.user.name, avatarUrl: session.user.image ?? null } : undefined}
           >
-            <h2 id="replies" className="text-lg font-bold">
-              {t("Replies")}
-            </h2>
-            {replies.length ? (
-              <ul className="flex flex-col gap-3">
-                {replies.map((reply) => (
-                  <li key={reply.id} className="flex flex-col gap-2">
-                    <PostCard
-                      post={reply}
-                      signedIn={!!userId}
-                      linked={false}
-                      reply
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="rounded-2xl bg-card px-4 py-6 text-center text-sm text-muted-foreground ring-1 ring-foreground/5">
-                {t("No replies yet. Be the first!")}
-              </p>
-            )}
-          </section>
+            <section aria-labelledby="replies" className="flex flex-col gap-1 pt-3">
+              <h2 id="replies" className="text-lg font-bold">
+                {t("Replies")}
+              </h2>
+              {replies.length ? (
+                <ReplyList replies={replies} />
+              ) : (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  {t("No replies yet. Be the first!")}
+                </p>
+              )}
+            </section>
+          </ReplyComposer>
         </main>
       </PullToRefresh>
     </Screen>

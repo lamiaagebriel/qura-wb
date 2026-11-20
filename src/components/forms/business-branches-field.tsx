@@ -15,7 +15,7 @@ import {
 import { MapEmbed } from "@/components/map-embed";
 import { PlaceField } from "@/components/places/place-field";
 import { MapPinPicker } from "@/components/profile/map-pin-picker";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Field,
   FieldLegend,
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { DEFAULT_PLACE } from "@/lib/places";
+import { cn } from "@/lib/utils";
 import { useCurrentLocation } from "@/lib/geolocation";
 import { useLocale } from "@/lib/i18n/provider";
 import {
@@ -79,7 +80,6 @@ export function LocationFields({
                 >
                   <HugeiconsIcon
                     icon={Delete02Icon}
-                    strokeWidth={2}
                     className="size-5"
                   />
                 </Button>
@@ -187,14 +187,13 @@ function PinField({
                 onClick={edit}
                 disabled={locating}
                 data-invalid={fieldState.invalid}
-                className="flex h-36 flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-input/20 text-sm font-medium text-muted-foreground data-[invalid=true]:border-destructive dark:bg-input/30"
+                className={cn(buttonVariants({ variant: "outline" }), "h-36 w-full flex-col gap-2 rounded-xl border-dashed bg-input/20 whitespace-normal text-muted-foreground data-[invalid=true]:border-destructive dark:bg-input/30")}
               >
                 {locating ? (
                   <Spinner className="size-6" />
                 ) : (
                   <HugeiconsIcon
                     icon={mapsApiKey ? PinIcon : Gps01Icon}
-                    strokeWidth={2}
                     className="size-6"
                   />
                 )}

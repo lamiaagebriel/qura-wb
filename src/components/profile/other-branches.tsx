@@ -40,7 +40,6 @@ export function BranchesItem({
       >
         <HugeiconsIcon
           icon={PinIcon}
-          strokeWidth={2}
           className="size-5 shrink-0 text-muted-foreground"
         />
         <span dir="auto" className="min-w-0 flex-1 text-start">
@@ -70,7 +69,6 @@ export function BranchesItem({
                 </span>
                 <HugeiconsIcon
                   icon={MapsLocation01Icon}
-                  strokeWidth={2}
                   className="size-5 shrink-0 text-primary"
                 />
               </a>

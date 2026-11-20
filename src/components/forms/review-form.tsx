@@ -5,7 +5,7 @@ import { Controller, useWatch } from "react-hook-form";
 import { postReview } from "@/server/actions/social";
 import { ArrowUp01Icon, Cancel01Icon, HugeiconsIcon, StarIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useActionForm } from "@/hooks/use-action-form";
 import { useLocale } from "@/lib/i18n/provider";
 import { REVIEW_MAX_LENGTH } from "@/lib/reviews";
@@ -92,11 +92,10 @@ export function ReviewForm({
                     field.onChange(star);
                   }}
                   // Looks 36px; the ::before keeps the tap area at 44px.
-                  className="relative flex size-9 items-center justify-center rounded-full before:absolute before:-inset-1 before:content-['']"
+                  className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "relative size-9 rounded-full before:absolute before:-inset-1 before:content-['']")}
                 >
                   <HugeiconsIcon
                     icon={StarIcon}
-                    strokeWidth={1.5}
                     className={cn(
                       "size-6 transition-[color,scale] active:scale-90",
                       star <= field.value
@@ -133,11 +132,10 @@ export function ReviewForm({
                 type="button"
                 aria-label={t("Cancel")}
                 onClick={onCancel}
-                className="flex size-11 items-center justify-center text-muted-foreground"
+                className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-11 rounded-none text-muted-foreground")}
               >
                 <HugeiconsIcon
                   icon={Cancel01Icon}
-                  strokeWidth={2}
                   className="size-4"
                 />
               </button>
@@ -190,7 +188,6 @@ export function ReviewForm({
               >
                 <HugeiconsIcon
                   icon={ArrowUp01Icon}
-                  strokeWidth={2.5}
                   className="size-4"
                 />
               </Button>

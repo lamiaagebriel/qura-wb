@@ -2,7 +2,9 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
 
 /**
  * A review's text, cut to four lines with "more" (Instagram's comments)
@@ -32,7 +34,7 @@ export function ReviewText({ text }: { text: string }) {
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="-my-3 h-11 text-sm font-medium text-muted-foreground"
+          className={cn(buttonVariants({ variant: "link" }), "-my-3 h-11 px-0 text-muted-foreground")}
         >
           {t("more")}
         </button>

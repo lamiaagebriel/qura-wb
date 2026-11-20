@@ -145,7 +145,6 @@ async function BusinessBrief({ business }: { business: Business }) {
           {category ? (
             <HugeiconsIcon
               icon={category.icon}
-              strokeWidth={1.75}
               className="size-6"
             />
           ) : (
@@ -161,7 +160,6 @@ async function BusinessBrief({ business }: { business: Business }) {
           {business.verified && (
             <HugeiconsIcon
               icon={CheckmarkBadge01Icon}
-              strokeWidth={2}
               role="img"
               aria-label={t("Verified")}
               className="size-4 shrink-0 text-primary"

@@ -14,8 +14,9 @@ import {
 import { StackLink } from "@/components/navigation/stack-link";
 import { BusinessList } from "@/components/profile/business-list";
 import type { BusinessSummary } from "@/lib/business";
+import { cn } from "@/lib/utils";
 import { StatusScreen } from "@/components/status-screen";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
   InputGroup,
@@ -143,12 +144,11 @@ export function SearchView({
                 >
                   <HugeiconsIcon
                     icon={ArrowLeft01Icon}
-                    strokeWidth={2}
                     className="rtl:rotate-180"
                   />
                 </InputGroupButton>
               ) : (
-                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+                <HugeiconsIcon icon={Search01Icon} />
               )}
             </InputGroupAddon>
             <InputGroupInput
@@ -178,7 +178,7 @@ export function SearchView({
                   aria-label={t("Clear search")}
                   onClick={clearField}
                 >
-                  <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+                  <HugeiconsIcon icon={Cancel01Icon} />
                 </InputGroupButton>
               </InputGroupAddon>
             )}
@@ -222,11 +222,10 @@ export function SearchView({
                       <button
                         type="button"
                         onClick={() => search(item)}
-                        className="flex min-h-12 min-w-0 flex-1 items-center gap-3 ps-4 text-start text-sm"
+                        className={cn(buttonVariants({ variant: "ghost" }), "min-h-12 min-w-0 flex-1 shrink justify-start gap-3 rounded-none ps-4 text-start font-normal whitespace-normal")}
                       >
                         <HugeiconsIcon
                           icon={Clock01Icon}
-                          strokeWidth={2}
                           className="size-4 shrink-0 text-muted-foreground"
                         />
                         <span className="truncate">{item}</span>
@@ -240,7 +239,6 @@ export function SearchView({
                       >
                         <HugeiconsIcon
                           icon={Cancel01Icon}
-                          strokeWidth={2}
                           className="size-4"
                         />
                       </Button>

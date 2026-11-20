@@ -56,7 +56,6 @@ export function BusinessList({
                 <AvatarFallback className="bg-primary/10 text-primary">
                   <HugeiconsIcon
                     icon={category?.icon ?? Store01Icon}
-                    strokeWidth={1.75}
                     className="size-5"
                   />
                 </AvatarFallback>
@@ -69,7 +68,6 @@ export function BusinessList({
                   {business.verified && (
                     <HugeiconsIcon
                       icon={CheckmarkBadge01Icon}
-                      strokeWidth={2}
                       role="img"
                       aria-label={t("Verified")}
                       className="size-4 shrink-0 text-primary"
@@ -94,7 +92,6 @@ export function BusinessList({
               </span>
               <HugeiconsIcon
                 icon={ArrowRight01Icon}
-                strokeWidth={2}
                 className="size-4 shrink-0 text-muted-foreground rtl:rotate-180"
               />
             </StackLink>

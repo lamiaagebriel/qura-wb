@@ -25,7 +25,7 @@ export default function Error({
       description={t("We couldn't load this page. Please try again.")}
     >
       <Button size="xl" className="w-full rounded-xl" onClick={() => retry()}>
-        <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} />
+        <HugeiconsIcon icon={RefreshIcon} />
         {t("Try again")}
       </Button>
       <Button
@@ -35,7 +35,7 @@ export default function Error({
         nativeButton={false}
         render={<Link href={href("home")} />}
       >
-        <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+        <HugeiconsIcon icon={Home01Icon} />
         {t("Go to home")}
       </Button>
       {error.digest && (

@@ -206,7 +206,7 @@ export function BusinessForm({
       <Button
         type="submit"
         size="xl"
-        className="w-full rounded-xl text-base"
+        className="w-full rounded-xl"
         disabled={pending}
       >
         {pending && <Spinner />}
@@ -237,7 +237,6 @@ function Preview({ control }: { control: Form }) {
         <AvatarFallback className="bg-primary/10 text-primary">
           <HugeiconsIcon
             icon={icon}
-            strokeWidth={1.75}
             className="size-9"
             data-testid="business-avatar-icon"
             data-category={category || "none"}

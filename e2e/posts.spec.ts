@@ -165,33 +165,29 @@ test.describe("posts", () => {
     await card.getByRole("link", { name: body }).tap();
     await expect.poll(() => pathname(page)).toMatch(/^\/p\/[0-9a-f-]{36}$/);
     await waitForHydration(page);
-    await page.getByRole("button", { name: "Write a reply" }).tap();
-    const replySheet = page.getByRole("dialog", { name: "Write a reply" });
-    await replySheet
-      .getByRole("textbox", { name: "Your reply" })
-      .fill("Try the corner shop.");
-    await replySheet.getByRole("button", { name: "Reply", exact: true }).tap();
-    await expect(replySheet).toBeHidden();
+    // The message bar at the bottom, like reviews: the send arrow shows once there's text.
+    const bar = page.getByRole("form", { name: "Write a reply" });
+    await expect(bar.getByRole("button", { name: "Post reply" })).toHaveCount(0);
+    await bar.getByRole("textbox", { name: "Your reply" }).fill("Try the corner shop.");
+    await bar.getByRole("button", { name: "Post reply" }).tap();
+    await expect(page.getByText("Reply posted")).toBeVisible();
     const myReply = page.getByRole("article", { name: "Reply" });
     await expect(myReply).toContainText("Try the corner shop.");
+    // The bar is empty again, ready for another reply.
+    await expect(bar.getByRole("textbox", { name: "Your reply" })).toHaveValue("");
 
-    // Your reply: edit it (its own screen, text only; saving comes back)…
+    // Your reply: edit it in the bar ("Editing your reply")…
     const postUrl = page.url();
-    await myReply.getByRole("button", { name: "Edit reply" }).tap();
-    await expect.poll(() => pathname(page)).toMatch(/\/edit$/);
-    await waitForHydration(page);
-    await expect(
-      page.getByRole("textbox", { name: "Price or discount" }),
-    ).toHaveCount(0);
-    await page
-      .getByRole("textbox", { name: "Your reply" })
-      .fill("Try the shop on the corner.");
-    await page.getByRole("button", { name: "Save" }).tap();
-    await expect.poll(() => page.url()).toBe(postUrl);
+    await myReply.getByRole("button", { name: "Edit" }).tap();
+    const editBar = page.getByRole("form", { name: "Edit your reply" });
+    await expect(editBar.getByText("Editing your reply")).toBeVisible();
+    await editBar.getByRole("textbox", { name: "Your reply" }).fill("Try the shop on the corner.");
+    await editBar.getByRole("button", { name: "Save reply" }).tap();
+    await expect(page.getByText("Reply updated")).toBeVisible();
     await expect(myReply).toContainText("Try the shop on the corner.");
+    await expect(page.getByRole("form", { name: "Write a reply" })).toBeVisible();
     // …or delete it, confirmed, staying on the post.
-    await waitForHydration(page);
-    await myReply.getByRole("button", { name: "Delete reply" }).tap();
+    await myReply.getByRole("button", { name: "Delete" }).tap();
     await page
       .getByRole("dialog", { name: "Delete this reply?" })
       .getByRole("button", { name: "Delete" })

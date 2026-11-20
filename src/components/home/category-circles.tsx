@@ -31,7 +31,6 @@ export async function CategoryCircles({
           <span className="flex size-15 items-center justify-center rounded-full bg-card text-primary ring-1 ring-foreground/10">
             <HugeiconsIcon
               icon={category.icon}
-              strokeWidth={1.75}
               className="size-7"
             />
           </span>

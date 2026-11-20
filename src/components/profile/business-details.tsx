@@ -64,7 +64,6 @@ export function BusinessDetails({
         >
           <HugeiconsIcon
             icon={StarIcon}
-            strokeWidth={1.5}
             className={cn(
               "size-5 shrink-0",
               reviews.count > 0
@@ -93,7 +92,6 @@ export function BusinessDetails({
           </span>
           <HugeiconsIcon
             icon={ArrowRight01Icon}
-            strokeWidth={2}
             className="size-4 shrink-0 text-muted-foreground rtl:rotate-180"
           />
         </StackLink>
@@ -112,7 +110,6 @@ export function BusinessDetails({
           >
             <HugeiconsIcon
               icon={PinIcon}
-              strokeWidth={2}
               role="img"
               aria-label={t("Address")}
               className="size-5 shrink-0 text-muted-foreground"

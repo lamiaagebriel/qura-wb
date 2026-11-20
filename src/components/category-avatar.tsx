@@ -22,7 +22,7 @@ export function CategoryAvatar({
         className,
       )}
     >
-      <HugeiconsIcon icon={icon} strokeWidth={1.75} className="size-5" />
+      <HugeiconsIcon icon={icon} className="size-5" />
       {count !== undefined && (
         <Badge className="absolute -end-1.5 -bottom-1 h-4 min-w-4 px-1 ring-2 ring-background">
           {count}

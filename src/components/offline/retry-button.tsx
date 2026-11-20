@@ -9,7 +9,7 @@ export function RetryButton() {
   const { t } = useLocale();
   return (
     <Button size="xl" className="w-full rounded-xl" onClick={() => window.location.reload()}>
-      <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} />
+      <HugeiconsIcon icon={RefreshIcon} />
       {t("Try again")}
     </Button>
   );

@@ -43,7 +43,7 @@ export function ModeSwitcher() {
           // 44px touch target.
           className="size-11"
         >
-          <HugeiconsIcon icon={icon} strokeWidth={2} />
+          <HugeiconsIcon icon={icon} />
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

@@ -55,7 +55,6 @@ export function HeroTop({
           <span className="absolute -inset-e-0.5 -bottom-0.5 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground ring-2 ring-background">
             <HugeiconsIcon
               icon={PencilEdit02Icon}
-              strokeWidth={2}
               className="size-3.5"
             />
           </span>
@@ -84,7 +83,6 @@ function ProfileAvatar({
         {fallbackIcon ? (
           <HugeiconsIcon
             icon={fallbackIcon}
-            strokeWidth={1.75}
             className="size-9"
           />
         ) : (
@@ -119,7 +117,6 @@ export function ProfileName({
       {profile.verified && (
         <HugeiconsIcon
           icon={CheckmarkBadge01Icon}
-          strokeWidth={2}
           role="img"
           aria-label={verifiedLabel}
           className="size-5 shrink-0 text-primary"

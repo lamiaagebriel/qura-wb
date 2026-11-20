@@ -27,7 +27,7 @@ export function UsernameField<T extends FieldValues>({
         <Field data-invalid={fieldState.invalid}>
           <FieldLabel htmlFor={name}>{label}</FieldLabel>
           <InputGroup dir="ltr" className="h-11 rounded-xl">
-            <InputGroupAddon className="ps-3 text-base">@</InputGroupAddon>
+            <InputGroupAddon className="ps-3">@</InputGroupAddon>
             <InputGroupInput
               {...field}
               onChange={(event) =>
@@ -41,7 +41,7 @@ export function UsernameField<T extends FieldValues>({
               autoComplete="off"
               enterKeyHint="next"
               maxLength={30}
-              className="h-full text-base md:text-base"
+              className="h-full"
             />
           </InputGroup>
           <FormError error={fieldState.error} />

@@ -31,16 +31,19 @@ Brand colours (the app icon, splash screens) are in `lib/brand.ts`; `theme-color
 ## 3. Type
 
 - **Cairo** for everything, every locale (`font-sans`, `font-heading`).
-- Inputs are 16px (`text-base`), so iOS never zooms on focus (the `INPUT` class does this).
+- Text sizes are Mira's (the `components/ui` defaults): never enlarge a field's, button's or sheet title's text with `text-base`. Fields are 44px tall (`INPUT`, `size="xl"`) with Mira text; on phones `globals.css` lifts input, textarea and select text to 16px, so iOS never zooms on focus.
 - Never set letter-spacing on Arabic; avoid `tracking-*`.
 - Numbers that change or line up (counts, scores, prices) use `tabular-nums`, formatted with `Intl.NumberFormat(locale)`.
 - Scale: large tab titles come from `<AppHeader large>`; section labels `text-sm font-medium`; hints `text-xs`/`text-sm text-muted-foreground`.
 
 ## 4. Components
 
-- shadcn/ui (`components/ui`, style `base-mira`, Base UI, RTL on) for every primitive. Icons: Hugeicons through `components/icons` only.
+- shadcn/ui (`components/ui`, style `base-mira`, Base UI, RTL on) for every primitive. Icons: Hugeicons through `components/icons` only; the stroke is set once there (`ICON_STROKE`, the preset's) — never pass `strokeWidth` per icon, and inside a button leave out the icon size (the button sets it).
 - **Screens**: every page is a `<Screen>` with one `<AppHeader>` (`large` on tab roots, `back` on detail screens, at most one `action`).
 - **Sheets, not menus**: bottom sheets are the vaul `Drawer`, controlled (back closes it first). Options → `ActionSheet`; confirmations → `ConfirmSheet`; asking why → `ReasonSheet` (`components/sheets`). Never dropdown menus, popovers, `alert()` or `confirm()`.
+- **Follow the preset, don't restyle it**: the look comes from the shadcn preset (`components.json`, `globals.css`), so changing the preset restyles the app. Don't set text sizes on controls (buttons, fields, rows, pills, chips, sheet titles): they take the preset's. Only page text (titles, headings, body, hints) and layout (heights, spacing, radius) are ours.
+- **Native buttons**: a hand-built `<button>` or link that looks like a control starts from `buttonVariants({ variant, size })` and adds only its shape on top, so focus, disabled, pressed, text and icon sizing follow the preset. Rows of a card list (settings, sheet options) use `LIST_ROW` (`components/list-row.ts`; `STATIC_ROW` for a row that holds its own controls) — it already restores the `divide-y` line. Only pure image tiles (a map preview, an avatar choice) skip it.
+- **Select and date**: `Select` (`components/select.tsx`) and `DatePicker` (`components/date-picker.tsx`), with `SelectField` / `DateField` for forms, show the native wheel on iPhone and iPad (`useIsIos`) and shadcn's dropdown / calendar elsewhere. Built, not used yet: lists still open as sheets until a screen is moved to them.
 - **Forms** (`components/forms`): one field per row, label above, error below (`FormError`); the main button full-width at the bottom (`size="xl" className="w-full rounded-xl"`), with a spinner while pending.
 - **Groups**: settings and detail lists are one rounded card (`rounded-2xl bg-card ring-1 ring-foreground/5`) with `divide-y` rows, each row at least 44px.
 - **Feedback**: toasts (`components/ui/toast`) sit above the tab bar; errors are a toast unless they belong to a form field. Empty, error and signed-out screens use `<StatusScreen>` (icon, title, one line, one action).

@@ -9,7 +9,7 @@ import { TextareaField } from "@/components/forms/textarea-field";
 import { canGoBack } from "@/components/navigation/history";
 import { PlaceField } from "@/components/places/place-field";
 import { requestPlace } from "@/server/actions/place-requests";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -115,7 +115,8 @@ export function PlaceRequestForm({
                     aria-checked={selected}
                     onClick={() => field.onChange(choice.id)}
                     className={cn(
-                      "flex h-11 items-center rounded-full px-4 text-sm font-medium ring-1 ring-foreground/10",
+                      buttonVariants({ variant: "ghost" }),
+                      "h-11 rounded-full px-4 ring-1 ring-foreground/10",
                       selected ? "bg-primary text-primary-foreground" : "bg-card",
                     )}
                   >

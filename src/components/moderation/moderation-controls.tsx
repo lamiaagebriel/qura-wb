@@ -6,9 +6,10 @@ import { useAuthSheet } from "@/components/auth/auth-sheet";
 import { Flag01Icon, HugeiconsIcon } from "@/components/icons";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { ReasonSheet } from "@/components/sheets/reason-sheet";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
 import { useLocale } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
 import { REASON_LABELS, REPORT_REASONS } from "@/lib/tickets/types";
 import { reportBusiness, reportPost } from "@/server/actions/reports";
 
@@ -43,15 +44,15 @@ export function ReportButton({
           aria-label={label}
           onClick={() => (signedIn ? setOpen(true) : signIn())}
         >
-          <HugeiconsIcon icon={Flag01Icon} strokeWidth={2} className="size-5" />
+          <HugeiconsIcon icon={Flag01Icon} className="size-5" />
         </Button>
       ) : (
         <button
           type="button"
           onClick={() => (signedIn ? setOpen(true) : signIn())}
-          className="mx-auto flex h-11 items-center gap-2 px-3 text-sm text-muted-foreground"
+          className={cn(buttonVariants({ variant: "link" }), "mx-auto h-11 gap-2 px-3 text-muted-foreground")}
         >
-          <HugeiconsIcon icon={Flag01Icon} strokeWidth={2} className="size-4" />
+          <HugeiconsIcon icon={Flag01Icon} className="size-4" />
           {label}
         </button>
       )}

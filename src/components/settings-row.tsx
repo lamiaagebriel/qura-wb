@@ -3,6 +3,7 @@
 import type { ComponentProps } from "react";
 
 import { HugeiconsIcon, type IconSvgElement } from "@/components/icons";
+import { LIST_ROW } from "@/components/list-row";
 
 /**
  * One tappable row of a settings list: label at the start, icon at the end.
@@ -21,16 +22,15 @@ export function SettingsRow({
   return (
     <button
       type="button"
-      className="flex min-h-14 w-full items-center justify-between gap-4 px-4 py-2 text-start"
+      className={LIST_ROW}
       {...props}
     >
-      <span className="text-sm font-medium">{label}</span>
+      <span className="font-medium">{label}</span>
 
       <div className="flex items-center gap-2">
         {last}
         <HugeiconsIcon
           icon={icon}
-          strokeWidth={2}
           className="size-5 text-muted-foreground"
         />
       </div>

@@ -77,6 +77,7 @@ export function DeletePostButton({
       {icon ? (
         <Button
           variant="ghost"
+          size="icon-lg"
           aria-label={label}
           className={cn(
             "size-11 rounded-full text-muted-foreground",
@@ -84,23 +85,19 @@ export function DeletePostButton({
           )}
           onClick={() => setConfirm(true)}
         >
-          <HugeiconsIcon
-            icon={Delete02Icon}
-            strokeWidth={2}
-            className="size-5"
-          />
+          <HugeiconsIcon icon={Delete02Icon} />
         </Button>
       ) : (
         <Button
           variant="ghost"
           size="xl"
           className={cn(
-            "w-full rounded-xl text-base text-destructive",
+            "w-full rounded-xl text-destructive",
             className,
           )}
           onClick={() => setConfirm(true)}
         >
-          <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+          <HugeiconsIcon icon={Delete02Icon} />
           {label}
         </Button>
       )}

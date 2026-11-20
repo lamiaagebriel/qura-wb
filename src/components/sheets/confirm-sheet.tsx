@@ -43,7 +43,7 @@ export function ConfirmSheet({
       <Button
         size="xl"
         variant={destructive ? "destructive" : "default"}
-        className="w-full rounded-2xl text-base"
+        className="w-full rounded-2xl"
         disabled={pending}
         aria-busy={pending}
         onClick={() =>

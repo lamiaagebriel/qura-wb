@@ -40,7 +40,7 @@ export function StatusScreen({
       <Empty className="max-w-md animate-in fade-in duration-500 motion-reduce:animate-none">
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <HugeiconsIcon icon={icon} strokeWidth={2} />
+            <HugeiconsIcon icon={icon} />
           </EmptyMedia>
           <EmptyTitle>{title}</EmptyTitle>
           <EmptyDescription>{description}</EmptyDescription>

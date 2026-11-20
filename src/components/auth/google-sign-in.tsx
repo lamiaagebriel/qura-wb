@@ -49,7 +49,7 @@ export function GoogleSignIn({
     <div className="flex flex-col gap-3">
       {error && (
         <Alert variant="destructive">
-          <HugeiconsIcon icon={AlertCircleIcon} strokeWidth={2} />
+          <HugeiconsIcon icon={AlertCircleIcon} />
           <AlertDescription>
             {t(ERROR_MESSAGES[error] ?? "Sign-in didn't work. Try again.")}
           </AlertDescription>
@@ -59,7 +59,7 @@ export function GoogleSignIn({
       <Button
         size="xl"
         variant="outline"
-        className="  w-full gap-2 rounded-xl text-sm transition-transform active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
+        className="  w-full gap-2 rounded-xl transition-transform active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
         disabled={pending}
         aria-busy={pending}
         onClick={handleClick}

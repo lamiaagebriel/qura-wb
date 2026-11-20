@@ -55,7 +55,7 @@ export function MapPinPicker({
     >
       <DrawerContent className="h-[calc(var(--app-height)*0.88)] pb-[max(var(--safe-bottom),1rem)]">
         <DrawerHeader>
-          <DrawerTitle className="text-base">{t("Pick on the map")}</DrawerTitle>
+          <DrawerTitle>{t("Pick on the map")}</DrawerTitle>
           <DrawerDescription>
             {t("Move the map until the pin is on your business.")}
           </DrawerDescription>
@@ -88,7 +88,7 @@ export function MapPinPicker({
           <Button
             type="button"
             size="xl"
-            className="w-full rounded-2xl text-base"
+            className="w-full rounded-2xl"
             onClick={() => {
               onPick(center);
               onOpenChange(false);
@@ -101,7 +101,7 @@ export function MapPinPicker({
               type="button"
               size="xl"
               variant="ghost"
-              className="w-full rounded-2xl text-base text-destructive"
+              className="w-full rounded-2xl text-destructive"
               onClick={() => {
                 onRemove();
                 onOpenChange(false);
@@ -122,7 +122,6 @@ function CenterPin() {
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <HugeiconsIcon
         icon={PinIcon}
-        strokeWidth={2}
         className="size-10 -translate-y-1/2 fill-primary text-primary-foreground drop-shadow-md"
       />
     </div>
@@ -154,7 +153,7 @@ function LocateButton({ onFound }: { onFound: (coords: Coords) => void }) {
       {locating ? (
         <Spinner />
       ) : (
-        <HugeiconsIcon icon={Gps01Icon} strokeWidth={2} className="size-5" />
+        <HugeiconsIcon icon={Gps01Icon} className="size-5" />
       )}
     </Button>
   );

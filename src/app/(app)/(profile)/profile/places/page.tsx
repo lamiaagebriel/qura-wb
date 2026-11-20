@@ -64,7 +64,7 @@ export default async function MyPlacesPage() {
             aria-label={t("Request a place")}
             className={cn(buttonVariants({ variant: "ghost" }), "size-11 rounded-full")}
           >
-            <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} className="size-5" />
+            <HugeiconsIcon icon={PlusSignIcon} className="size-5" />
           </StackLink>
         }
       />

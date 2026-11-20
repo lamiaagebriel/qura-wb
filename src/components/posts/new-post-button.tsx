@@ -27,7 +27,7 @@ export function NewPostButton({
     "size-11 rounded-full",
   );
   const icon = (
-    <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} className="size-5" />
+    <HugeiconsIcon icon={PlusSignIcon} className="size-5" />
   );
 
   return signedIn ? (

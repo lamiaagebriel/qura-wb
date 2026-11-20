@@ -32,7 +32,7 @@ export function TextareaField<
             id={name}
             aria-invalid={fieldState.invalid}
             className={cn(
-              "min-h-24 resize-none rounded-xl px-3 text-base md:text-base",
+              "min-h-24 resize-none rounded-xl px-3",
               className,
             )}
             {...props}

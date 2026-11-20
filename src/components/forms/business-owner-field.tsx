@@ -62,7 +62,6 @@ export function OwnerField({ control }: { control: Form }) {
                   <Radio.Indicator className="flex text-background">
                     <HugeiconsIcon
                       icon={Tick02Icon}
-                      strokeWidth={3}
                       className="size-3.5"
                     />
                   </Radio.Indicator>
@@ -70,7 +69,6 @@ export function OwnerField({ control }: { control: Form }) {
                 <span className="flex size-10 items-center justify-center rounded-full bg-muted text-foreground">
                   <HugeiconsIcon
                     icon={option.icon}
-                    strokeWidth={2}
                     className="size-5"
                   />
                 </span>

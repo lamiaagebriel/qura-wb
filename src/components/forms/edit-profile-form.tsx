@@ -130,7 +130,7 @@ export function EditProfileForm({
       <Button
         type="submit"
         size="xl"
-        className="w-full rounded-xl text-base"
+        className="w-full rounded-xl"
         disabled={pending}
       >
         {pending && <Spinner />}
@@ -184,7 +184,6 @@ function AvatarPicker({
         <span className="absolute inset-e-0 bottom-0 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground ring-3 ring-background">
           <HugeiconsIcon
             icon={PencilEdit02Icon}
-            strokeWidth={2}
             className="size-4"
           />
         </span>
@@ -197,7 +196,7 @@ function AvatarPicker({
           className="pb-[max(var(--safe-bottom),1rem)]"
         >
           <DrawerHeader>
-            <DrawerTitle className="text-base">
+            <DrawerTitle>
               {t("Choose an avatar")}
             </DrawerTitle>
           </DrawerHeader>

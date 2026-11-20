@@ -56,7 +56,6 @@ export function BackButton({ fallback }: { fallback: string }) {
       >
         <HugeiconsIcon
           icon={ArrowLeft01Icon}
-          strokeWidth={2}
           className="size-6 rtl:rotate-180"
         />
       </Button>

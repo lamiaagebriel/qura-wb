@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { HugeiconsIcon, type IconSvgElement } from "@/components/icons";
+import { LIST_ROW } from "@/components/list-row";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -59,7 +60,8 @@ export function ActionSheet({
               action.onSelect();
             }}
             className={cn(
-              "flex min-h-14 w-full items-center gap-3 px-4 py-2 text-start text-base font-medium",
+              LIST_ROW,
+              "justify-start gap-3",
               action.destructive && "text-destructive",
             )}
           >
@@ -71,10 +73,10 @@ export function ActionSheet({
                     action.iconColors,
                   )}
                 >
-                  <HugeiconsIcon icon={action.icon} strokeWidth={2} className="size-4" />
+                  <HugeiconsIcon icon={action.icon} className="size-4" />
                 </span>
               ) : (
-                <HugeiconsIcon icon={action.icon} strokeWidth={2} className="size-5" />
+                <HugeiconsIcon icon={action.icon} className="size-5" />
               ))}
             {action.label}
           </button>
@@ -109,19 +111,20 @@ export function SheetFrame({
       <DrawerContent className="pb-[max(var(--safe-bottom),1rem)]">
         {title || description ? (
           <DrawerHeader>
-            {title && <DrawerTitle className="text-base">{title}</DrawerTitle>}
+            {title && <DrawerTitle>{title}</DrawerTitle>}
             {description && <DrawerDescription>{description}</DrawerDescription>}
           </DrawerHeader>
         ) : (
           // Sheets need an accessible name even without a visible title.
           <DrawerTitle className="sr-only">{t("Cancel")}</DrawerTitle>
         )}
-        <div className="flex flex-col gap-3 px-4 pt-2">
-          {children}
+        <div className="flex min-h-0 flex-col gap-3 px-4 pt-2">
+          {/* A long list scrolls inside the sheet (capped at the screen); Cancel stays put. */}
+          <div className="min-h-0 overflow-y-auto overscroll-contain">{children}</div>
           <Button
             size="xl"
             variant="secondary"
-            className="w-full rounded-2xl text-base"
+            className="w-full rounded-2xl"
             disabled={cancelDisabled}
             onClick={() => onOpenChange(false)}
           >

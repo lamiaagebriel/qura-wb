@@ -58,7 +58,6 @@ async function OfferCard({ offer }: { offer: Post }) {
       <span className="flex w-28 shrink-0 flex-col items-center justify-center gap-1 bg-linear-to-b from-emerald-500 to-teal-600 px-2 text-center text-white">
         <HugeiconsIcon
           icon={POST_TYPE_META.offer.icon}
-          strokeWidth={2}
           className="size-5 opacity-80"
         />
         <bdi
@@ -84,7 +83,6 @@ async function OfferCard({ offer }: { offer: Post }) {
               {category ? (
                 <HugeiconsIcon
                   icon={category.icon}
-                  strokeWidth={1.75}
                   className="size-3.5"
                 />
               ) : (
@@ -98,7 +96,6 @@ async function OfferCard({ offer }: { offer: Post }) {
           {author.type === "business" && author.verified && (
             <HugeiconsIcon
               icon={CheckmarkBadge01Icon}
-              strokeWidth={2}
               role="img"
               aria-label={t("Verified")}
               className="size-3.5 shrink-0 text-primary"
@@ -115,7 +112,6 @@ async function OfferCard({ offer }: { offer: Post }) {
           <span className="flex items-center gap-1 text-[0.6875rem] font-medium text-emerald-700 dark:text-emerald-400">
             <HugeiconsIcon
               icon={Clock01Icon}
-              strokeWidth={2}
               className="size-3"
             />
             {t("Until {{date}}", {
@@ -180,7 +176,6 @@ export async function HomeSection({
             {t("See all")}
             <HugeiconsIcon
               icon={ArrowRight01Icon}
-              strokeWidth={2}
               className="size-4 rtl:rotate-180"
             />
           </StackLink>

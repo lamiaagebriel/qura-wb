@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useLocale } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
 import type { Post, PostType, PostPage } from "@/lib/posts";
 
 import { loadMorePosts } from "@/server/actions/posts";
@@ -77,7 +79,7 @@ export function PostFeed({
         <button
           type="button"
           onClick={() => setFailed(false)}
-          className="min-h-11 text-sm font-medium text-primary"
+          className={cn(buttonVariants({ variant: "link" }), "min-h-11")}
         >
           {t("Couldn't load more. Tap to retry.")}
         </button>

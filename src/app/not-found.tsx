@@ -28,7 +28,7 @@ export default async function NotFound() {
         nativeButton={false}
         render={<Link href={href("home")} />}
       >
-        <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+        <HugeiconsIcon icon={Home01Icon} />
         {t("Go to home")}
       </Button>
     </StatusScreen>

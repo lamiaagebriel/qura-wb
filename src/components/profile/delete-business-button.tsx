@@ -53,10 +53,10 @@ export function DeleteBusinessButton({
         type="button"
         size="xl"
         variant="ghost"
-        className="w-full rounded-xl text-base text-destructive"
+        className="w-full rounded-xl text-destructive"
         onClick={() => setOpen(true)}
       >
-        <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+        <HugeiconsIcon icon={Delete02Icon} />
         {t("Delete business")}
       </Button>
       <ConfirmSheet

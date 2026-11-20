@@ -21,7 +21,6 @@ export function SignOutButton({ ...props }: ButtonProps) {
       <Button variant="outline" onClick={() => setConfirming(true)} {...props}>
         <HugeiconsIcon
           icon={Logout03Icon}
-          strokeWidth={2}
           className="rtl:rotate-180"
         />
         {t("Sign out")}

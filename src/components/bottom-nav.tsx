@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Home01Icon,
   HugeiconsIcon,
+  ICON_STROKE,
   Search01Icon,
   UserCircleIcon,
   type IconSvgElement,
@@ -58,7 +59,8 @@ export function BottomNav() {
               >
                 <HugeiconsIcon
                   icon={icon}
-                  strokeWidth={active ? 2.25 : 1.75}
+                  // Bolder when active, around the app's stroke.
+                  strokeWidth={ICON_STROKE + (active ? 0.25 : -0.25)}
                   className="size-6"
                 />
                 {t(label)}

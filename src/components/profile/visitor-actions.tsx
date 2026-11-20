@@ -84,7 +84,6 @@ export function VisitorActions({
       >
         <HugeiconsIcon
           icon={following ? Tick02Icon : UserAdd01Icon}
-          strokeWidth={2}
         />
         {following ? t("Following") : t("Follow")}
       </Button>
@@ -100,7 +99,7 @@ export function VisitorActions({
             "rounded-xl bg-[#25D366] text-white hover:bg-[#1EBE5A]",
           )}
         >
-          <HugeiconsIcon icon={WhatsappIcon} strokeWidth={2} />
+          <HugeiconsIcon icon={WhatsappIcon} />
           {t("Order on WhatsApp")}
         </a>
       )}
@@ -131,7 +130,7 @@ export function ShareProfileButton({
         })
       }
     >
-      <HugeiconsIcon icon={Share08Icon} strokeWidth={2} className="size-6" />
+      <HugeiconsIcon icon={Share08Icon} className="size-6" />
     </Button>
   );
 }
@@ -204,7 +203,6 @@ export function BusinessOptionsButton({
       >
         <HugeiconsIcon
           icon={MoreHorizontalCircle01Icon}
-          strokeWidth={2}
           className="size-6"
         />
       </Button>

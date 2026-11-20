@@ -29,9 +29,9 @@ export default async function MyBusinessesPage() {
   const add = (
     <StackLink
       href={href("newBusiness")}
-      className={cn(buttonVariants({ size: "xl" }), "w-full rounded-xl text-base")}
+      className={cn(buttonVariants({ size: "xl" }), "w-full rounded-xl")}
     >
-      <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+      <HugeiconsIcon icon={PlusSignIcon} />
       {t("Add a business")}
     </StackLink>
   );

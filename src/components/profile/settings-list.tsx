@@ -9,6 +9,7 @@ import {
   type IconSvgElement,
 } from "@/components/icons";
 import { InstallAppButton } from "@/components/install-app-button";
+import { LIST_ROW, STATIC_ROW } from "@/components/list-row";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { StackLink } from "@/components/navigation/stack-link";
@@ -33,18 +34,17 @@ function LinkRow({
   return (
     <StackLink
       href={href}
-      className="flex min-h-14 w-full items-center justify-between gap-4 px-4 py-2 text-start"
+      className={LIST_ROW}
     >
-      <span className="text-sm font-medium">{label}</span>
+      <span className="font-medium">{label}</span>
       <span className="flex items-center gap-2">
         {value && (
-          <span className="text-sm text-muted-foreground tabular-nums">
+          <span className="text-muted-foreground tabular-nums">
             {value}
           </span>
         )}
         <HugeiconsIcon
           icon={icon}
-          strokeWidth={2}
           className="size-5 text-muted-foreground"
         />
       </span>
@@ -124,8 +124,8 @@ export async function SettingsList({
 
       <Group label={t("App")}>
         <LocaleSwitcher />
-        <div className="flex min-h-14 items-center justify-between gap-4 px-4 py-2">
-          <span className="text-sm font-medium">{t("Theme")}</span>
+        <div className={STATIC_ROW}>
+          <span className="font-medium">{t("Theme")}</span>
           <ModeSwitcher />
         </div>
         <ShareAppButton />

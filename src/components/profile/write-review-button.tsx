@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  createContext,
-  use,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, use, useRef, useState, type ReactNode } from "react";
 
-import { useAuthSheet } from "@/components/auth/auth-sheet";
-import { HugeiconsIcon, StarIcon } from "@/components/icons";
+import { ComposerBar, SignedOutBar } from "@/components/composer-bar";
+import { buttonVariants } from "@/components/ui/button";
+import { StarIcon } from "@/components/icons";
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { ReviewForm } from "@/components/forms/review-form";
 import { useAction } from "@/hooks/use-action";
@@ -23,11 +17,6 @@ import { cn } from "@/lib/utils";
 import { deleteReview } from "@/server/actions/social";
 
 const EMPTY: ReviewInput = { rating: 0, text: "" };
-
-// At the bottom, clear of the home indicator (no tab bar on this screen);
-// on the keyboard while it's up.
-const BAR =
-  "fixed inset-x-0 bottom-0 z-30 border-t border-border/50 bg-background/95 pb-(--safe-bottom) backdrop-blur-xs in-data-[keyboard=open]:bottom-(--keyboard-inset) in-data-[keyboard=open]:pb-0";
 
 type Composer = {
   username: string;
@@ -72,6 +61,7 @@ export function ReviewComposer({
   hasVisibleReview: boolean;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   const [editing, setEditing] = useState(false);
   const field = useRef<HTMLTextAreaElement>(null);
   const composer: Composer = {
@@ -85,52 +75,31 @@ export function ReviewComposer({
     stopEditing: () => setEditing(false),
   };
   const showBar = !hasVisibleReview || editing;
-  const bar = useRef<HTMLDivElement>(null);
-  useBarHeight(bar, showBar);
 
   return (
     <ComposerContext value={composer}>
       {children}
-      {/* Keeps the last review clear of the bar, however tall it grows. */}
-      {showBar && <div aria-hidden className="h-[var(--review-bar,calc(6rem+var(--safe-bottom)))] shrink-0" />}
       {showBar && (
-        <div ref={bar} className={BAR}>
-          <div className="mx-auto max-w-md px-3 py-2">
-            {me ? (
-              <ReviewForm
-                // A fresh form each time editing starts or stops.
-                key={editing ? "edit" : "new"}
-                username={username}
-                editing={editing}
-                me={me}
-                businessName={businessName}
-                initial={mine ?? EMPTY}
-                fieldRef={field}
-                onDone={() => setEditing(false)}
-                onCancel={() => setEditing(false)}
-              />
-            ) : (
-              <SignedOutBar />
-            )}
-          </div>
-        </div>
+        <ComposerBar>
+          {me ? (
+            <ReviewForm
+              // A fresh form each time editing starts or stops.
+              key={editing ? "edit" : "new"}
+              username={username}
+              editing={editing}
+              me={me}
+              businessName={businessName}
+              initial={mine ?? EMPTY}
+              fieldRef={field}
+              onDone={() => setEditing(false)}
+              onCancel={() => setEditing(false)}
+            />
+          ) : (
+            <SignedOutBar icon={StarIcon} label={t("Write a review")} />
+          )}
+        </ComposerBar>
       )}
     </ComposerContext>
-  );
-}
-
-function SignedOutBar() {
-  const { t } = useLocale();
-  const { open: signIn } = useAuthSheet();
-  return (
-    <button
-      type="button"
-      onClick={() => signIn()}
-      className="flex h-11 w-full items-center gap-2 rounded-3xl bg-muted px-4 text-start text-muted-foreground ring-1 ring-foreground/5"
-    >
-      <HugeiconsIcon icon={StarIcon} strokeWidth={2} className="size-5" />
-      {t("Write a review")}
-    </button>
   );
 }
 
@@ -161,14 +130,14 @@ export function MyReviewActions() {
         <button
           type="button"
           onClick={edit}
-          className="h-11 px-2 text-xs font-semibold text-muted-foreground"
+          className={cn(buttonVariants({ variant: "ghost" }), "h-11 px-2 font-semibold text-muted-foreground")}
         >
           {t("Edit")}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="h-11 px-2 text-xs font-semibold text-muted-foreground"
+          className={cn(buttonVariants({ variant: "ghost" }), "h-11 px-2 font-semibold text-muted-foreground")}
         >
           {t("Delete")}
         </button>
@@ -188,26 +157,3 @@ export function MyReviewActions() {
   );
 }
 
-/**
- * Publishes the bar's real height (it grows with the text and the
- * "Editing" row) as `--review-bar`, for the spacer under the list, and
- * lifts toasts above it (`--toast-bottom`, read by the toast viewport).
- */
-function useBarHeight(bar: React.RefObject<HTMLDivElement | null>, shown: boolean) {
-  useEffect(() => {
-    const el = bar.current;
-    if (!shown || !el) return;
-    const root = document.documentElement.style;
-    const observer = new ResizeObserver(() => {
-      const height = el.offsetHeight;
-      root.setProperty("--review-bar", `${height}px`);
-      root.setProperty("--toast-bottom", `calc(${height + 12}px + var(--keyboard-inset, 0px))`);
-    });
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      root.removeProperty("--review-bar");
-      root.removeProperty("--toast-bottom");
-    };
-  }, [bar, shown]);
-}

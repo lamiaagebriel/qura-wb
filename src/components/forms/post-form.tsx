@@ -235,7 +235,7 @@ export function PostForm({
       <Button
         type="submit"
         size="xl"
-        className="w-full rounded-xl text-base"
+        className="w-full rounded-xl"
         disabled={pending}
         aria-busy={pending}
       >

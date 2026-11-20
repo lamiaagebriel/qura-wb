@@ -162,7 +162,6 @@ export function PullToRefresh({
         <span ref={dialRef} className="flex">
           <HugeiconsIcon
             icon={Loading03Icon}
-            strokeWidth={2}
             className={cn(
               "size-7 text-muted-foreground",
               refreshing && "animate-spin motion-reduce:animate-none",
