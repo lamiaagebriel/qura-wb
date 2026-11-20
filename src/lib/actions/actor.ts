@@ -19,6 +19,6 @@ export async function currentActor(
   if (!(await rateLimit(`${limitKey}:${session.user.id}`, max, 60 * 60))) {
     return { error: "Too many attempts. Please wait a moment." };
   }
-  const { id, role, status } = session.user;
-  return { actor: { id, role: role ?? "member", status: status ?? "active" } };
+  const { id, status } = session.user;
+  return { actor: { id, status: status ?? "active" } };
 }

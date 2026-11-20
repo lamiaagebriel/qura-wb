@@ -8,7 +8,7 @@ import { requestStatusChange } from "./status-actions";
 
 /**
  * "Report it as closed?" — a signed-in visitor tells us a business has
- * closed (an admin checks before closing it). Opened from the business
+ * closed (recorded as a request). Opened from the business
  * page's options sheet; `onReported` hides that option afterwards.
  */
 export function ReportClosedSheet({
@@ -28,7 +28,6 @@ export function ReportClosedSheet({
       open={open}
       onOpenChange={onOpenChange}
       title={t("Report it as closed?")}
-      description={t("An admin will check before it's marked closed.")}
       confirmLabel={t("Report")}
       onConfirm={async () => {
         const result = await requestStatusChange(username, "close");

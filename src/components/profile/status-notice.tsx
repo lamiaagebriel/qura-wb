@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 const NOTICES: Record<Exclude<BusinessStatus, "active">, MessageKey> = {
   closed: "This business has closed.",
   pending: "Waiting for approval — only you can see this page.",
-  suspended: "Suspended by an admin — only you can see this page.",
+  suspended: "Suspended — only you can see this page.",
   // Never shown: a deleted business has no page.
   deleted: "This business was deleted — only you can see this page.",
 };
 
 /**
  * A banner on a business page that isn't live: closed (everyone sees it),
- * or pending / suspended (shown only to its owner, creator and admins).
+ * or pending / suspended (shown only to its owner and creator).
  */
 export async function StatusNotice({
   status,

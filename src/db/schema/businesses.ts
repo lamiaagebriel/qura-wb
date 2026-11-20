@@ -54,10 +54,10 @@ export const businesses = pgTable(
     /** IANA zone the opening hours are in. */
     timeZone: varchar({ length: 64 }).notNull(),
     image: text(),
-    /** Set by admins only. */
+    /** Set in the database only (no screen sets it). */
     verified: boolean().notNull().default(false),
-    /** New ones wait for an admin; only `active` ones are listed. */
-    status: businessStatus().notNull().default("pending"),
+    /** Only `active` ones are listed. */
+    status: businessStatus().notNull().default("active"),
     /** WhatsApp first, then phone, website and social accounts, in order. */
     links: jsonb().$type<SocialLink[]>().notNull().default([]),
     /**

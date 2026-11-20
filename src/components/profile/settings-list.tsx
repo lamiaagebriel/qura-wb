@@ -5,7 +5,6 @@ import {
   Comment01Icon,
   HugeiconsIcon,
   PinIcon,
-  Shield01Icon,
   Store01Icon,
   type IconSvgElement,
 } from "@/components/icons";
@@ -67,21 +66,17 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
 
 /**
  * The settings under your profile, grouped like a native settings list:
- * when signed in, what you run (My businesses, Place requests, Admin for
- * admins), then what you posted and kept (My posts, Saved posts); then the
+ * when signed in, what you run (My businesses, Place requests), then what you posted and kept (My posts, Saved posts); then the
  * app (language, theme, share, install), then Sign out.
  */
 export async function SettingsList({
   signedIn,
   businessCount = 0,
-  adminCount,
   postCount,
   savedCount,
 }: {
   signedIn: boolean;
   businessCount?: number;
-  /** Admins only: what waits for them (shows the Admin row). */
-  adminCount?: number;
   /** Posts you wrote, and posts you saved (signed in). */
   postCount?: number;
   savedCount?: number;
@@ -104,14 +99,6 @@ export async function SettingsList({
             label={t("Place requests")}
             icon={PinIcon}
           />
-          {adminCount !== undefined && (
-            <LinkRow
-              href={href("admin")}
-              label={t("Admin")}
-              icon={Shield01Icon}
-              value={number.format(adminCount)}
-            />
-          )}
         </Group>
       )}
 

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import { auth } from "./auth";
@@ -16,8 +16,8 @@ export const getSession = cache(async () =>
 );
 
 /**
- * Always read from the database. Use before posting, following, editing
- * and every admin action, so a just-suspended user can't act on a cached
+ * Always read from the database. Use before posting, following and
+ * editing, so a just-suspended user can't act on a cached
  * session.
  */
 export async function getFreshSession() {
@@ -44,15 +44,3 @@ export async function requireUser(returnTo?: string) {
   return session.user;
 }
 
-/** A signed-in `super_admin` (fresh session), otherwise a 404. */
-export async function requireAdmin() {
-  const session = await getFreshSession();
-  if (
-    !session ||
-    session.user.status !== "active" ||
-    session.user.role !== "super_admin"
-  ) {
-    notFound();
-  }
-  return session.user;
-}

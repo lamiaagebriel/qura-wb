@@ -221,7 +221,7 @@ export const businessSchema = z.object({
   owner: z.enum(OWNERS),
   /**
    * Editing only: the status picked in the form. Saved with the rest if
-   * this user may set it, or filed as a request to an admin (its creator);
+   * this user may set it, or filed as a request (its creator);
    * see `lib/business-status.ts`.
    */
   status: z.enum(BUSINESS_STATUSES).optional(),

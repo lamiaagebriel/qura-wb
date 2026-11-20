@@ -13,7 +13,7 @@ import {
 import { findBusiness } from "@/lib/data/businesses";
 import { applyStatus, NOT_READY, NotReadyToGoLive, refreshStatus } from "@/lib/data/status-writes";
 import type { MessageKey } from "@/lib/i18n/types";
-import { answerTicket, openTicket } from "@/lib/tickets/server";
+import { openTicket } from "@/lib/tickets/server";
 
 export type StatusResult = { ok: true } | { ok: false; error: MessageKey };
 
@@ -28,7 +28,7 @@ const done = (result: { ok: boolean; error?: MessageKey }): StatusResult =>
 
 /**
  * Changes a business's status directly — only what `allowedStatuses` lets
- * this person do (admins anything; the owner close / reopen / delete).
+ * this person do (the owner close / reopen / delete).
  * Recorded in history as `business.set_status`.
  */
 export async function setBusinessStatus(username: unknown, status: unknown): Promise<StatusResult> {
@@ -56,9 +56,9 @@ export async function setBusinessStatus(username: unknown, status: unknown): Pro
 }
 
 /**
- * Asks an admin to close / reopen a business (its creator), or reports it
+ * Asks to close / reopen a business (its creator), or reports it
  * closed (anyone else): a `close_business` / `reopen_business` ticket. Once
- * per person until it's answered.
+ * per person while it's open.
  */
 export async function requestStatusChange(username: unknown, kind: unknown, message: unknown = ""): Promise<StatusResult> {
   const me = await currentActor("status-request", 20);
@@ -79,10 +79,3 @@ export async function requestStatusChange(username: unknown, kind: unknown, mess
   return done(result);
 }
 
-/** The super admin approves (applies it) or rejects a close / reopen ticket. */
-export async function resolveRequest(ticketId: unknown, approve: unknown): Promise<StatusResult> {
-  const me = await currentActor("ticket-answer", 200);
-  if ("error" in me) return { ok: false, error: me.error };
-  if (typeof approve !== "boolean") return AGAIN;
-  return done(await answerTicket(me.actor, ticketId, approve ? "approve" : "reject", approve ? "" : "Not now"));
-}

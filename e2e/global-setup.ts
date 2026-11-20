@@ -26,7 +26,7 @@ export default async function globalSetup() {
   await sql`delete from post_saves where user_id = (select id from users where email = ${EMAIL})`;
   await sql`update users set image = null, bio = null where email = ${EMAIL}`;
 
-  // Places: what the test accounts asked for, reported or administer, and
+  // Places: what the test accounts asked for or reported, and
   // every place the tests created ("E2E …", slug `e2e-…`) with its posts.
   const testers = sql`(select id from users where email like 'e2e%@qura.test')`;
   // Their tickets (requests and reports), sent by them or about them.
@@ -35,7 +35,6 @@ export default async function globalSetup() {
     delete from tickets t where exists (
       select 1 from jsonb_array_elements(t.refs) r
       where r->>'table' = 'users' and (r->>'id')::uuid in ${testers})`;
-  await sql`delete from place_admins where user_id in ${testers}`;
   // Their hourly action limits start fresh, so back-to-back runs don't hit
   // them (keys end with the user's id).
   await sql`

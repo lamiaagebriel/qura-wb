@@ -29,12 +29,7 @@ export default async function EditBusinessPage({
   ]);
   const mine = await getMyBusiness(decodeURIComponent(username), user.id);
   if (!mine) notFound();
-  const role =
-    user.role === "super_admin"
-      ? "admin"
-      : mine.ownedByMe
-        ? "owner"
-        : "creator";
+  const role = mine.ownedByMe ? "owner" : "creator";
 
   return (
     <Screen>

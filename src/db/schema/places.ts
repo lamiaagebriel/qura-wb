@@ -15,7 +15,6 @@ import {
 import type { Localized } from "@/lib/localized";
 
 import { id, timestamps } from "../helpers";
-import { users } from "./auth";
 
 /**
  * What kind of place one is (city, markaz, village, neighborhood…). The
@@ -62,28 +61,6 @@ export const places = pgTable(
   (t) => [
     index("places_parent_id_idx").on(t.parentId),
     check("places_name_check", sql`has_text(${t.name})`),
-  ],
-);
-
-/**
- * Who looks after a place: that place only, never the ones inside it.
- * Only the super admin adds or removes one (place admins ask, as tickets).
- */
-export const placeAdmins = pgTable(
-  "place_admins",
-  {
-    ...id,
-    ...timestamps,
-    placeId: uuid()
-      .notNull()
-      .references(() => places.id, { onDelete: "cascade" }),
-    userId: uuid()
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [
-    uniqueIndex("place_admins_place_user_idx").on(t.placeId, t.userId),
-    index("place_admins_user_id_idx").on(t.userId),
   ],
 );
 

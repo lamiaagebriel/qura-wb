@@ -28,7 +28,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { openTicket } from "@/lib/tickets/server";
 
 export type SaveBusinessResult =
-  /** `requested`: the status change was sent to an admin, not applied. */
+  /** `requested`: the status change was recorded as a request, not applied. */
   | { ok: true; requested?: boolean }
   /**
    * `fields`: field path ("name.en", "locations.0.pin") → message;
@@ -99,19 +99,14 @@ export async function saveBusiness(
     return taken;
   }
 
-  // A new status: applied if this user may set it, sent to an admin if
-  // they may only ask for it, refused otherwise — checked before saving.
+  // A new status: applied if this user may set it, recorded as a request
+  // if they may only ask for it, refused otherwise — checked before saving.
   let statusChange:
     | { apply: BusinessStatus }
     | { request: RequestKind }
     | null = null;
   if (existing && values.status && values.status !== existing.status) {
-    const role =
-      session.user.role === "super_admin"
-        ? "admin"
-        : existing.ownedByMe
-          ? "owner"
-          : "creator";
+    const role = existing.ownedByMe ? "owner" : "creator";
     const kind = allowedRequest(role, existing.status);
     if (allowedStatuses(role, existing.status).includes(values.status))
       statusChange = { apply: values.status };
@@ -126,16 +121,13 @@ export async function saveBusiness(
   const createdByMe = !existing || existing.createdByMe;
   const record = {
     ...business,
-    // New ones wait for an admin (an admin's own go live at once); an
-    // edit's status change is applied after the save (`statusChange`).
-    ...(!existing && {
-      createdById: userId,
-      status: session.user.role === "super_admin" ? ("active" as const) : ("pending" as const),
-    }),
+    // New ones go live at once; an edit's status change is applied after
+    // the save (`statusChange`).
+    ...(!existing && { createdById: userId, status: "active" as const }),
     ...(createdByMe && { ownerId: values.owner === "me" ? userId : null }),
   };
 
-  const actor = { id: userId, role: session.user.role ?? "member", status: session.user.status ?? "active" };
+  const actor = { id: userId, status: session.user.status ?? "active" };
   try {
     await runAction(
       {

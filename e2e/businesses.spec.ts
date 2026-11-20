@@ -157,12 +157,12 @@ test.describe("my businesses", () => {
     await page.getByRole("button", { name: "Create business" }).tap();
     await expect(page.getByText("Business created")).toBeVisible();
     await expect.poll(() => pathname(page)).toBe("/profile/businesses");
-    // Added for someone else, but you added it: it's in your list, waiting
-    // for an admin; its page opens for you, saying so.
-    await expect(page.getByRole("link", { name: /Aswan Bakery.*Pending review/ })).toBeVisible();
+    // Added for someone else, but you added it: it's in your list and
+    // live at once.
+    await expect(page.getByRole("link", { name: /Aswan Bakery/ })).toBeVisible();
     await page.goto("/bs/aswan.bakery");
     await expect(page.getByRole("heading", { level: 2, name: "Aswan Bakery" })).toBeVisible();
-    await expect(page.getByText("Waiting for approval — only you can see this page.")).toBeVisible();
+    await expect(page.getByText("Waiting for approval — only you can see this page.")).toHaveCount(0);
   });
 
   test("a username that's taken is refused by the server", async ({ page, signIn }) => {

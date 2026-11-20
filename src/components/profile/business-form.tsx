@@ -154,7 +154,7 @@ export function BusinessForm({
         editing === null
           ? t("Business created")
           : result.requested
-            ? t("Changes saved. Your status request was sent to an admin.")
+            ? t("Changes saved. Your status request was sent.")
             : t("Changes saved"),
     });
     if (canGoBack()) router.back();

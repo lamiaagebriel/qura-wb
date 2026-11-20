@@ -8,9 +8,8 @@
 // Everything is hand-written to read like the real thing: businesses with
 // Arabic and English names, streets, bios, hours that fit the trade and
 // several links; people with Egyptian names; posts per type with details;
-// reviews whose words match their stars. For now only the super admin
-// answers requests and reports (NOTEPAD Step A), so the tickets here are
-// waiting for them or answered by them.
+// reviews whose words match their stars. Requests and reports are only
+// recorded, so the tickets here are all waiting.
 
 import { eq } from "drizzle-orm";
 
@@ -25,7 +24,6 @@ import {
   businessLocations,
   businessReviews,
   businesses,
-  history,
   places,
   placeTypes,
   posts,
@@ -483,12 +481,12 @@ export async function seedWorld(tx: Tx) {
   const personIds = (await tx.insert(users).values(people).returning({ id: users.id })).map((r) => r.id);
   const activeIds = personIds.filter((_, i) => !SUSPENDED.has(i));
 
-  // Businesses: as written above; a few pending, suspended or closed; some
+  // Businesses: as written above; a few closed; some
   // verified; some added for someone else (no owner yet).
   const made: { id: string; place: string; ownerId: string | null; category: string; status: string }[] = [];
   const usernames = new Set<string>();
   for (const [n, b] of BUSINESSES.entries()) {
-    const status = n % 19 === 7 ? "pending" : n % 23 === 11 ? "suspended" : n % 17 === 13 ? "closed" : "active";
+    const status = n % 17 === 13 ? "closed" : "active";
     const ownerless = n % 7 === 3;
     const ownerId = ownerless ? null : pick(activeIds);
     let username = b.name.en.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, ".").replace(/^\.|\.$/g, "").slice(0, 26);
@@ -596,7 +594,6 @@ export async function seedWorld(tx: Tx) {
     const outsiders = activeIds.filter((id) => id !== business.ownerId && id !== createdById);
     const fans = some(outsiders, between(2, 25));
     if (fans.length) await tx.insert(businessFollows).values(fans.map((userId) => ({ userId, businessId: business.id, createdAt: ago(60) })));
-    if (business.status === "pending") continue;
     const critics = some(outsiders, between(0, 12));
     if (critics.length)
       await tx.insert(businessReviews).values(
@@ -608,55 +605,41 @@ export async function seedWorld(tx: Tx) {
       );
   }
 
-  // Tickets: what people asked for and reported. Waiting ones hold their
-  // `openKey` (one per sender and subject, like `openTicket`); answered
-  // ones get their answer in history, by the super admin.
-  const [superAdmin] = await tx.select({ id: users.id }).from(users).where(eq(users.role, "super_admin")).limit(1);
+  // Tickets: what people asked for and reported, all waiting, each with
+  // its `openKey` (one per sender and subject, like `openTicket`).
   const ticket = async (
     type: TicketType,
     createdById: string,
     refs: TicketRef[],
     data: Record<string, unknown>,
     createdAt: Date,
-    answer?: { status: "approved" | "rejected" | "dismissed"; note?: string; at: Date },
   ) => {
     const extra = type === "new_place" ? String((data.name as { en?: string }).en ?? "").toLowerCase() : "";
     const key = [type, createdById, ...refs.map((ref) => `${ref.table}:${ref.id}`), extra].filter(Boolean).join(":");
-    // Answered only when there's a super admin to have answered it.
-    const status = answer && superAdmin ? answer.status : "open";
     const [row] = await tx
       .insert(tickets)
-      .values({ type, status, createdById, refs, data, createdAt, openKey: status === "open" ? key : null })
+      .values({ type, createdById, refs, data, createdAt, openKey: key })
       .returning({ id: tickets.id });
-    if (answer && superAdmin) {
-      const action = answer.status === "approved" ? "ticket.approve" : answer.status === "rejected" ? "ticket.reject" : "ticket.dismiss";
-      await tx.insert(history).values({ entry: "action", actorId: superAdmin.id, source: "seed", action, input: { ticketId: row.id }, note: answer.note ?? null, at: answer.at });
-    }
     return row.id;
   };
   const place = (slug: string): TicketRef => ({ table: "places", id: placeId.get(slug)! });
   const person = (i: number): TicketRef => ({ table: "users", id: personIds[i] });
   const neighborhood = typeId("Neighborhood");
 
-  // New places: waiting (two asking for the same one), one rejected with a reason.
+  // New places (two asking for the same one).
   await ticket("new_place", personIds[10], [place("cairo")], { name: { en: "Garden City", ar: "جاردن سيتي" }, typeId: neighborhood, reason: "Lots of offices and cafés here." }, ago(5));
   await ticket("new_place", personIds[11], [place("cairo")], { name: { en: "Garden City" }, typeId: neighborhood, reason: "I live here." }, ago(3));
   await ticket("new_place", personIds[12], [place("giza")], { name: { en: "6th of October", ar: "6 أكتوبر" }, typeId: typeId("City"), reason: "Big city, no page yet." }, ago(4));
   await ticket("new_place", personIds[13], [place("maadi")], { name: { en: "Zahraa El Maadi", ar: "زهراء المعادي" }, customType: "Compound", reason: "" }, ago(2));
   await ticket("new_place", personIds[15], [place("hurghada")], { name: { en: "El Kawthar", ar: "الكوثر" }, typeId: neighborhood, reason: "Most of the new apartments are here." }, ago(1));
-  await ticket("new_place", personIds[14], [place("alexandria")], { name: { en: "Stanley", ar: "ستانلي" }, typeId: neighborhood, reason: "" }, ago(9), {
-    status: "rejected",
-    note: "Part of Gleem for now — pick Gleem.",
-    at: ago(1),
-  });
+  await ticket("new_place", personIds[14], [place("alexandria")], { name: { en: "Stanley", ar: "ستانلي" }, typeId: neighborhood, reason: "" }, ago(9));
 
   // "It closed" reports about live businesses.
   for (const [i, business] of live.filter((b) => b.ownerId).slice(0, 3).entries()) {
     await ticket("close_business", activeIds[(i + 20) % activeIds.length], [{ table: "businesses", id: business.id }], { note: i === 0 ? "Shutters down for two weeks." : "" }, ago(4));
   }
 
-  // Reports: open ones on posts (some more reported than others), a post
-  // already hidden, one hidden then edited (waiting), business reports, a
+  // Reports: on posts (some more reported than others), businesses, a
   // review and a person.
   const reported = postRows.filter((p) => p.type !== "offer" && p.type !== "announcement").slice(0, 6);
   for (const [i, post] of reported.slice(0, 4).entries()) {
@@ -667,17 +650,9 @@ export async function seedWorld(tx: Tx) {
       await ticket("report_post", reporterId, [{ table: "posts", id: post.id }], { reason, note: j === 0 && i === 1 ? "Rude language." : "" }, ago(3));
     }
   }
-  if (superAdmin) {
-    const hide = async (post: (typeof reported)[number], note: string, status: "hidden" | "under_review", at: Date) => {
-      await tx.update(posts).set({ status }).where(eq(posts.id, post.id));
-      await tx.insert(history).values({ entry: "action", actorId: superAdmin.id, source: "seed", action: "post.hide", input: { postId: post.id }, note, at });
-    };
-    await hide(reported[4], "Please remove the phone number.", "hidden", ago(5));
-    await hide(reported[5], "This belongs in Jobs.", "under_review", ago(6));
-  }
   await ticket("report_business", activeIds[30], [{ table: "businesses", id: live[2].id }], { reason: "fake", note: "Phone number doesn't work." }, ago(2));
   await ticket("report_business", activeIds[31], [{ table: "businesses", id: live[5].id }], { reason: "wrong_info", note: "Hours are wrong on Fridays." }, ago(4));
-  await ticket("report_business", activeIds[32], [{ table: "businesses", id: live[9].id }], { reason: "offensive", note: "" }, ago(6), { status: "dismissed", at: ago(2) });
+  await ticket("report_business", activeIds[32], [{ table: "businesses", id: live[9].id }], { reason: "offensive", note: "" }, ago(6));
   const [someReview] = await tx.select({ id: businessReviews.id, authorId: businessReviews.authorId }).from(businessReviews).where(eq(businessReviews.rating, 1)).limit(1);
   if (someReview) {
     const reporter = activeIds.find((id) => id !== someReview.authorId)!;

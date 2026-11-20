@@ -7,7 +7,6 @@ import { StackLink } from "@/components/navigation/stack-link";
 import { Screen } from "@/components/navigation/screen";
 import { POST_TYPE_META } from "@/components/posts/type-meta";
 import { ReportButton } from "@/components/moderation/moderation-controls";
-import { HiddenNotice } from "@/components/posts/hidden-notice";
 import { PostCard } from "@/components/posts/post-card";
 import { ReplyButton } from "@/components/posts/reply-button";
 import { PullToRefresh } from "@/components/pull-to-refresh";
@@ -78,7 +77,6 @@ export default async function PostPage({ params }: PageProps<"/p/[id]">) {
       />
       <PullToRefresh>
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 px-4 pt-2 pb-8">
-          {post.hidden && <HiddenNotice post={post} />}
           <PostCard post={post} signedIn={!!userId} linked={false} />
           <ReplyButton postId={post.id} signedIn={!!userId} />
           <section
@@ -92,7 +90,6 @@ export default async function PostPage({ params }: PageProps<"/p/[id]">) {
               <ul className="flex flex-col gap-3">
                 {replies.map((reply) => (
                   <li key={reply.id} className="flex flex-col gap-2">
-                    {reply.hidden && <HiddenNotice post={reply} reply />}
                     <PostCard
                       post={reply}
                       signedIn={!!userId}

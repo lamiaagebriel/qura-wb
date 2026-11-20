@@ -71,7 +71,7 @@ export default async function BusinessReviewsPage({
     getReviewSummary(business.id),
     userId ? getMyReview(business.id, userId) : undefined,
   ]);
-  // Hidden by an admin, it isn't listed: the bar edits it instead.
+  // Hidden, it isn't listed: the bar edits it instead.
   const hasVisibleReview = myReview?.status === "visible";
   const mine = myReview && { rating: myReview.rating, text: myReview.text };
 

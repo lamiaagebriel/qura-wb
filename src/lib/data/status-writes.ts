@@ -20,7 +20,6 @@ export function refreshStatus(username: string) {
   revalidatePath(`/bs/${username}`, "layout");
   revalidatePath("/c/[slug]", "page");
   revalidatePath("/profile", "layout");
-  revalidatePath("/admin", "layout");
 }
 
 /** The ticket types a status fulfils (closing answers "please close it"…). */
@@ -32,7 +31,7 @@ const FULFILS: Partial<Record<BusinessStatus, string>> = {
 /**
  * Thrown (undoing the action) when a business would go live without what
  * its page needs: a branch (address, map) and a WhatsApp link (the order
- * button). The app's form asks for both; old data or the dashboard may not.
+ * button). The app's form asks for both; old data may not.
  */
 export const NOT_READY = "It needs a branch and a WhatsApp number first.";
 export class NotReadyToGoLive extends Error {

@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { ADMIN_EMAIL, db, EMAIL } from "./auth";
+import { db, EMAIL } from "./auth";
 import {
   expect,
   pathname,
@@ -420,41 +420,3 @@ async function sent(page: Page, action: () => Promise<void>) {
   await response;
 }
 
-test.describe("hidden replies", () => {
-  test("your hidden reply shows to you, with why; not to others", async ({
-    page,
-    signIn,
-    browser,
-  }) => {
-    const sql = db();
-    const [{ id: me }] = await sql<{ id: string }[]>`select id from users where email = ${EMAIL}`;
-    const [post] = await sql<{ id: string }[]>`
-      insert into posts (created_by_id, type, body, place_id)
-      select u.id, 'general', 'E2E post with a hidden reply', p.id
-      from users u, places p where u.email = ${ADMIN_EMAIL} and p.slug = 'luxor'
-      returning id`;
-    const [reply] = await sql<{ id: string }[]>`
-      insert into posts (created_by_id, parent_id, type, body, place_id, status)
-      select ${me}, id, type, 'E2E my hidden reply', place_id, 'hidden' from posts where id = ${post.id}
-      returning id`;
-    // Hidden the way a moderator hides it: the reason is on the action.
-    await sql`
-      insert into history (entry, source, action, input, note)
-      values ('action', 'system', 'post.hide', ${sql.json({ postId: reply.id })}, 'No phone numbers in replies')`;
-
-    await signIn();
-    await page.goto(`/p/${post.id}`);
-    await expect(page.getByText("E2E my hidden reply")).toBeVisible();
-    await expect(page.getByText("Hidden by an admin: only you can see this reply")).toBeVisible();
-    await expect(page.getByText("No phone numbers in replies")).toBeVisible();
-
-    // Signed out: the post, but not the reply.
-    const other = await browser.newContext();
-    const visitor = await other.newPage();
-    await visitor.goto(`/p/${post.id}`);
-    await expect(visitor.getByRole("main").getByText("E2E post with a hidden reply")).toBeVisible();
-    await expect(visitor.getByText("E2E my hidden reply")).toHaveCount(0);
-    await expect(visitor.getByText("No replies yet. Be the first!")).toBeVisible();
-    await other.close();
-  });
-});

@@ -15,6 +15,13 @@
       "when": 1794910308542,
       "tag": "0001_starting_places",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795175018366,
+      "tag": "0002_drop_admins",
+      "breakpoints": true
     }
   ]
 }

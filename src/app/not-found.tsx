@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("Page not found") };
 }
 
-/** Unknown URLs and every `notFound()` call (e.g. `requireAdmin()`). */
+/** Unknown URLs and every `notFound()` call. */
 export default async function NotFound() {
   const { t } = await getTranslations();
 

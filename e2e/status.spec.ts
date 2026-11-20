@@ -1,5 +1,3 @@
-import { execSync } from "node:child_process";
-
 import { db, EMAIL } from "./auth";
 import { expect, pathname, test, waitForHydration } from "./fixtures";
 
@@ -12,9 +10,9 @@ async function addBusiness(handle: string, name: string, owned: boolean) {
   const sql = db();
   const [{ id }] = await sql`
     insert into businesses (username, name, category, time_zone, created_by_id, owner_id, status)
-    select ${handle}, ${sql.json({ en: name })}, 'cafe', 'Africa/Cairo', id, ${owned ? sql`id` : null}, 'pending'
+    select ${handle}, ${sql.json({ en: name })}, 'cafe', 'Africa/Cairo', id, ${owned ? sql`id` : null}, 'active'
     from users where email = ${EMAIL}
-    on conflict (username) do update set status = 'pending'
+    on conflict (username) do update set status = 'active'
     returning id`;
   await sql`delete from business_locations where business_id = ${id}`;
   await sql`delete from tickets where refs @> ${sql.json([{ table: "businesses", id }])}`;
@@ -26,9 +24,6 @@ async function addBusiness(handle: string, name: string, owned: boolean) {
     where id = ${id}`;
 }
 
-const admin = (command: string, handle: string) =>
-  execSync(`pnpm -s admin ${command} @${handle}`, { encoding: "utf8" });
-
 // Serial: every test resets the same two businesses.
 test.describe.configure({ mode: "serial" });
 
@@ -38,19 +33,7 @@ test.describe("business status", () => {
     await addBusiness(ADDED, "Added Kiosk", false);
   });
 
-  test("pending: hidden from visitors until approved; then live", async ({ page, pageErrors }) => {
-    await page.goto(`/bs/${OWNED}`);
-    await expect(page.getByText("Page not found")).toBeVisible();
-    pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));
-
-    admin("approve", OWNED);
-    await page.goto(`/bs/${OWNED}`);
-    await expect(page.getByRole("heading", { level: 2, name: "Status Café" })).toBeVisible();
-    await expect(page.getByText("Waiting for approval — only you can see this page.")).toHaveCount(0);
-  });
-
   test("the owner closes and reopens it with the form; closed pages say so", async ({ page, signIn }) => {
-    admin("approve", OWNED);
     await signIn();
     const save = async () => {
       await page.getByRole("button", { name: "Save changes" }).tap();
@@ -79,7 +62,6 @@ test.describe("business status", () => {
   });
 
   test("its creator (no owner yet): closes and reopens it directly, like an owner", async ({ page, signIn }) => {
-    admin("approve", ADDED);
     await signIn();
     const status = page.getByRole("region", { name: "Status" });
     const open = status.getByRole("switch", { name: /Open/ });
@@ -91,8 +73,7 @@ test.describe("business status", () => {
     await page.goto(`/profile/businesses/${ADDED}`);
     await waitForHydration(page);
     await open.tap();
-    // No admin in between (NOTEPAD Step A).
-    await expect(status.getByText("Saving will ask an admin to make it “Closed”.")).toHaveCount(0);
+    await expect(status.getByText("Saving will ask to make it “Closed”.")).toHaveCount(0);
     await save();
     await page.goto(`/bs/${ADDED}`);
     await expect(page.getByText("This business has closed.")).toBeVisible();
@@ -139,10 +120,4 @@ test.describe("business status", () => {
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
   });
 
-  test("the admin screen is a 404 for non-admins", async ({ page, signIn, pageErrors }) => {
-    await signIn();
-    await page.goto("/admin");
-    await expect(page.getByText("Page not found")).toBeVisible();
-    pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("404")));
-  });
 });

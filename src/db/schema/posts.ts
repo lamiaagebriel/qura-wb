@@ -22,7 +22,7 @@ import { places } from "./places";
 
 export const postType = pgEnum("post_type", POST_TYPES);
 
-/** `under_review`: hidden, edited by its author since, waiting for an admin. */
+/** `under_review`: hidden, edited by its author since. */
 export const POST_STATUSES = ["visible", "hidden", "under_review"] as const;
 export const postStatus = pgEnum("post_status", POST_STATUSES);
 

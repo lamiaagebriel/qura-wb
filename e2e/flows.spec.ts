@@ -5,7 +5,7 @@ import { expect, test } from "./fixtures";
 // Every flow between people (reporting, moderating, requests, co-admins,
 // erasing), run against the database by e2e/flows/flows.ts — the same
 // functions the server actions call. No browser.
-test("flows between users, place admins and the super admin", () => {
+test("flows between users", () => {
   test.setTimeout(240_000);
   let output: string;
   try {

@@ -81,7 +81,6 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      role: { type: "string", input: false },
       status: { type: "string", input: false },
       username: { type: "string", input: false },
       bio: { type: "string", input: false, required: false },
@@ -103,7 +102,6 @@ export const auth = betterAuth({
         before: async (user) => ({
           data: {
             ...user,
-            role: "member",
             status: "active",
             username: await generateUniqueUsername(user.name),
           },

@@ -98,11 +98,6 @@ const checks: Check[] = [
     query: () => sql`select b.username, u.status from businesses b join users u on u.id = b.owner_id where b.status = 'active' and u.status <> 'active'`,
   },
   {
-    level: "medium",
-    name: "place admins who are suspended or deleted",
-    query: () => sql`select a.id, u.status from place_admins a join users u on u.id = a.user_id where u.status <> 'active'`,
-  },
-  {
     level: "high",
     name: "reviews of your own business",
     query: () => sql`select r.id from business_reviews r join businesses b on b.id = r.business_id where r.author_id in (b.owner_id, b.created_by_id)`,

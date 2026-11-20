@@ -4,11 +4,9 @@ import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
-  businessLocations,
   businessReviews,
   businesses,
   history,
-  placeAdmins,
   places,
   posts,
   tickets,
@@ -176,66 +174,6 @@ export async function ticketsAbout(ref: TicketRef, limit = 50) {
 export async function getTicket(id: string) {
   const [row] = await baseQuery(eq(tickets.id, id), "newest", 1);
   return row ? (await toViews([row]))[0] : undefined;
-}
-
-/**
- * What waits for a place admin in their places (never the places inside
- * them): new places asked for right under them, reported posts in them,
- * reports about businesses with a branch there (not yet sent on).
- */
-export async function placeAdminQueue(userId: string, placeIds?: string[]) {
-  const mine = placeIds ?? (await db.select({ id: placeAdmins.placeId }).from(placeAdmins).where(eq(placeAdmins.userId, userId))).map((r) => r.id);
-  if (!mine.length) return [];
-  const inMine = (table: string) =>
-    sql`exists (select 1 from jsonb_array_elements(${tickets.refs}) r where r->>'table' = ${table} and (r->>'id')::uuid in (${sql.join(mine.map((id) => sql`${id}::uuid`), sql`, `)}))`;
-  const rows = await baseQuery(
-    and(
-      eq(tickets.status, "open"),
-      sql`(
-        (${tickets.type} = 'new_place' and ${inMine("places")})
-        or (${tickets.type} = 'report_post' and exists (
-          select 1 from ${posts} p
-          where p.id = (${tickets.refs}->0->>'id')::uuid
-            and p.place_id in (${sql.join(mine.map((id) => sql`${id}::uuid`), sql`, `)})))
-        or (${tickets.type} = 'report_business' and exists (
-          select 1 from ${businessLocations} l
-          where l.business_id = (${tickets.refs}->0->>'id')::uuid
-            and l.place_id in (${sql.join(mine.map((id) => sql`${id}::uuid`), sql`, `)})))
-      )`,
-    ),
-    "oldest",
-    200,
-  );
-  const views = await toViews(rows);
-  // Which of their places each one is about (a business: every place it has a branch in).
-  const businessIds = views.flatMap((v) => (v.type === "report_business" && v.refs[0] ? [v.refs[0].id] : []));
-  const branches = businessIds.length
-    ? await db
-        .select({ businessId: businessLocations.businessId, placeId: businessLocations.placeId })
-        .from(businessLocations)
-        .where(and(inArray(businessLocations.businessId, businessIds), inArray(businessLocations.placeId, mine)))
-    : [];
-  return views.map((view) => {
-    const ref = view.refs[0];
-    const placeIds =
-      !ref || "missing" in ref
-        ? []
-        : ref.table === "places"
-          ? [ref.id]
-          : ref.table === "posts"
-            ? [(ref as { placeId: string }).placeId]
-            : [...new Set(branches.filter((b) => b.businessId === ref.id).map((b) => b.placeId))];
-    return { ...view, placeIds };
-  });
-}
-
-/** What waits for the super admin: open tickets and businesses to approve. */
-export async function adminQueueCount(): Promise<number> {
-  const [open, pending] = await Promise.all([
-    db.$count(tickets, inArray(tickets.status, [...OPEN_STATUSES])),
-    db.$count(businesses, eq(businesses.status, "pending")),
-  ]);
-  return open + pending;
 }
 
 /**

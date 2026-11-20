@@ -16,16 +16,15 @@ type Lang = "en" | "ar";
  *   top of app controls; it only exists in development).
  * - Any console error or uncaught page error fails the test.
  * - `setLang(lang)` picks the app language for this test's browser.
- * - `signIn()` signs this test's browser in as the test user, `signIn("admin")`
- *   as the test super admin (e2e/auth.ts).
+ * - `signIn()` signs this test's browser in as the test user (e2e/auth.ts).
  */
 export const test = base.extend<{
   setLang: (lang: Lang) => Promise<void>;
-  signIn: (as?: "user" | "admin") => Promise<void>;
+  signIn: () => Promise<void>;
   pageErrors: string[];
 }>({
   signIn: async ({ context, baseURL }, use) => {
-    await use((as) => signIn(context, baseURL!, as));
+    await use(() => signIn(context, baseURL!));
   },
 
   context: async ({ context }, use) => {

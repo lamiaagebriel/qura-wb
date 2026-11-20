@@ -9,17 +9,15 @@ sign-in) · shadcn/ui (Base UI) · Playwright.
 
 ## Data model
 
-17 tables, any standard Postgres. Names people type (businesses, places,
+16 tables, any standard Postgres. Names people type (businesses, places,
 addresses…) are `{ en, ar }` — at least one, each shown in the other
 language when missing.
 
-- **Accounts** — `users` (role `member` / `super_admin`; status
-  `active` / `suspended` / `deleted`), and Better Auth's `sessions`,
+- **Accounts** — `users` (status `active` / `suspended` / `deleted`), and Better Auth's `sessions`,
   `accounts`, `verifications`, `rate_limits`. People are never deleted:
   "Delete account" anonymizes them, and what they posted stays.
 - **Places** — `places`, a tree with no depth limit (Aswan → Edfu → a
-  neighborhood…), each with a kind (`place_types`); `place_admins` look
-  after one place each. Posts and branches point at a place and show in it
+  neighborhood…), each with a kind (`place_types`). Posts and branches point at a place and show in it
   and every place above it.
 - **Businesses** — `businesses` (the only public identity, at
   `/bs/<username>`; its links and weekly hours are on the row; owned by a
@@ -32,10 +30,10 @@ language when missing.
   `POST_DATA` in `src/lib/posts.ts`). Replies are posts with a `parentId`.
   `post_votes` (helpful / not) and `post_saves` (private bookmarks).
 - **`tickets`** — every request and report in one table: asking for a new
-  place, to add or remove a place admin, to close or reopen a business;
+  place, to close or reopen a business;
   reporting a post, review, business or person. Each type is defined once
   (`src/lib/tickets/types.ts`): who may send it, what it's about, its
-  fields and who answers it.
+  fields. They're only recorded: nobody answers them in the app.
 - **`history`** — every action (who, what, why) and every change it made
   to any row (before → after), written by `runAction` and a database
   trigger. Votes, saves and sign-in internals are left out; emails and
@@ -68,7 +66,6 @@ The seed can be re-run safely and refuses to run in production.
 | `pnpm db:migrate` | Apply migrations (uses `DIRECT_URL` when set). |
 | `pnpm db:seed` | Sample data (dev / tests only). |
 | `pnpm db:reset` | Wipe the database and migrate again (asks first). |
-| `pnpm admin <command> <who>` | The same as the dashboard (`/admin`) from a terminal: verify, suspend or restore a business; suspend, restore or anonymize a user; make an admin. Each is recorded in history. Run it with no arguments for usage. |
 | `pnpm e2e` | End-to-end tests (see below). |
 | `pnpm build:deploy` | Migrate, then build: the production build command. |
 | `node scripts/draw-avatars.mjs public/avatars` | Redraw the preset avatars. |
@@ -116,7 +113,7 @@ Don't run `pnpm build` while `pnpm dev` is running (they share `.next`).
   `VERSION` in `public/sw.js` so phones drop their old copies.
 - Never run `pnpm db:seed` against production (it refuses anyway).
 
-**Moderation**: the dashboard at `/admin` (super admins), or `pnpm admin` with `DATABASE_URL` pointing at production.
+**Statuses** like suspended are set directly in the database (there are no admins or dashboard).
 A suspended business is hidden from visitors, search, categories and the
 sitemap, but its owner still sees it under My businesses. A suspended user
 is signed out everywhere and can't sign in.

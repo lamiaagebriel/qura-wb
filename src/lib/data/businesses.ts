@@ -13,7 +13,7 @@ import {
   users,
   type Business,
 } from "@/db/schema";
-import { isPublic, roleFor, type BusinessStatus } from "@/lib/business-status";
+import { isPublic, roleFor } from "@/lib/business-status";
 import type { BusinessProfile, BusinessSummary } from "@/lib/business";
 import { ALL_CATEGORIES, pathOf, subtreeOf } from "@/lib/categories";
 import { inPlaceTree } from "@/lib/data/places";
@@ -133,11 +133,11 @@ export const findPublicBusiness = async (username: string) => {
 
 /**
  * The business if this user may open its page: everyone for public ones;
- * its owner, creator and admins for pending / suspended ones too.
+ * its owner and creator for pending / suspended ones too.
  */
 export async function findVisibleBusiness(
   username: string,
-  user: { id: string; role?: string | null } | null | undefined,
+  user: { id: string } | null | undefined,
 ) {
   const business = await findBusiness(username);
   if (!business) return undefined;
@@ -237,7 +237,7 @@ export const categoryCounts = unstable_cache(
     return counts;
   },
   ["category-counts"],
-  // Hourly too: admin changes (`pnpm admin`) happen outside the app.
+  // Hourly too: database edits happen outside the app.
   { tags: [BUSINESSES_TAG], revalidate: 3600 },
 );
 
@@ -287,17 +287,6 @@ export async function searchBusinesses(
     )
     .orderBy(asc(businesses.createdAt))
     .limit(SEARCH_LIMIT);
-}
-
-/** Businesses with this status, least recently changed first (the admin queues). */
-export async function businessesWithStatus(
-  status: BusinessStatus,
-): Promise<BusinessSummary[]> {
-  return db
-    .select(summaryColumns)
-    .from(businesses)
-    .where(eq(businesses.status, status))
-    .orderBy(asc(businesses.updatedAt));
 }
 
 /** Every listed business's @handle and last change (for the sitemap). */

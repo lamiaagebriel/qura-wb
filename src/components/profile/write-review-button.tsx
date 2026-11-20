@@ -84,7 +84,7 @@ export function ReviewComposer({
   me?: { name: string; avatarUrl: string | null };
   /** The review you already wrote, if any. */
   mine?: ReviewInput;
-  /** Your review is in the list (not hidden by an admin). */
+  /** Your review is in the list (not hidden). */
   hasVisibleReview: boolean;
   children: ReactNode;
 }) {

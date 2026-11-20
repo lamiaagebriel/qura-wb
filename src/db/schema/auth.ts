@@ -15,16 +15,11 @@ import {
 import { id, timestamps } from "../helpers";
 
 /**
- * Better Auth's tables. `users` is also read by the app (roles, owners);
+ * Better Auth's tables. `users` is also read by the app (owners);
  * the rest are only used by Better Auth — app code never queries them.
  * `sessions` and `accounts` belong to a user (deleted with it);
  * `verifications` and `rate_limits` stand alone.
  */
-
-/** `member`: everyone; `super_admin`: runs the dashboard. Looking after a
- * place is `place_admins`, owning a business is `businesses.ownerId`. */
-export const USER_ROLES = ["member", "super_admin"] as const;
-export const userRole = pgEnum("user_role", USER_ROLES);
 
 /** `deleted`: anonymized (personal fields wiped); their posts stay as "Deleted user". */
 export const USER_STATUSES = ["active", "suspended", "deleted"] as const;
@@ -34,7 +29,7 @@ export const userStatus = pgEnum("user_status", USER_STATUSES);
  * The person who signs in — private account data (Better Auth's "user"
  * model). Has many `sessions`, `accounts` and owned `businesses`. Never
  * shown publicly — only businesses are.
- * `role` (admin?), `status` (suspended?), `username` and `bio` are ours,
+ * `status` (suspended?), `username` and `bio` are ours,
  * declared as `additionalFields` in `lib/auth/auth.ts`.
  */
 export const users = pgTable("users", {
@@ -46,14 +41,12 @@ export const users = pgTable("users", {
   emailVerified: boolean().notNull().default(false),
   // `text`: Google avatar URLs can exceed 255 chars.
   image: text(),
-  role: userRole().notNull().default("member"),
   status: userStatus().notNull().default("active"),
   username: varchar({ length: 50 }).notNull().unique(),
   bio: text(),
 });
 
 export type User = typeof users.$inferSelect;
-export type UserRole = (typeof USER_ROLES)[number];
 export type UserStatus = (typeof USER_STATUSES)[number];
 
 /**

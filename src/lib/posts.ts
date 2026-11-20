@@ -208,8 +208,8 @@ export type Post = {
   /** The post it replies to; `null` for a post. */
   replyTo: string | null;
   /**
-   * Hidden by an admin (only its author gets such a post): why, and
-   * whether an edit since waits for the admin to look again.
+   * Hidden (only its author gets such a post): why, and whether it was
+   * edited since.
    */
   hidden: { reason: string; waiting: boolean } | null;
 };

@@ -151,7 +151,7 @@ export function BusinessOptionsButton({
   signedIn: boolean;
   /** "Has this place closed?" applies to it (an active business). */
   canReportClosed: boolean;
-  /** You already reported it as closed (waiting for an admin). */
+  /** You already reported it as closed (still open). */
   reportedClosed: boolean;
 }) {
   const { t } = useLocale();

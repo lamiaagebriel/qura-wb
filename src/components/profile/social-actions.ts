@@ -113,8 +113,8 @@ export async function postReview(
 }
 
 /**
- * Deletes your review of a business. A hidden one (an admin decided) stays:
- * deleting it and writing again would bring it back past the admin.
+ * Deletes your review of a business. A hidden one stays: deleting it and
+ * writing again would bring it back.
  */
 export async function deleteReview(username: unknown): Promise<SocialResult> {
   const ready = await prepare(username, "review", 30);

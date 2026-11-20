@@ -92,20 +92,6 @@ export const TICKET_TYPES = {
       .refine((v) => !!v.typeId || !!v.customType, { message: m("Required"), path: ["customType"] }),
     statuses: REQUEST,
   },
-  add_admin: {
-    label: "Add an admin",
-    kind: "request",
-    refs: ["places", "users"],
-    data: z.object({ note }),
-    statuses: REQUEST,
-  },
-  remove_admin: {
-    label: "Remove an admin",
-    kind: "request",
-    refs: ["places", "users"],
-    data: z.object({ note }),
-    statuses: REQUEST,
-  },
   report_post: {
     label: "Reported post",
     kind: "report",
@@ -125,8 +111,7 @@ export const TICKET_TYPES = {
     kind: "report",
     refs: ["businesses"],
     data: reportData(REPORT_REASONS.business),
-    // A place admin can send it on to the super admin.
-    statuses: ["open", "escalated", "approved", "dismissed", "cancelled"],
+    statuses: REPORT,
   },
   report_user: {
     label: "Reported person",

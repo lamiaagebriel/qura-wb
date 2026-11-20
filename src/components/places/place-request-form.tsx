@@ -33,8 +33,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Asking for a new place: where it is (the place it's inside), its name,
- * what kind of place it is and why. An admin of that place, or the super
- * admin, answers it.
+ * what kind of place it is and why. It's recorded as a request.
  */
 export function PlaceRequestForm({
   parent,

@@ -112,7 +112,7 @@ export {
   SearchAreaIcon,
   House03Icon,
   Briefcase01Icon,
-  // Business status & admin
+  // Business status
   Shield01Icon,
   DashboardSquare02Icon,
   InboxIcon,

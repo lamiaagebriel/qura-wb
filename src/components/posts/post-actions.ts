@@ -37,7 +37,7 @@ const failed = {
 async function signedIn(
   limitKey: string,
   max: number,
-): Promise<{ error: MessageKey } | { userId: string; isAdmin: boolean }> {
+): Promise<{ error: MessageKey } | { userId: string }> {
   const session = await getFreshSession();
   if (!session || session.user.status !== "active") {
     return { error: "Please sign in again." };
@@ -46,7 +46,7 @@ async function signedIn(
   if (!(await rateLimit(`${limitKey}:${userId}`, max, 60 * 60))) {
     return { error: "Too many attempts. Please wait a moment." };
   }
-  return { userId, isAdmin: session.user.role === "super_admin" };
+  return { userId };
 }
 
 const refresh = () => revalidatePath("/", "layout");
@@ -128,8 +128,6 @@ export async function updatePost(
         body: parsed.data.body,
         // A reply has no fields of its own.
         ...(row.parentId ? {} : { data: parsed.data.data }),
-        // Hidden after a report: the edit goes back to an admin to look again.
-        ...(row.status === "hidden" ? { status: "under_review" as const } : {}),
       })
       .where(eq(posts.id, row.id)),
   );
@@ -137,12 +135,12 @@ export async function updatePost(
   return { ok: true };
 }
 
-/** Deletes your post (admins: anyone's), with its replies. */
+/** Deletes your post, with its replies. */
 export async function deletePost(id: unknown): Promise<PostResult> {
   const user = await signedIn("post-delete", 60);
   if ("error" in user) return { ok: false, error: user.error };
   const row = typeof id === "string" ? await findPostRow(id) : undefined;
-  if (!row || (row.createdById !== user.userId && !user.isAdmin)) {
+  if (!row || row.createdById !== user.userId) {
     return { ok: false, error: "This post no longer exists." };
   }
   await runAction({ action: "post.delete", actorId: user.userId, input: { postId: row.id } }, (tx) =>

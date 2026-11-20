@@ -32,7 +32,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const STATUS_CLASSES: Record<TicketStatus, string> = {
   open: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  escalated: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
   approved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
   rejected: "bg-destructive/10 text-destructive",
   dismissed: "bg-muted text-muted-foreground",
@@ -41,8 +40,7 @@ const STATUS_CLASSES: Record<TicketStatus, string> = {
 
 /**
  * The new places you asked for, each with where it stands; an open one can
- * be cancelled. Only the super admin answers them (place admins are
- * dashboard-only). Only you see it.
+ * be cancelled. Only you see it.
  */
 export default async function MyPlacesPage() {
   const [{ t, locale }, user, places] = await Promise.all([
