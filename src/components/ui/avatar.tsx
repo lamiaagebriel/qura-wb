@@ -37,6 +37,7 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
   )
 }
 
+// Updated: a string child becomes its initials (up to 2, uppercased), and the text is semibold.
 function AvatarFallback({
   className,
   children,
