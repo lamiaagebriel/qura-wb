@@ -176,6 +176,8 @@ test.describe("my businesses", () => {
   });
 
   test("the location: set from where you are, then removed in the map sheet", async ({ page, context, signIn }) => {
+    // The map sheet (and its Remove button) only exists with a Maps key.
+    test.skip(!process.env.GOOGLE_MAPS_API_KEY, "needs GOOGLE_MAPS_API_KEY");
     await context.grantPermissions(["geolocation"]);
     await context.setGeolocation({ latitude: 24.0889, longitude: 32.8998 });
     await signIn();

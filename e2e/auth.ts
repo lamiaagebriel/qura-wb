@@ -22,7 +22,7 @@ export function db() {
     } catch {
       // No .env (CI): the variables come from the environment.
     }
-    sql = postgres(process.env.DATABASE_URL!, { max: 1, onnotice: () => {} });
+    sql = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false, onnotice: () => {} });
   }
   return sql;
 }

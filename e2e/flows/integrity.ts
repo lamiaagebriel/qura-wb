@@ -8,7 +8,7 @@ try {
 } catch {
   // CI: from the environment.
 }
-const sql = postgres(process.env.DATABASE_URL!, { max: 1, onnotice: () => {} });
+const sql = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false, onnotice: () => {} });
 
 type Level = "high" | "medium" | "low";
 type Check = { level: Level; name: string; query: () => Promise<postgres.Row[]> };
