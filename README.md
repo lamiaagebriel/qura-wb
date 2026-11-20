@@ -66,11 +66,19 @@ The seed can be re-run safely and refuses to run in production.
 | `pnpm db:migrate` | Apply migrations (uses `DIRECT_URL` when set). |
 | `pnpm db:seed` | Sample data (dev / tests only). |
 | `pnpm db:reset` | Wipe the database and migrate again (asks first). |
+| `pnpm test` | Action tests on a local test database (see below). |
 | `pnpm e2e` | End-to-end tests (see below). |
 | `pnpm build:deploy` | Migrate, then build: the production build command. |
 | `node scripts/draw-avatars.mjs public/avatars` | Redraw the preset avatars. |
 
 ## Tests
+
+`pnpm test` runs the real server actions and queries (Vitest, no browser,
+seconds) against `qura_test` on the local Postgres — start it with
+`docker compose up -d`. The test database is dropped and rebuilt from the
+migrations on every run, so triggers and database rules are the real ones;
+only the session and Next's request-only APIs are stood in
+(`src/test/setup.ts`). It never touches the database in `.env`.
 
 `pnpm e2e` runs Playwright on a phone-sized screen (Edge on Windows). It
 starts `pnpm dev` or reuses one that's running. Before every run,

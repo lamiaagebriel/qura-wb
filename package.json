@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "drizzle-kit generate --config=src/db/config.ts",
     "db:migrate": "drizzle-kit migrate --config=src/db/config.ts",
     "db:push": "drizzle-kit push --config=src/db/config.ts",
@@ -16,7 +18,6 @@
     "build:deploy": "pnpm db:migrate && next build",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "test:flows": "tsx --conditions=react-server --require ./e2e/flows/next-cache.cjs e2e/flows/flows.ts",
     "test:integrity": "tsx e2e/flows/integrity.ts"
   },
   "dependencies": {
@@ -63,7 +64,8 @@
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.1"
   },
   "packageManager": "pnpm@11.10.0"
 }

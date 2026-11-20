@@ -171,7 +171,7 @@ export async function getMyBusinesses(
       and(
         // Yours, or added by you and not claimed by an owner yet.
         or(eq(businesses.ownerId, userId), and(eq(businesses.createdById, userId), isNull(businesses.ownerId))),
-        // Deleted is gone for its owner too (only the dashboard keeps it).
+        // Deleted is gone for its owner too.
         ne(businesses.status, "deleted"),
       ),
     )
