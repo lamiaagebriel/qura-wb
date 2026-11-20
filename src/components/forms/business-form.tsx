@@ -1,26 +1,20 @@
 "use client";
 
 import { Radio } from "@base-ui/react/radio";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState, type ComponentProps } from "react";
 import {
   Controller,
   useFieldArray,
   useFormState,
-  useForm,
   useWatch,
   type Control,
-  type Path,
   type UseFormReturn,
 } from "react-hook-form";
 
-import {
-  FormError,
-  INPUT,
-  LocalizedField,
-  UsernameField,
-} from "@/components/form";
+import { FormError, INPUT } from "@/components/forms/form-error";
+import { LocalizedField } from "@/components/forms/localized-field";
+import { UsernameField } from "@/components/forms/username-field";
 import {
   Copy01Icon,
   Delete02Icon,
@@ -60,27 +54,28 @@ import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
-import {
-  businessSchema,
-  formatPin,
-  isNumberPlatform,
-  parsePin,
-  LINK_PLATFORMS,
-  type LinkPlatform,
-  type BusinessFormValues,
-} from "@/lib/business";
 import { categoryOf } from "@/lib/categories";
 import { DEFAULT_PLACE } from "@/lib/places";
 import { useCurrentLocation } from "@/lib/geolocation";
+import { useActionForm } from "@/hooks/use-action-form";
 import { useLocale } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n/types";
 import { href } from "@/lib/routes";
 import { SOCIAL_PLATFORMS } from "@/lib/socials";
 import { cn } from "@/lib/utils";
+import {
+  businessSchema,
+  formatPin,
+  isNumberPlatform,
+  LINK_PLATFORMS,
+  parsePin,
+  type BusinessFormValues,
+  type LinkPlatform,
+} from "@/lib/validations/business-form";
 
-import { CategoryPicker } from "./category-picker";
-import { DeleteBusinessButton } from "./delete-business-button";
-import { StatusPanel } from "./status-panel";
+import { CategoryPicker } from "@/components/profile/category-picker";
+import { DeleteBusinessButton } from "@/components/profile/delete-business-button";
+import { StatusPanel } from "@/components/profile/status-panel";
 
 type Form = Control<BusinessFormValues>;
 
@@ -121,45 +116,34 @@ export function BusinessForm({
   /** GOOGLE_MAPS_API_KEY: pick pins on a map (hidden without it). */
   mapsApiKey: string | null;
 }) {
-  const { t, locale } = useLocale();
+  const { locale } = useLocale();
   const router = useRouter();
-  const form = useForm<BusinessFormValues>({
-    resolver: zodResolver(businessSchema),
+  const { form, submit, pending, t } = useActionForm<BusinessFormValues, { requested: boolean }>({
+    schema: businessSchema,
     defaultValues: initial,
     mode: "onTouched",
+    // Hours are kept in the owner's own zone, read from the device.
+    action: (values) =>
+      saveBusiness(editing, {
+        ...values,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || values.timeZone,
+      }),
+    // Says whether a status change was only asked for.
+    success: null,
+    onDone: ({ requested }) => {
+      toast.add({
+        title:
+          editing === null
+            ? t("Business created")
+            : requested
+              ? t("Changes saved. Your status request was sent.")
+              : t("Changes saved"),
+      });
+      if (canGoBack()) router.back();
+      else router.replace(href("businesses"));
+    },
   });
   const { control } = form;
-
-  const submit = form.handleSubmit(async (values) => {
-    (document.activeElement as HTMLElement | null)?.blur();
-    // Hours are kept in the owner's own zone, read from the device.
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const result = await saveBusiness(editing, {
-      ...values,
-      timeZone: timeZone || values.timeZone,
-    });
-    if (!result.ok) {
-      Object.entries(result.fields ?? {}).forEach(([path, message], i) =>
-        form.setError(
-          path as Path<BusinessFormValues>,
-          { message },
-          { shouldFocus: i === 0 },
-        ),
-      );
-      if (result.form) toast.add({ title: t(result.form), type: "error" });
-      return;
-    }
-    toast.add({
-      title:
-        editing === null
-          ? t("Business created")
-          : result.requested
-            ? t("Changes saved. Your status request was sent.")
-            : t("Changes saved"),
-    });
-    if (canGoBack()) router.back();
-    else router.replace(href("businesses"));
-  });
 
   return (
     <form
@@ -265,9 +249,9 @@ export function BusinessForm({
         type="submit"
         size="xl"
         className="w-full rounded-xl text-base"
-        disabled={form.formState.isSubmitting}
+        disabled={pending}
       >
-        {form.formState.isSubmitting && <Spinner />}
+        {pending && <Spinner />}
         {editing === null ? t("Create business") : t("Save changes")}
       </Button>
       {editing && deletable && (

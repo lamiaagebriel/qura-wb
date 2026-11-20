@@ -1,33 +1,25 @@
 "use server";
 
+import { fail, invalid, type ActionResult } from "@/lib/action-result";
 import { currentActor } from "@/lib/actions/actor";
 import { getPlaceIndex } from "@/lib/data/places";
-import type { MessageKey } from "@/lib/i18n/types";
-import { OTHER_TYPE, placeRequestSchema } from "@/lib/place-requests";
+import { OTHER_TYPE } from "@/lib/place-requests";
+import { placeRequestSchema } from "@/lib/validations/place-request-form";
 import { cancelTicket, openTicket } from "@/lib/tickets/server";
 
 // The place screens' actions: asking for a place and taking the request
 // back — tickets (`lib/tickets`), recorded in history.
 
-export type PlaceResult<T = object> =
-  | ({ ok: true } & T)
-  | { ok: false; error: MessageKey; fields?: Record<string, MessageKey> };
-
-const AGAIN = { ok: false, error: "Something went wrong. Please try again." } as const;
 
 /** Asks for a new place under one that exists (a `new_place` ticket). Anyone signed in. */
-export async function requestPlace(input: unknown): Promise<PlaceResult<{ id: string }>> {
+export async function requestPlace(input: unknown): Promise<ActionResult<{ id: string }>> {
   const me = await currentActor("place-request", 10);
-  if ("error" in me) return { ok: false, error: me.error };
+  if ("error" in me) return fail(me.error);
   const parsed = placeRequestSchema.safeParse(input);
-  if (!parsed.success) {
-    const fields: Record<string, MessageKey> = {};
-    for (const issue of parsed.error.issues) fields[issue.path.join(".")] ??= issue.message as MessageKey;
-    return { ...AGAIN, fields };
-  }
+  if (!parsed.success) return invalid(parsed.error);
   const values = parsed.data;
   const parent = (await getPlaceIndex()).get(values.parent);
-  if (!parent) return { ...AGAIN, fields: { parent: "Choose a city" } };
+  if (!parent) return fail("Choose a city", "parent");
   const other = values.type === OTHER_TYPE;
   return openTicket(me.actor, "new_place", [{ table: "places", id: parent.id }], {
     name: { en: values.name.en ?? "", ar: values.name.ar ?? "" },
@@ -38,8 +30,8 @@ export async function requestPlace(input: unknown): Promise<PlaceResult<{ id: st
 }
 
 /** Takes back your own waiting request. */
-export async function cancelPlaceRequest(id: unknown): Promise<PlaceResult> {
+export async function cancelPlaceRequest(id: unknown): Promise<ActionResult> {
   const me = await currentActor("ticket-cancel", 30);
-  if ("error" in me) return { ok: false, error: me.error };
+  if ("error" in me) return fail(me.error);
   return cancelTicket(me.actor, id);
 }

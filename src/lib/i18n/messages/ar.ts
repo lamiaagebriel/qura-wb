@@ -565,6 +565,8 @@ const ar = {
   "it's deleted: hidden from everyone but you.": "محذوف: مخفي عن الجميع إلا أنت.",
   "Their name, username, email and photo are erased for good and they can't sign in to it again. Their posts stay, as \"Deleted account\"; their businesses lose their owner.": "يُمحى اسمه واسم المستخدم والبريد والصورة نهائيًا ولن يستطيع الدخول إليه مجددًا. تبقى منشوراته باسم \"حساب محذوف\"، وتصبح أنشطته بلا مالك.",
   "You can't vote on your own post.": "لا يمكنك التصويت على منشورك.",
+  "Not saved. Check your connection and try again.":
+    "لم يُحفظ. تحقق من اتصالك وحاول مرة أخرى.",
 } as const;
 
 export default ar;

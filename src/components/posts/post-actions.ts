@@ -6,29 +6,18 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { isValidId } from "@/db/helpers";
 import { businesses, posts, postSaves, postVotes } from "@/db/schema";
+import { AGAIN, done, fail, invalid, ok, type ActionResult } from "@/lib/action-result";
 import { getFreshSession, getSession } from "@/lib/auth/session";
 import { getCurrentPlace, getPlaceIndex } from "@/lib/data/places";
 import { canManage, roleFor } from "@/lib/business-status";
 import { findPublicBusiness } from "@/lib/data/businesses";
 import { findPostRow, findVisiblePostRow, getPost, postsIn } from "@/lib/data/posts";
 import type { MessageKey } from "@/lib/i18n/types";
-import {
-  isPostType,
-  postEditSchema,
-  postSchema,
-  replySchema,
-  type PostPage,
-} from "@/lib/posts";
+import { isPostType, type PostPage } from "@/lib/posts";
 import { rateLimit } from "@/lib/rate-limit";
 import { runAction } from "@/lib/actions/run";
-
-export type PostResult<T = object> =
-  ({ ok: true } & T) | { ok: false; error: MessageKey };
-
-const failed = {
-  ok: false,
-  error: "Something went wrong. Please try again.",
-} as const;
+import { postEditSchema, postSchema } from "@/lib/validations/post-form";
+import { replySchema } from "@/lib/validations/reply-form";
 
 /**
  * The signed-in, active user (fresh session), within the rate limit — or
@@ -54,15 +43,15 @@ const refresh = () => revalidatePath("/", "layout");
 /** Posts in the visitor's city, as themselves or as one of their businesses. */
 export async function createPost(
   input: unknown,
-): Promise<PostResult<{ id: string }>> {
+): Promise<ActionResult<{ id: string }>> {
   const user = await signedIn("post", 30);
-  if ("error" in user) return { ok: false, error: user.error };
+  if ("error" in user) return fail(user.error);
   const parsed = postSchema.safeParse(input);
-  if (!parsed.success) return failed;
+  if (!parsed.success) return invalid(parsed.error);
   const values = parsed.data;
   // The place picked in the form, or the one being browsed.
   const places = await getPlaceIndex();
-  if (values.city && !places.has(values.city)) return failed;
+  if (values.city && !places.has(values.city)) return AGAIN;
   const city = values.city || (await getCurrentPlace());
 
   let businessId: string | null = null;
@@ -73,7 +62,7 @@ export async function createPost(
       business.status !== "active" ||
       !canManage(roleFor(business, { id: user.userId }))
     ) {
-      return { ok: false, error: "You can only post as your own business." };
+      return fail("You can only post as your own business.");
     }
     businessId = business.id;
   }
@@ -95,31 +84,31 @@ export async function createPost(
         .returning({ id: posts.id }),
   );
   refresh();
-  return { ok: true, id: row.id };
+  return ok({ id: row.id });
 }
 
 /** Edits your post's text and its type's fields (an offer's price…). */
 export async function updatePost(
   id: unknown,
   input: unknown,
-): Promise<PostResult> {
+): Promise<ActionResult> {
   const user = await signedIn("post-edit", 60);
-  if ("error" in user) return { ok: false, error: user.error };
+  if ("error" in user) return fail(user.error);
   const row = typeof id === "string" ? await findPostRow(id) : undefined;
   if (!row || row.createdById !== user.userId) {
-    return { ok: false, error: "This post no longer exists." };
+    return fail("This post no longer exists.");
   }
   // Posted as a business: only while you still run it (not once someone
   // else owns it).
   if (row.businessId) {
     const [business] = await db.select().from(businesses).where(eq(businesses.id, row.businessId)).limit(1);
     if (!business || !canManage(roleFor(business, { id: user.userId }))) {
-      return { ok: false, error: "You can only post as your own business." };
+      return fail("You can only post as your own business.");
     }
   }
   // Type and author stay as they were posted; its type checks `data`.
   const parsed = postEditSchema(row.type).safeParse(input);
-  if (!parsed.success) return failed;
+  if (!parsed.success) return invalid(parsed.error);
 
   await runAction({ action: "post.update", actorId: user.userId, input: { postId: row.id } }, (tx) =>
     tx
@@ -132,37 +121,37 @@ export async function updatePost(
       .where(eq(posts.id, row.id)),
   );
   refresh();
-  return { ok: true };
+  return done();
 }
 
 /** Deletes your post, with its replies. */
-export async function deletePost(id: unknown): Promise<PostResult> {
+export async function deletePost(id: unknown): Promise<ActionResult> {
   const user = await signedIn("post-delete", 60);
-  if ("error" in user) return { ok: false, error: user.error };
+  if ("error" in user) return fail(user.error);
   const row = typeof id === "string" ? await findPostRow(id) : undefined;
   if (!row || row.createdById !== user.userId) {
-    return { ok: false, error: "This post no longer exists." };
+    return fail("This post no longer exists.");
   }
   await runAction({ action: "post.delete", actorId: user.userId, input: { postId: row.id } }, (tx) =>
     tx.delete(posts).where(eq(posts.id, row.id)),
   );
   refresh();
-  return { ok: true };
+  return done();
 }
 
 /** Replies to a post, as yourself. */
 export async function replyToPost(
   postId: unknown,
   input: unknown,
-): Promise<PostResult> {
+): Promise<ActionResult> {
   const user = await signedIn("reply", 60);
-  if ("error" in user) return { ok: false, error: user.error };
+  if ("error" in user) return fail(user.error);
   const parsed = replySchema.safeParse(input);
-  if (!parsed.success) return failed;
+  if (!parsed.success) return invalid(parsed.error);
   const parent =
     typeof postId === "string" ? await findVisiblePostRow(postId) : undefined;
   if (!parent || parent.parentId) {
-    return { ok: false, error: "This post no longer exists." };
+    return fail("This post no longer exists.");
   }
 
   await runAction({ action: "post.reply", actorId: user.userId, input: { postId: parent.id } }, (tx) =>
@@ -175,23 +164,23 @@ export async function replyToPost(
     }),
   );
   refresh();
-  return { ok: true };
+  return done();
 }
 
 /** Helpful (1), not helpful (-1), or take your vote back (0). */
 export async function votePost(
   id: unknown,
   value: unknown,
-): Promise<PostResult> {
-  if (value !== 1 && value !== -1 && value !== 0) return failed;
+): Promise<ActionResult> {
+  if (value !== 1 && value !== -1 && value !== 0) return AGAIN;
   const user = await signedIn("vote", 300);
-  if ("error" in user) return { ok: false, error: user.error };
+  if ("error" in user) return fail(user.error);
   // Posts and replies alike, only while everyone can see them.
   const row = typeof id === "string" ? await findVisiblePostRow(id) : undefined;
-  if (!row) return { ok: false, error: "This post no longer exists." };
+  if (!row) return fail("This post no longer exists.");
   // Your own post's score is what others think of it.
   if (row.createdById === user.userId) {
-    return { ok: false, error: "You can't vote on your own post." };
+    return fail("You can't vote on your own post.");
   }
 
   if (value === 0) {
@@ -209,22 +198,22 @@ export async function votePost(
         set: { value },
       });
   }
-  return { ok: true };
+  return done();
 }
 
 /** Bookmarks (`save` = true) or un-bookmarks a post. Idempotent. */
 export async function savePost(
   id: unknown,
   save: unknown,
-): Promise<PostResult> {
-  if (typeof save !== "boolean") return failed;
+): Promise<ActionResult> {
+  if (typeof save !== "boolean") return AGAIN;
   const user = await signedIn("save", 300);
-  if ("error" in user) return { ok: false, error: user.error };
-  if (typeof id !== "string" || !isValidId(id)) return failed;
+  if ("error" in user) return fail(user.error);
+  if (typeof id !== "string" || !isValidId(id)) return AGAIN;
 
   if (save) {
     if (!(await getPost(id, user.userId))) {
-      return { ok: false, error: "This post no longer exists." };
+      return fail("This post no longer exists.");
     }
     await db
       .insert(postSaves)
@@ -236,7 +225,7 @@ export async function savePost(
       .where(and(eq(postSaves.postId, id), eq(postSaves.userId, user.userId)));
   }
   revalidatePath("/profile/saved");
-  return { ok: true };
+  return done();
 }
 
 /**

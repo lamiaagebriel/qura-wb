@@ -5,9 +5,9 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/db";
 import { businessReviews, businesses, places, posts, tickets, users, type TicketRef } from "@/db/schema";
+import { AGAIN, done, fail, invalid, NOT_ALLOWED, ok, type ActionResult } from "@/lib/action-result";
 import { runAction } from "@/lib/actions/run";
 import { allowedRequest, roleFor } from "@/lib/business-status";
-import type { MessageKey } from "@/lib/i18n/types";
 
 import { OPEN_STATUSES } from "./statuses";
 import { isTicketType, TICKET_TYPES } from "./types";
@@ -15,15 +15,11 @@ import { isTicketType, TICKET_TYPES } from "./types";
 /** Who's acting (a fresh session's user). */
 export type Actor = { id: string; status: string };
 
-export type TicketResult<T = object> = ({ ok: true } & T) | { ok: false; error: MessageKey; fields?: Record<string, MessageKey> };
 
 /** Thrown inside a transaction to undo it: the ticket was cancelled meanwhile. */
 class AlreadyHandled extends Error {}
 
-type Failure = { ok: false; error: MessageKey };
-const AGAIN: Failure = { ok: false, error: "Something went wrong. Please try again." };
-const NOT_ALLOWED: Failure = { ok: false, error: "You can't do that." };
-const HANDLED: Failure = { ok: false, error: "This request was already handled." };
+const HANDLED = fail("This request was already handled.");
 
 /** The refs in a stable order, for `openKey` and lookups. */
 const keyOf = (type: string, actorId: string, refs: TicketRef[], extra = "") =>
@@ -60,7 +56,7 @@ export async function openTicket(
   type: unknown,
   refs: unknown,
   data: unknown,
-): Promise<TicketResult<{ id: string }>> {
+): Promise<ActionResult<{ id: string }>> {
   if (!isTicketType(type)) return AGAIN;
   const info = TICKET_TYPES[type];
   const parsedRefs = Array.isArray(refs) ? (refs as TicketRef[]) : [];
@@ -71,14 +67,10 @@ export async function openTicket(
     return AGAIN;
   }
   const parsed = info.data.safeParse(data ?? {});
-  if (!parsed.success) {
-    const fields: Record<string, MessageKey> = {};
-    for (const issue of parsed.error.issues) fields[issue.path.join(".")] ??= issue.message as MessageKey;
-    return { ok: false, error: "Something went wrong. Please try again.", fields };
-  }
+  if (!parsed.success) return invalid(parsed.error);
   const values = parsed.data as Record<string, unknown>;
   const records = await Promise.all(parsedRefs.map(loadRef));
-  if (records.some((record) => !record)) return { ok: false, error: "This no longer exists." };
+  if (records.some((record) => !record)) return fail("This no longer exists.");
   const [subject] = records as Record<string, unknown>[];
 
   // Who may send it.
@@ -121,7 +113,7 @@ export async function openTicket(
     .where(and(eq(tickets.openKey, openKey), inArray(tickets.status, [...OPEN_STATUSES])))
     .limit(1);
   // Already sent and still waiting: nothing new to send.
-  if (taken) return { ok: true, id: taken.id };
+  if (taken) return ok({ id: taken.id });
 
   const id = await runAction(
     { action: "ticket.open", actorId: actor.id, input: { type, refs: parsedRefs, data: values } },
@@ -134,13 +126,13 @@ export async function openTicket(
     },
   );
   revalidatePath("/profile", "layout");
-  return { ok: true, id };
+  return ok({ id });
 }
 
 /** Takes back your own waiting ticket. */
-export async function cancelTicket(actor: Actor, ticketId: unknown): Promise<TicketResult> {
+export async function cancelTicket(actor: Actor, ticketId: unknown): Promise<ActionResult> {
   if (typeof ticketId !== "string") return AGAIN;
-  const done = await runAction({ action: "ticket.cancel", actorId: actor.id, input: { ticketId } }, async (tx) => {
+  const cancelled = await runAction({ action: "ticket.cancel", actorId: actor.id, input: { ticketId } }, async (tx) => {
     const rows = await tx
       .update(tickets)
       .set({ status: "cancelled" })
@@ -152,7 +144,7 @@ export async function cancelTicket(actor: Actor, ticketId: unknown): Promise<Tic
     if (error instanceof AlreadyHandled) return false;
     throw error;
   });
-  if (!done) return HANDLED;
+  if (!cancelled) return HANDLED;
   revalidatePath("/profile", "layout");
-  return { ok: true };
+  return done();
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
-import { PostForm } from "@/components/posts/post-form";
+import { PostForm } from "@/components/forms/post-form";
 import { requireUser } from "@/lib/auth/session";
 import { getCurrentPlace } from "@/lib/data/places";
 import { postingBusinesses } from "@/lib/data/posts";

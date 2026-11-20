@@ -4,9 +4,11 @@ import { eq } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 
 import { businesses, businessLocations } from "@/db/schema";
+import { AGAIN, done, fail, invalid, NOT_ALLOWED, ok, type ActionResult } from "@/lib/action-result";
 import { runAction } from "@/lib/actions/run";
 import { getFreshSession } from "@/lib/auth/session";
-import { businessSchema, formToBusiness } from "@/lib/business";
+import { formToBusiness } from "@/lib/business";
+import { businessSchema } from "@/lib/validations/business-form";
 import {
   allowedRequest,
   allowedStatuses,
@@ -23,18 +25,8 @@ import {
 } from "@/lib/data/businesses";
 import { getPlaceIndex } from "@/lib/data/places";
 import { applyStatus, NOT_READY, NotReadyToGoLive } from "@/lib/data/status-writes";
-import type { MessageKey } from "@/lib/i18n/types";
 import { rateLimit } from "@/lib/rate-limit";
 import { openTicket } from "@/lib/tickets/server";
-
-export type SaveBusinessResult =
-  /** `requested`: the status change was recorded as a request, not applied. */
-  | { ok: true; requested?: boolean }
-  /**
-   * `fields`: field path ("name.en", "locations.0.pin") → message;
-   * `form`: what went wrong with the whole save.
-   */
-  | { ok: false; fields?: Record<string, MessageKey>; form?: MessageKey };
 
 const isUniqueViolation = (error: unknown) =>
   (error as { cause?: { code?: string } })?.cause?.code === "23505" ||
@@ -49,33 +41,27 @@ const isUniqueViolation = (error: unknown) =>
 export async function saveBusiness(
   editing: unknown,
   input: unknown,
-): Promise<SaveBusinessResult> {
+): Promise<ActionResult<{ requested: boolean }>> {
   const session = await getFreshSession();
   if (!session || session.user.status !== "active") {
-    return { ok: false, form: "Please sign in again." };
+    return fail("Please sign in again.");
   }
   const userId = session.user.id;
 
   if (editing !== null && typeof editing !== "string") {
-    return { ok: false, form: "Something went wrong. Please try again." };
+    return AGAIN;
   }
   if (!(await rateLimit(`save-business:${userId}`, 20, 60 * 60))) {
-    return { ok: false, form: "Too many attempts. Please wait a moment." };
+    return fail("Too many attempts. Please wait a moment.");
   }
   const existing =
     editing === null ? null : await getMyBusiness(editing, userId);
   if (editing !== null && !existing) {
-    return { ok: false, form: "This business isn't yours to edit." };
+    return fail("This business isn't yours to edit.");
   }
 
   const parsed = businessSchema.safeParse(input);
-  if (!parsed.success) {
-    const fields: Record<string, MessageKey> = {};
-    for (const issue of parsed.error.issues) {
-      fields[issue.path.join(".")] ??= issue.message as MessageKey;
-    }
-    return { ok: false, fields };
-  }
+  if (!parsed.success) return invalid(parsed.error);
   const values = parsed.data;
   // Places come from the database, so the form's schema can't list them.
   const places = await getPlaceIndex();
@@ -83,15 +69,9 @@ export async function saveBusiness(
     (location) => !places.has(location.city),
   );
   if (unknownPlace !== -1) {
-    return {
-      ok: false,
-      fields: { [`locations.${unknownPlace}.city`]: "Choose a city" },
-    };
+    return fail("Choose a city", `locations.${unknownPlace}.city`);
   }
-  const taken = {
-    ok: false,
-    fields: { username: "This username is taken" },
-  } as const;
+  const taken = fail("This username is taken", "username");
 
   // Taken: another business has it now. A renamed business's old @handle
   // isn't kept: it's free for anyone right away.
@@ -112,7 +92,7 @@ export async function saveBusiness(
       statusChange = { apply: values.status };
     else if (kind && requestTarget(kind) === values.status)
       statusChange = { request: kind };
-    else return { ok: false, fields: { status: "You can't do that." } };
+    else return fail("You can't do that.", "status");
   }
 
   const { socials, locations, hours, ...business } = formToBusiness(values);
@@ -161,7 +141,7 @@ export async function saveBusiness(
   } catch (error) {
     // Two people claiming the same @handle at once.
     if (isUniqueViolation(error)) return taken;
-    if (error instanceof NotReadyToGoLive) return { ok: false, fields: { status: NOT_READY } };
+    if (error instanceof NotReadyToGoLive) return fail(NOT_READY, "status");
     throw error;
   }
 
@@ -179,7 +159,7 @@ export async function saveBusiness(
   revalidatePath(`/bs/${values.username}`, "layout");
   revalidatePath("/c/[slug]", "page");
   revalidatePath("/profile", "layout");
-  return { ok: true, requested: !!statusChange && "request" in statusChange };
+  return ok({ requested: !!statusChange && "request" in statusChange });
 }
 
 /**
@@ -189,18 +169,18 @@ export async function saveBusiness(
  */
 export async function deleteBusiness(
   username: unknown,
-): Promise<{ ok: true } | { ok: false; error: MessageKey }> {
+): Promise<ActionResult> {
   const session = await getFreshSession();
   if (!session || session.user.status !== "active") {
-    return { ok: false, error: "Please sign in again." };
+    return fail("Please sign in again.");
   }
   if (typeof username !== "string" || !username) {
-    return { ok: false, error: "Something went wrong. Please try again." };
+    return AGAIN;
   }
   const business = await findBusiness(username);
-  if (!business) return { ok: false, error: "This business no longer exists." };
+  if (!business) return fail("This business no longer exists.");
   if (!canDelete(roleFor(business, session.user), business.ownerId !== null)) {
-    return { ok: false, error: "You can't do that." };
+    return NOT_ALLOWED;
   }
 
   await runAction(
@@ -211,5 +191,5 @@ export async function deleteBusiness(
   revalidatePath(`/bs/${business.username}`, "layout");
   revalidatePath("/c/[slug]", "page");
   revalidatePath("/profile", "layout");
-  return { ok: true };
+  return done();
 }

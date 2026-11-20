@@ -1,35 +1,31 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 
-import { FormError, INPUT, TextareaField } from "@/components/form";
-import { PlaceField } from "@/components/places/place-field";
-import { Button } from "@/components/ui/button";
+import { FormError, INPUT } from "@/components/forms/form-error";
+import { TextareaField } from "@/components/forms/textarea-field";
 import { canGoBack } from "@/components/navigation/history";
+import { PlaceField } from "@/components/places/place-field";
+import { createPost, updatePost } from "@/components/posts/post-actions";
+import { PostAsPicker } from "@/components/posts/post-as-picker";
+import { TypeSelect } from "@/components/posts/type-select";
+import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "@/components/ui/toast";
-import { useLocale } from "@/lib/i18n/provider";
+import { useActionForm } from "@/hooks/use-action-form";
 import {
   BUSINESS_TYPES,
   typesFor,
   POST_MAX_LENGTH,
   PRICE_MAX_LENGTH,
-  postSchema,
   type Post,
-  type PostFormValues,
-  type PostInput,
   type PostType,
   type PostingBusiness,
   type PostingUser,
 } from "@/lib/posts";
-
-import { TypeSelect } from "./type-select";
-import { PostAsPicker } from "./post-as-picker";
-import { createPost, updatePost } from "./post-actions";
+import { postSchema, type PostFormValues, type PostInput } from "@/lib/validations/post-form";
 
 /**
  * Writing a post (its own screen): who it's from (you, or one of your
@@ -56,7 +52,6 @@ export function PostForm({
   place?: string;
   back: string;
 }) {
-  const { t } = useLocale();
   const router = useRouter();
   // A business-only type (the + on Jobs…) starts as your first business.
   const startAs =
@@ -73,13 +68,9 @@ export function PostForm({
     body: "",
     data: {},
   };
-  const form = useForm<PostFormValues, unknown, PostInput>({
-    // The form keeps strings; the schema turns them into the post.
-    resolver: zodResolver(postSchema) as Resolver<
-      PostFormValues,
-      unknown,
-      PostInput
-    >,
+  // The form keeps strings; the schema turns them into the post.
+  const { form, submit, pending, t } = useActionForm<PostFormValues, unknown, PostInput>({
+    schema: postSchema,
     defaultValues: editing
       ? {
           type: editing.type,
@@ -97,6 +88,9 @@ export function PostForm({
           ),
         }
       : empty,
+    action: (values) => (editing ? updatePost(editing.id, values) : createPost(values)),
+    success: editing ? "Post updated" : "Posted!",
+    onDone: () => (canGoBack() ? router.back() : router.replace(back)),
   });
   const type = useWatch({ control: form.control, name: "type" });
   const business = useWatch({ control: form.control, name: "business" });
@@ -110,20 +104,6 @@ export function PostForm({
     const open = typesFor(!!next);
     if (!open.includes(form.getValues("type"))) form.setValue("type", open[0]);
   };
-
-  const submit = form.handleSubmit(async (values) => {
-    (document.activeElement as HTMLElement | null)?.blur();
-    const result = editing
-      ? await updatePost(editing.id, values)
-      : await createPost(values);
-    if (!result.ok) {
-      toast.add({ title: t(result.error), type: "error" });
-      return;
-    }
-    toast.add({ title: editing ? t("Post updated") : t("Posted!") });
-    if (canGoBack()) router.back();
-    else router.replace(back);
-  });
 
   return (
     <form className="flex flex-col gap-5 pt-2 pb-8" onSubmit={submit}>
@@ -256,10 +236,10 @@ export function PostForm({
         type="submit"
         size="xl"
         className="w-full rounded-xl text-base"
-        disabled={form.formState.isSubmitting}
-        aria-busy={form.formState.isSubmitting}
+        disabled={pending}
+        aria-busy={pending}
       >
-        {form.formState.isSubmitting && <Spinner />}
+        {pending && <Spinner />}
         {editing ? t("Save") : t("Post")}
       </Button>
     </form>

@@ -5,14 +5,13 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { businessFollows, businessReviews, type Business } from "@/db/schema";
+import { done, fail, type ActionResult } from "@/lib/action-result";
 import { runAction } from "@/lib/actions/run";
 import { getFreshSession } from "@/lib/auth/session";
 import { findPublicBusiness, isMine } from "@/lib/data/businesses";
 import type { MessageKey } from "@/lib/i18n/types";
 import { rateLimit } from "@/lib/rate-limit";
-import { reviewSchema } from "@/lib/reviews";
-
-export type SocialResult = { ok: true } | { ok: false; error: MessageKey };
+import { reviewSchema } from "@/lib/validations/review-form";
 
 const handle = z.string().min(1).max(50);
 
@@ -52,12 +51,12 @@ async function prepare(
 export async function setFollowing(
   username: unknown,
   follow: unknown,
-): Promise<SocialResult> {
+): Promise<ActionResult> {
   if (typeof follow !== "boolean") {
-    return { ok: false, error: "Something went wrong. Please try again." };
+    return fail("Something went wrong. Please try again.");
   }
   const ready = await prepare(username, "follow", 200);
-  if ("error" in ready) return { ok: false, error: ready.error };
+  if ("error" in ready) return fail(ready.error);
   const { userId, business } = ready;
 
   await runAction(
@@ -74,7 +73,7 @@ export async function setFollowing(
   );
   revalidatePath(`/bs/${business.username}`);
   revalidatePath("/profile");
-  return { ok: true };
+  return done();
 }
 
 /**
@@ -84,17 +83,17 @@ export async function setFollowing(
 export async function postReview(
   username: unknown,
   input: unknown,
-): Promise<SocialResult> {
+): Promise<ActionResult> {
   const ready = await prepare(username, "review", 30);
-  if ("error" in ready) return { ok: false, error: ready.error };
+  if ("error" in ready) return fail(ready.error);
   const { userId, business } = ready;
 
   if (isMine(business, userId)) {
-    return { ok: false, error: "You can't review your own business." };
+    return fail("You can't review your own business.");
   }
   const parsed = reviewSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: "Something went wrong. Please try again." };
+    return fail("Something went wrong. Please try again.");
   }
 
   await runAction(
@@ -109,16 +108,16 @@ export async function postReview(
         }),
   );
   revalidatePath(`/bs/${business.username}`, "layout");
-  return { ok: true };
+  return done();
 }
 
 /**
  * Deletes your review of a business. A hidden one stays: deleting it and
  * writing again would bring it back.
  */
-export async function deleteReview(username: unknown): Promise<SocialResult> {
+export async function deleteReview(username: unknown): Promise<ActionResult> {
   const ready = await prepare(username, "review", 30);
-  if ("error" in ready) return { ok: false, error: ready.error };
+  if ("error" in ready) return fail(ready.error);
   const { userId, business } = ready;
 
   const deleted = await runAction(
@@ -136,8 +135,8 @@ export async function deleteReview(username: unknown): Promise<SocialResult> {
         .returning({ id: businessReviews.id }),
   );
   if (!deleted.length) {
-    return { ok: false, error: "Something went wrong. Please try again." };
+    return fail("Something went wrong. Please try again.");
   }
   revalidatePath(`/bs/${business.username}`, "layout");
-  return { ok: true };
+  return done();
 }

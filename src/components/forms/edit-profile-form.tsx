@@ -1,16 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm, useWatch, type Path } from "react-hook-form";
+import { Controller, useWatch, type Control } from "react-hook-form";
 
-import {
-  INPUT,
-  TextareaField,
-  TextField,
-  UsernameField,
-} from "@/components/form";
+import { INPUT } from "@/components/forms/form-error";
+import { TextField } from "@/components/forms/text-field";
+import { UsernameField } from "@/components/forms/username-field";
 import { HugeiconsIcon, PencilEdit02Icon } from "@/components/icons";
 import { canGoBack } from "@/components/navigation/history";
 import { updateProfile } from "@/components/profile/profile-actions";
@@ -30,15 +26,13 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "@/components/ui/toast";
+import { useActionForm } from "@/hooks/use-action-form";
 import { useLocale } from "@/lib/i18n/provider";
+import { AVATARS, avatarUrl } from "@/lib/profile";
 import {
-  AVATARS,
-  avatarUrl,
-  BIO_MAX_LENGTH,
   profileSchema,
   type ProfileFormValues,
-} from "@/lib/profile";
+} from "@/lib/validations/profile-form";
 import { href } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -57,33 +51,16 @@ export function EditProfileForm({
   /** Your Google photo, offered first among the avatars (if any). */
   googlePhoto: string | null;
 }) {
-  const { t } = useLocale();
   const router = useRouter();
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
+  const { form, submit, pending, t } = useActionForm<ProfileFormValues, undefined>({
+    schema: profileSchema,
     defaultValues: initial,
+    action: updateProfile,
+    success: "Changes saved",
     mode: "onTouched",
+    onDone: () => (canGoBack() ? router.back() : router.replace(href("profile"))),
   });
   const { control } = form;
-
-  const submit = form.handleSubmit(async (values) => {
-    (document.activeElement as HTMLElement | null)?.blur();
-    const result = await updateProfile(values);
-    if (!result.ok) {
-      Object.entries(result.fields ?? {}).forEach(([path, message], i) =>
-        form.setError(
-          path as Path<ProfileFormValues>,
-          { message },
-          { shouldFocus: i === 0 },
-        ),
-      );
-      if (result.form) toast.add({ title: t(result.form), type: "error" });
-      return;
-    }
-    toast.add({ title: t("Changes saved") });
-    if (canGoBack()) router.back();
-    else router.replace(href("profile"));
-  });
 
   // Your current photo stays a choice even if it's no longer your Google one.
   const photos = [
@@ -146,34 +123,24 @@ export function EditProfileForm({
             {t("From your Google account. It can't be changed here.")}
           </FieldDescription>
         </Field>
-        {/* Bio: hidden for now, kept for later (the saved bio is left as is).
-        <TextareaField
-          control={control}
-          name="bio"
-          label={t("Bio (optional)")}
-          dir="auto"
-          rows={3}
-          maxLength={BIO_MAX_LENGTH}
-          enterKeyHint="done"
-          autoComplete="off"
-        />
-        */}
+        {/* Bio: hidden for now (the saved bio is left as is); a TextareaField
+            for `bio` (max BIO_MAX_LENGTH) when it comes back. */}
       </FieldGroup>
 
       <Button
         type="submit"
         size="xl"
         className="w-full rounded-xl text-base"
-        disabled={form.formState.isSubmitting}
+        disabled={pending}
       >
-        {form.formState.isSubmitting && <Spinner />}
+        {pending && <Spinner />}
         {t("Save changes")}
       </Button>
     </form>
   );
 }
 
-type FormControl = ReturnType<typeof useForm<ProfileFormValues>>["control"];
+type FormControl = Control<ProfileFormValues>;
 
 /**
  * The avatar as it will look; tapping it opens a sheet with the choices

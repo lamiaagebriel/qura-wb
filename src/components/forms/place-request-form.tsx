@@ -1,15 +1,11 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 
-import {
-  FormError,
-  INPUT,
-  LocalizedField,
-  TextareaField,
-} from "@/components/form";
+import { FormError, INPUT } from "@/components/forms/form-error";
+import { LocalizedField } from "@/components/forms/localized-field";
+import { TextareaField } from "@/components/forms/textarea-field";
 import { canGoBack } from "@/components/navigation/history";
 import { PlaceField } from "@/components/places/place-field";
 import { requestPlace } from "@/components/places/place-actions";
@@ -17,19 +13,17 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "@/components/ui/toast";
+import { useActionForm } from "@/hooks/use-action-form";
 import { useLocale } from "@/lib/i18n/provider";
 import { inLocale } from "@/lib/localized";
-import {
-  OTHER_TYPE,
-  PLACE_NAME_MAX,
-  placeRequestSchema,
-  REASON_MAX,
-  type PlaceRequestInput,
-  type PlaceRequestValues,
-} from "@/lib/place-requests";
+import { OTHER_TYPE, PLACE_NAME_MAX, REASON_MAX } from "@/lib/place-requests";
 import type { PlaceTypeOption } from "@/lib/places";
 import { cn } from "@/lib/utils";
+import {
+  placeRequestSchema,
+  type PlaceRequestInput,
+  type PlaceRequestValues,
+} from "@/lib/validations/place-request-form";
 
 /**
  * Asking for a new place: where it is (the place it's inside), its name,
@@ -45,14 +39,9 @@ export function PlaceRequestForm({
   /** Where to go once sent. */
   done: string;
 }) {
-  const { t, locale } = useLocale();
   const router = useRouter();
-  const form = useForm<PlaceRequestValues, unknown, PlaceRequestInput>({
-    resolver: zodResolver(placeRequestSchema) as Resolver<
-      PlaceRequestValues,
-      unknown,
-      PlaceRequestInput
-    >,
+  const { form, submit, pending, t } = useActionForm<PlaceRequestValues, { id: string }, PlaceRequestInput>({
+    schema: placeRequestSchema,
     defaultValues: {
       parent,
       name: { en: "", ar: "" },
@@ -60,28 +49,12 @@ export function PlaceRequestForm({
       customType: "",
       reason: "",
     },
+    action: requestPlace,
+    success: "Request sent",
+    onDone: () => (canGoBack() ? router.back() : router.replace(done)),
   });
+  const { locale } = useLocale();
   const type = useWatch({ control: form.control, name: "type" });
-
-  const submit = form.handleSubmit(async (values) => {
-    (document.activeElement as HTMLElement | null)?.blur();
-    const result = await requestPlace(values);
-    if (!result.ok) {
-      const fields = Object.entries(result.fields ?? {});
-      if (!fields.length) toast.add({ title: t(result.error), type: "error" });
-      fields.forEach(([path, message], i) =>
-        form.setError(
-          path as keyof PlaceRequestValues,
-          { message },
-          { shouldFocus: i === 0 },
-        ),
-      );
-      return;
-    }
-    toast.add({ title: t("Request sent") });
-    if (canGoBack()) router.back();
-    else router.replace(done);
-  });
 
   const choices = [
     ...types.map((option) => ({ id: option.id, label: inLocale(option.name, locale) })),
@@ -191,9 +164,9 @@ export function PlaceRequestForm({
         type="submit"
         size="xl"
         className="rounded-xl"
-        disabled={form.formState.isSubmitting}
+        disabled={pending}
       >
-        {form.formState.isSubmitting && <Spinner />}
+        {pending && <Spinner />}
         {t("Send request")}
       </Button>
     </form>

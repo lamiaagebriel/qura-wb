@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
-import { BusinessForm } from "@/components/profile/business-form";
+import { BusinessForm } from "@/components/forms/business-form";
 import { requireUser } from "@/lib/auth/session";
 import { myOpenBusinessRequest } from "@/lib/data/tickets";
 import { categoryCounts, getMyBusiness } from "@/lib/data/businesses";

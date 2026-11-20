@@ -1,10 +1,6 @@
-// Your personal profile: what you can change about it, and the rules for
-// it. One zod schema, used by the edit form and again by the
-// `updateProfile` action. Error messages are translation keys. Client-safe.
+// Your personal profile: the avatars to pick from and the bio's length (the
+// edit form's schema is `lib/validations/profile-form.ts`). Client-safe.
 
-import { z } from "zod";
-
-import { USERNAME } from "@/lib/business";
 import type { MessageKey } from "@/lib/i18n/types";
 
 const m = (key: MessageKey) => key;
@@ -33,19 +29,3 @@ export const AVATARS = [
 export const avatarUrl = (id: string) => `/avatars/${id}.svg`;
 
 export const BIO_MAX_LENGTH = 160;
-
-export const profileSchema = z.object({
-  name: z.string().trim().min(1, m("Required")).max(50, m("Too long")),
-  username: z
-    .string()
-    .trim()
-    .regex(USERNAME, m("3–30 lowercase letters, numbers, dots or underscores")),
-  bio: z.string().trim().max(BIO_MAX_LENGTH, m("Too long")),
-  /**
-   * A preset (`/avatars/…`), your Google photo, or none (initials). The
-   * action checks a URL really is one of those.
-   */
-  image: z.string().max(2048).nullable(),
-});
-
-export type ProfileFormValues = z.infer<typeof profileSchema>;

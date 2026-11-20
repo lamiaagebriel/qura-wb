@@ -4,17 +4,14 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { users } from "@/db/schema";
+import { AGAIN, done, fail, invalid, type ActionResult } from "@/lib/action-result";
 import { getFreshSession } from "@/lib/auth/session";
 import { isTaken } from "@/lib/auth/username";
 import { getGooglePhoto } from "@/lib/data/users";
-import type { MessageKey } from "@/lib/i18n/types";
-import { AVATARS, avatarUrl, profileSchema } from "@/lib/profile";
+import { AVATARS, avatarUrl } from "@/lib/profile";
+import { profileSchema } from "@/lib/validations/profile-form";
 import { rateLimit } from "@/lib/rate-limit";
 import { runAction } from "@/lib/actions/run";
-
-export type UpdateProfileResult =
-  | { ok: true }
-  | { ok: false; fields?: Record<string, MessageKey>; form?: MessageKey };
 
 const PRESETS = new Set<string>(AVATARS.map(({ id }) => avatarUrl(id)));
 
@@ -28,24 +25,18 @@ const isUniqueViolation = (error: unknown) =>
  */
 export async function updateProfile(
   input: unknown,
-): Promise<UpdateProfileResult> {
+): Promise<ActionResult> {
   const session = await getFreshSession();
   if (!session || session.user.status !== "active") {
-    return { ok: false, form: "Please sign in again." };
+    return fail("Please sign in again.");
   }
   const { user } = session;
   if (!(await rateLimit(`update-profile:${user.id}`, 20, 60 * 60))) {
-    return { ok: false, form: "Too many attempts. Please wait a moment." };
+    return fail("Too many attempts. Please wait a moment.");
   }
 
   const parsed = profileSchema.safeParse(input);
-  if (!parsed.success) {
-    const fields: Record<string, MessageKey> = {};
-    for (const issue of parsed.error.issues) {
-      fields[issue.path.join(".")] ??= issue.message as MessageKey;
-    }
-    return { ok: false, fields };
-  }
+  if (!parsed.success) return invalid(parsed.error);
   const values = parsed.data;
 
   if (
@@ -54,13 +45,10 @@ export async function updateProfile(
     !PRESETS.has(values.image) &&
     values.image !== (await getGooglePhoto(user.id))
   ) {
-    return { ok: false, form: "Something went wrong. Please try again." };
+    return AGAIN;
   }
 
-  const taken = {
-    ok: false,
-    fields: { username: "This username is taken" },
-  } as const;
+  const taken = fail("This username is taken", "username");
   if (values.username !== user.username && (await isTaken(values.username))) {
     return taken;
   }
@@ -79,5 +67,5 @@ export async function updateProfile(
   // every screen showing your name) picks up the change now.
   await getFreshSession();
   revalidatePath("/profile", "layout");
-  return { ok: true };
+  return done();
 }

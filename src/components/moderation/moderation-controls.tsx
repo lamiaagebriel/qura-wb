@@ -8,13 +8,13 @@ import { Flag01Icon, HugeiconsIcon } from "@/components/icons";
 import {
   reportBusiness,
   reportPost,
-  type ModerationResult,
 } from "@/components/moderation/moderation-actions";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { ReasonSheet } from "@/components/sheets/reason-sheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useLocale } from "@/lib/i18n/provider";
+import type { ActionResult } from "@/lib/action-result";
 import type { MessageKey } from "@/lib/i18n/types";
 import { REASON_LABELS, REPORT_REASONS } from "@/lib/tickets/types";
 
@@ -22,7 +22,7 @@ import { REASON_LABELS, REPORT_REASONS } from "@/lib/tickets/types";
 function useRun() {
   const { t } = useLocale();
   const router = useRouter();
-  return async (action: () => Promise<ModerationResult>, success: MessageKey) => {
+  return async (action: () => Promise<ActionResult>, success: MessageKey) => {
     const result = await action();
     if (!result.ok) {
       toast.add({ title: t(result.error), type: "error" });

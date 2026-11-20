@@ -2,7 +2,7 @@
 // `pnpm db:seed` (src/db/seed.ts), never in production. Deterministic, so
 // every run gives each business the same reviews.
 
-import type { ReviewInput } from "@/lib/reviews";
+import type { ReviewInput } from "@/lib/validations/review-form";
 
 /** Small deterministic PRNG, so the same data comes out every time. */
 function random(seed: number) {

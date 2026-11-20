@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { DeletePostButton } from "@/components/posts/delete-post-button";
-import { PostForm } from "@/components/posts/post-form";
+import { PostForm } from "@/components/forms/post-form";
 import { requireUser } from "@/lib/auth/session";
 import { getMyPost } from "@/lib/data/posts";
 import { getTranslations } from "@/lib/i18n/server";
