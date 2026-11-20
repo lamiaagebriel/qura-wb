@@ -7,7 +7,8 @@ import { expect, test, waitForHydration } from "./fixtures";
 test.describe.configure({ mode: "serial" });
 
 test.describe("places", () => {
-  test("can't find a place: request it from the picker, see it waiting, cancel it", async ({
+  // Place requests aren't launched yet (PLACE_REQUESTS in lib/features.ts).
+  test.skip("can't find a place: request it from the picker, see it waiting, cancel it", async ({
     page,
     signIn,
   }) => {

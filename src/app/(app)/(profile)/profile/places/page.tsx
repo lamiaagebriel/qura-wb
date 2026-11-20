@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import {
@@ -20,6 +21,7 @@ import { timeAgo } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import { inLocale, type Localized } from "@/lib/localized";
 import { ALREADY_ADDED } from "@/lib/place-requests";
+import { PLACE_REQUESTS } from "@/lib/features";
 import { placeLabel } from "@/lib/places";
 import { href } from "@/lib/routes";
 import { TICKET_STATUS_LABELS, type TicketStatus } from "@/lib/tickets/statuses";
@@ -43,6 +45,7 @@ const STATUS_CLASSES: Record<TicketStatus, string> = {
  * be cancelled. Only you see it.
  */
 export default async function MyPlacesPage() {
+  if (!PLACE_REQUESTS) notFound();
   const [{ t, locale }, user, places] = await Promise.all([
     getTranslations(),
     requireUser(href("myPlaces")),

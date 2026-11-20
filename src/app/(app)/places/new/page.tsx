@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { PlaceRequestForm } from "@/components/places/place-request-form";
 import { requireUser } from "@/lib/auth/session";
 import { getCurrentPlace, getPlaceIndex, getPlaceTypes } from "@/lib/data/places";
+import { PLACE_REQUESTS } from "@/lib/features";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 
@@ -17,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function NewPlacePage({
   searchParams,
 }: PageProps<"/places/new">) {
+  if (!PLACE_REQUESTS) notFound();
   const [{ t }, { parent }, places, current, types] = await Promise.all([
     getTranslations(),
     searchParams,

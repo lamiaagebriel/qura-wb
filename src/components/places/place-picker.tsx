@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useLocale } from "@/lib/i18n/provider";
 import { placeName, type Place } from "@/lib/places";
+import { PLACE_REQUESTS } from "@/lib/features";
 import { href } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -104,7 +105,11 @@ export function PlacePicker({
           className="mx-4 mb-4 max-h-[calc(var(--app-height)*0.6)] w-auto gap-0 divide-y divide-border/60 overflow-y-auto"
         >
           {parent && (
-            <Row value={parent.slug} label={t("All of {{city}}", { city: name(parent) })} strong />
+            <Row
+              value={parent.slug}
+              label={t("All of {{city}}", { city: name(parent) })}
+              strong
+            />
           )}
           {rows.map((place) => {
             const inside = places.childrenOf(place.id).length > 0;
@@ -114,32 +119,40 @@ export function PlacePicker({
                 value={place.slug}
                 label={name(place)}
                 strong={!parent}
-                hint={inside ? t("All of {{city}}", { city: name(place) }) : undefined}
+                hint={
+                  inside
+                    ? t("All of {{city}}", { city: name(place) })
+                    : undefined
+                }
                 onOpen={inside ? () => setLevel(place.id) : undefined}
                 openLabel={t("Places in {{city}}", { city: name(place) })}
               />
             );
           })}
         </RadioGroup>
-        <button
-          type="button"
-          onClick={() => {
-            setRequesting(true);
-            onOpenChange(false);
-          }}
-          className="mx-4 mb-[calc(var(--safe-bottom)+1rem)] -mt-2 flex min-h-11 items-center justify-center text-sm font-medium text-primary"
-        >
-          {t("Can't find your place? Request it")}
-        </button>
+        {PLACE_REQUESTS && (
+          <button
+            type="button"
+            onClick={() => {
+              setRequesting(true);
+              onOpenChange(false);
+            }}
+            className="mx-4 mb-[calc(var(--safe-bottom)+1rem)] -mt-2 flex min-h-11 items-center justify-center text-sm font-medium text-primary"
+          >
+            {t("Can't find your place? Request it")}
+          </button>
+        )}
       </DrawerContent>
       {/* The real link (slides in), outside the sheet so it outlives it. */}
-      <StackLink
-        ref={requestLink}
-        href={href("newPlace", { query: { parent: parent?.slug } })}
-        hidden
-        tabIndex={-1}
-        aria-hidden
-      />
+      {PLACE_REQUESTS && (
+        <StackLink
+          ref={requestLink}
+          href={href("newPlace", { query: { parent: parent?.slug } })}
+          hidden
+          tabIndex={-1}
+          aria-hidden
+        />
+      )}
     </Drawer>
   );
 }
@@ -164,10 +177,14 @@ function Row({
       {/* The whole row is the label, so tapping anywhere selects it. */}
       <Label className="flex min-h-14 flex-1 cursor-pointer items-center justify-between gap-4 py-2 ps-1 pe-2">
         <span className="flex flex-col">
-          <span className={cn("text-sm", strong ? "font-semibold" : "font-normal")}>
+          <span
+            className={cn("text-sm", strong ? "font-semibold" : "font-normal")}
+          >
             {label}
           </span>
-          {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+          {hint && (
+            <span className="text-xs text-muted-foreground">{hint}</span>
+          )}
         </span>
         <RadioGroupItem value={value} />
       </Label>

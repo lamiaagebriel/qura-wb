@@ -14,6 +14,7 @@ import { ModeSwitcher } from "@/components/mode-switcher";
 import { StackLink } from "@/components/navigation/stack-link";
 import { ShareAppButton } from "@/components/share-app-button";
 import { SignOutButton } from "@/components/sign-out-button";
+import { PLACE_REQUESTS } from "@/lib/features";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 
@@ -94,11 +95,13 @@ export async function SettingsList({
             icon={Store01Icon}
             value={number.format(businessCount)}
           />
-          <LinkRow
-            href={href("myPlaces")}
-            label={t("Place requests")}
-            icon={PinIcon}
-          />
+          {PLACE_REQUESTS && (
+            <LinkRow
+              href={href("myPlaces")}
+              label={t("Place requests")}
+              icon={PinIcon}
+            />
+          )}
         </Group>
       )}
 

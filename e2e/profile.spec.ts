@@ -22,7 +22,6 @@ test.describe("profile", () => {
     // Edit profile is the avatar, not a settings row.
     await expect(page.getByRole("link", { name: "Edit profile" })).toBeVisible();
     await expect(account.nth(0)).toHaveAccessibleName(/^My businesses/);
-    await expect(account.nth(1)).toHaveAccessibleName(/^Place requests/);
     const activity = settings.getByRole("group", { name: "Activity" }).locator(":scope > *");
     await expect(activity.nth(0)).toHaveAccessibleName(/^My posts/);
     await expect(activity.nth(1)).toHaveAccessibleName(/^Saved posts/);
