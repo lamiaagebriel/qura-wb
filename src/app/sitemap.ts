@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { ALL_CATEGORIES } from "@/lib/categories";
-import { allBusinessHandles } from "@/lib/data/businesses";
+import { allBusinessHandles } from "@/server/queries/businesses";
 import { env } from "@/lib/env";
 import { POST_TYPES } from "@/lib/posts";
 import { href, routes, type RouteName } from "@/lib/routes";

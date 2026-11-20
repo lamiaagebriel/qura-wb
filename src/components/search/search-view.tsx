@@ -29,7 +29,7 @@ import { useLocale } from "@/lib/i18n/provider";
 import { useRecentSearches } from "@/lib/recent-searches";
 import { href } from "@/lib/routes";
 
-import { searchBusinesses } from "./actions";
+import { searchBusinesses } from "@/server/actions/search";
 
 /**
  * Search screen: field focused on open (keyboard "search" key), recent

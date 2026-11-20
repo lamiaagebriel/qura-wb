@@ -1,5 +1,5 @@
 // Places: a tree with no depth limit (Aswan → Edfu → a neighborhood…),
-// stored in the `places` table and loaded whole (`lib/data/places.ts`) —
+// stored in the `places` table and loaded whole (`server/queries/places.ts`) —
 // these helpers work on that list, on the server and in the browser.
 // Posts and branches point at a place's `slug` and show in it and every
 // place above it. Client-safe.

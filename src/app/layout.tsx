@@ -3,7 +3,7 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { BRAND, SPLASH_SCREENS } from "@/lib/brand";
-import { getPlaces } from "@/lib/data/places";
+import { getPlaces } from "@/server/queries/places";
 import { env } from "@/lib/env";
 import { LOCALE_META, LOCALES } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n/server";

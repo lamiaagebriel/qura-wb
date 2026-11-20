@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { ArrowDown01Icon, HugeiconsIcon, PinIcon } from "@/components/icons";
 import { PlacePicker } from "@/components/places/place-picker";
 import { usePlaces } from "@/components/places/places-provider";
-import { setCity } from "@/lib/city-actions";
+import { setCity } from "@/server/actions/city";
 import { useLocale } from "@/lib/i18n/provider";
 import { placeName } from "@/lib/places";
 import { cn } from "@/lib/utils";

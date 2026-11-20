@@ -3,7 +3,7 @@ import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { accounts, businesses, history, sessions, tickets, users } from "@/db/schema";
-import type { Tx } from "@/lib/actions/run";
+import type { Tx } from "@/server/run-action";
 import { OPEN_STATUSES } from "@/lib/tickets/statuses";
 
 /**

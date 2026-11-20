@@ -8,7 +8,7 @@ import { LocalizedField } from "@/components/forms/localized-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { canGoBack } from "@/components/navigation/history";
 import { PlaceField } from "@/components/places/place-field";
-import { requestPlace } from "@/components/places/place-actions";
+import { requestPlace } from "@/server/actions/place-requests";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";

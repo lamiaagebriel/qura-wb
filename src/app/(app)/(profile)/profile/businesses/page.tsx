@@ -8,7 +8,7 @@ import { BusinessList } from "@/components/profile/business-list";
 import { StatusScreen } from "@/components/status-screen";
 import { buttonVariants } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/session";
-import { getMyBusinesses } from "@/lib/data/businesses";
+import { getMyBusinesses } from "@/server/queries/businesses";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 import { cn } from "@/lib/utils";

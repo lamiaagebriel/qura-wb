@@ -4,9 +4,9 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 
 import { businesses, history, tickets } from "@/db/schema";
-import type { Tx } from "@/lib/actions/run";
+import type { Tx } from "@/server/run-action";
 import type { BusinessStatus } from "@/lib/business-status";
-import { BUSINESSES_TAG } from "@/lib/data/businesses";
+import { BUSINESSES_TAG } from "@/server/queries/businesses";
 import { OPEN_STATUSES } from "@/lib/tickets/statuses";
 
 // Business status writes, inside an action's transaction (`runAction`), so

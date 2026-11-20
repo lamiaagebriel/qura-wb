@@ -13,7 +13,7 @@
 
 import { eq } from "drizzle-orm";
 
-import type { Tx } from "@/lib/actions/run";
+import type { Tx } from "@/server/run-action";
 import type { OpeningHours } from "@/lib/business";
 import type { AnyPostData, PostType } from "@/lib/posts";
 import type { SocialLink } from "@/lib/socials";

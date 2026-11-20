@@ -1,7 +1,7 @@
 "use server";
 
 import type { BusinessSummary } from "@/lib/business";
-import { searchBusinesses as search } from "@/lib/data/businesses";
+import { searchBusinesses as search } from "@/server/queries/businesses";
 
 /**
  * Businesses matching `query` by name, handle, category or description.

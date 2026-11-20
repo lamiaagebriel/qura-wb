@@ -1,6 +1,6 @@
 // Every flow between people
 // against the database, through the same functions the server actions call
-// (`lib/tickets/server.ts`, `runAction`…). Each check prints PASS / FAIL;
+// (`server/tickets.ts`, `runAction`…). Each check prints PASS / FAIL;
 // everything it makes is removed at the end. `pnpm test:flows` (run by
 // e2e/flows.spec.ts). Exits 1 when a check fails.
 import { eq, inArray, like, sql } from "drizzle-orm";
@@ -18,13 +18,13 @@ import {
   tickets,
   users,
 } from "@/db/schema";
-import { runAction, type Tx } from "@/lib/actions/run";
+import { runAction, type Tx } from "@/server/run-action";
 import { allowedRequest, allowedStatuses, canDelete, canManage, roleFor } from "@/lib/business-status";
-import { getBusiness, getMyBusiness, getMyBusinesses } from "@/lib/data/businesses";
-import { findVisiblePostRow, getPost, getReplies, postingBusinesses } from "@/lib/data/posts";
-import { applyStatus, NotReadyToGoLive } from "@/lib/data/status-writes";
-import { cancelTicket, openTicket, type Actor } from "@/lib/tickets/server";
-import { anonymizeUser } from "@/lib/users/anonymize";
+import { getBusiness, getMyBusiness, getMyBusinesses } from "@/server/queries/businesses";
+import { findVisiblePostRow, getPost, getReplies, postingBusinesses } from "@/server/queries/posts";
+import { applyStatus, NotReadyToGoLive } from "@/server/status-writes";
+import { cancelTicket, openTicket, type Actor } from "@/server/tickets";
+import { anonymizeUser } from "@/server/anonymize";
 
 const results: { name: string; ok: boolean }[] = [];
 function check(name: string, ok: boolean, detail?: unknown) {

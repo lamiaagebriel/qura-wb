@@ -2,7 +2,7 @@
 // Client-safe — labels, what a ticket points at, its `data` fields (zod,
 // shared by the forms and the server) and its statuses. Who may send and
 // answer it, and what each answer does, is server-side
-// (`lib/tickets/server.ts`). A new kind = an entry here and there; no
+// (`server/tickets.ts`). A new kind = an entry here and there; no
 // migration.
 
 import { z } from "zod";

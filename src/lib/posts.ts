@@ -1,5 +1,5 @@
 // Posts: one table for every type (offers, announcements, questions…),
-// what the screens show (read from `lib/data/posts.ts`) and the rules for
+// what the screens show (read from `server/queries/posts.ts`) and the rules for
 // writing one — the same zod schema checks the composer and the actions.
 // Client-safe.
 

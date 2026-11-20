@@ -39,8 +39,8 @@ language when missing.
   trigger. Votes, saves and sign-in internals are left out; emails and
   secrets are never stored.
 
-Reads live in `src/lib/data/`; writes are server actions next to the
-screens that use them, run through `runAction` (one transaction, recorded
+Reads live in `src/server/queries/`; writes are server actions in
+`src/server/actions/`, run through `runAction` (`src/server/run-action.ts`) (one transaction, recorded
 in history). Every write re-checks the session and input (the form's zod
 schema) and is rate limited.
 

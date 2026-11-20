@@ -4,7 +4,7 @@ import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { toast } from "@/components/ui/toast";
 import { useLocale } from "@/lib/i18n/provider";
 
-import { requestStatusChange } from "./status-actions";
+import { requestStatusChange } from "@/server/actions/business-status";
 
 /**
  * "Report it as closed?" — a signed-in visitor tells us a business has

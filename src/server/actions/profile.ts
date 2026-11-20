@@ -7,11 +7,11 @@ import { users } from "@/db/schema";
 import { AGAIN, done, fail, invalid, type ActionResult } from "@/lib/action-result";
 import { getFreshSession } from "@/lib/auth/session";
 import { isTaken } from "@/lib/auth/username";
-import { getGooglePhoto } from "@/lib/data/users";
+import { getGooglePhoto } from "@/server/queries/users";
 import { AVATARS, avatarUrl } from "@/lib/profile";
 import { profileSchema } from "@/lib/validations/profile-form";
-import { rateLimit } from "@/lib/rate-limit";
-import { runAction } from "@/lib/actions/run";
+import { rateLimit } from "@/server/rate-limit";
+import { runAction } from "@/server/run-action";
 
 const PRESETS = new Set<string>(AVATARS.map(({ id }) => avatarUrl(id)));
 

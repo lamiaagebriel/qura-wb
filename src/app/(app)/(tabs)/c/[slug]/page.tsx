@@ -9,8 +9,8 @@ import { BusinessList } from "@/components/profile/business-list";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StatusScreen } from "@/components/status-screen";
 import { categoryOf } from "@/lib/categories";
-import { getCurrentPlace } from "@/lib/data/places";
-import { businessesIn, categoryCounts } from "@/lib/data/businesses";
+import { getCurrentPlace } from "@/server/queries/places";
+import { businessesIn, categoryCounts } from "@/server/queries/businesses";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 

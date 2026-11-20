@@ -24,7 +24,7 @@ import { withMessage, type WhatsappLink } from "@/lib/socials";
 import { cn } from "@/lib/utils";
 
 import { ReportClosedSheet } from "./report-closed";
-import { setFollowing } from "./social-actions";
+import { setFollowing } from "@/server/actions/social";
 
 /**
  * A visitor's buttons under a business profile: follow, and order on

@@ -9,7 +9,7 @@ import { TextField } from "@/components/forms/text-field";
 import { UsernameField } from "@/components/forms/username-field";
 import { HugeiconsIcon, PencilEdit02Icon } from "@/components/icons";
 import { canGoBack } from "@/components/navigation/history";
-import { updateProfile } from "@/components/profile/profile-actions";
+import { updateProfile } from "@/server/actions/profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {

@@ -1,11 +1,11 @@
 "use server";
 
 import { fail, invalid, type ActionResult } from "@/lib/action-result";
-import { currentActor } from "@/lib/actions/actor";
-import { getPlaceIndex } from "@/lib/data/places";
+import { currentActor } from "@/server/actor";
+import { getPlaceIndex } from "@/server/queries/places";
 import { OTHER_TYPE } from "@/lib/place-requests";
 import { placeRequestSchema } from "@/lib/validations/place-request-form";
-import { cancelTicket, openTicket } from "@/lib/tickets/server";
+import { cancelTicket, openTicket } from "@/server/tickets";
 
 // The place screens' actions: asking for a place and taking the request
 // back — tickets (`lib/tickets`), recorded in history.

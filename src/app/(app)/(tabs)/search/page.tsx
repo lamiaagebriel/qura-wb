@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 
 import { Screen } from "@/components/navigation/screen";
 import { SearchView } from "@/components/search/search-view";
-import { getCurrentPlace } from "@/lib/data/places";
-import { categoryCounts, searchBusinesses } from "@/lib/data/businesses";
+import { getCurrentPlace } from "@/server/queries/places";
+import { categoryCounts, searchBusinesses } from "@/server/queries/businesses";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 

@@ -2,8 +2,8 @@ import "server-only";
 
 import { getFreshSession } from "@/lib/auth/session";
 import type { MessageKey } from "@/lib/i18n/types";
-import { rateLimit } from "@/lib/rate-limit";
-import type { Actor } from "@/lib/tickets/server";
+import { rateLimit } from "@/server/rate-limit";
+import type { Actor } from "@/server/tickets";
 
 /**
  * Who's acting, for a server action: the fresh session's active user

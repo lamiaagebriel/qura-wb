@@ -6,11 +6,11 @@ import { z } from "zod";
 
 import { businessFollows, businessReviews, type Business } from "@/db/schema";
 import { done, fail, type ActionResult } from "@/lib/action-result";
-import { runAction } from "@/lib/actions/run";
+import { runAction } from "@/server/run-action";
 import { getFreshSession } from "@/lib/auth/session";
-import { findPublicBusiness, isMine } from "@/lib/data/businesses";
+import { findPublicBusiness, isMine } from "@/server/queries/businesses";
 import type { MessageKey } from "@/lib/i18n/types";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit } from "@/server/rate-limit";
 import { reviewSchema } from "@/lib/validations/review-form";
 
 const handle = z.string().min(1).max(50);

@@ -5,7 +5,7 @@ import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { PlaceRequestForm } from "@/components/forms/place-request-form";
 import { requireUser } from "@/lib/auth/session";
-import { getCurrentPlace, getPlaceIndex, getPlaceTypes } from "@/lib/data/places";
+import { getCurrentPlace, getPlaceIndex, getPlaceTypes } from "@/server/queries/places";
 import { PLACE_REQUESTS } from "@/lib/features";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";

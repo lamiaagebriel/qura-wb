@@ -22,11 +22,11 @@ function sources(dir: string): string[] {
  */
 const DIRECT_WRITES: Record<string, string> = {
   // Votes and saves aren't history (rule 8).
-  "src/components/posts/post-actions.ts": "votes and saves",
+  "src/server/actions/posts.ts": "votes and saves",
   // Counters, not records.
-  "src/lib/rate-limit.ts": "rate limits",
+  "src/server/rate-limit.ts": "rate limits",
   // The action itself: its history entry and the writes it wraps.
-  "src/lib/actions/run.ts": "runAction",
+  "src/server/run-action.ts": "runAction",
 };
 
 test.describe("data rules", () => {

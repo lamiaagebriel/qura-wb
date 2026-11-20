@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import {
   cancelPlaceRequest,
-} from "@/components/places/place-actions";
+} from "@/server/actions/place-requests";
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";

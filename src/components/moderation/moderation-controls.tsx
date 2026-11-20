@@ -8,7 +8,7 @@ import { Flag01Icon, HugeiconsIcon } from "@/components/icons";
 import {
   reportBusiness,
   reportPost,
-} from "@/components/moderation/moderation-actions";
+} from "@/server/actions/reports";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { ReasonSheet } from "@/components/sheets/reason-sheet";
 import { Button } from "@/components/ui/button";

@@ -2,7 +2,7 @@
 
 import { Controller, useWatch } from "react-hook-form";
 
-import { postReview } from "@/components/profile/social-actions";
+import { postReview } from "@/server/actions/social";
 import { ArrowUp01Icon, Cancel01Icon, HugeiconsIcon, StarIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

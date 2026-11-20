@@ -7,7 +7,7 @@ import { PostCard } from "@/components/posts/post-card";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StatusScreen } from "@/components/status-screen";
 import { requireUser } from "@/lib/auth/session";
-import { myPosts } from "@/lib/data/posts";
+import { myPosts } from "@/server/queries/posts";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 

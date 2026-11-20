@@ -7,8 +7,8 @@ import { db } from "@/db";
 import { isValidId } from "@/db/helpers";
 import { businesses } from "@/db/schema";
 import { AGAIN, done, fail, type ActionResult } from "@/lib/action-result";
-import { currentActor } from "@/lib/actions/actor";
-import { openTicket } from "@/lib/tickets/server";
+import { currentActor } from "@/server/actor";
+import { openTicket } from "@/server/tickets";
 
 // Reporting (anyone signed in). Reports are tickets, recorded in history.
 

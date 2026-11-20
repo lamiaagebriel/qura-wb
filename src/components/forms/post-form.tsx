@@ -7,7 +7,7 @@ import { FormError, INPUT } from "@/components/forms/form-error";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { canGoBack } from "@/components/navigation/history";
 import { PlaceField } from "@/components/places/place-field";
-import { createPost, updatePost } from "@/components/posts/post-actions";
+import { createPost, updatePost } from "@/server/actions/posts";
 import { PostAsPicker } from "@/components/posts/post-as-picker";
 import { TypeSelect } from "@/components/posts/type-select";
 import { Button } from "@/components/ui/button";

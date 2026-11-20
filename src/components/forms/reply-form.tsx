@@ -1,7 +1,7 @@
 "use client";
 
 import { TextareaField } from "@/components/forms/textarea-field";
-import { replyToPost } from "@/components/posts/post-actions";
+import { replyToPost } from "@/server/actions/posts";
 import { Button } from "@/components/ui/button";
 import { DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";

@@ -9,9 +9,9 @@ import { SettingsList } from "@/components/profile/settings-list";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { StatusScreen } from "@/components/status-screen";
 import { getSession } from "@/lib/auth/session";
-import { getMyBusinesses } from "@/lib/data/businesses";
-import { followingCount } from "@/lib/data/follows";
-import { postCounts } from "@/lib/data/posts";
+import { getMyBusinesses } from "@/server/queries/businesses";
+import { followingCount } from "@/server/queries/follows";
+import { postCounts } from "@/server/queries/posts";
 import { getTranslations } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {

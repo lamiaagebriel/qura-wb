@@ -1,4 +1,4 @@
-// Reviews: what the screens show (read from `lib/data/reviews.ts`). The
+// Reviews: what the screens show (read from `server/queries/reviews.ts`). The
 // review form's schema is `lib/validations/review-form.ts`. Client-safe.
 
 export const REVIEW_MAX_LENGTH = 1000;

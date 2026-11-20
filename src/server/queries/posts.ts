@@ -16,8 +16,8 @@ import {
 import { db } from "@/db";
 import { isValidId } from "@/db/helpers";
 import { businesses, posts, postSaves, postVotes, users } from "@/db/schema";
-import { inPlaceTree } from "@/lib/data/places";
-import { getMyBusinesses } from "@/lib/data/businesses";
+import { inPlaceTree } from "@/server/queries/places";
+import { getMyBusinesses } from "@/server/queries/businesses";
 import type { Locale } from "@/lib/i18n/config";
 import { inLocale } from "@/lib/localized";
 import {

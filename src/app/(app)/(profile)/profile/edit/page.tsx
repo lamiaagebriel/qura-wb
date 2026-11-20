@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/app-header";
 import { Screen } from "@/components/navigation/screen";
 import { EditProfileForm } from "@/components/forms/edit-profile-form";
 import { requireUser } from "@/lib/auth/session";
-import { getGooglePhoto } from "@/lib/data/users";
+import { getGooglePhoto } from "@/server/queries/users";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 

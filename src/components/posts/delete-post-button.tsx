@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/toast";
 import { useLocale } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 
-import { deletePost } from "./post-actions";
+import { deletePost } from "@/server/actions/posts";
 
 /**
  * Deletes your post or reply, confirmed in a sheet.

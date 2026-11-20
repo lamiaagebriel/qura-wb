@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/toast";
 import { useLocale } from "@/lib/i18n/provider";
 import { href } from "@/lib/routes";
 
-import { deleteBusiness } from "./business-actions";
+import { deleteBusiness } from "@/server/actions/businesses";
 
 /**
  * "Delete business" under the edit form: confirms first (it can't be

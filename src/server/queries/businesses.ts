@@ -16,7 +16,7 @@ import {
 import { isPublic, roleFor } from "@/lib/business-status";
 import type { BusinessProfile, BusinessSummary } from "@/lib/business";
 import { ALL_CATEGORIES, pathOf, subtreeOf } from "@/lib/categories";
-import { inPlaceTree } from "@/lib/data/places";
+import { inPlaceTree } from "@/server/queries/places";
 
 /**
  * Tag on every cached business read. A write that changes businesses

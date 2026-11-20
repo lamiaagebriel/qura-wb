@@ -2,8 +2,8 @@
 
 import { cookies } from "next/headers";
 
-import { getPlaceIndex } from "./data/places";
-import { PLACE_COOKIE, PLACE_COOKIE_OPTIONS } from "./places";
+import { getPlaceIndex } from "@/server/queries/places";
+import { PLACE_COOKIE, PLACE_COOKIE_OPTIONS } from "@/lib/places";
 
 /** Saves the place picked; Next re-renders the page for it in the same roundtrip. */
 export async function setCity(slug: unknown) {

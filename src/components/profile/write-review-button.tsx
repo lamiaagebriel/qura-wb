@@ -20,7 +20,7 @@ import type {
 } from "@/lib/validations/review-form";
 import { cn } from "@/lib/utils";
 
-import { deleteReview } from "./social-actions";
+import { deleteReview } from "@/server/actions/social";
 
 const EMPTY: ReviewInput = { rating: 0, text: "" };
 

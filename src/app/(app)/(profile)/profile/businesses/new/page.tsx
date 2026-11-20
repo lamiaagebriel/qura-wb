@@ -5,7 +5,7 @@ import { Screen } from "@/components/navigation/screen";
 import { BusinessForm } from "@/components/forms/business-form";
 import { requireUser } from "@/lib/auth/session";
 import { EMPTY_BUSINESS } from "@/lib/validations/business-form";
-import { categoryCounts } from "@/lib/data/businesses";
+import { categoryCounts } from "@/server/queries/businesses";
 import { env } from "@/lib/env";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";

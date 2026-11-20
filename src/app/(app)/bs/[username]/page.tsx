@@ -16,15 +16,15 @@ import { PostTypeFilter } from "@/components/posts/post-type-filter";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { getSession } from "@/lib/auth/session";
 import { allowedRequest, roleFor } from "@/lib/business-status";
-import { myOpenBusinessRequest } from "@/lib/data/tickets";
+import { myOpenBusinessRequest } from "@/server/queries/tickets";
 import {
   findPublicBusiness,
   findVisibleBusiness,
   getBusiness,
-} from "@/lib/data/businesses";
-import { isFollowing } from "@/lib/data/follows";
-import { businessPosts, businessPostTypes } from "@/lib/data/posts";
-import { getReviewSummary } from "@/lib/data/reviews";
+} from "@/server/queries/businesses";
+import { isFollowing } from "@/server/queries/follows";
+import { businessPosts, businessPostTypes } from "@/server/queries/posts";
+import { getReviewSummary } from "@/server/queries/reviews";
 import { getTranslations } from "@/lib/i18n/server";
 import { inLocale } from "@/lib/localized";
 import { isPostType } from "@/lib/posts";

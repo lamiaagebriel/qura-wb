@@ -1,4 +1,4 @@
-// A business as the screens show it (read from `lib/data/businesses.ts`),
+// A business as the screens show it (read from `server/queries/businesses.ts`),
 // and turning it into the business form's values and back (the form's
 // schema is `lib/validations/business-form.ts`). Client-safe.
 

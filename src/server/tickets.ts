@@ -6,11 +6,11 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { businessReviews, businesses, places, posts, tickets, users, type TicketRef } from "@/db/schema";
 import { AGAIN, done, fail, invalid, NOT_ALLOWED, ok, type ActionResult } from "@/lib/action-result";
-import { runAction } from "@/lib/actions/run";
+import { runAction } from "@/server/run-action";
 import { allowedRequest, roleFor } from "@/lib/business-status";
 
-import { OPEN_STATUSES } from "./statuses";
-import { isTicketType, TICKET_TYPES } from "./types";
+import { OPEN_STATUSES } from "@/lib/tickets/statuses";
+import { isTicketType, TICKET_TYPES } from "@/lib/tickets/types";
 
 /** Who's acting (a fresh session's user). */
 export type Actor = { id: string; status: string };

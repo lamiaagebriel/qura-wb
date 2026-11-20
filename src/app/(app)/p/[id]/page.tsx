@@ -12,7 +12,7 @@ import { ReplyButton } from "@/components/posts/reply-button";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { buttonVariants } from "@/components/ui/button";
 import { getSession } from "@/lib/auth/session";
-import { getPost, getReplies } from "@/lib/data/posts";
+import { getPost, getReplies } from "@/server/queries/posts";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 import { cn } from "@/lib/utils";

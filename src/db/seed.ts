@@ -7,7 +7,7 @@
  */
 import { eq, inArray } from "drizzle-orm";
 
-import { runAction, type Tx } from "../lib/actions/run";
+import { runAction, type Tx } from "@/server/run-action";
 import { env } from "../lib/env";
 
 import { db } from "./index";

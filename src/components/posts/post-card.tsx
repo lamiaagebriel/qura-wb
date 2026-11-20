@@ -31,7 +31,7 @@ import { cn } from "@/lib/utils";
 
 import { POST_TYPE_META } from "./type-meta";
 import { DeletePostButton } from "./delete-post-button";
-import { savePost, votePost } from "./post-actions";
+import { savePost, votePost } from "@/server/actions/posts";
 
 /**
  * A post as a card: who posted it (the business, or the person), its type,

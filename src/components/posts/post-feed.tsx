@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useLocale } from "@/lib/i18n/provider";
 import type { Post, PostType, PostPage } from "@/lib/posts";
 
-import { loadMorePosts } from "./post-actions";
+import { loadMorePosts } from "@/server/actions/posts";
 import { PostCard } from "./post-card";
 
 /**
