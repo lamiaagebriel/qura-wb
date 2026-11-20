@@ -19,9 +19,9 @@ import { StackLink } from "@/components/navigation/stack-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
 import { categoryOf } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
+import { useAction } from "@/hooks/use-action";
 import { useLocale } from "@/lib/i18n/provider";
 import { inLocale } from "@/lib/localized";
 import { dayOf, type Post } from "@/lib/posts";
@@ -272,6 +272,7 @@ function PostActions({
   const { t, locale } = useLocale();
   const { open: signIn } = useAuthSheet();
   const share = useShare();
+  const { run } = useAction();
   const [vote, setVote] = useState(post.myVote);
   const [saved, setSaved] = useState(post.saved);
   // The score without the viewer's own vote, so toggling stays in sync.
@@ -285,24 +286,18 @@ function PostActions({
     const before = vote;
     const next = vote === value ? 0 : value;
     setVote(next);
-    const result = await votePost(post.id, next);
-    if (!result.ok) {
-      setVote(before);
-      toast.add({ title: t(result.error), type: "error" });
-    }
+    await run(() => votePost(post.id, next), { refresh: false, onError: () => setVote(before) });
   };
 
   const toggleSave = async () => {
     if (!signedIn) return signIn();
     const next = !saved;
     setSaved(next);
-    const result = await savePost(post.id, next);
-    if (!result.ok) {
-      setSaved(!next);
-      toast.add({ title: t(result.error), type: "error" });
-      return;
-    }
-    toast.add({ title: next ? t("Saved") : t("Removed from saved") });
+    await run(() => savePost(post.id, next), {
+      success: next ? "Saved" : "Removed from saved",
+      refresh: false,
+      onError: () => setSaved(!next),
+    });
   };
 
   // Icon buttons: 44px tap targets, pulled in so the row lines up.

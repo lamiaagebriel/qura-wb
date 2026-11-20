@@ -14,9 +14,12 @@ import {
   WhatsappIcon,
 } from "@/components/icons";
 import { ReportSheets } from "@/components/moderation/moderation-controls";
-import { ActionSheet, type SheetAction } from "@/components/sheets/action-sheet";
+import {
+  ActionSheet,
+  type SheetAction,
+} from "@/components/sheets/action-sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
+import { useAction } from "@/hooks/use-action";
 import { useLocale } from "@/lib/i18n/provider";
 import { href } from "@/lib/routes";
 import { useShare } from "@/lib/share";
@@ -50,6 +53,7 @@ export function VisitorActions({
 }) {
   const { t } = useLocale();
   const { open: signIn } = useAuthSheet();
+  const { run } = useAction();
   const [following, setOptimistic] = useOptimistic(saved);
   const [, startTransition] = useTransition();
 
@@ -58,8 +62,7 @@ export function VisitorActions({
     const next = !following;
     startTransition(async () => {
       setOptimistic(next);
-      const result = await setFollowing(username, next);
-      if (!result.ok) toast.add({ title: t(result.error), type: "error" });
+      await run(() => setFollowing(username, next), { refresh: false });
     });
   };
 

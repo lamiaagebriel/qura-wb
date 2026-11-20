@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 import { Delete02Icon, HugeiconsIcon } from "@/components/icons";
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
-import { useLocale } from "@/lib/i18n/provider";
+import { useAction } from "@/hooks/use-action";
 import { href } from "@/lib/routes";
 
 import { deleteBusiness } from "@/server/actions/businesses";
@@ -24,7 +23,7 @@ export function DeleteBusinessButton({
   username: string;
   name: string;
 }) {
-  const { t } = useLocale();
+  const { run, t } = useAction();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -70,13 +69,11 @@ export function DeleteBusinessButton({
         confirmLabel={t("Delete")}
         destructive
         onConfirm={async () => {
-          const result = await deleteBusiness(username);
-          if (!result.ok) {
-            toast.add({ title: t(result.error), type: "error" });
-            return;
-          }
-          toast.add({ title: t("Business deleted") });
-          setDeleted(true);
+          await run(() => deleteBusiness(username), {
+            success: "Business deleted",
+            refresh: false,
+            onDone: () => setDeleted(true),
+          });
         }}
       />
     </>

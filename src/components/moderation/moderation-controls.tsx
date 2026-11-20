@@ -1,38 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuthSheet } from "@/components/auth/auth-sheet";
 import { Flag01Icon, HugeiconsIcon } from "@/components/icons";
-import {
-  reportBusiness,
-  reportPost,
-} from "@/server/actions/reports";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { ReasonSheet } from "@/components/sheets/reason-sheet";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
+import { useAction } from "@/hooks/use-action";
 import { useLocale } from "@/lib/i18n/provider";
-import type { ActionResult } from "@/lib/action-result";
-import type { MessageKey } from "@/lib/i18n/types";
 import { REASON_LABELS, REPORT_REASONS } from "@/lib/tickets/types";
-
-/** Runs an action: a toast either way, then the screen refreshes. Returns ok. */
-function useRun() {
-  const { t } = useLocale();
-  const router = useRouter();
-  return async (action: () => Promise<ActionResult>, success: MessageKey) => {
-    const result = await action();
-    if (!result.ok) {
-      toast.add({ title: t(result.error), type: "error" });
-      return false;
-    }
-    toast.add({ title: t(success) });
-    router.refresh();
-    return true;
-  };
-}
+import { reportBusiness, reportPost } from "@/server/actions/reports";
 
 /**
  * Reporting a post or a business: pick why (an action sheet); it's
@@ -97,8 +75,7 @@ export function ReportSheets({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { t } = useLocale();
-  const run = useRun();
+  const { run, t } = useAction();
   const [noteFor, setNoteFor] = useState<string | null>(null);
   const reasons =
     kind === "post"
@@ -110,7 +87,7 @@ export function ReportSheets({
         kind === "post"
           ? reportPost(target, reason, note)
           : reportBusiness(target, reason, note),
-      "Thanks for letting us know.",
+      { success: "Thanks for letting us know." },
     );
   const label = kind === "post" ? t("Report post") : t("Report this business");
 

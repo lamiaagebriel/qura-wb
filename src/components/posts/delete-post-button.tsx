@@ -7,8 +7,7 @@ import { Delete02Icon, HugeiconsIcon } from "@/components/icons";
 import { overlaysSettled } from "@/components/navigation/use-back-to-close";
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
-import { useLocale } from "@/lib/i18n/provider";
+import { useAction } from "@/hooks/use-action";
 import { cn } from "@/lib/utils";
 
 import { deletePost } from "@/server/actions/posts";
@@ -32,7 +31,7 @@ export function DeletePostButton({
   icon?: boolean;
   className?: string;
 }) {
-  const { t } = useLocale();
+  const { run, t } = useAction();
   const router = useRouter();
   const [confirm, setConfirm] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -45,27 +44,24 @@ export function DeletePostButton({
       setQueued(true);
       return;
     }
-    const result = await deletePost(id);
-    if (!result.ok) {
-      toast.add({ title: t(result.error), type: "error" });
-      return;
-    }
-    toast.add({ title: reply ? t("Reply deleted") : t("Post deleted") });
-    setDeleted(true);
+    await run(() => deletePost(id), {
+      success: reply ? "Reply deleted" : "Post deleted",
+      refresh: false,
+      onDone: () => setDeleted(true),
+    });
   };
 
   useEffect(() => {
     if (!queued || confirm) return;
-    overlaysSettled().then(async () => {
-      const result = await deletePost(id);
-      toast.add(
-        result.ok
-          ? { title: reply ? t("Reply deleted") : t("Post deleted") }
-          : { title: t(result.error), type: "error" },
-      );
-      if (!result.ok) setQueued(false);
-    });
-  }, [queued, confirm, id, reply, t]);
+    overlaysSettled().then(() =>
+      run(() => deletePost(id), {
+        success: reply ? "Reply deleted" : "Post deleted",
+        onError: () => setQueued(false),
+      }),
+    );
+    // `run` is a new function each render; the effect only waits for the sheet.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queued, confirm, id, reply]);
 
   // Leave once the sheet has closed and its history entry is gone (or
   // that back would land on this screen again).

@@ -12,8 +12,8 @@ import {
 import { useAuthSheet } from "@/components/auth/auth-sheet";
 import { HugeiconsIcon, StarIcon } from "@/components/icons";
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
-import { toast } from "@/components/ui/toast";
 import { ReviewForm } from "@/components/forms/review-form";
+import { useAction } from "@/hooks/use-action";
 import { useLocale } from "@/lib/i18n/provider";
 import type {
   ReviewFormValues as ReviewInput,
@@ -151,7 +151,7 @@ export function MyReviewRow({ children }: { children: ReactNode }) {
 
 /** "Edit · Delete" under your review, where Instagram has its links. */
 export function MyReviewActions() {
-  const { t } = useLocale();
+  const { run, t } = useAction();
   const { username, edit, stopEditing } = useComposer();
   const [confirming, setConfirming] = useState(false);
 
@@ -181,13 +181,7 @@ export function MyReviewActions() {
         confirmLabel={t("Delete")}
         destructive
         onConfirm={async () => {
-          const result = await deleteReview(username);
-          if (!result.ok) {
-            toast.add({ title: t(result.error), type: "error" });
-            return;
-          }
-          stopEditing();
-          toast.add({ title: t("Review deleted") });
+          await run(() => deleteReview(username), { success: "Review deleted", onDone: stopEditing });
         }}
       />
     </>

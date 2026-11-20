@@ -1,8 +1,7 @@
 "use client";
 
 import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
-import { toast } from "@/components/ui/toast";
-import { useLocale } from "@/lib/i18n/provider";
+import { useAction } from "@/hooks/use-action";
 
 import { requestStatusChange } from "@/server/actions/business-status";
 
@@ -22,7 +21,7 @@ export function ReportClosedSheet({
   onOpenChange: (open: boolean) => void;
   onReported: () => void;
 }) {
-  const { t } = useLocale();
+  const { run, t } = useAction();
   return (
     <ConfirmSheet
       open={open}
@@ -30,11 +29,10 @@ export function ReportClosedSheet({
       title={t("Report it as closed?")}
       confirmLabel={t("Report")}
       onConfirm={async () => {
-        const result = await requestStatusChange(username, "close");
-        if (!result.ok)
-          return void toast.add({ title: t(result.error), type: "error" });
-        onReported();
-        toast.add({ title: t("Thanks, we'll check if it's closed.") });
+        await run(() => requestStatusChange(username, "close"), {
+          success: "Thanks, we'll check if it's closed.",
+          onDone: onReported,
+        });
       }}
     />
   );
