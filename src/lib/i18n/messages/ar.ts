@@ -99,6 +99,14 @@ const ar = {
     other: "{{count}} متابِع",
   },
   "{{count}} following": "يتابِع {{count}}",
+  "{{count}} places": {
+    zero: "{{count}} مكان",
+    one: "مكان واحد",
+    two: "مكانان",
+    few: "{{count}} أماكن",
+    many: "{{count}} مكانًا",
+    other: "{{count}} مكان",
+  },
   "{{count}} reviews": {
     zero: "{{count}} تقييم",
     one: "{{count}} تقييم",

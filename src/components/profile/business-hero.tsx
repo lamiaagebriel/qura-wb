@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MapEmbed } from "@/components/map-embed";
 import { StackLink } from "@/components/navigation/stack-link";
 import { categoryOf } from "@/lib/categories";
@@ -81,12 +82,12 @@ export async function BusinessHero({
         <p className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
           {category && (
             <>
-              <StackLink
-                href={href("category", { params: { slug: category.slug } })}
+              <Link
+                href={href("search", { query: { q: category.name[locale] } })}
                 className="shrink-0 font-medium text-foreground"
               >
                 {category.name[locale]}
-              </StackLink>
+              </Link>
               <span aria-hidden>·</span>
             </>
           )}

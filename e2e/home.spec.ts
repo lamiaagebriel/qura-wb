@@ -29,14 +29,14 @@ test.describe("home", () => {
     await expect.poll(() => pathname(page)).toBe("/bs/nilebreeze");
   });
 
-  test("a category chip opens that category", async ({ page }) => {
+  test("a category circle searches for it", async ({ page }) => {
     await page.goto("/");
     await waitForHydration(page);
     await page
       .getByRole("navigation", { name: "Categories" })
       .getByRole("link", { name: "Beauty & salon" })
       .tap();
-    await expect.poll(() => pathname(page)).toBe("/c/beauty");
+    await expect.poll(() => page.url()).toContain("/search?q=Beauty");
     await expect(
       page.getByRole("link", { name: /Salon Nefertari/ }),
     ).toBeVisible();
@@ -79,9 +79,6 @@ test.describe("home", () => {
     ).toBeVisible();
     await expect(page.getByText("No businesses in Luxor yet")).toBeVisible();
 
-    // Category pages follow the city too.
-    await page.goto("/c/beauty");
-    await expect(page.getByText("No businesses here yet")).toBeVisible();
 
     await page.goto("/");
     await expect(

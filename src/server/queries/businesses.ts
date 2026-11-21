@@ -1,6 +1,17 @@
 import "server-only";
 
-import { and, asc, count, eq, exists, inArray, isNull, ne, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  eq,
+  exists,
+  inArray,
+  isNull,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
@@ -86,7 +97,10 @@ async function toProfile(business: Business): Promise<BusinessProfile> {
       ),
   ]);
   // 7 days, Sunday first; older rows may have none (= closed every day).
-  const week = Array.from({ length: 7 }, (_, day) => business.hours[day] ?? null);
+  const week = Array.from(
+    { length: 7 },
+    (_, day) => business.hours[day] ?? null,
+  );
 
   return {
     username: business.username,
@@ -170,7 +184,10 @@ export async function getMyBusinesses(
     .where(
       and(
         // Yours, or added by you and not claimed by an owner yet.
-        or(eq(businesses.ownerId, userId), and(eq(businesses.createdById, userId), isNull(businesses.ownerId))),
+        or(
+          eq(businesses.ownerId, userId),
+          and(eq(businesses.createdById, userId), isNull(businesses.ownerId)),
+        ),
         // Deleted is gone for its owner too.
         ne(businesses.status, "deleted"),
       ),
@@ -188,7 +205,8 @@ export async function getMyBusiness(username: string, userId: string) {
   const ownedByMe = business.ownerId === userId;
   const createdByMe = business.createdById === userId;
   // Once someone owns it, it's theirs alone (whoever added it can't edit it).
-  if (!ownedByMe && !(createdByMe && business.ownerId === null)) return undefined;
+  if (!ownedByMe && !(createdByMe && business.ownerId === null))
+    return undefined;
   return {
     id: business.id,
     status: business.status,
@@ -265,9 +283,11 @@ export async function searchBusinesses(
   const slugs = new Set<string>();
   for (const category of ALL_CATEGORIES)
     if (
-      Object.values(category.name).some((name) =>
-        name.toLocaleLowerCase().includes(q),
-      )
+      Object.values(category.name).some((name) => {
+        const n = name.toLocaleLowerCase();
+        // Either way round: "rest" finds Restaurant, "restaurants" too.
+        return n.includes(q) || q.includes(n);
+      })
     )
       for (const slug of subtreeOf(category.slug)) slugs.add(slug);
 

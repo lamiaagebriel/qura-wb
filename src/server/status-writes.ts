@@ -18,7 +18,6 @@ export function refreshStatus(username: string) {
   // Lists, search and category counts only show active ones.
   updateTag(BUSINESSES_TAG);
   revalidatePath(`/bs/${username}`, "layout");
-  revalidatePath("/c/[slug]", "page");
   revalidatePath("/profile", "layout");
 }
 

@@ -11,12 +11,12 @@ import {
   HugeiconsIcon,
   Search01Icon,
 } from "@/components/icons";
-import { StackLink } from "@/components/navigation/stack-link";
 import { BusinessList } from "@/components/profile/business-list";
 import type { BusinessSummary } from "@/lib/business";
 import { cn } from "@/lib/utils";
 import { StatusScreen } from "@/components/status-screen";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Spinner } from "@/components/ui/spinner";
 import {
   InputGroup,
@@ -25,7 +25,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { CategoryAvatar } from "@/components/category-avatar";
-import { CATEGORIES } from "@/lib/categories";
+import { ALL_CATEGORIES, CATEGORIES, categoryOf } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/provider";
 import { useRecentSearches } from "@/lib/recent-searches";
 import { href } from "@/lib/routes";
@@ -35,7 +35,7 @@ import { searchBusinesses } from "@/server/actions/search";
 /**
  * Search screen: field focused on open (keyboard "search" key), recent
  * searches kept on the device, and the top-level categories — tapping one
- * opens it (its businesses, and its subcategories to narrow down). A search matches businesses by name, handle, category and
+ * searches for it. A search matches businesses by name, handle, category and
  * description (on the server). While searching, the field starts with a
  * back arrow that returns here (a spinner while results load); the clear
  * button only empties the field.
@@ -131,14 +131,14 @@ export function SearchView({
             search(query);
           }}
         >
-          <InputGroup className="h-11 rounded-xl">
-            <InputGroupAddon>
+          <InputGroup className="h-11 rounded-full">
+            <InputGroupAddon className="ps-1.5">
               {isPending ? (
-                <Spinner aria-label={t("Searching…")} className="size-5" />
+                <Spinner aria-label={t("Searching…")} className="mx-2 size-5" />
               ) : searching ? (
                 <InputGroupButton
-                  size="icon-xs"
-                  className="-ms-1 size-8 rounded-full"
+                  variant="secondary"
+                  className="h-8 w-9 rounded-full"
                   aria-label={t("Exit search")}
                   onClick={exit}
                 >
@@ -148,7 +148,7 @@ export function SearchView({
                   />
                 </InputGroupButton>
               ) : (
-                <HugeiconsIcon icon={Search01Icon} />
+                <HugeiconsIcon icon={Search01Icon} className="mx-2.5" />
               )}
             </InputGroupAddon>
             <InputGroupInput
@@ -171,15 +171,28 @@ export function SearchView({
               autoFocus={!urlQuery}
             />
             {query && (
-              <InputGroupAddon align="inline-end">
-                <InputGroupButton
-                  size="icon-xs"
-                  className="size-8 rounded-full"
-                  aria-label={t("Clear search")}
-                  onClick={clearField}
-                >
-                  <HugeiconsIcon icon={Cancel01Icon} />
-                </InputGroupButton>
+              <InputGroupAddon align="inline-end" className="pe-1.5">
+                {/* Clear + search joined into one pill (clipped round). */}
+                <ButtonGroup className="overflow-hidden rounded-full">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="h-8 w-9"
+                    aria-label={t("Clear search")}
+                    onClick={clearField}
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} />
+                  </Button>
+                  {query.trim() !== submitted && (
+                    <Button
+                      type="submit"
+                      className="h-8 w-10"
+                      aria-label={t("Search")}
+                    >
+                      <HugeiconsIcon icon={Search01Icon} />
+                    </Button>
+                  )}
+                </ButtonGroup>
               </InputGroupAddon>
             )}
           </InputGroup>
@@ -187,6 +200,13 @@ export function SearchView({
       </AppHeader>
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4">
+        {submitted && (
+          <SubcategoryChips
+            query={submitted}
+            counts={categoryCounts}
+            onPick={search}
+          />
+        )}
         {submitted && results === null ? null : submitted && results?.length ? (
           <div className="py-4">
             <BusinessList businesses={results} />
@@ -222,7 +242,10 @@ export function SearchView({
                       <button
                         type="button"
                         onClick={() => search(item)}
-                        className={cn(buttonVariants({ variant: "ghost" }), "min-h-12 min-w-0 flex-1 shrink justify-start gap-3 rounded-none ps-4 text-start font-normal whitespace-normal")}
+                        className={cn(
+                          buttonVariants({ variant: "ghost" }),
+                          "min-h-12 min-w-0 flex-1 shrink justify-start gap-3 rounded-none ps-4 text-start font-normal whitespace-normal",
+                        )}
                       >
                         <HugeiconsIcon
                           icon={Clock01Icon}
@@ -237,10 +260,7 @@ export function SearchView({
                         aria-label={`${t("Remove")} ${item}`}
                         onClick={() => remove(item)}
                       >
-                        <HugeiconsIcon
-                          icon={Cancel01Icon}
-                          className="size-4"
-                        />
+                        <HugeiconsIcon icon={Cancel01Icon} className="size-4" />
                       </Button>
                     </li>
                   ))}
@@ -257,28 +277,110 @@ export function SearchView({
               >
                 {t("Categories")}
               </h2>
-              <ul className="grid grid-cols-2 gap-2">
-                {CATEGORIES.map((category) => (
-                  <li key={category.slug}>
-                    <StackLink
-                      href={href("category", { params: { slug: category.slug } })}
-                      className="flex min-h-14 w-full items-center gap-3 rounded-2xl bg-card px-3 py-2 text-start text-sm font-medium ring-1 ring-foreground/5"
-                    >
-                      <CategoryAvatar
-                        icon={category.icon}
-                        count={categoryCounts[category.slug] ?? 0}
-                      />
-                      <span className="min-w-0 leading-tight">
-                        {category.name[locale]}
-                      </span>
-                    </StackLink>
-                  </li>
-                ))}
+              <ul className="grid grid-cols-3 gap-2">
+                {/* Ones with places first; empty ones dimmed at the end. */}
+                {[...CATEGORIES]
+                  .sort(
+                    (a, b) =>
+                      Number(!categoryCounts[a.slug]) -
+                      Number(!categoryCounts[b.slug]),
+                  )
+                  .map((category) => {
+                    const count = categoryCounts[category.slug] ?? 0;
+                    return (
+                      <li key={category.slug}>
+                        <button
+                          type="button"
+                          onClick={() => search(category.name[locale])}
+                          className={cn(
+                            "flex h-full w-full flex-col items-center gap-2 rounded-2xl bg-card px-2 pt-4 pb-3 text-center ring-1 ring-foreground/5 transition-[scale] active:scale-95 motion-reduce:transition-none",
+                            !count && "opacity-60",
+                          )}
+                        >
+                          <CategoryAvatar
+                            icon={category.icon}
+                            className="size-12 [&_svg]:size-6"
+                          />
+                          <span className="line-clamp-2 text-xs leading-tight font-medium">
+                            {category.name[locale]}
+                          </span>
+                          <span className="mt-auto text-[11px] text-muted-foreground">
+                            {t.plural(count, {
+                              one: "{{count}} place",
+                              other: "{{count}} places",
+                            })}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
               </ul>
             </section>
           </>
         )}
       </main>
     </>
+  );
+}
+
+/**
+ * When the search is a category's name: its subcategories (with places) as
+ * chips to narrow it down. On a subcategory: its siblings, with the parent
+ * as "All" to widen it again. Each chip searches for that name.
+ */
+function SubcategoryChips({
+  query,
+  counts,
+  onPick,
+}: {
+  query: string;
+  counts: Record<string, number>;
+  onPick: (name: string) => void;
+}) {
+  const { t, locale } = useLocale();
+  const q = query.toLocaleLowerCase();
+  const named = (test: (name: string) => boolean) =>
+    ALL_CATEGORIES.find((c) =>
+      Object.values(c.name).some((name) => test(name.toLocaleLowerCase())),
+    );
+  // The exact name, else the first that starts with it ("beauty").
+  const match = named((n) => n === q) ?? named((n) => n.startsWith(q));
+  if (!match) return null;
+  const parent = match.children.length
+    ? match
+    : match.parent
+      ? categoryOf(match.parent)
+      : undefined;
+  const children = parent?.children.filter((c) => counts[c.slug]) ?? [];
+  if (!parent || !children.length) return null;
+
+  const chips = [
+    { category: parent, label: t("All") },
+    ...children.map((c) => ({ category: c, label: c.name[locale] })),
+  ];
+  return (
+    <nav
+      aria-label={t("Subcategories")}
+      className="-mx-4 flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pt-4 [scrollbar-width:none]"
+    >
+      {chips.map(({ category, label }) => {
+        const current = category.slug === match.slug;
+        return (
+          <Button
+            key={category.slug}
+            variant={current ? "default" : "outline"}
+            aria-current={current ? "true" : undefined}
+            onClick={() => current || onPick(category.name[locale])}
+            className="h-9 shrink-0 snap-start gap-1.5 rounded-full ps-2 pe-3 text-xs"
+          >
+            <HugeiconsIcon icon={category.icon} className="size-4" />
+            {label}
+            <span className="text-[11px] opacity-60 tabular-nums">
+              {counts[category.slug] ?? 0}
+            </span>
+          </Button>
+        );
+      })}
+    </nav>
   );
 }

@@ -31,8 +31,6 @@ export const routes = {
   // A business's public profile (outside every tab: opened from anywhere).
   business: "/bs/:username",
   businessReviews: "/bs/:username/reviews",
-  // A category and everything under it (any depth; slugs are unique).
-  category: "/c/:slug",
   // Every post in your city (`?type=` filters it; infinite scroll), then
   // one post with its replies.
   posts: "/posts",

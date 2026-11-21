@@ -8,7 +8,7 @@ test.describe("public business profile", () => {
     await page.goto("/search");
     await waitForHydration(page);
 
-    await page.getByRole("link", { name: /^\d+ Hotel$/ }).tap();
+    await page.getByRole("button", { name: /^Hotel/ }).tap();
     await page.getByRole("link", { name: /Nile View Hotel/ }).tap();
 
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
@@ -51,13 +51,12 @@ test.describe("public business profile", () => {
   test("the Search tab still opens Search after visiting a business", async ({ page }) => {
     await page.goto("/search");
     await waitForHydration(page);
-    await page.getByRole("link", { name: /^\d+ Restaurant$/ }).tap();
+    await page.getByRole("button", { name: /^Restaurant/ }).tap();
     await page.getByRole("link", { name: /Aswan Eats/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/aswan.eats");
     await waitForHydration(page);
     // Business pages are outside the tabs (no tab bar): back first.
     await expect(tab(page, "/search")).toHaveCount(0);
-    await page.getByRole("button", { name: "Back" }).tap();
     await page.getByRole("button", { name: "Back" }).tap();
 
     await tab(page, "/search").tap();
@@ -133,10 +132,10 @@ test.describe("public business profile", () => {
       expect(name).toBe(label);
   });
 
-  test("back arrows: reviews → business → category → Search", async ({ page }) => {
+  test("back arrows: reviews → business → Search", async ({ page }) => {
     await page.goto("/search");
     await waitForHydration(page);
-    await page.getByRole("link", { name: /^\d+ Hotel$/ }).tap();
+    await page.getByRole("button", { name: /^Hotel/ }).tap();
     await page.getByRole("link", { name: /Nile View Hotel/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
     await waitForHydration(page);
@@ -148,9 +147,7 @@ test.describe("public business profile", () => {
     await expect.poll(() => pathname(page)).toBe("/bs/nileview");
     await waitForHydration(page);
     await page.getByRole("button", { name: "Back" }).tap();
-    await expect.poll(() => pathname(page)).toBe("/c/hotel");
-    await waitForHydration(page);
-    await page.getByRole("button", { name: "Back" }).tap();
+    await expect(page.getByRole("searchbox")).toHaveValue("Hotel");
     await expect.poll(() => pathname(page)).toBe("/search");
   });
 

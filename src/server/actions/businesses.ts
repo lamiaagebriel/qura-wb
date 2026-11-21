@@ -157,7 +157,6 @@ export async function saveBusiness(
   updateTag(BUSINESSES_TAG);
   if (editing && editing !== values.username) revalidatePath(`/bs/${editing}`);
   revalidatePath(`/bs/${values.username}`, "layout");
-  revalidatePath("/c/[slug]", "page");
   revalidatePath("/profile", "layout");
   return ok({ requested: !!statusChange && "request" in statusChange });
 }
@@ -189,7 +188,6 @@ export async function deleteBusiness(
   );
   updateTag(BUSINESSES_TAG);
   revalidatePath(`/bs/${business.username}`, "layout");
-  revalidatePath("/c/[slug]", "page");
   revalidatePath("/profile", "layout");
   return done();
 }

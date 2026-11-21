@@ -58,13 +58,29 @@ test.describe("search", () => {
     await expect(page.getByRole("region", { name: "Recent searches" })).toBeHidden();
   });
 
-  test("top-level categories are listed; tapping one opens it", async ({ page }) => {
-    const categories = page.getByRole("region", { name: "Categories" }).getByRole("link");
+  test("top-level categories are listed; tapping one searches for it", async ({ page }) => {
+    const categories = page.getByRole("region", { name: "Categories" }).getByRole("button");
     await expect(categories).toHaveCount(16);
     await categories.getByText("Café", { exact: true }).tap();
-    await expect.poll(() => new URL(page.url()).pathname).toBe("/c/cafe");
+    await expect(field(page)).toHaveValue("Café");
     await expect(page.getByRole("link", { name: /Nile Breeze Café/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /Nile View Hotel/ })).toHaveCount(0);
+  });
+
+  test("a category search shows its subcategories to narrow it", async ({ page }) => {
+    await field(page).fill("beauty");
+    await field(page).press("Enter");
+    const chips = page.getByRole("navigation", { name: "Subcategories" });
+    await expect(chips.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-current", "true");
+    await chips.getByRole("button", { name: /^Salon/ }).tap();
+    await expect(field(page)).toHaveValue("Salon");
+    await expect(page.getByRole("link", { name: /Salon Nefertari/ })).toBeVisible();
+  });
+
+  test("a plural category name finds the category", async ({ page }) => {
+    await field(page).fill("cafés");
+    await field(page).press("Enter");
+    await expect(page.getByRole("link", { name: /Nile Breeze Café/ })).toBeVisible();
   });
 
   test("searching a parent category finds businesses filed under it", async ({ page }) => {
