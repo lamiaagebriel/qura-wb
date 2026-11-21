@@ -70,7 +70,7 @@ Brand colours (the app icon, splash screens) are in `lib/brand.ts`; `theme-color
 ## 7. Navigation & motion
 
 - Deeper screens slide in: open them with `<StackLink>` (a real `<Link prefetch transitionTypes={[navType(...)]}>`), never a plain `<Link>`, `router.push()` or `addTransitionType` (on dynamic screens the router commits twice and the wrong page slides).
-- Tabs (`lib/navigation.ts`) are plain links to their root; no slide.
+- Tabs (`lib/navigation.ts`) are plain links to their root; no slide. The tab bar (`components/bottom-nav.tsx`) is a floating frosted pill like Instagram's: icons only (the label is the link's name), a highlight that slides to the open tab, shrinks while scrolling down, your photo as Profile. Order: Home, Search, Offers (the posts list filtered to offers), Profile; New post is its own frosted circle beside the pill (signed out, it opens sign-in). Anything that must clear it uses `--tab-bar` (`globals.css`), never a fixed height.
 - The back arrow (`BackButton`) goes back like the browser when an in-app screen is behind it; on a deep link it replaces the screen with the `back` parent, sliding back, so back never leaves the app.
 - In the installed app an edge swipe goes back on any screen with a back arrow (`use-swipe-back.ts`): no horizontal swipe gestures at the screen edges.
 - Motion is short and purposeful: slides between screens, sheets rising, a pressed state. Nothing bounces or loops.

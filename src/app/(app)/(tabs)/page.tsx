@@ -6,7 +6,6 @@ import { CategoryCircles } from "@/components/home/category-circles";
 import { CitySwitcher } from "@/components/home/city-switcher";
 import { Store01Icon } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
-import { NewPostFab } from "@/components/posts/new-post-fab";
 import {
   HomeSection,
   OffersStrip,
@@ -30,8 +29,8 @@ export const metadata: Metadata = {
 /**
  * Home, for the city the visitor picked (header pill): the sponsored
  * banner, "Explore places" (business categories), today's offers as
- * coupons, then the latest posts in a sideways row. The floating + writes
- * a post.
+ * coupons, then the latest posts in a sideways row. The tab bar's centre +
+ * writes a post.
  */
 export default async function HomePage() {
   const [{ t, locale }, city, session] = await Promise.all([
@@ -87,7 +86,6 @@ export default async function HomePage() {
           </HomeSection>
         </main>
       </PullToRefresh>
-      <NewPostFab signedIn={!!userId} />
     </Screen>
   );
 }

@@ -23,10 +23,10 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
     <ToastPrimitive.Viewport
       data-slot="toast-viewport"
       className={cn(
-        // Updated: sit above the bottom tab bar (h-16) and the home indicator
+        // Updated: sit above the floating tab bar (--tab-bar) and the home indicator
         // (safe area) instead of bottom-4; a screen with its own bottom bar
-        // (the review composer) lifts them above it with --toast-bottom.
-        "pointer-events-none fixed inset-x-4 bottom-[var(--toast-bottom,calc(var(--safe-bottom)+4.75rem))] z-50 mx-auto w-auto max-w-sm outline-none sm:end-4 sm:start-auto sm:mx-0 sm:w-full",
+        // (the reply / review composer) lifts them above it with --toast-bottom.
+        "pointer-events-none fixed inset-x-4 bottom-[var(--toast-bottom,calc(var(--safe-bottom)+var(--tab-bar)+0.75rem))] z-50 mx-auto w-auto max-w-sm outline-none sm:end-4 sm:start-auto sm:mx-0 sm:w-full",
         className
       )}
       {...props}

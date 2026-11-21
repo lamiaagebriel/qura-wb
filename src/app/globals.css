@@ -199,7 +199,7 @@ a {
    the keyboard is up (components/keyboard.tsx). */
 html {
   scroll-padding-top: calc(var(--safe-top) + 2.75rem + 0.5rem);
-  scroll-padding-bottom: calc(4rem + var(--safe-bottom) + 0.5rem);
+  scroll-padding-bottom: calc(var(--tab-bar) + var(--safe-bottom) + 0.5rem);
 }
 html[data-keyboard="open"] {
   scroll-padding-bottom: 0.5rem;
@@ -227,6 +227,10 @@ html[data-keyboard="open"] {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-height: 100dvh;
+  /* The floating tab bar: the room it takes above the home indicator (its
+     gap from the bottom + its height). Content, the + button and toasts
+     clear it with this, so the bar's size is set in one place. */
+  --tab-bar: 4.75rem;
 }
 @media (display-mode: standalone) {
   :root {
