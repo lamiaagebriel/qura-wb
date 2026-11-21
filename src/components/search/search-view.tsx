@@ -155,6 +155,8 @@ export function SearchView({
               ref={inputRef}
               type="search"
               name="q"
+              // Full height: a short box clips Arabic letters above and below.
+              className="h-full py-0 leading-normal"
               value={query}
               onChange={(event) => {
                 setQuery(event.target.value);

@@ -8,11 +8,13 @@ import {
 } from "@/components/icons";
 import { StackLink } from "@/components/navigation/stack-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import { categoryOf } from "@/lib/categories";
 import { getTranslations } from "@/lib/i18n/server";
 import { inLocale } from "@/lib/localized";
 import { dayOf, type Post } from "@/lib/posts";
 import { href } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 import { PostCard } from "./post-card";
 import { POST_TYPE_META } from "./type-meta";
@@ -52,10 +54,10 @@ async function OfferCard({ offer }: { offer: Post }) {
   return (
     <StackLink
       href={href("post", { params: { id: offer.id } })}
-      className="relative flex h-36 w-80 max-w-[calc(100vw-3rem)] shrink-0 snap-start overflow-hidden rounded-2xl bg-card text-start ring-1 ring-foreground/5"
+      className="relative flex h-32 w-80 max-w-[calc(100vw-3rem)] shrink-0 snap-start overflow-hidden rounded-2xl bg-card text-start ring-1 ring-foreground/5"
     >
       {/* Stub: the deal. */}
-      <span className="flex w-28 shrink-0 flex-col items-center justify-center gap-1 bg-linear-to-b from-emerald-500 to-teal-600 px-2 text-center text-white">
+      <span className="flex w-24 shrink-0 flex-col items-center justify-center gap-1 bg-linear-to-b from-emerald-500 to-teal-600 px-2 text-center text-white">
         <HugeiconsIcon
           icon={POST_TYPE_META.offer.icon}
           className="size-5 opacity-80"
@@ -81,10 +83,7 @@ async function OfferCard({ offer }: { offer: Post }) {
             {author.image && <AvatarImage src={author.image} alt="" />}
             <AvatarFallback className="bg-primary/10 text-primary">
               {category ? (
-                <HugeiconsIcon
-                  icon={category.icon}
-                  className="size-3.5"
-                />
+                <HugeiconsIcon icon={category.icon} className="size-3.5" />
               ) : (
                 name.slice(0, 1)
               )}
@@ -104,16 +103,13 @@ async function OfferCard({ offer }: { offer: Post }) {
         </span>
         <span
           dir="auto"
-          className="line-clamp-3 flex-1 text-sm leading-snug font-medium"
+          className="line-clamp-2 flex-1 text-sm leading-snug font-medium"
         >
           {offer.body}
         </span>
         {offer.data.endsOn && !offer.ended ? (
           <span className="flex items-center gap-1 text-[0.6875rem] font-medium text-emerald-700 dark:text-emerald-400">
-            <HugeiconsIcon
-              icon={Clock01Icon}
-              className="size-3"
-            />
+            <HugeiconsIcon icon={Clock01Icon} className="size-3" />
             {t("Until {{date}}", {
               date: dayOf(offer.data.endsOn).toLocaleDateString(locale, {
                 day: "numeric",
@@ -131,20 +127,45 @@ async function OfferCard({ offer }: { offer: Post }) {
   );
 }
 
-/** Posts as a sideways row of cards, snapping card by card. */
-export function PostRow({ posts, label }: { posts: Post[]; label: string }) {
+/**
+ * The newest posts as a short list of cards (easier to read than a
+ * sideways row), then a full-width "See all" to the whole feed.
+ */
+export async function PostRow({
+  posts,
+  label,
+  more,
+}: {
+  posts: Post[];
+  label: string;
+  more: string;
+}) {
+  const { t } = await getTranslations();
   if (!posts.length) return null;
   return (
-    <ul
-      aria-label={label}
-      className="flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 py-1 [scrollbar-width:none]"
-    >
-      {posts.map((post) => (
-        <li key={post.id} className="flex">
-          <PostCard post={post} signedIn={false} compact />
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-col gap-3 px-4">
+      <ul aria-label={label} className="flex flex-col gap-3">
+        {posts.map((post) => (
+          <li key={post.id}>
+            <PostCard post={post} signedIn={false} compact />
+          </li>
+        ))}
+      </ul>
+      <StackLink
+        href={more}
+        aria-label={t("See all: {{title}}", { title: label })}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "h-11 rounded-full",
+        )}
+      >
+        {t("See all")}
+        <HugeiconsIcon
+          icon={ArrowRight01Icon}
+          className="size-4 rtl:rotate-180"
+        />
+      </StackLink>
+    </div>
   );
 }
 

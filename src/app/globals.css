@@ -352,3 +352,32 @@ html[data-keyboard="open"] {
     animation: 150ms ease both nav-fade-out;
   }
 }
+
+/* The launch screen (components/splash-screen.tsx): a moment, then it
+   fades and gets out of the way. Pure CSS, so it works before hydration. */
+.splash {
+  animation: splash-out 0.35s ease-out 0.9s forwards;
+}
+.splash > span:first-child {
+  animation: splash-pop 0.5s ease-out both;
+}
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes splash-pop {
+  from {
+    scale: 0.85;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    animation-duration: 0.01s;
+  }
+  .splash > span:first-child {
+    animation: none;
+  }
+}

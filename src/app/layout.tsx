@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { SplashScreen } from "@/components/splash-screen";
 import { BRAND, SPLASH_SCREENS } from "@/lib/brand";
 import { getPlaces } from "@/server/queries/places";
 import { env } from "@/lib/env";
@@ -105,9 +106,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full font-sans antialiased", cairo.variable)}
     >
       <body className="min-h-full flex flex-col">
+        <SplashScreen />
         <Providers locale={locale} messages={messages} places={places}>
           {/* The page vaul scales back while a bottom sheet is open. */}
-          <div data-vaul-drawer-wrapper="" className="flex min-h-(--app-height) flex-col bg-background">
+          <div
+            data-vaul-drawer-wrapper=""
+            className="flex min-h-(--app-height) flex-col bg-background"
+          >
             {children}
           </div>
         </Providers>

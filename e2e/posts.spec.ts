@@ -15,7 +15,7 @@ import {
 // offers / announcements from the test user's businesses. The test
 // user's own posts, votes and bookmarks are wiped before every run.
 test.describe("posts", () => {
-  test("home: offers as coupons, the latest posts in a row; See all slides to Posts", async ({
+  test("home: offers as coupons, the latest posts in a list; See all slides to Posts", async ({
     page,
     context,
   }) => {
@@ -27,10 +27,10 @@ test.describe("posts", () => {
     const coupon = offers.getByRole("link", { name: /Breakfast for two/ });
     await expect(coupon).toBeVisible();
     await expect(coupon).toContainText("20% off");
-    // Latest: one sideways row of cards, every type but offers.
+    // Latest: a short list of the newest, every type but offers.
     const latest = page.getByRole("list", { name: "Latest in Aswan" });
     await expect(latest).toHaveCount(1);
-    await expect(latest.getByRole("listitem")).toHaveCount(16);
+    await expect(latest.getByRole("listitem")).toHaveCount(5);
     await expect(latest.getByText("Breakfast for two")).toHaveCount(0);
     // The floating + (signed out: asks to sign in).
     await expect(page.getByRole("button", { name: "New post" })).toBeVisible();

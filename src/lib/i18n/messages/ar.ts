@@ -56,6 +56,7 @@ const ar = {
   "Your city, one feed.": "مدينتك، في تدفق واحد.",
   "Recent searches": "عمليات البحث الأخيرة",
   Clear: "مسح",
+  "Search places, cafés, restaurants…": "ابحث عن أماكن، مقاهٍ، مطاعم…",
   "Clear search": "مسح البحث",
   Remove: "إزالة",
   "No results for “{{query}}”": "لا توجد نتائج لـ «{{query}}»",

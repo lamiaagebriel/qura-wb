@@ -101,7 +101,7 @@ export function PlacePicker({
           value={value ?? ""}
           onValueChange={(slug) => places.has(slug) && onSelect(slug)}
           aria-label={title}
-          className="mx-4 mb-4 max-h-[calc(var(--app-height)*0.6)] w-auto gap-0 divide-y divide-border/60 overflow-y-auto"
+          className="mx-4 mb-4 max-h-[calc(var(--app-height)*0.6)] w-auto gap-0 divide-y divide-border/60 overflow-x-hidden overflow-y-auto overscroll-contain"
         >
           {parent && (
             <Row

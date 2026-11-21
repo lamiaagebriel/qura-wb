@@ -36,8 +36,8 @@ import { savePost, votePost } from "@/server/actions/posts";
 /**
  * A post as a card: who posted it (the business, or the person), its type,
  * the text (and an offer's price / last day), then helpful votes, replies,
- * save and share (yours are edited from the post's page). `compact`: a fixed-width
- * card for the home rows, the whole card opening the post.
+ * save and share (yours are edited from the post's page). `compact`: a short
+ * card for home's list, the whole card opening the post.
  */
 export function PostCard({
   post,
@@ -57,17 +57,17 @@ export function PostCard({
   const { t } = useLocale();
   const link = href("post", { params: { id: post.id } });
 
-  // A card in a sideways row (home's latest posts).
+  // A short card in home's latest posts.
   if (compact) {
     return (
       <StackLink
         href={link}
-        className="flex w-72 shrink-0 snap-start flex-col gap-3 rounded-2xl bg-card p-4 text-start ring-1 ring-foreground/5"
+        className="flex w-full flex-col gap-2.5 rounded-2xl bg-card p-4 text-start ring-1 ring-foreground/5 transition-[scale] active:scale-[0.98] motion-reduce:transition-none"
       >
         <AuthorRow post={post} />
         <p
           dir="auto"
-          className="line-clamp-3 flex-1 text-sm leading-relaxed whitespace-pre-line"
+          className="line-clamp-2 text-sm leading-relaxed whitespace-pre-line"
         >
           {post.body}
         </p>
@@ -104,10 +104,7 @@ function Counts({ post }: { post: Post }) {
     <span className="flex items-center gap-4 text-xs text-muted-foreground">
       {post.score !== 0 && (
         <span className="flex items-center gap-1">
-          <HugeiconsIcon
-            icon={ThumbsUpIcon}
-            className="size-3.5"
-          />
+          <HugeiconsIcon icon={ThumbsUpIcon} className="size-3.5" />
           <span className="tabular-nums">
             {post.score.toLocaleString(locale)}
           </span>
@@ -116,10 +113,7 @@ function Counts({ post }: { post: Post }) {
       )}
       {post.replyCount > 0 && (
         <span className="flex items-center gap-1">
-          <HugeiconsIcon
-            icon={BubbleChatIcon}
-            className="size-3.5"
-          />
+          <HugeiconsIcon icon={BubbleChatIcon} className="size-3.5" />
           {t.plural(post.replyCount, {
             one: "{{count}} reply",
             other: "{{count}} replies",
@@ -161,10 +155,7 @@ function AuthorRow({ post, type = true }: { post: Post; type?: boolean }) {
         {author.image && <AvatarImage src={author.image} alt="" />}
         <AvatarFallback className="bg-primary/10 font-semibold text-primary">
           {category ? (
-            <HugeiconsIcon
-              icon={category.icon}
-              className="size-5"
-            />
+            <HugeiconsIcon icon={category.icon} className="size-5" />
           ) : (
             name.slice(0, 1)
           )}
@@ -218,10 +209,7 @@ function OfferDetails({ post }: { post: Post }) {
     <div className="flex flex-wrap gap-2 text-xs font-medium">
       {price && (
         <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-700 dark:text-emerald-400">
-          <HugeiconsIcon
-            icon={DiscountTag01Icon}
-            className="size-3.5"
-          />
+          <HugeiconsIcon icon={DiscountTag01Icon} className="size-3.5" />
           <bdi dir="auto">{price}</bdi>
         </span>
       )}
@@ -233,10 +221,7 @@ function OfferDetails({ post }: { post: Post }) {
             ended && "line-through",
           )}
         >
-          <HugeiconsIcon
-            icon={Clock01Icon}
-            className="size-3.5"
-          />
+          <HugeiconsIcon icon={Clock01Icon} className="size-3.5" />
           {ended
             ? t("Ended")
             : t("Until {{date}}", {
@@ -280,7 +265,10 @@ function PostActions({
     const before = vote;
     const next = vote === value ? 0 : value;
     setVote(next);
-    await run(() => votePost(post.id, next), { refresh: false, onError: () => setVote(before) });
+    await run(() => votePost(post.id, next), {
+      refresh: false,
+      onError: () => setVote(before),
+    });
   };
 
   const toggleSave = async () => {
@@ -329,9 +317,7 @@ function PostActions({
           disabled={own}
           onClick={() => castVote(-1)}
         >
-          <HugeiconsIcon
-            icon={ThumbsDownIcon}
-          />
+          <HugeiconsIcon icon={ThumbsDownIcon} />
         </Button>
       </div>
 
@@ -343,9 +329,7 @@ function PostActions({
           render={<StackLink href={link} />}
           nativeButton={false}
         >
-          <HugeiconsIcon
-            icon={BubbleChatIcon}
-          />
+          <HugeiconsIcon icon={BubbleChatIcon} />
           <span className="tabular-nums">
             {post.replyCount.toLocaleString(locale)}
           </span>
@@ -378,9 +362,7 @@ function PostActions({
           aria-label={t("Share")}
           onClick={() => share({ text: post.body.slice(0, 120), url: link })}
         >
-          <HugeiconsIcon
-            icon={Share08Icon}
-          />
+          <HugeiconsIcon icon={Share08Icon} />
         </Button>
       )}
       {/* Your reply: edit (its own screen) or delete it right here. */}
@@ -396,9 +378,7 @@ function PostActions({
             nativeButton={false}
             aria-label={t("Edit reply")}
           >
-            <HugeiconsIcon
-              icon={PencilEdit02Icon}
-            />
+            <HugeiconsIcon icon={PencilEdit02Icon} />
           </Button>
           <DeletePostButton id={post.id} reply icon />
         </>
