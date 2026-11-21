@@ -20,6 +20,8 @@ export const POST_TYPES = [
   "housing",
   "lost_found",
   "alert",
+  // A sponsored banner on home, between two dates (`POST_DATA.ad`).
+  "ad",
 ] as const;
 export type PostType = (typeof POST_TYPES)[number];
 
@@ -39,7 +41,7 @@ const COMMON_TYPES: readonly PostType[] = [
 /** Only as yourself. */
 const PERSONAL_ONLY: readonly PostType[] = ["together", "experience"];
 /** Only as one of your businesses. */
-const BUSINESS_ONLY: readonly PostType[] = ["offer", "announcement"];
+const BUSINESS_ONLY: readonly PostType[] = ["offer", "announcement", "ad"];
 
 // Each in the order of POST_TYPES (the picker's order).
 const pick = (lists: (readonly PostType[])[]) =>
@@ -94,6 +96,22 @@ export const POST_DATA = {
   housing: none,
   lost_found: none,
   alert: none,
+  ad: z
+    .object({
+      /** Shown on home from this day… */
+      startsOn: z.iso.date("Pick the first day"),
+      /** …to this one (yyyy-mm-dd), both included. */
+      endsOn: z.iso.date("Pick the last day"),
+      /** Where a tap goes: this link, else the business's profile. */
+      link: z
+        .union([z.literal(""), z.url({ protocol: /^https?$/, error: "Enter a web link (https://…)" })])
+        .optional()
+        .transform((value) => value || undefined),
+    })
+    .refine((ad) => ad.endsOn >= ad.startsOn, {
+      path: ["endsOn"],
+      message: "The last day can't be before the first",
+    }),
 } satisfies Record<PostType, z.ZodObject>;
 
 /** The extra fields of one type (`PostData<"offer">`), or of any. */
@@ -146,6 +164,8 @@ export type Post = {
   body: string;
   /** Its type's own fields (`POST_DATA`). */
   data: AnyPostData;
+  /** Its photos (public URLs, in order). */
+  images: string[];
   /** An offer's last day has passed (when the page was made). */
   ended: boolean;
   createdAt: Date;

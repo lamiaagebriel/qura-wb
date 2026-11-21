@@ -115,16 +115,16 @@ test.describe("public business profile", () => {
     await page.goto("/bs/nileview/reviews");
     await waitForHydration(page);
     await expect(page.getByRole("heading", { level: 2, name: /^\d+ reviews$/ })).toBeVisible();
-    const pill = page.getByRole("button", { name: "Filter by stars: All ratings" });
+    const pill = page.getByRole("button", { name: /^Filter reviews: All ratings/ });
     await pill.tap();
-    const sheet = page.getByRole("dialog", { name: "Filter by stars" });
+    const sheet = page.getByRole("dialog", { name: "Filter reviews" });
     await expect(sheet.getByRole("button", { name: "All ratings" })).toBeVisible();
     // Each star value someone gave, with its count: "5 stars · 3".
     const option = sheet.getByRole("button", { name: /^\d stars? · \d+$/ }).first();
     const stars = Number((await option.innerText()).trim()[0]);
     await option.tap();
     await expect.poll(() => page.url()).toContain(`stars=${stars}`);
-    await expect(page.getByRole("button", { name: new RegExp(`^Filter by stars: ${stars} stars?$`) })).toBeVisible();
+    await expect(page.getByRole("button", { name: new RegExp(`^Filter reviews: ${stars} stars?`) })).toBeVisible();
     const label = `${stars} out of 5 stars`;
     const rated = page.getByRole("article").getByRole("img", { name: /out of 5 stars/ });
     await expect.poll(() => rated.count()).toBeGreaterThan(0);
@@ -235,9 +235,9 @@ test.describe("public business profile", () => {
     await expect(mine.getByText("Lovely view, again!")).toBeVisible();
     await expect(edit).toHaveCount(0);
 
-    // Delete, after a confirmation.
+    // Delete: two taps ("Delete", then "Delete?").
     await mine.getByRole("button", { name: "Delete" }).tap();
-    await page.getByRole("dialog", { name: "Delete your review?" }).getByRole("button", { name: "Delete" }).tap();
+    await mine.getByRole("button", { name: "Delete?" }).tap();
     await expect(page.getByText("Review deleted")).toBeVisible();
     await expect(page.getByText("Lovely view, again!")).toHaveCount(0);
     await expect(page.getByRole("form", { name: "Write a review" })).toBeVisible();

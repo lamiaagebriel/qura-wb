@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Lalezar } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SplashScreen } from "@/components/splash-screen";
@@ -10,10 +10,16 @@ import { LOCALE_META, LOCALES } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
-// One font for every locale: Cairo covers both Latin and Arabic.
+// Cairo for everything except the logo; both cover Latin and Arabic.
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["latin", "arabic"],
+});
+// The "قُري" wordmark only (as in batota): one heavy weight.
+const lalezar = Lalezar({
+  variable: "--font-lalezar",
+  subsets: ["latin", "arabic"],
+  weight: "400",
 });
 
 /**
@@ -103,7 +109,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       dir={dir}
       // next-themes sets the theme class before hydration.
       suppressHydrationWarning
-      className={cn("h-full font-sans antialiased", cairo.variable)}
+      className={cn(
+        "h-full font-sans antialiased",
+        cairo.variable,
+        lalezar.variable,
+      )}
     >
       <body className="min-h-full flex flex-col">
         <SplashScreen />

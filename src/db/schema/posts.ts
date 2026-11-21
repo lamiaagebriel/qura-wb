@@ -7,6 +7,7 @@ import {
   pgTable,
   primaryKey,
   smallint,
+  text,
   timestamp,
   uuid,
   varchar,
@@ -61,6 +62,8 @@ export const posts = pgTable(
       .references(() => places.id, { onDelete: "restrict" }),
     /** Its type's own fields, checked by `POST_DATA` (`lib/posts.ts`). */
     data: jsonb().$type<AnyPostData>().notNull().default({}),
+    /** Its photos (public URLs, in order; at most `MAX_IMAGES`): uploaded by its author (`server/storage.ts`). */
+    images: text().array().notNull().default(sql`ARRAY[]::text[]`),
     status: postStatus().notNull().default("visible"),
   },
   (t) => [

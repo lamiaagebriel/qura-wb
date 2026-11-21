@@ -1,5 +1,6 @@
 "use client";
 
+import { PostImages } from "@/components/posts/post-images";
 import { useState } from "react";
 
 import { useAuthSheet } from "@/components/auth/auth-sheet";
@@ -19,6 +20,10 @@ import { StackLink } from "@/components/navigation/stack-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from "@/components/ui/button-group";
 import { categoryOf } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
 import { useAction } from "@/hooks/use-action";
@@ -71,6 +76,23 @@ export function PostCard({
         >
           {post.body}
         </p>
+        {post.images.length > 0 && (
+          // Inside the card's link: a still preview (the photos open on the post).
+          <span className="relative block h-40 overflow-hidden rounded-xl bg-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element -- photos come from the bucket, any size */}
+            <img
+              src={post.images[0]}
+              alt=""
+              loading="lazy"
+              className="size-full object-cover"
+            />
+            {post.images.length > 1 && (
+              <span className="absolute end-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white tabular-nums">
+                +{post.images.length - 1}
+              </span>
+            )}
+          </span>
+        )}
         <OfferDetails post={post} />
         <Counts post={post} />
       </StackLink>
@@ -80,18 +102,33 @@ export function PostCard({
   return (
     <article
       aria-label={reply ? t("Reply") : t(POST_TYPE_META[post.type].label)}
-      className="flex flex-col gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/5"
+      // A feed row, like Threads / X: no box, its own side padding (lists run
+      // edge to edge, so the hairline does too), a hairline under each post
+      // (not the last); the avatar in its own column, everything else beside it.
+      className="flex gap-3 border-b border-border/60 px-4 pb-3 [li:last-child>&]:border-0"
     >
-      <AuthorRow post={post} type={!reply} />
-      {linked ? (
-        <StackLink href={link} className="-m-1 rounded-lg p-1 text-start">
+      <AuthorAvatar post={post} />
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <AuthorLine post={post} type={!reply} />
+        {linked ? (
+          <StackLink
+            href={link}
+            className="-mx-1 -my-0.5 rounded-lg px-1 py-0.5 text-start"
+          >
+            <Body post={post} />
+          </StackLink>
+        ) : (
           <Body post={post} />
-        </StackLink>
-      ) : (
-        <Body post={post} />
-      )}
-      {!reply && <OfferDetails post={post} />}
-      <PostActions post={post} signedIn={signedIn} link={link} reply={reply} />
+        )}
+        {!reply && <PostImages images={post.images} className="mt-1" />}
+        {!reply && <OfferDetails post={post} />}
+        <PostActions
+          post={post}
+          signedIn={signedIn}
+          link={link}
+          reply={reply}
+        />
+      </div>
     </article>
   );
 }
@@ -199,6 +236,76 @@ function AuthorRow({ post, type = true }: { post: Post; type?: boolean }) {
   );
 }
 
+/** The author's photo (a business without one: its category's icon). */
+function AuthorAvatar({ post }: { post: Post }) {
+  const { locale } = useLocale();
+  const { author } = post;
+  const name =
+    author.type === "business" ? inLocale(author.name, locale) : author.name;
+  const category =
+    author.type === "business" ? categoryOf(author.category) : undefined;
+  return (
+    <Avatar className="size-10 shrink-0">
+      {author.image && <AvatarImage src={author.image} alt="" />}
+      <AvatarFallback className="bg-primary/10 font-semibold text-primary">
+        {category ? (
+          <HugeiconsIcon icon={category.icon} className="size-5" />
+        ) : (
+          name.slice(0, 1)
+        )}
+      </AvatarFallback>
+    </Avatar>
+  );
+}
+
+/**
+ * One line, like Threads: name (verified tick) · time — the @handle is on
+ * the profile, so the name has the room. The type sits small at the end.
+ */
+function AuthorLine({ post, type = true }: { post: Post; type?: boolean }) {
+  const { t, locale } = useLocale();
+  const { author } = post;
+  const meta = POST_TYPE_META[post.type];
+  const name =
+    author.type === "business" ? inLocale(author.name, locale) : author.name;
+  return (
+    <div className="flex min-w-0 items-center gap-1 text-sm">
+      <bdi dir="auto" className="min-w-0 shrink truncate font-semibold">
+        {name}
+      </bdi>
+      {author.type === "business" && author.verified && (
+        <HugeiconsIcon
+          icon={CheckmarkBadge01Icon}
+          role="img"
+          aria-label={t("Verified")}
+          className="size-4 shrink-0 text-sky-500"
+        />
+      )}
+      <span aria-hidden className="text-muted-foreground">
+        ·
+      </span>
+      <time
+        dateTime={post.createdAt.toISOString()}
+        className="shrink-0 text-xs text-muted-foreground"
+        suppressHydrationWarning
+      >
+        {timeAgo(post.createdAt, locale)}
+      </time>
+      {type && (
+        <Badge
+          className={cn(
+            "ms-auto h-5 shrink-0 gap-1 border-0 px-1.5 text-[0.6875rem]",
+            meta.tint,
+          )}
+        >
+          <HugeiconsIcon icon={meta.icon} className="size-3" />
+          {t(meta.label)}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
 /** An offer's price and last day (`data`), when set. */
 function OfferDetails({ post }: { post: Post }) {
   const { t, locale } = useLocale();
@@ -282,16 +389,32 @@ function PostActions({
     });
   };
 
-  // Icon buttons: 44px tap targets, pulled in so the row lines up.
-  const iconButton = "size-11 rounded-full text-muted-foreground";
+  // Soft pills (button groups): 36px tall, the ::before stretches the tap
+  // area to 44px; a quick press; muted until it's yours.
+  const pill = "rounded-full bg-muted/70 dark:bg-muted/50";
+  const action =
+    "relative h-9 min-w-10 gap-1.5 rounded-none px-3 text-muted-foreground transition-[color,scale] before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] hover:bg-foreground/5 active:scale-90 motion-reduce:transition-none [&_svg]:size-[1.125rem]";
+  const score = others + vote;
 
   return (
-    <div className="-mx-2 -mb-2 flex items-center">
-      <div className="flex items-center rounded-full">
+    <div className="flex items-center gap-2 pt-0.5">
+      {/* Helpful: up · score · down in one pill, tinted by your vote. */}
+      <ButtonGroup
+        aria-label={t("Helpful")}
+        className={cn(
+          "overflow-visible",
+          pill,
+          vote === 1 && "bg-emerald-500/10 dark:bg-emerald-500/15",
+          vote === -1 && "bg-destructive/10",
+        )}
+      >
         <Button
           variant="ghost"
-          size="icon-lg"
-          className={cn(iconButton, vote === 1 && "text-primary")}
+          className={cn(
+            action,
+            "rounded-s-full! pe-1.5",
+            vote === 1 && "text-emerald-600 dark:text-emerald-400",
+          )}
           aria-label={t("Helpful")}
           aria-pressed={vote === 1}
           disabled={own}
@@ -304,74 +427,88 @@ function PostActions({
         </Button>
         <span
           aria-label={t("Score")}
-          className="min-w-4 text-center text-sm font-semibold tabular-nums"
+          className={cn(
+            "flex min-w-4 items-center justify-center text-[0.8125rem] font-semibold tabular-nums",
+            vote === 1
+              ? "text-emerald-600 dark:text-emerald-400"
+              : vote === -1
+                ? "text-destructive"
+                : "text-muted-foreground",
+          )}
         >
-          {(others + vote).toLocaleString(locale)}
+          {score.toLocaleString(locale)}
         </span>
         <Button
           variant="ghost"
-          size="icon-lg"
-          className={cn(iconButton, vote === -1 && "text-destructive")}
+          className={cn(
+            action,
+            "rounded-e-full! ps-1.5",
+            vote === -1 && "text-destructive",
+          )}
           aria-label={t("Not helpful")}
           aria-pressed={vote === -1}
           disabled={own}
           onClick={() => castVote(-1)}
         >
-          <HugeiconsIcon icon={ThumbsDownIcon} />
+          <HugeiconsIcon
+            icon={ThumbsDownIcon}
+            className={cn(vote === -1 && "fill-current/20")}
+          />
         </Button>
-      </div>
-
+      </ButtonGroup>
       {!reply && (
         <Button
           variant="ghost"
-          size="lg"
-          className="h-11 gap-1.5 rounded-full px-3 text-muted-foreground"
+          className={cn(action, pill)}
           render={<StackLink href={link} />}
           nativeButton={false}
+          aria-label={t.plural(post.replyCount, {
+            one: "{{count}} reply",
+            other: "{{count}} replies",
+          })}
         >
           <HugeiconsIcon icon={BubbleChatIcon} />
-          <span className="tabular-nums">
-            {post.replyCount.toLocaleString(locale)}
-          </span>
-          <span className="sr-only">{t("Replies")}</span>
+          {post.replyCount > 0 && (
+            <span className="text-[0.8125rem] font-medium tabular-nums">
+              {post.replyCount.toLocaleString(locale)}
+            </span>
+          )}
         </Button>
       )}
-
       <span className="flex-1" />
 
       {!reply && (
-        <Button
-          variant="ghost"
-          size="icon-lg"
-          className={cn(iconButton, saved && "text-primary")}
-          aria-label={t("Save")}
-          aria-pressed={saved}
-          onClick={toggleSave}
-        >
-          <HugeiconsIcon
-            icon={Bookmark01Icon}
-            className={cn(saved && "fill-current")}
-          />
-        </Button>
-      )}
-      {!reply && (
-        <Button
-          variant="ghost"
-          size="icon-lg"
-          className={iconButton}
-          aria-label={t("Share")}
-          onClick={() => share({ text: post.body.slice(0, 120), url: link })}
-        >
-          <HugeiconsIcon icon={Share08Icon} />
-        </Button>
+        <ButtonGroup className={cn("overflow-visible", pill)}>
+          <Button
+            variant="ghost"
+            className={cn(action, "rounded-s-full!", saved && "text-primary")}
+            aria-label={t("Save")}
+            aria-pressed={saved}
+            onClick={toggleSave}
+          >
+            <HugeiconsIcon
+              icon={Bookmark01Icon}
+              className={cn(saved && "fill-current")}
+            />
+          </Button>
+          <ButtonGroupSeparator className="h-4! self-center bg-foreground/15" />
+          <Button
+            variant="ghost"
+            className={cn(action, "rounded-e-full!")}
+            aria-label={t("Share")}
+            onClick={() => share({ text: post.body.slice(0, 120), url: link })}
+          >
+            <HugeiconsIcon icon={Share08Icon} />
+          </Button>
+        </ButtonGroup>
       )}
       {/* Your reply: edit (its own screen) or delete it right here. */}
       {reply && post.mine && (
-        <>
+        <span className="flex items-center">
           <Button
             variant="ghost"
             size="icon-lg"
-            className={iconButton}
+            className="size-11 rounded-full text-muted-foreground"
             render={
               <StackLink href={href("editPost", { params: { id: post.id } })} />
             }
@@ -381,7 +518,7 @@ function PostActions({
             <HugeiconsIcon icon={PencilEdit02Icon} />
           </Button>
           <DeletePostButton id={post.id} reply icon />
-        </>
+        </span>
       )}
     </div>
   );

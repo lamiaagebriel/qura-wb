@@ -77,7 +77,10 @@ export default async function PostPage({ params }: PageProps<"/p/[id]">) {
       />
       <PullToRefresh>
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 px-4 pt-2 pb-8">
-          <PostCard post={post} signedIn={!!userId} linked={false} />
+          {/* Edge to edge, like the feed (the post pads itself). */}
+          <div className="-mx-4">
+            <PostCard post={post} signedIn={!!userId} linked={false} />
+          </div>
           <ReplyComposer
             postId={post.id}
             me={session ? { name: session.user.name, avatarUrl: session.user.image ?? null } : undefined}

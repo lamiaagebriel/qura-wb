@@ -1,14 +1,12 @@
-import { FilterPill } from "@/components/filter-pill";
+import { CommentItem } from "@/components/comment-item";
+import { HeaderFilter } from "@/components/header-filter";
 import {
   ArrowUpDownIcon,
   FilterHorizontalIcon,
   HugeiconsIcon,
   StarIcon,
 } from "@/components/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { timeAgo } from "@/lib/format";
 import { getTranslations } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
@@ -120,8 +118,8 @@ export async function ReviewSummaryCard({
 }
 
 /**
- * The list's heading ("5 reviews") with a star filter at its end, like a
- * business's posts and their type filter: a `FilterPill` with "All
+ * The reviews' filters as one icon in the header (`HeaderFilter`, like
+ * the posts' type filter): a sheet with "All
  * ratings" and each star value someone gave, with counts (`?stars=`) —
  * then how they're ordered: newest, highest or lowest rated (`?sort=`).
  */
@@ -141,25 +139,22 @@ export async function ReviewFilter({
     .map((count, i) => ({ stars: 5 - i, count }))
     .filter((option) => option.count > 0 || option.stars === stars);
   const starsLabel = (count: number) =>
-    t.plural(count, { one: "{{count}} star", other: "{{count}} stars" }, { count: number.format(count) });
+    t.plural(
+      count,
+      { one: "{{count}} star", other: "{{count}} stars" },
+      { count: number.format(count) },
+    );
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <h2 className="text-lg font-bold">
-        {t.plural(
-          summary.count,
-          { one: "{{count}} review", other: "{{count}} reviews" },
-          { count: number.format(summary.count) },
-        )}
-      </h2>
-      <div className="flex shrink-0 items-center gap-2">
-      {/* One star value only: nothing to filter. */}
-      {given.length > 1 && (
-        <FilterPill
-          param="stars"
-          value={stars ? String(stars) : null}
-          title={t("Filter by stars")}
-          options={[
+    <HeaderFilter
+      title={t("Filter reviews")}
+      groups={[
+        // One star value only: nothing to filter (the group hides itself).
+        {
+          param: "stars",
+          title: t("Filter by stars"),
+          value: stars ? String(stars) : null,
+          options: [
             {
               value: null,
               label: t("All ratings"),
@@ -173,27 +168,49 @@ export async function ReviewFilter({
               icon: StarIcon,
               iconColors: "bg-amber-500/15 text-amber-600",
             })),
-          ]}
-        />
+          ],
+        },
+        {
+          param: "sort",
+          title: t("Sort reviews"),
+          value: sort === "newest" ? null : sort,
+          options:
+            summary.count > 1
+              ? [
+                  { value: null, label: t("Newest first"), short: t("Newest") },
+                  {
+                    value: "highest",
+                    label: t("Highest rated first"),
+                    short: t("Highest"),
+                  },
+                  {
+                    value: "lowest",
+                    label: t("Lowest rated first"),
+                    short: t("Lowest"),
+                  },
+                ].map((option) => ({
+                  ...option,
+                  icon: ArrowUpDownIcon,
+                  iconColors: "bg-muted text-foreground",
+                }))
+              : [],
+        },
+      ]}
+    />
+  );
+}
+
+/** The list's heading: "5 reviews". */
+export async function ReviewCount({ summary }: { summary: ReviewSummary }) {
+  const { t, locale } = await getTranslations();
+  return (
+    <h2 className="text-lg font-bold">
+      {t.plural(
+        summary.count,
+        { one: "{{count}} review", other: "{{count}} reviews" },
+        { count: new Intl.NumberFormat(locale).format(summary.count) },
       )}
-      {summary.count > 1 && (
-        <FilterPill
-          param="sort"
-          value={sort === "newest" ? null : sort}
-          title={t("Sort reviews")}
-          options={[
-            { value: null, label: t("Newest first"), short: t("Newest") },
-            { value: "highest", label: t("Highest rated first"), short: t("Highest") },
-            { value: "lowest", label: t("Lowest rated first"), short: t("Lowest") },
-          ].map((option) => ({
-            ...option,
-            icon: ArrowUpDownIcon,
-            iconColors: "bg-muted text-foreground",
-          }))}
-        />
-      )}
-      </div>
-    </div>
+    </h2>
   );
 }
 
@@ -225,37 +242,23 @@ export async function ReviewsEmpty({ stars }: { stars?: number | null }) {
 
 /**
  * One review, like a comment: photo, then name · age, the stars and the
- * text (long ones cut, with "more"). Yours is marked "You" and gets
- * Edit · Delete.
+ * text (long ones cut, with "more"), as a `CommentItem`. Yours is marked
+ * "You" and gets ✏️ | 🗑 on its name line.
  */
 async function ReviewItem({ review }: { review: Review }) {
   const { t, locale } = await getTranslations();
   return (
-    <article className="flex gap-3 py-3">
-      <Avatar className="size-9 shrink-0">
-        <AvatarImage src={review.author?.avatarUrl ?? undefined} alt="" />
-        <AvatarFallback>{review.author.name}</AvatarFallback>
-      </Avatar>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="flex min-w-0 items-center gap-1.5 text-xs">
-          <span className="truncate font-semibold">{review.author.name}</span>
-          {review.mine && (
-            <Badge variant="secondary" className="h-4.5 px-1.5">
-              {t("You")}
-            </Badge>
-          )}
-          <time
-            dateTime={review.createdAt.toISOString()}
-            className="shrink-0 text-muted-foreground"
-          >
-            {timeAgo(review.createdAt, locale)}
-          </time>
-        </p>
-        <Stars rating={review.rating} className="text-xs" />
-        {review.text && <ReviewText text={review.text} />}
-        {review.mine && <MyReviewActions />}
-      </div>
-    </article>
+    <CommentItem
+      name={review.author.name}
+      image={review.author?.avatarUrl}
+      you={review.mine ? t("You") : undefined}
+      createdAt={review.createdAt}
+      locale={locale}
+      actions={review.mine && <MyReviewActions />}
+    >
+      <Stars rating={review.rating} className="text-xs" />
+      {review.text && <ReviewText text={review.text} />}
+    </CommentItem>
   );
 }
 

@@ -5,7 +5,7 @@
  * written once. One recorded action (`history`, source "seed"): all of it
  * or nothing. Refuses to run in production.
  */
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { runAction, type Tx } from "@/server/run-action";
 import { env } from "../lib/env";
@@ -13,7 +13,7 @@ import { env } from "../lib/env";
 import { db } from "./index";
 import { businesses, businessLocations, businessReviews, places, posts, users } from "./schema";
 import { SEED_BUSINESSES, SEED_OWNED, SEED_OWNER } from "./seed/businesses";
-import { seedBusinessPosts, seedUserPosts, type SeedPost } from "./seed/posts";
+import { seedAds, seedBusinessPosts, seedUserPosts, type SeedPost } from "./seed/posts";
 import { SEED_REVIEWERS, seedReviews } from "./seed/reviews";
 import { seedWorld } from "./seed/world";
 
@@ -108,7 +108,16 @@ async function seed(tx: Tx) {
   const sample: SeedPost[] = [
     ...seedUserPosts(SEED_REVIEWERS.map((r) => r.email)).filter((post) => !hasType.has(post.type)),
     ...(businessPosts ? [] : seedBusinessPosts()),
+    // Ads came later: seeded once, whenever none exist yet.
+    ...((await tx.$count(posts, eq(posts.type, "ad"))) ? [] : seedAds()),
   ];
+  // Sample business posts seeded before photos existed: give them theirs.
+  for (const { body, images } of seedBusinessPosts())
+    if (images)
+      await tx
+        .update(posts)
+        .set({ images, updatedAt: posts.updatedAt })
+        .where(and(eq(posts.body, body), sql`cardinality(${posts.images}) = 0`));
   const aswan = placeId("aswan");
   if (sample.length) {
     const inserted = await tx

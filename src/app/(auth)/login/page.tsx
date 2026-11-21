@@ -15,9 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("Sign in"), robots: { index: false, follow: true } };
 }
 
-export default async function LoginPage({
-  searchParams,
-}: PageProps<"/login">) {
+export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;
   const next = safeNext(typeof params.next === "string" ? params.next : null);
   const error = typeof params.error === "string" ? params.error : null;
@@ -36,9 +34,7 @@ export default async function LoginPage({
         <BackButton fallback={href("home")} />
       </div>
       <div className="flex flex-1 flex-col justify-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500 motion-reduce:animate-none">
-        <h1 className="font-heading text-4xl font-semibold tracking-tight">
-          {t("Qura")}
-        </h1>
+        <h1 className="font-logo text-5xl leading-tight">{t("Qura")}</h1>
         <p className="text-base text-muted-foreground">
           {t(
             "Discover restaurants, events, jobs, apartments, and more — all in one local feed. Launching in Aswan, expanding worldwide.",

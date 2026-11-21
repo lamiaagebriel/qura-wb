@@ -6,16 +6,29 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { isValidId } from "@/db/helpers";
 import { businesses, posts, postSaves, postVotes } from "@/db/schema";
-import { AGAIN, done, fail, invalid, ok, type ActionResult } from "@/lib/action-result";
+import {
+  AGAIN,
+  done,
+  fail,
+  invalid,
+  ok,
+  type ActionResult,
+} from "@/lib/action-result";
 import { getFreshSession, getSession } from "@/lib/auth/session";
 import { getCurrentPlace, getPlaceIndex } from "@/server/queries/places";
 import { canManage, roleFor } from "@/lib/business-status";
 import { findPublicBusiness } from "@/server/queries/businesses";
-import { findPostRow, findVisiblePostRow, getPost, postsIn } from "@/server/queries/posts";
+import {
+  findPostRow,
+  findVisiblePostRow,
+  getPost,
+  postsIn,
+} from "@/server/queries/posts";
 import type { MessageKey } from "@/lib/i18n/types";
 import { isPostType, type PostPage } from "@/lib/posts";
 import { rateLimit } from "@/server/rate-limit";
 import { runAction } from "@/server/run-action";
+import { deleteImages, isOwnImage } from "@/server/storage";
 import { postEditSchema, postSchema } from "@/lib/validations/post-form";
 import { replySchema } from "@/lib/validations/reply-form";
 
@@ -49,6 +62,7 @@ export async function createPost(
   const parsed = postSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const values = parsed.data;
+  if (!values.images.every((url) => isOwnImage(url, user.userId))) return AGAIN;
   // The place picked in the form, or the one being browsed.
   const places = await getPlaceIndex();
   if (values.city && !places.has(values.city)) return AGAIN;
@@ -68,7 +82,11 @@ export async function createPost(
   }
 
   const [row] = await runAction(
-    { action: "post.create", actorId: user.userId, input: { type: values.type, place: city, businessId } },
+    {
+      action: "post.create",
+      actorId: user.userId,
+      input: { type: values.type, place: city, businessId },
+    },
     (tx) =>
       tx
         .insert(posts)
@@ -80,6 +98,7 @@ export async function createPost(
           placeId: places.get(city)!.id,
           // Already checked against the type's schema (`POST_DATA`).
           data: values.data,
+          images: values.images,
         })
         .returning({ id: posts.id }),
   );
@@ -101,7 +120,11 @@ export async function updatePost(
   // Posted as a business: only while you still run it (not once someone
   // else owns it).
   if (row.businessId) {
-    const [business] = await db.select().from(businesses).where(eq(businesses.id, row.businessId)).limit(1);
+    const [business] = await db
+      .select()
+      .from(businesses)
+      .where(eq(businesses.id, row.businessId))
+      .limit(1);
     if (!business || !canManage(roleFor(business, { id: user.userId }))) {
       return fail("You can only post as your own business.");
     }
@@ -109,17 +132,23 @@ export async function updatePost(
   // Type and author stay as they were posted; its type checks `data`.
   const parsed = postEditSchema(row.type).safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
+  // A reply has no fields or photos of its own.
+  const images = row.parentId ? [] : parsed.data.images;
+  if (!images.every((url) => isOwnImage(url, user.userId))) return AGAIN;
 
-  await runAction({ action: "post.update", actorId: user.userId, input: { postId: row.id } }, (tx) =>
-    tx
-      .update(posts)
-      .set({
-        body: parsed.data.body,
-        // A reply has no fields of its own.
-        ...(row.parentId ? {} : { data: parsed.data.data }),
-      })
-      .where(eq(posts.id, row.id)),
+  await runAction(
+    { action: "post.update", actorId: user.userId, input: { postId: row.id } },
+    (tx) =>
+      tx
+        .update(posts)
+        .set({
+          body: parsed.data.body,
+          ...(row.parentId ? {} : { data: parsed.data.data, images }),
+        })
+        .where(eq(posts.id, row.id)),
   );
+  // After the write: the photos taken out of it.
+  await deleteImages(row.images.filter((url) => !images.includes(url)));
   refresh();
   return done();
 }
@@ -132,9 +161,11 @@ export async function deletePost(id: unknown): Promise<ActionResult> {
   if (!row || row.createdById !== user.userId) {
     return fail("This post no longer exists.");
   }
-  await runAction({ action: "post.delete", actorId: user.userId, input: { postId: row.id } }, (tx) =>
-    tx.delete(posts).where(eq(posts.id, row.id)),
+  await runAction(
+    { action: "post.delete", actorId: user.userId, input: { postId: row.id } },
+    (tx) => tx.delete(posts).where(eq(posts.id, row.id)),
   );
+  await deleteImages(row.images);
   refresh();
   return done();
 }
@@ -154,14 +185,20 @@ export async function replyToPost(
     return fail("This post no longer exists.");
   }
 
-  await runAction({ action: "post.reply", actorId: user.userId, input: { postId: parent.id } }, (tx) =>
-    tx.insert(posts).values({
-      createdById: user.userId,
-      parentId: parent.id,
-      type: parent.type,
-      placeId: parent.placeId,
-      body: parsed.data.body,
-    }),
+  await runAction(
+    {
+      action: "post.reply",
+      actorId: user.userId,
+      input: { postId: parent.id },
+    },
+    (tx) =>
+      tx.insert(posts).values({
+        createdById: user.userId,
+        parentId: parent.id,
+        type: parent.type,
+        placeId: parent.placeId,
+        body: parsed.data.body,
+      }),
   );
   refresh();
   return done();

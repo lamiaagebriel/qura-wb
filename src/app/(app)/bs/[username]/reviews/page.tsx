@@ -6,6 +6,7 @@ import { CheckmarkBadge01Icon, HugeiconsIcon } from "@/components/icons";
 import { Screen } from "@/components/navigation/screen";
 import {
   ReviewFilter,
+  ReviewCount,
   ReviewList,
   ReviewsEmpty,
   ReviewSummaryCard,
@@ -17,7 +18,11 @@ import type { Business } from "@/db/schema";
 import { getSession } from "@/lib/auth/session";
 import { categoryOf } from "@/lib/categories";
 import { findPublicBusiness, isMine } from "@/server/queries/businesses";
-import { getMyReview, getReviews, getReviewSummary } from "@/server/queries/reviews";
+import {
+  getMyReview,
+  getReviews,
+  getReviewSummary,
+} from "@/server/queries/reviews";
 import { getTranslations } from "@/lib/i18n/server";
 import { inLocale } from "@/lib/localized";
 import { isReviewSort } from "@/lib/reviews";
@@ -50,13 +55,17 @@ export default async function BusinessReviewsPage({
   params,
   searchParams,
 }: PageProps<"/bs/[username]/reviews">) {
-  const [{ t, locale }, { username }, { stars: starsParam, sort: sortParam }, session] =
-    await Promise.all([
-      getTranslations(),
-      params,
-      searchParams,
-      getSession(),
-    ]);
+  const [
+    { t, locale },
+    { username },
+    { stars: starsParam, sort: sortParam },
+    session,
+  ] = await Promise.all([
+    getTranslations(),
+    params,
+    searchParams,
+    getSession(),
+  ]);
   // `?stars=1…5`: only reviews with that many stars.
   const stars = [1, 2, 3, 4, 5].includes(Number(starsParam))
     ? Number(starsParam)
@@ -87,6 +96,11 @@ export default async function BusinessReviewsPage({
       <AppHeader
         title={t("Reviews")}
         back={href("business", { params: { username: business.username } })}
+        action={
+          summary.count > 0 && (
+            <ReviewFilter summary={summary} stars={stars} sort={sort} />
+          )
+        }
       />
       <PullToRefresh>
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4 pt-2 pb-8">
@@ -95,7 +109,7 @@ export default async function BusinessReviewsPage({
           {summary.count > 0 ? (
             <>
               <ReviewSummaryCard summary={summary} />
-              <ReviewFilter summary={summary} stars={stars} sort={sort} />
+              <ReviewCount summary={summary} />
             </>
           ) : (
             <ReviewsEmpty />
@@ -143,10 +157,7 @@ async function BusinessBrief({ business }: { business: Business }) {
         {business.image && <AvatarImage src={business.image} alt="" />}
         <AvatarFallback className="bg-primary/10 font-semibold text-primary">
           {category ? (
-            <HugeiconsIcon
-              icon={category.icon}
-              className="size-6"
-            />
+            <HugeiconsIcon icon={category.icon} className="size-6" />
           ) : (
             name
           )}

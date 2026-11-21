@@ -10,7 +10,7 @@ const HOUR = 3600 * 1000;
 
 /** What people in a city write, by type (offers / announcements are businesses'). */
 const TEXTS: Record<
-  Exclude<PostType, "offer" | "announcement" | "job">,
+  Exclude<PostType, "offer" | "announcement" | "job" | "ad">,
   string[]
 > = {
   general: [
@@ -67,9 +67,14 @@ export type SeedPost = {
   createdAt: Date;
   /** A sample reviewer's email, or a seeded business's @handle. */
   by: { reviewer: string } | { business: string };
+  /** Sample photos (any public URL; the app only takes uploads). */
+  images?: string[];
   /** Its type's fields (`POST_DATA`), e.g. an offer's price. */
   data?: AnyPostData;
 };
+
+/** A stock photo (the same one for the same name), 4:5 like a phone photo. */
+const photo = (name: string) => `https://picsum.photos/seed/qura-${name}/1080/1350`;
 
 /** yyyy-mm-dd, `days` from today. */
 const inDays = (days: number) =>
@@ -114,6 +119,7 @@ export function seedBusinessPosts(): SeedPost[] {
       business: "nilebreeze",
       body: "Breakfast for two with a Nile view — this week only.",
       data: { price: "20% off", endsOn: inDays(7) },
+      images: [photo("nile-breakfast")],
       age: 2,
     },
     {
@@ -121,12 +127,14 @@ export function seedBusinessPosts(): SeedPost[] {
       business: "aswan.eats",
       body: "Family meal deal every Friday: four mains, salads and drinks.",
       data: { price: "450 EGP" },
+      images: [photo("family-meal"), photo("nubian-salad"), photo("grill"), photo("dessert")],
       age: 26,
     },
     {
       type: "announcement",
       business: "nilebreeze",
       body: "We’re now open until midnight on weekends!",
+      images: [photo("cafe-night"), photo("cafe-terrace")],
       age: 5,
     },
     {
@@ -151,6 +159,32 @@ export function seedBusinessPosts(): SeedPost[] {
     ...(post as Omit<SeedPost, "by" | "city" | "createdAt">),
     city: "aswan" as const,
     createdAt: new Date(now - age * HOUR),
+    by: { business },
+  }));
+}
+
+/** Sample ads from the businesses the test user owns: running now, for two weeks. */
+export function seedAds(): SeedPost[] {
+  const now = Date.now();
+  return [
+    {
+      business: "nilebreeze",
+      body: "Breakfast on the Nile — 20% off before 10 am.",
+      images: [photo("nile-breakfast")],
+      link: undefined,
+    },
+    {
+      business: "aswan.eats",
+      body: "Free delivery all over Aswan this week.",
+      images: [photo("family-meal")],
+      link: "https://example.com/aswan-eats",
+    },
+  ].map(({ business, link, ...post }, i) => ({
+    ...post,
+    type: "ad" as const,
+    data: { startsOn: inDays(-1), endsOn: inDays(14), ...(link ? { link } : {}) } as AnyPostData,
+    city: "aswan" as const,
+    createdAt: new Date(now - (i + 1) * HOUR),
     by: { business },
   }));
 }

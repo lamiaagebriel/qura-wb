@@ -9,8 +9,10 @@ import { cn } from "@/lib/utils";
  * App-style top bar (sticky, under the status bar):
  * - `back`: shows a back arrow; the value is the parent screen used when
  *   there's no in-app history (deep link).
- * - `action`: at most one icon button at the end.
+ * - `action`: icon buttons at the end (one, or two side by side).
  * - `large`: iOS large title under the bar that collapses into it on scroll.
+ * - `subtitle`: a small line under the title (the large one, and the bar's
+ *   once collapsed), e.g. "In Aswan".
  * - `titleAfter`: id of an element on the page that already shows the
  *   title (a profile's name); the bar's title stays hidden until that
  *   element has scrolled under the bar.
@@ -25,6 +27,8 @@ export function AppHeader({
   action,
   large = false,
   titleAfter,
+  subtitle,
+  logo = false,
   children,
 }: {
   title: string;
@@ -32,9 +36,11 @@ export function AppHeader({
   action?: ReactNode;
   large?: boolean;
   titleAfter?: string;
+  subtitle?: string;
+  /** The title is the app's name: set in the logo font (Lalezar). */
+  logo?: boolean;
   children?: ReactNode;
 }) {
-  const topRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   const largeTitleRef = useRef<HTMLHeadingElement>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -43,14 +49,12 @@ export function AppHeader({
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
 
-    // Page scrolled at all → show the bar's background and border.
-    if (topRef.current) {
-      const o = new IntersectionObserver(([e]) =>
-        setScrolled(!e.isIntersecting),
-      );
-      o.observe(topRef.current);
-      observers.push(o);
-    }
+    // Page scrolled at all → show the bar's background and border. Read from
+    // the real scroll position (an observer on a marker could miss a restored
+    // scroll or a screen transition, leaving the bar clear over content).
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     // Large title hidden under the bar → show the small title in the bar.
     if (large && largeTitleRef.current && barRef.current) {
       const o = new IntersectionObserver(
@@ -75,12 +79,15 @@ export function AppHeader({
       o.observe(titled);
       observers.push(o);
     }
-    return () => observers.forEach((o) => o.disconnect());
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observers.forEach((o) => o.disconnect());
+    };
   }, [large, titleAfter]);
 
   return (
     <>
-      <div ref={topRef} aria-hidden className="-mb-px h-px" />
+      <div aria-hidden className="-mb-px h-px" />
       <header
         ref={barRef}
         // iOS: with a large title the bar stays clear until the title has
@@ -96,15 +103,29 @@ export function AppHeader({
             aria-hidden={large}
             className={cn(
               // Small inline title: fades and rises into the bar (iOS).
-              "truncate px-2 text-center text-base font-semibold transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none",
+              "flex min-w-0 flex-col items-center px-2 text-center transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none",
               collapsed
                 ? "translate-y-0 opacity-100"
                 : "translate-y-1 opacity-0",
             )}
           >
-            {title}
+            <span
+              className={cn(
+                "max-w-full truncate font-semibold",
+                subtitle ? "text-sm leading-tight" : "text-base",
+                // The wordmark: Lalezar, a size up (it runs small).
+                logo && "font-logo text-xl leading-none font-normal",
+              )}
+            >
+              {title}
+            </span>
+            {subtitle && (
+              <span className="max-w-full truncate text-[0.6875rem] leading-tight text-muted-foreground">
+                {subtitle}
+              </span>
+            )}
           </p>
-          <div className="flex justify-end">{action}</div>
+          <div className="flex items-center justify-end">{action}</div>
         </div>
       </header>
 
@@ -117,6 +138,11 @@ export function AppHeader({
           >
             {title}
           </h1>
+          {subtitle && (
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">
+              {subtitle}
+            </p>
+          )}
         </div>
       ) : (
         <h1 className="sr-only">{title}</h1>

@@ -7,6 +7,7 @@ import { DeletePostButton } from "@/components/posts/delete-post-button";
 import { PostForm } from "@/components/forms/post-form";
 import { requireUser } from "@/lib/auth/session";
 import { getMyPost } from "@/server/queries/posts";
+import { storageReady } from "@/server/storage";
 import { getTranslations } from "@/lib/i18n/server";
 import { href } from "@/lib/routes";
 
@@ -34,7 +35,12 @@ export default async function EditPostPage({
     <Screen>
       <AppHeader title={reply ? t("Edit reply") : t("Edit post")} back={back} />
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-8">
-        <PostForm businesses={[]} editing={post} back={back} />
+        <PostForm
+          businesses={[]}
+          editing={post}
+          back={back}
+          photos={storageReady()}
+        />
         <DeletePostButton
           id={post.id}
           reply={!!reply}

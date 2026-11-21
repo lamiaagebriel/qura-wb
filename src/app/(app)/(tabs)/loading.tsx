@@ -13,6 +13,7 @@ export default async function HomeLoading() {
     <Screen>
       <AppHeader
         title={t("Qura")}
+        logo
         large
         action={<Bone className="h-8 w-24 rounded-full" />}
       />

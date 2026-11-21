@@ -65,22 +65,17 @@ export default async function PostsPage({ searchParams }: PageProps<"/posts">) {
         title={t("Posts")}
         large
         back={href("home")}
+        // Where and which, kept in the bar while scrolling.
+        subtitle={t("In {{city}}", { city: cityName })}
         action={
-          <NewPostButton
-
-            signedIn={!!userId}
-            type={filter ?? undefined}
-          />
+          <>
+            <PostTypeFilter types={types} value={filter} icon />
+            <NewPostButton signedIn={!!userId} type={filter ?? undefined} />
+          </>
         }
       />
       <PullToRefresh>
-        <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 px-4 pt-1 pb-8">
-          <div className="flex items-center justify-between gap-3">
-            <p className="truncate text-sm text-muted-foreground">
-              {t("In {{city}}", { city: cityName })}
-            </p>
-            <PostTypeFilter types={types} value={filter} />
-          </div>
+        <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 pt-1 pb-8">
           {first.posts.length ? (
             <PostFeed
               // A fresh first page (refresh, a filter, a new post) starts over.

@@ -1,3 +1,4 @@
+import { storageReady } from "@/server/storage";
 import type { Metadata } from "next";
 
 import { AppHeader } from "@/components/app-header";
@@ -50,6 +51,7 @@ export default async function NewPostPage({
           defaultKind={start}
           place={place}
           back={parent}
+          photos={storageReady()}
         />
       </main>
     </Screen>

@@ -11,20 +11,20 @@ test.describe("home", () => {
       page.getByRole("button", { name: "City: Aswan" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Explore places" }),
+      page.getByRole("navigation", { name: "Categories" }),
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /Nile Breeze Café/ }).first(),
     ).toBeVisible();
   });
 
-  test("the ads carousel shows sponsored slides that open the business", async ({
+  test("the ads carousel shows running ads that open the business (or their link)", async ({
     page,
   }) => {
     await page.goto("/");
     await waitForHydration(page);
     const ads = page.getByRole("region", { name: "Sponsored" });
-    await expect(ads.getByRole("group")).toHaveCount(3);
+    await expect(ads.getByRole("group").first()).toBeVisible();
     await ads.getByRole("link", { name: /Breakfast on the Nile/ }).tap();
     await expect.poll(() => pathname(page)).toBe("/bs/nilebreeze");
   });
@@ -56,13 +56,13 @@ test.describe("home", () => {
     await expect(
       page.getByRole("button", { name: "City: Abu Simbel" }),
     ).toBeVisible();
-    await expect(page.getByText("No businesses in Abu Simbel yet")).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Categories" }).getByRole("link")).toHaveCount(8);
 
     await page.getByRole("button", { name: "City: Abu Simbel" }).tap();
     // It opens on Abu Simbel's level: all of Aswan is the first row.
     await page.getByRole("radio", { name: "All of Aswan" }).tap();
     await expect(
-      page.getByRole("heading", { name: "Explore places" }),
+      page.getByRole("navigation", { name: "Categories" }),
     ).toBeVisible();
   });
 
@@ -77,7 +77,8 @@ test.describe("home", () => {
     await expect(
       page.getByRole("button", { name: "City: Luxor" }),
     ).toBeVisible();
-    await expect(page.getByText("No businesses in Luxor yet")).toBeVisible();
+    // Its categories still show (7 and More), even with no businesses yet.
+    await expect(page.getByRole("navigation", { name: "Categories" }).getByRole("link")).toHaveCount(8);
 
 
     await page.goto("/");

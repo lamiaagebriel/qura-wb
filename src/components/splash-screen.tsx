@@ -23,7 +23,7 @@ export async function SplashScreen() {
       >
         <Mark size="68%" color={BRAND.dark.foreground} />
       </span>
-      <span className="text-xl font-extrabold tracking-tight">{t("Qura")}</span>
+      <span className="font-logo text-3xl leading-none">{t("Qura")}</span>
     </div>
   );
 }

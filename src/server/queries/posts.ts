@@ -6,6 +6,7 @@ import {
   count,
   desc,
   eq,
+  isNotNull,
   isNull,
   ne,
   or,
@@ -61,7 +62,9 @@ const visible = and(active, eq(posts.status, "visible"), parentSeen);
  * Why a hidden post was hidden (only for those): the reason on the latest
  * action that hid it — a moderator's hide or an approved report.
  */
-export const hiddenReason = sql<string | null>`case when ${posts.status} <> 'visible' then (
+export const hiddenReason = sql<
+  string | null
+>`case when ${posts.status} <> 'visible' then (
   select h.note from history h
   where h.entry = 'action' and h.note is not null and (
     (h.action = 'post.hide' and h.input->>'postId' = ${posts.id}::text)
@@ -86,6 +89,7 @@ function selectPosts(viewerId: string | undefined) {
       type: posts.type,
       body: posts.body,
       data: posts.data,
+      images: posts.images,
       createdAt: posts.createdAt,
       updatedAt: posts.updatedAt,
       createdById: posts.createdById,
@@ -136,6 +140,7 @@ function toPost(row: Row, viewerId: string | undefined): Post {
     type: row.type,
     body: row.body,
     data: row.data,
+    images: row.images,
     // Over at the end of its last day.
     ended:
       !!row.data.endsOn &&
@@ -156,7 +161,10 @@ function toPost(row: Row, viewerId: string | undefined): Post {
     hidden:
       row.status === "visible"
         ? null
-        : { reason: row.hiddenReason ?? "", waiting: row.status === "under_review" },
+        : {
+            reason: row.hiddenReason ?? "",
+            waiting: row.status === "under_review",
+          },
   };
 }
 
@@ -184,7 +192,14 @@ export async function latestPosts(
     type,
     except,
     limit = 8,
-  }: { type?: PostType; except?: PostType; limit?: number } = {},
+    promoted = false,
+  }: {
+    type?: PostType;
+    except?: PostType;
+    limit?: number;
+    /** Running ads only (type `ad`, today between its days): home's banners. */
+    promoted?: boolean;
+  } = {},
 ): Promise<Post[]> {
   const rows = await selectPosts(viewerId)
     .where(
@@ -193,6 +208,16 @@ export async function latestPosts(
         topLevelIn(city),
         type ? eq(posts.type, type) : undefined,
         except ? ne(posts.type, except) : undefined,
+        promoted
+          ? and(
+              eq(posts.type, "ad"),
+              isNotNull(posts.businessId),
+              sql`cardinality(${posts.images}) > 0`,
+              // Running today (dates are yyyy-mm-dd, both days included).
+              sql`${posts.data}->>'startsOn' <= to_char(now(), 'YYYY-MM-DD')`,
+              sql`${posts.data}->>'endsOn' >= to_char(now(), 'YYYY-MM-DD')`,
+            )
+          : undefined,
       ),
     )
     .orderBy(...newestFirst)

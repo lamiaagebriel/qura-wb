@@ -28,7 +28,7 @@ export default async function SavedPostsPage() {
     <Screen>
       <AppHeader title={t("Saved posts")} back={href("profile")} />
       <PullToRefresh>
-        <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pt-2 pb-8">
+        <main className="mx-auto flex w-full max-w-md flex-1 flex-col pt-2 pb-8">
           {posts.length ? (
             <ul className="flex flex-col gap-3">
               {posts.map((post) => (

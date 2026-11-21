@@ -1,9 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Controller, useWatch } from "react-hook-form";
+import { useState } from "react";
+import {
+  Controller,
+  useWatch,
+  type Control,
+  type FieldError,
+  type UseFormSetValue,
+} from "react-hook-form";
 
 import { FormError, INPUT } from "@/components/forms/form-error";
+import {
+  PhotosField,
+  photoSlots,
+  uploadPhotos,
+  type PhotoSlot,
+} from "@/components/forms/photos-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { canGoBack } from "@/components/navigation/history";
 import { PlaceField } from "@/components/places/place-field";
@@ -11,10 +24,12 @@ import { createPost, updatePost } from "@/server/actions/posts";
 import { PostAsPicker } from "@/components/posts/post-as-picker";
 import { TypeSelect } from "@/components/posts/type-select";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useActionForm } from "@/hooks/use-action-form";
+import { useLocale } from "@/lib/i18n/provider";
 import {
   BUSINESS_TYPES,
   typesFor,
@@ -25,13 +40,18 @@ import {
   type PostingBusiness,
   type PostingUser,
 } from "@/lib/posts";
-import { postSchema, type PostFormValues, type PostInput } from "@/lib/validations/post-form";
+import {
+  postSchema,
+  type PostFormValues,
+  type PostInput,
+} from "@/lib/validations/post-form";
 
 /**
  * Writing a post (its own screen): who it's from (you, or one of your
  * businesses), what type it is — the types follow the account (`typesFor`):
  * switching to one that can't post the current type picks its first — the
- * text, and an offer's price / last day. With `editing`, it edits that
+ * text, and an offer's price / last day. Photos (up to 4) are picked here and
+ * uploaded when it's sent. With `editing`, it edits that
  * post's text and details (type and author stay). Done, it goes back to
  * the screen it was opened from (`back` on a deep link).
  */
@@ -42,6 +62,7 @@ export function PostForm({
   editing,
   place = "",
   back,
+  photos = false,
 }: {
   /** You, for "Post as" (new posts). */
   me?: PostingUser | null;
@@ -51,8 +72,13 @@ export function PostForm({
   /** Where a new post goes at first: the place being browsed. */
   place?: string;
   back: string;
+  /** Photo storage is set up (`storageReady`): show the photo picker. */
+  photos?: boolean;
 }) {
   const router = useRouter();
+  const [slots, setSlots] = useState<PhotoSlot[]>(() =>
+    photoSlots(editing?.images ?? []),
+  );
   // A business-only type (the + on Jobs…) starts as your first business.
   const startAs =
     !typesFor(false).includes(defaultKind) &&
@@ -67,9 +93,14 @@ export function PostForm({
     business: startAs,
     body: "",
     data: {},
+    images: [],
   };
   // The form keeps strings; the schema turns them into the post.
-  const { form, submit, pending, t } = useActionForm<PostFormValues, unknown, PostInput>({
+  const { form, submit, pending, t } = useActionForm<
+    PostFormValues,
+    unknown,
+    PostInput
+  >({
     schema: postSchema,
     defaultValues: editing
       ? {
@@ -80,6 +111,7 @@ export function PostForm({
           business:
             editing.author.type === "business" ? editing.author.username : "",
           body: editing.body,
+          images: editing.images,
           data: Object.fromEntries(
             Object.entries(editing.data).map(([key, value]) => [
               key,
@@ -88,7 +120,13 @@ export function PostForm({
           ),
         }
       : empty,
-    action: (values) => (editing ? updatePost(editing.id, values) : createPost(values)),
+    // The photos upload first (while "Posting…"), then the post takes their URLs.
+    action: async (values) => {
+      const uploaded = await uploadPhotos(slots);
+      if (!uploaded.ok) return uploaded;
+      const post = { ...values, images: uploaded.data };
+      return editing ? updatePost(editing.id, post) : createPost(post);
+    },
     success: editing ? "Post updated" : "Posted!",
     onDone: () => (canGoBack() ? router.back() : router.replace(back)),
   });
@@ -97,6 +135,16 @@ export function PostForm({
   const types = typesFor(!!business);
   // A reply has only its text (its type is the post's).
   const isReply = !!editing?.replyTo;
+  // The schema checks the photos before they upload (an ad needs one), so
+  // the form keeps their previews too; the action swaps in the uploaded URLs.
+  const pickPhotos = (next: PhotoSlot[]) => {
+    setSlots(next);
+    form.setValue(
+      "images",
+      next.map((slot) => (slot.kind === "uploaded" ? slot.url : slot.preview)),
+      { shouldValidate: form.formState.isSubmitted },
+    );
+  };
 
   /** Posting as someone else: keep the type if they can post it. */
   const postAs = (next: string) => {
@@ -188,6 +236,19 @@ export function PostForm({
         className="min-h-32"
       />
 
+      {photos && !isReply && (
+        <Field data-invalid={!!form.formState.errors.images}>
+          <PhotosField slots={slots} onChange={pickPhotos} disabled={pending} />
+          <FormError
+            error={form.formState.errors.images as FieldError | undefined}
+          />
+        </Field>
+      )}
+
+      {type === "ad" && !isReply && (
+        <AdFields control={form.control} setValue={form.setValue} />
+      )}
+
       {type === "offer" && !isReply && (
         <div className="grid grid-cols-2 gap-3">
           <Controller
@@ -250,4 +311,94 @@ export function PostForm({
 function toDateInput(date: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/**
+ * An ad's own fields: the days it's shown on home (from, until) and where a
+ * tap goes — your business's profile, or a link (one button group).
+ */
+function AdFields({
+  control,
+  setValue,
+}: {
+  control: Control<PostFormValues, unknown, PostInput>;
+  setValue: UseFormSetValue<PostFormValues>;
+}) {
+  const { t } = useLocale();
+  const link = useWatch({ control, name: "data.link" });
+  const [toLink, setToLink] = useState(!!link);
+  const today = toDateInput(new Date());
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3">
+        {(["startsOn", "endsOn"] as const).map((name) => (
+          <Controller
+            key={name}
+            control={control}
+            name={`data.${name}`}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={`ad-${name}`}>
+                  {name === "startsOn" ? t("Shown from") : t("Until")}
+                </FieldLabel>
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  id={`ad-${name}`}
+                  type="date"
+                  min={today}
+                  className={INPUT}
+                />
+                <FormError error={fieldState.error} />
+              </Field>
+            )}
+          />
+        ))}
+      </div>
+
+      <Field>
+        <FieldLabel>{t("Opens")}</FieldLabel>
+        <ButtonGroup className="w-full">
+          {[false, true].map((mode) => (
+            <Button
+              key={String(mode)}
+              type="button"
+              variant={toLink === mode ? "default" : "outline"}
+              aria-pressed={toLink === mode}
+              className="h-11 flex-1 first:rounded-s-xl last:rounded-e-xl"
+              onClick={() => {
+                setToLink(mode);
+                if (!mode) setValue("data.link", "");
+              }}
+            >
+              {mode ? t("A link") : t("Your profile")}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </Field>
+      {toLink && (
+        <Controller
+          control={control}
+          name="data.link"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                type="url"
+                dir="ltr"
+                inputMode="url"
+                placeholder="https://"
+                aria-label={t("A link")}
+                autoComplete="off"
+                className={INPUT}
+              />
+              <FormError error={fieldState.error} />
+            </Field>
+          )}
+        />
+      )}
+    </div>
+  );
 }

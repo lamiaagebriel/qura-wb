@@ -97,4 +97,11 @@ export const POST_TYPE_META: Record<
     icon: Alert02Icon,
     tint: "bg-red-500/10 text-red-600 dark:text-red-400",
   },
+  // A sponsored banner on home (between its dates): its own colour.
+  ad: {
+    label: "Ad",
+    plural: "Ads",
+    icon: Megaphone01Icon,
+    tint: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+  },
 };

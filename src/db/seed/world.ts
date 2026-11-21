@@ -296,7 +296,8 @@ const BUSINESSES: SeedBusiness[] = [
 
 // ── Posts ───────────────────────────────────────────────────────────────
 
-const TEXTS: Record<PostType, readonly string[]> = {
+// Ads are seeded with their dates (`seedBusinessPosts`), not from texts.
+const TEXTS: Record<Exclude<PostType, "ad">, readonly string[]> = {
   general: [
     "The Corniche walk at sunset was packed today, but still beautiful 🌅",
     "They finally fixed the street lights on our road. Small things matter.",
@@ -544,7 +545,7 @@ export async function seedWorld(tx: Tx) {
   // Posts: every type, more in the big cities, by people and by businesses
   // (offers and announcements are a business's).
   const postRows: { id: string; placeId: string; type: string; createdById: string }[] = [];
-  const TYPES = Object.keys(TEXTS) as PostType[];
+  const TYPES = Object.keys(TEXTS) as (keyof typeof TEXTS)[];
   const asBusiness = new Set<PostType>(["offer", "announcement"]);
   const BIG = new Set(["cairo", "maadi", "zamalek", "nasr-city", "giza", "mohandessin", "alexandria", "smouha", "mansoura", "toriel", "hurghada"]);
   for (const slug of slugs) {

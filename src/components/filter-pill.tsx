@@ -1,14 +1,13 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useState } from "react";
 
 import {
   ArrowDown01Icon,
   HugeiconsIcon,
   type IconSvgElement,
 } from "@/components/icons";
-import { overlaysSettled } from "@/components/navigation/use-back-to-close";
+import { useUrlPick } from "@/components/header-filter";
 import { buttonVariants } from "@/components/ui/button";
 import { ActionSheet } from "@/components/sheets/action-sheet";
 import { Spinner } from "@/components/ui/spinner";
@@ -44,36 +43,10 @@ export function FilterPill({
   title: string;
   options: FilterOption[];
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
-  const current = options.find((option) => option.value === value) ?? options[0];
-
-  // The pick waits for the sheet to close and drop its history entry —
-  // replacing the URL before that, the sheet's back would undo it.
-  const [picked, setPicked] = useState<{ value: string | null } | null>(null);
-  useEffect(() => {
-    if (!picked || open) return;
-    let cancelled = false;
-    overlaysSettled().then(() => {
-      if (cancelled) return;
-      setPicked(null);
-      // Other pills' choices (`?stars=` with `?sort=`) stay.
-      const query = new URLSearchParams(window.location.search);
-      if (picked.value) query.set(param, picked.value);
-      else query.delete(param);
-      const search = query.toString();
-      startTransition(() =>
-        router.replace(search ? `${pathname}?${search}` : pathname, {
-          scroll: false,
-        }),
-      );
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [picked, open, pathname, param, router]);
+  const { pick, pending } = useUrlPick(open);
+  const current =
+    options.find((option) => option.value === value) ?? options[0];
 
   return (
     <>
@@ -108,7 +81,7 @@ export function FilterPill({
           label: option.label,
           icon: option.icon,
           iconColors: option.iconColors,
-          onSelect: () => setPicked({ value: option.value }),
+          onSelect: () => pick(param, option.value),
         }))}
       />
     </>

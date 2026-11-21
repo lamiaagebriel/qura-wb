@@ -34,6 +34,14 @@ export default defineConfig({
       BETTER_AUTH_SECRET: "test-secret-test-secret-test-secret-00",
       GOOGLE_CLIENT_ID: "test",
       GOOGLE_CLIENT_SECRET: "test",
+      // A bucket that doesn't exist: signing upload URLs needs no network, and
+      // deleting photos fails quietly by design.
+      S3_BUCKET: "qura-test",
+      S3_REGION: "auto",
+      S3_ACCESS_KEY_ID: "test",
+      S3_SECRET_ACCESS_KEY: "test",
+      S3_ENDPOINT: "http://127.0.0.1:9",
+      S3_PUBLIC_URL: "https://photos.test",
     },
   },
 });

@@ -59,7 +59,7 @@ test.describe("posts", () => {
       page.getByRole("article", { name: "Offer" }).first(),
     ).toBeVisible();
     await expect(
-      page.getByRole("article").filter({ hasText: "@" }).first(),
+      page.getByRole("article").filter({ hasText: "Omar Said" }).first(),
     ).toBeVisible();
     const types = await page
       .getByRole("article")
@@ -159,7 +159,7 @@ test.describe("posts", () => {
     // Newest first, shown as the test user (not a business).
     const card = page.getByRole("article", { name: "Question" }).first();
     await expect(card).toContainText(body);
-    await expect(card).toContainText("@e2e_tester");
+    await expect(card).toContainText("E2E Tester");
 
     // Its page: reply.
     await card.getByRole("link", { name: body }).tap();
@@ -188,10 +188,7 @@ test.describe("posts", () => {
     await expect(page.getByRole("form", { name: "Write a reply" })).toBeVisible();
     // …or delete it, confirmed, staying on the post.
     await myReply.getByRole("button", { name: "Delete" }).tap();
-    await page
-      .getByRole("dialog", { name: "Delete this reply?" })
-      .getByRole("button", { name: "Delete" })
-      .tap();
+    await myReply.getByRole("button", { name: "Delete?" }).tap();
     await expect(page.getByText("Reply deleted")).toBeVisible();
     await expect(myReply).toHaveCount(0);
     expect(page.url()).toBe(postUrl);

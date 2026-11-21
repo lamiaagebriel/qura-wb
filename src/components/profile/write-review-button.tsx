@@ -1,17 +1,14 @@
 "use client";
 
+import { EditDeleteGroup } from "@/components/edit-delete-group";
 import { createContext, use, useRef, useState, type ReactNode } from "react";
 
 import { ComposerBar, SignedOutBar } from "@/components/composer-bar";
-import { buttonVariants } from "@/components/ui/button";
 import { StarIcon } from "@/components/icons";
-import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
 import { ReviewForm } from "@/components/forms/review-form";
 import { useAction } from "@/hooks/use-action";
 import { useLocale } from "@/lib/i18n/provider";
-import type {
-  ReviewFormValues as ReviewInput,
-} from "@/lib/validations/review-form";
+import type { ReviewFormValues as ReviewInput } from "@/lib/validations/review-form";
 import { cn } from "@/lib/utils";
 
 import { deleteReview } from "@/server/actions/social";
@@ -107,12 +104,7 @@ export function ReviewComposer({
 export function MyReviewRow({ children }: { children: ReactNode }) {
   const { editing } = useComposer();
   return (
-    <div
-      className={cn(
-        "-mx-4 px-4 transition-colors",
-        editing && "bg-muted",
-      )}
-    >
+    <div className={cn("-mx-4 px-4 transition-colors", editing && "bg-muted")}>
       {children}
     </div>
   );
@@ -120,40 +112,17 @@ export function MyReviewRow({ children }: { children: ReactNode }) {
 
 /** "Edit · Delete" under your review, where Instagram has its links. */
 export function MyReviewActions() {
-  const { run, t } = useAction();
+  const { run } = useAction();
   const { username, edit, stopEditing } = useComposer();
-  const [confirming, setConfirming] = useState(false);
-
   return (
-    <>
-      <div className="-ms-2 flex items-center">
-        <button
-          type="button"
-          onClick={edit}
-          className={cn(buttonVariants({ variant: "ghost" }), "h-11 px-2 font-semibold text-muted-foreground")}
-        >
-          {t("Edit")}
-        </button>
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className={cn(buttonVariants({ variant: "ghost" }), "h-11 px-2 font-semibold text-muted-foreground")}
-        >
-          {t("Delete")}
-        </button>
-      </div>
-      <ConfirmSheet
-        open={confirming}
-        onOpenChange={setConfirming}
-        title={t("Delete your review?")}
-        description={t("Your stars and text will be removed.")}
-        confirmLabel={t("Delete")}
-        destructive
-        onConfirm={async () => {
-          await run(() => deleteReview(username), { success: "Review deleted", onDone: stopEditing });
-        }}
-      />
-    </>
+    <EditDeleteGroup
+      onEdit={edit}
+      onDelete={() =>
+        run(() => deleteReview(username), {
+          success: "Review deleted",
+          onDone: stopEditing,
+        })
+      }
+    />
   );
 }
-

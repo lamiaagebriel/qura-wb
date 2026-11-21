@@ -44,10 +44,23 @@ const schema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   // Maps JavaScript API (browser key, referrer-restricted): the pin picker.
   GOOGLE_MAPS_API_KEY: optional(z.string().min(1)),
+  // Post photos: any S3-compatible bucket (AWS S3, Cloudflare R2, MinIO).
+  // All unset: posts are text only (the photo button is hidden).
+  S3_BUCKET: optional(z.string().min(1)),
+  S3_REGION: optional(z.string().min(1)),
+  S3_ACCESS_KEY_ID: optional(z.string().min(1)),
+  S3_SECRET_ACCESS_KEY: optional(z.string().min(1)),
+  // Not AWS: the provider's API endpoint (R2: https://<account>.r2.cloudflarestorage.com).
+  S3_ENDPOINT: optional(z.url()),
+  // Where the photos are read from (the bucket's public URL or a CDN), no trailing slash.
+  S3_PUBLIC_URL: optional(z.url().transform((url) => url.replace(/\/+$/, ""))),
   TRUSTED_ORIGINS: optional(
-    z
-      .string()
-      .transform((v) => v.split(",").map((o) => o.trim()).filter(Boolean)),
+    z.string().transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
   ),
 });
 

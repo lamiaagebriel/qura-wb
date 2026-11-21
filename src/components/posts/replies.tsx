@@ -1,5 +1,7 @@
 "use client";
 
+import { CommentItem } from "@/components/comment-item";
+import { EditDeleteGroup } from "@/components/edit-delete-group";
 import { createContext, use, useRef, useState, type ReactNode } from "react";
 
 import { ComposerBar, SignedOutBar } from "@/components/composer-bar";
@@ -11,14 +13,10 @@ import {
   ThumbsUpIcon,
 } from "@/components/icons";
 import { ReviewText } from "@/components/profile/review-text";
-import { ConfirmSheet } from "@/components/sheets/confirm-sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useAuthSheet } from "@/components/auth/auth-sheet";
 import { useAction } from "@/hooks/use-action";
 import { categoryOf } from "@/lib/categories";
-import { timeAgo } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/provider";
 import { inLocale } from "@/lib/localized";
 import type { Post } from "@/lib/posts";
@@ -120,73 +118,44 @@ function ReplyItem({ reply }: { reply: Post }) {
   const { t, locale } = useLocale();
   const { editing } = useComposer();
   const { author } = reply;
-  const name = author.type === "business" ? inLocale(author.name, locale) : author.name;
-  const category = author.type === "business" ? categoryOf(author.category) : undefined;
+  const name =
+    author.type === "business" ? inLocale(author.name, locale) : author.name;
+  const category =
+    author.type === "business" ? categoryOf(author.category) : undefined;
 
   return (
-    <article
-      aria-label={t("Reply")}
-      className={cn("-mx-4 flex gap-3 px-4 py-3 transition-colors", editing?.id === reply.id && "bg-muted")}
+    <CommentItem
+      label={t("Reply")}
+      name={name}
+      image={author.image}
+      fallback={category ? <HugeiconsIcon icon={category.icon} /> : undefined}
+      you={reply.mine ? t("You") : undefined}
+      createdAt={reply.createdAt}
+      locale={locale}
+      highlighted={editing?.id === reply.id}
+      className="-mx-4 px-4"
+      actions={reply.mine && <MyReplyActions reply={reply} />}
+      footer={!reply.mine && <ReplyVotes reply={reply} />}
     >
-      <Avatar className="size-9 shrink-0">
-        {author.image && <AvatarImage src={author.image} alt="" />}
-        <AvatarFallback>
-          {category ? <HugeiconsIcon icon={category.icon} /> : name}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="flex min-w-0 items-center gap-1.5 text-xs">
-          <bdi dir="auto" className="truncate font-semibold">
-            {name}
-          </bdi>
-          {reply.mine && (
-            <Badge variant="secondary" className="h-4.5 px-1.5">
-              {t("You")}
-            </Badge>
-          )}
-          <time dateTime={reply.createdAt.toISOString()} className="shrink-0 text-muted-foreground">
-            {timeAgo(reply.createdAt, locale)}
-          </time>
-        </p>
-        <ReviewText text={reply.body} />
-        {reply.mine ? <MyReplyActions reply={reply} /> : <ReplyVotes reply={reply} />}
-      </div>
-    </article>
+      <ReviewText text={reply.body} />
+    </CommentItem>
   );
 }
 
-/** "Edit · Delete" under your reply, like your review's. */
+/** ✏️ | 🗑 on your reply's name line, like your review's. */
 function MyReplyActions({ reply }: { reply: Post }) {
-  const { run, t } = useAction();
+  const { run } = useAction();
   const { edit, editing, stopEditing } = useComposer();
-  const [confirming, setConfirming] = useState(false);
-  const link = cn(buttonVariants({ variant: "ghost" }), "h-11 px-2 font-semibold text-muted-foreground");
-
   return (
-    <>
-      <div className="-ms-2 flex items-center">
-        <button type="button" onClick={() => edit(reply)} className={link}>
-          {t("Edit")}
-        </button>
-        <button type="button" onClick={() => setConfirming(true)} className={link}>
-          {t("Delete")}
-        </button>
-      </div>
-      <ConfirmSheet
-        open={confirming}
-        onOpenChange={setConfirming}
-        title={t("Delete this reply?")}
-        description={t("This can't be undone.")}
-        confirmLabel={t("Delete")}
-        destructive
-        onConfirm={async () => {
-          await run(() => deletePost(reply.id), {
-            success: "Reply deleted",
-            onDone: () => editing?.id === reply.id && stopEditing(),
-          });
-        }}
-      />
-    </>
+    <EditDeleteGroup
+      onEdit={() => edit(reply)}
+      onDelete={() =>
+        run(() => deletePost(reply.id), {
+          success: "Reply deleted",
+          onDone: () => editing?.id === reply.id && stopEditing(),
+        })
+      }
+    />
   );
 }
 
@@ -205,7 +174,10 @@ function ReplyVotes({ reply }: { reply: Post }) {
     const before = vote;
     const next = vote === value ? 0 : value;
     setVote(next);
-    await run(() => votePost(reply.id, next), { refresh: false, onError: () => setVote(before) });
+    await run(() => votePost(reply.id, next), {
+      refresh: false,
+      onError: () => setVote(before),
+    });
   };
 
   return (
@@ -213,20 +185,32 @@ function ReplyVotes({ reply }: { reply: Post }) {
       <Button
         variant="ghost"
         size="icon"
-        className={cn("size-11 rounded-full", vote === 1 && "text-primary")}
+        className={cn(
+          "size-11 rounded-full",
+          vote === 1 && "text-emerald-600 dark:text-emerald-400",
+        )}
         aria-label={t("Helpful")}
         aria-pressed={vote === 1}
         onClick={() => cast(1)}
       >
-        <HugeiconsIcon icon={ThumbsUpIcon} className={cn(vote === 1 && "fill-current/20")} />
+        <HugeiconsIcon
+          icon={ThumbsUpIcon}
+          className={cn(vote === 1 && "fill-current/20")}
+        />
       </Button>
-      <span aria-label={t("Score")} className="min-w-4 text-center text-xs font-semibold tabular-nums">
+      <span
+        aria-label={t("Score")}
+        className="min-w-4 text-center text-xs font-semibold tabular-nums"
+      >
         {(others + vote).toLocaleString(locale)}
       </span>
       <Button
         variant="ghost"
         size="icon"
-        className={cn("size-11 rounded-full", vote === -1 && "text-destructive")}
+        className={cn(
+          "size-11 rounded-full",
+          vote === -1 && "text-destructive",
+        )}
         aria-label={t("Not helpful")}
         aria-pressed={vote === -1}
         onClick={() => cast(-1)}

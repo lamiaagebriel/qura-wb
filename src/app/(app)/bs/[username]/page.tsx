@@ -148,7 +148,8 @@ export default async function BusinessPage({
                   {t("No posts of this type yet.")}
                 </p>
               )}
-              <ul className="flex flex-col gap-3">
+              {/* Posts run edge to edge (each pads itself). */}
+              <ul className="-mx-4 flex flex-col gap-3">
                 {posts.map((post) => (
                   <li key={post.id}>
                     <PostCard post={post} signedIn={!!userId} />

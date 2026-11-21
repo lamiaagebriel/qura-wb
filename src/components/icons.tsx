@@ -33,6 +33,7 @@ export {
   UnfoldMoreIcon,
   // Actions
   Cancel01Icon,
+  ImageAdd01Icon,
   MinusSignIcon,
   MoreHorizontalCircle01Icon,
   SearchIcon,

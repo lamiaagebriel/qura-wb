@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import { useTheme } from "next-themes";
 
 import {
@@ -22,18 +23,68 @@ const MODES = [
 // the server to avoid a hydration mismatch.
 const subscribe = () => () => {};
 const useMounted = () =>
-  useSyncExternalStore(subscribe, () => true, () => false);
+  useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
 export function ModeSwitcher() {
   const { theme, setTheme } = useTheme();
   const { t } = useLocale();
   const mounted = useMounted();
 
+  // The new theme spreads as a circle from the button you pressed until it
+  // covers the screen (animate-ui's theme toggler, ripple style); a plain
+  // switch without view transitions or with reduced motion.
+  const change = (next: string, button: Element | null) => {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!document.startViewTransition || reduce || !button)
+      return setTheme(next);
+
+    const { left, top, width, height } = button.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    // Far enough to reach the farthest corner.
+    const radius = Math.hypot(
+      Math.max(x, innerWidth - x),
+      Math.max(y, innerHeight - y),
+    );
+
+    document
+      .startViewTransition(() => flushSync(() => setTheme(next)))
+      .ready.then(() =>
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${radius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 500,
+            easing: "ease-in-out",
+            pseudoElement: "::view-transition-new(root)",
+          },
+        ),
+      )
+      .catch(() => {});
+  };
+
   return (
     <ToggleGroup
       aria-label={t("Theme")}
       value={mounted && theme ? [theme] : []}
-      onValueChange={([next]) => next && setTheme(next)}
+      // The pressed button: the one the tap or key event came from.
+      onValueChange={([next], { event }) =>
+        next &&
+        change(
+          next,
+          event.target instanceof Element
+            ? event.target.closest("button")
+            : document.activeElement,
+        )
+      }
     >
       {MODES.map(({ value, label, icon }) => (
         <ToggleGroupItem

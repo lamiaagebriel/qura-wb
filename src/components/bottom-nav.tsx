@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuthSheet } from "@/components/auth/auth-sheet";
 import {
@@ -15,6 +15,10 @@ import {
   UserCircleIcon,
   type IconSvgElement,
 } from "@/components/icons";
+import {
+  Highlight,
+  HighlightItem,
+} from "@/components/animate-ui/primitives/effects/highlight";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { StackLink } from "@/components/navigation/stack-link";
@@ -63,18 +67,6 @@ export function BottomNav({
   const shrunk = useShrinkOnScroll();
   const { open: signIn } = useAuthSheet();
 
-  // The highlight follows the open tab's real box (any writing direction,
-  // any number of tabs); measured before paint, so it never starts misplaced.
-  const tabs = useRef<Partial<Record<Tab, HTMLLIElement | null>>>({});
-  const [highlight, setHighlight] = useState<{
-    left: number;
-    width: number;
-  } | null>(null);
-  useLayoutEffect(() => {
-    const el = activeTab && tabs.current[activeTab];
-    setHighlight(el ? { left: el.offsetLeft, width: el.offsetWidth } : null);
-  }, [activeTab]);
-
   return (
     <nav
       aria-label={t("Main navigation")}
@@ -89,17 +81,16 @@ export function BottomNav({
       )}
     >
       <ul className={cn(FROSTED, "relative flex flex-1 items-center p-1")}>
-        {highlight && (
-          <li
-            aria-hidden
-            className="absolute top-1/2 left-0 h-12 rounded-full bg-foreground/10 transition-[translate,width] duration-300 ease-out motion-reduce:transition-none"
-            style={{
-              width: highlight.width,
-              translate: `${highlight.left}px -50%`,
-            }}
-          />
-        )}
-        {TABS.map(renderTab)}
+        {/* The open tab's highlight springs from tab to tab (animate-ui Highlight). */}
+        <Highlight
+          controlledItems
+          value={activeTab}
+          // The route picks the tab, not the tap.
+          click={false}
+          className="inset-0 rounded-full bg-foreground/10"
+        >
+          {TABS.map(renderTab)}
+        </Highlight>
       </ul>
       {/* New post: its own frosted circle beside the bar. Signed out, it opens sign-in. */}
       {user ? (
@@ -127,13 +118,7 @@ export function BottomNav({
     const { label, icon } = TAB_UI[tab];
     const active = tab === activeTab;
     return (
-      <li
-        key={tab}
-        ref={(el) => {
-          tabs.current[tab] = el;
-        }}
-        className="relative flex-1"
-      >
+      <HighlightItem key={tab} as="li" value={tab} className="flex-1">
         <Link
           href={href(tab)}
           // Full prefetch: tab screens open instantly, data included.
@@ -166,7 +151,7 @@ export function BottomNav({
             />
           )}
         </Link>
-      </li>
+      </HighlightItem>
     );
   }
 }

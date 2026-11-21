@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { db } from "@/db";
 import { posts, users } from "@/db/schema";
+import { createImageUpload } from "@/server/actions/post-images";
 import { createPost, deletePost, replyToPost, savePost, updatePost, votePost } from "@/server/actions/posts";
 import { findVisiblePostRow, getPost, getReplies, postsIn, savedPosts } from "@/server/queries/posts";
 
@@ -61,6 +62,50 @@ describe("posts", () => {
     expect((await getPost(mine, alice.id))?.body).toBe("Edited");
     data(await deletePost(mine));
     expect(await db.$count(posts, eq(posts.id, reply))).toBe(0);
+  });
+
+  it("photo uploads: signed in, images only, under your own folder", async () => {
+    signIn(alice);
+    expect(refused(await createImageUpload("application/pdf"))).toBe("Only JPEG, PNG, WebP or GIF photos.");
+    const { url, uploadUrl } = data(await createImageUpload("image/png"));
+    expect(url).toMatch(new RegExp(`^https://photos\\.test/post-images/${alice.id}/[\\w-]+\\.png$`));
+    expect(uploadUrl).toContain("X-Amz-Signature");
+  });
+
+  it("a post takes up to 4 of its author's own photos, in order", async () => {
+    signIn(alice);
+    const mine = () => createImageUpload("image/jpeg").then((r) => data(r).url);
+    const [a, b] = [await mine(), await mine()];
+    const { id } = data(await createPost(newPost("Sunset", { images: [b, a] })));
+    expect((await getPost(id, alice.id))?.images).toEqual([b, a]);
+
+    // Someone else's photo, or any other URL: refused.
+    signIn(bob);
+    const bobs = data(await createImageUpload("image/jpeg")).url;
+    expect((await createPost(newPost("Mine?", { images: [a] }))).ok).toBe(false);
+    expect((await createPost(newPost("Elsewhere", { images: ["https://example.com/x.jpg"] }))).ok).toBe(false);
+    expect((await createPost(newPost("Too many", { images: [bobs, bobs, bobs, bobs, bobs] }))).ok).toBe(false);
+
+    // An edit can drop and reorder them (the dropped file is deleted).
+    signIn(alice);
+    data(await updatePost(id, { body: "Sunset", data: {}, images: [a] }));
+    expect((await getPost(id, alice.id))?.images).toEqual([a]);
+  });
+
+  it("an ad: a business's, with a photo, days in order and an optional web link", async () => {
+    const mine = await business(alice);
+    signIn(alice);
+    const photo = data(await createImageUpload("image/jpeg")).url;
+    const ad = (extra: Record<string, unknown>) =>
+      createPost(newPost("Grand opening", { type: "ad", business: mine.username, images: [photo], ...extra }));
+    const days = { startsOn: "2030-01-01", endsOn: "2030-01-10" };
+    // As yourself: not an ad type.
+    expect((await createPost(newPost("Me!", { type: "ad", images: [photo], data: days }))).ok).toBe(false);
+    expect(await ad({ images: [], data: days })).toMatchObject({ ok: false, field: "images" });
+    expect(await ad({ data: { startsOn: "2030-01-10", endsOn: "2030-01-01" } })).toMatchObject({ ok: false, field: "data.endsOn" });
+    expect(await ad({ data: { ...days, link: "javascript:alert(1)" } })).toMatchObject({ ok: false, field: "data.link" });
+    const { id } = data(await ad({ data: { ...days, link: "https://example.com" } }));
+    expect((await getPost(id, alice.id))?.data).toMatchObject({ ...days, link: "https://example.com" });
   });
 
   it("the reply count skips hidden replies and suspended writers", async () => {
